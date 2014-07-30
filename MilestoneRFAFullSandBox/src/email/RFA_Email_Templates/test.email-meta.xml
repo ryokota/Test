@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>false</available>
+    <encodingKey>UTF-8</encodingKey>
+    <name>test</name>
+    <style>none</style>
+    <subject>起案通知 (Information Only) : {!RFA__c.Name} - {!RFA__c.RequestTitle__c}</subject>
+    <textOnly>このEメールは、下記承認申請の参照者の方へお送りしています。
+You are receiving this email because you were identified to receive an informational only copy of the following RFA.
+
+案件名 (Request Title) : {!RFA__c.RequestTitle__c}
+
+コストセンター (Cost Center) : {!RFA__c.CostCenterName__c}
+
+申請合計金額 (Request Amount) : ¥ {!RFA__c.RequestAmountFunctionalCurrency__c}
+
+内容を確認する場合には下記リンクをクリックし、承認申請リクエストの文書を開いてください:
+Click this link to open the RFA Request Document:
+{!RFA__c.Name}
+
+
+ご質問がございましたら、{!$User.FirstName} {!$User.LastName} へご連絡ください。
+If you have any inquiries kindly contact {!$User.FirstName} {!$User.LastName}.</textOnly>
+    <type>custom</type>
+</EmailTemplate>

@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><?xml-stylesheet type="text/xsl" media="screen" href="/~d/styles/rss2full.xsl"?>
+<?xml-stylesheet type="text/css" media="screen" href="http://feeds.feedburner.com/~d/styles/itemcontent.css"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0" xmlns:slash="http://purl.org/rss/1.0/modules/slash/" xmlns:sy="http://purl.org/rss/1.0/modules/syndication/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" version="2.0">
+
+<channel>
+	<title>Salesforce Developers Blogs</title>
+	
+	<link>http://developer.salesforce.com/blogs</link>
+	<description>Elevating developer skills and connecting with the Salesforce Developers community</description>
+	<lastBuildDate>Mon, 21 Jul 2014 17:31:18 +0000</lastBuildDate>
+	<language>en-US</language>
+		<sy:updatePeriod>hourly</sy:updatePeriod>
+		<sy:updateFrequency>1</sy:updateFrequency>
+	
+	<atom10:link xmlns:atom10="http://www.w3.org/2005/Atom" href="http://feeds.feedburner.com/SforceBlog" rel="self" type="application/rss+xml"/><feedburner:info uri="sforceblog"/><atom10:link xmlns:atom10="http://www.w3.org/2005/Atom" href="http://pubsubhubbub.appspot.com/" rel="hub"/><feedburner:emailServiceId>SforceBlog</feedburner:emailServiceId><feedburner:feedburnerHostname>http://feedburner.google.com</feedburner:feedburnerHostname><feedburner:feedFlare href="http://add.my.yahoo.com/rss?url=http%3A%2F%2Ffeeds.feedburner.com%2FSforceBlog" src="http://us.i1.yimg.com/us.yimg.com/i/us/my/addtomyyahoo4.gif">Subscribe with My Yahoo!</feedburner:feedFlare><feedburner:feedFlare href="http://www.newsgator.com/ngs/subscriber/subext.aspx?url=http%3A%2F%2Ffeeds.feedburner.com%2FSforceBlog" src="http://www.newsgator.com/images/ngsub1.gif">Subscribe with NewsGator</feedburner:feedFlare><feedburner:feedFlare href="http://feeds.my.aol.com/add.jsp?url=http%3A%2F%2Ffeeds.feedburner.com%2FSforceBlog" src="http://o.aolcdn.com/favorites.my.aol.com/webmaster/ffclient/webroot/locale/en-US/images/myAOLButtonSmall.gif">Subscribe with My AOL</feedburner:feedFlare><feedburner:feedFlare href="http://www.bloglines.com/sub/http://feeds.feedburner.com/SforceBlog" src="http://www.bloglines.com/images/sub_modern11.gif">Subscribe with Bloglines</feedburner:feedFlare><feedburner:feedFlare href="http://www.netvibes.com/subscribe.php?url=http%3A%2F%2Ffeeds.feedburner.com%2FSforceBlog" src="http://www.netvibes.com/img/add2netvibes.gif">Subscribe with Netvibes</feedburner:feedFlare><feedburner:feedFlare href="http://fusion.google.com/add?feedurl=http%3A%2F%2Ffeeds.feedburner.com%2FSforceBlog" src="http://buttons.googlesyndication.com/fusion/add.gif">Subscribe with Google</feedburner:feedFlare><feedburner:feedFlare href="http://www.pageflakes.com/subscribe.aspx?url=http%3A%2F%2Ffeeds.feedburner.com%2FSforceBlog" src="http://www.pageflakes.com/ImageFile.ashx?instanceId=Static_4&amp;fileName=ATP_blu_91x17.gif">Subscribe with Pageflakes</feedburner:feedFlare><item>
+		<title>Network Best Practices for Salesforce Architects</title>
+		<link>http://feedproxy.google.com/~r/SforceBlog/~3/YQa5SuflaFA/network-best-practices-salesforce-architects.html</link>
+		<comments>http://developer.salesforce.com/blogs/engineering/2014/07/network-best-practices-salesforce-architects.html#comments</comments>
+		<pubDate>Mon, 21 Jul 2014 17:31:18 +0000</pubDate>
+		<dc:creator><![CDATA[Daisuke Kawamoto]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[architecture]]></category>
+		<category><![CDATA[network]]></category>
+		<category><![CDATA[Performance]]></category>
+
+		<guid isPermaLink="false">http://25.22661</guid>
+		<description><![CDATA[<a href="http://developer.salesforce.com/blogs/engineering/2014/07/network-best-practices-salesforce-architects.html"><img align="right" hspace="5" width="150" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_130/v1405554767/NetworkIcon_zsumjs.png" class="alignright wp-post-image tfe" alt="Network Best Practices for Salesforce Architects" title="Network Best Practices for Salesforce Architects" /></a>For architects and developers implementing applications on the Salesforce1 platform, network-conscious testing is becoming increasingly important when analyzing application performance. A new best practice guide is available that will help you identify risks and find solutions to network related challenges.]]></description>
+				<content:encoded><![CDATA[<h1>Assessing Network Performance for Salesforce Users</h1>
+<p dir="ltr"><a href="https://developer.salesforce.com/page/A_Guide_to_Application_Performance_Profiling_in_Force.com"><img class="alignright wp-image-22711" title="Network Best Practices for Salesforce Architects" alt="Network Best Practices for Salesforce Architects" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_130/v1405554767/NetworkIcon_zsumjs.png" width="130" height="129" />Profiling application performance</a> and <a href="https://developer.salesforce.com/blogs/engineering/2013/09/performance-testing-force-com-application.html">running performance tests</a> are critical ‘laboratory’ activities to validate that your Apex and SOQL code is optimized for scalability and that Visualforce page designs are following best practices. However, to make sure your application is ready for the real world, you need to also take into account that users will be accessing it from various geo-locations with different levels of network connectivity.</p>
+<p dir="ltr">We’ve created a network best practice guide for architects to help you understand what you need to look out for and how to find solutions to network related challenges. The guide covers topics on how to set up controlled testing environments, how to reduce payloads and network latency and tools you can use to accomplish various tasks.</p>
+<p dir="ltr"><a href="https://developer.salesforce.com/page/Network_Best_Practices_for_Salesforce_Architects">Network Best Practices for Salesforce Architects</a></p>
+<p dir="ltr">The CCE Technical Enablement Team has worked on a number of cases where customers’ Visualforce pages took longer than expected for their users with high network latency. We’ve worked together to assess network performance by using tools that look into the page payload and check for possible network connectivity issues. In one case, an assessment identified issues with the page design and the solution was to apply Visualforce performance and web design best practices to minimize page load. In another case, we used tools to analyze network connectivity and routing. By working with customers and ISP  partners, we fixed inefficient routing and misconfigured intermediate devices.</p>
+<p dir="ltr">As an architect, your mission is to successfully design and launch an application that performs well even with such network variation. You certainly don’t want to hear from end-users after the application goes live saying “Why is my page taking so long to load when my colleague can load it in a second?”</p>
+<h1>Related Resources</h1>
+<ul>
+<li><a href="https://developer.salesforce.com/page/Network_Best_Practices_for_Salesforce_Architects">Network Best Practices for Salesforce Architects</a></li>
+<li><a href="https://developer.salesforce.com/page/A_Guide_to_Application_Performance_Profiling_in_Force.com">A Guide to Application Performance Profiling in Force.com</a></li>
+<li><a href="https://developer.salesforce.com/blogs/engineering/2013/09/performance-testing-force-com-application.html">Performance Testing Your Force.com Application</a></li>
+<li><a href="https://developer.salesforce.com/page/Visualforce_Performance:_Best_practices">Visualforce Performance: Best Practices</a></li>
+<li><a href="https://www.youtube.com/watch?v=D2dAk99Yxvs">Dreamforce Session: Building Efficient Visualforce Pages</a></li>
+<li><a href="http://events.developerforce.com/conferences/dreamforce?session=27321">Performance Tuning for Visualforce and Apex</a></li>
+<li><a href="https://developer.salesforce.com/page/Architect_Core_Resources">Architect Core Resources</a></li>
+</ul>
+<p>&nbsp;</p>
+<h1>About the Author and CCE Technical Enablement</h1>
+<p><a href="https://twitter.com/DaisukeSfdc">Daisuke Kawamoto</a> is an Architect Evangelist within the Technical Enablement team of the salesforce.com Customer-Centric Engineering group. The team’s mission is to help customers understand how to implement technically sound salesforce.com solutions. Check out all of the resources that this team maintains on the <a href="https://developer.salesforce.com/page/Architect_Core_Resources">Architect Core Resources</a> page of Developer Force.</p>
+<p>&nbsp;</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~ff/SforceBlog?a=YQa5SuflaFA:oxm26uXmgmY:yIl2AUoC8zA"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=yIl2AUoC8zA" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=YQa5SuflaFA:oxm26uXmgmY:qj6IDK7rITs"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=qj6IDK7rITs" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=YQa5SuflaFA:oxm26uXmgmY:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=YQa5SuflaFA:oxm26uXmgmY:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=YQa5SuflaFA:oxm26uXmgmY:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=YQa5SuflaFA:oxm26uXmgmY:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=YQa5SuflaFA:oxm26uXmgmY:l6gmwiTKsz0"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=l6gmwiTKsz0" border="0"></img></a>
+</div><img src="http://feeds.feedburner.com/~r/SforceBlog/~4/YQa5SuflaFA" height="1" width="1"/>]]></content:encoded>
+			<wfw:commentRss>http://developer.salesforce.com/blogs/engineering/2014/07/network-best-practices-salesforce-architects.html/feed</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		<feedburner:origLink>http://developer.salesforce.com/blogs/engineering/2014/07/network-best-practices-salesforce-architects.html</feedburner:origLink></item>
+		<item>
+		<title>LA Summer of Hacks, It’s a Wrap!</title>
+		<link>http://feedproxy.google.com/~r/SforceBlog/~3/mzKLBmpwOgE/la-summer-hacks-wrap.html</link>
+		<comments>http://developer.salesforce.com/blogs/developer-relations/2014/07/la-summer-hacks-wrap.html#comments</comments>
+		<pubDate>Mon, 21 Jul 2014 02:06:36 +0000</pubDate>
+		<dc:creator><![CDATA[dgambino]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+
+		<guid isPermaLink="false">http://26.73771</guid>
+		<description><![CDATA[<a href="http://developer.salesforce.com/blogs/developer-relations/2014/07/la-summer-hacks-wrap.html"><img align="right" hspace="5" width="150" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_350/v1405902298/SOH-Day3-Judges-_zopofl.jpg" class="alignright wp-post-image tfe" alt="" title="" /></a>It’s a wrap LA! Today Summer of Hacks wrapped up production at The Hub LA. We started off with 29 app ideas and over 90 participants. After 3 days of good food, great people, and awesome development 12 teams and 12 apps remained. Once the final Git Commit was completed attendees had a chance to [&#8230;]]]></description>
+				<content:encoded><![CDATA[<p dir="ltr">It’s a wrap LA!</p>
+<p dir="ltr">Today Summer of Hacks wrapped up production at The Hub LA. We started off with 29 app ideas and over 90 participants. After 3 days of good food, great people, and awesome development 12 teams and 12 apps remained. Once the final Git Commit was completed attendees had a chance to de-compress over fresh crepes and some fun and games.</p>
+<p dir="ltr">We gave each group 3 mins to demo their apps in-front of their fellow developer and our special guest judges: Jeff Scott, Ryan Huff, Mike Sommers. After the dust settled the winners were announced</p>
+<p><img class="wp-image-73851 aligncenter" style="line-height: 1.5em" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_350/v1405902298/SOH-Day3-Judges-_zopofl.jpg" width="350" height="233" /></p>
+<p style="text-align: center">Judges: Mike Sommers, Ryan Huff, Jeff Scott</p>
+<p dir="ltr">On behalf of the Salesforce team, we would like to congratulate our first place winners <strong>inHouse</strong> for their mobile app that excites development of new, collaborative ideas in companies from the inside out.</p>
+<p dir="ltr"><img class="wp-image-73901 aligncenter" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_350/v1405906499/SOH_Day3_Winners_2nd_1_iu73km.jpg" width="350" height="350" /></p>
+<p dir="ltr">Second place goes to <strong>Motorcy.co</strong> for their mobile app that contextualizes navigation for motorcycle riders in urban environments. Third place goes to <strong>InstantReport</strong> for their mobile app that allows for an easy to way to report and track accidents and machine issues.</p>
+<table>
+<tbody>
+<tr>
+<td><img alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_350/v1405906496/SOH_Day3_Winners_2nd_dgnsb0.jpg" width="350" height="350" /></td>
+<td><img alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_350/v1405906498/SOH_Day3_Winners_3rd_o70ycp.jpg" width="350" height="350" /></td>
+</tr>
+</tbody>
+</table>
+<p>What’s next? The final Salesforce Summer of Hacks takes place in London, England on July 25 &#8211; 27. Want to be there? Want to share with the world your app ideas? <a href="http://www.summerofhacks.com/">Register here and meet us in London.</a></p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~ff/SforceBlog?a=mzKLBmpwOgE:Q12MsByge9Q:yIl2AUoC8zA"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=yIl2AUoC8zA" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=mzKLBmpwOgE:Q12MsByge9Q:qj6IDK7rITs"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=qj6IDK7rITs" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=mzKLBmpwOgE:Q12MsByge9Q:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=mzKLBmpwOgE:Q12MsByge9Q:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=mzKLBmpwOgE:Q12MsByge9Q:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=mzKLBmpwOgE:Q12MsByge9Q:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=mzKLBmpwOgE:Q12MsByge9Q:l6gmwiTKsz0"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=l6gmwiTKsz0" border="0"></img></a>
+</div><img src="http://feeds.feedburner.com/~r/SforceBlog/~4/mzKLBmpwOgE" height="1" width="1"/>]]></content:encoded>
+			<wfw:commentRss>http://developer.salesforce.com/blogs/developer-relations/2014/07/la-summer-hacks-wrap.html/feed</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		<feedburner:origLink>http://developer.salesforce.com/blogs/developer-relations/2014/07/la-summer-hacks-wrap.html</feedburner:origLink></item>
+		<item>
+		<title>Salesforce Summer of Hacks LA</title>
+		<link>http://feedproxy.google.com/~r/SforceBlog/~3/EldXi_I_X6k/salesforce-summer-hacks-la.html</link>
+		<comments>http://developer.salesforce.com/blogs/developer-relations/2014/07/salesforce-summer-hacks-la.html#comments</comments>
+		<pubDate>Sun, 20 Jul 2014 00:54:26 +0000</pubDate>
+		<dc:creator><![CDATA[dgambino]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+
+		<guid isPermaLink="false">http://26.73231</guid>
+		<description><![CDATA[<a href="http://developer.salesforce.com/blogs/developer-relations/2014/07/salesforce-summer-hacks-la.html"><img align="right" hspace="5" width="150" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_325/v1405813993/LA-Day1-Reg3-Wordpress1_f6fze1.jpg" class="alignright wp-post-image tfe" alt="" title="" /></a>The line was out the door. Yesterday, close to 90 developers from the Los Angeles area, San Francisco and even an attendee from last week&#8217;s event in New York joined us at the Salesforce Summer of Hacks at The Hub LA.  Developers were ready and eager to register and pick up their badges. Some brought [&#8230;]]]></description>
+				<content:encoded><![CDATA[<p dir="ltr">The line was out the door. Yesterday, close to 90 developers from the Los Angeles area, San Francisco and even an attendee from last week&#8217;s event in New York joined us at the Salesforce Summer of Hacks at The Hub LA.  Developers were ready and eager to register and pick up their ba<span style="line-height: 1.5em">dges. Some brought pillows, sleepi</span><span style="line-height: 1.5em">ng bags, beer and even a turn-table and amp! As the crowd settled we quickly moved into dinner and opening ceremonies.</span></p>
+<table>
+<tbody>
+<tr>
+<td><img class="alignnone wp-image-73601" style="line-height: 1.5em" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_325/v1405813993/LA-Day1-Reg3-Wordpress1_f6fze1.jpg" width="325" height="217" /></td>
+<td><img class="alignnone wp-image-73641" style="line-height: 1.5em" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_350/v1405813989/LA-Day1-Devs-29-Wordpress2_e2djca.jpg" width="350" height="233" /></td>
+</tr>
+</tbody>
+</table>
+<p dir="ltr">We opened the stage for almost 30 amazing idea pitches. Some were thought provoking and others made us laugh in amusement. Soon after teams and friendships started to form as coding kicked-off well into the evening.</p>
+<table>
+<tbody>
+<tr>
+<td><img class="alignnone wp-image-73621" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_350/v1405813978/LA-Day1-Pillows-Wordpress_vywpwy.jpg" width="350" height="233" /></td>
+<td><img class="alignnone wp-image-73631" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_350/v1405813977/LA-Day1-Devs-33-Wordpress_six1vf.jpg" width="350" height="350" /></td>
+</tr>
+</tbody>
+</table>
+<p>Day two started off with healthy dose of breakfast and coding. Our Developer Workshop was very popular and well attended. Thank you to Quinton Wall and Samantha Ready for leading the course. After some awesome made-to-order tacos for lunch the groups went back to developing with a full tank of gas.</p>
+<p>Check back tomorrow for the results and winners of Summer of Hacks LA!</p>
+<table>
+<tbody>
+<tr>
+<td><img class="alignnone wp-image-73651" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_350/v1405813987/LA-Day1-Devs-5-Wordpress-6_hpxyn5.jpg" width="350" height="233" /></td>
+<td><img class="wp-image-73661" style="line-height: 1.5em" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/c_scale,w_350/v1405816699/SOH_Day2_LA_Tacos_yurntg.jpg" width="350" height="233" /></td>
+</tr>
+</tbody>
+</table>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~ff/SforceBlog?a=EldXi_I_X6k:8rIp91K5OdQ:yIl2AUoC8zA"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=yIl2AUoC8zA" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=EldXi_I_X6k:8rIp91K5OdQ:qj6IDK7rITs"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=qj6IDK7rITs" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=EldXi_I_X6k:8rIp91K5OdQ:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=EldXi_I_X6k:8rIp91K5OdQ:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=EldXi_I_X6k:8rIp91K5OdQ:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=EldXi_I_X6k:8rIp91K5OdQ:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=EldXi_I_X6k:8rIp91K5OdQ:l6gmwiTKsz0"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=l6gmwiTKsz0" border="0"></img></a>
+</div><img src="http://feeds.feedburner.com/~r/SforceBlog/~4/EldXi_I_X6k" height="1" width="1"/>]]></content:encoded>
+			<wfw:commentRss>http://developer.salesforce.com/blogs/developer-relations/2014/07/salesforce-summer-hacks-la.html/feed</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		<feedburner:origLink>http://developer.salesforce.com/blogs/developer-relations/2014/07/salesforce-summer-hacks-la.html</feedburner:origLink></item>
+		<item>
+		<title>How We Use Open Source at Salesforce.com – Part 1</title>
+		<link>http://feedproxy.google.com/~r/SforceBlog/~3/NWE5O7PJVJQ/open-source-at-salesforce-com.html</link>
+		<comments>http://developer.salesforce.com/blogs/engineering/2014/07/open-source-at-salesforce-com.html#comments</comments>
+		<pubDate>Fri, 18 Jul 2014 21:33:23 +0000</pubDate>
+		<dc:creator><![CDATA[Ian Varley]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[eclipse]]></category>
+		<category><![CDATA[force.com]]></category>
+		<category><![CDATA[java]]></category>
+		<category><![CDATA[open source]]></category>
+
+		<guid isPermaLink="false">http://25.22891</guid>
+		<description><![CDATA[<a href="http://developer.salesforce.com/blogs/engineering/2014/07/open-source-at-salesforce-com.html"><img align="right" hspace="5" width="150" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405628036/SF_OpenSource_dgiqll.png" class="alignright wp-post-image tfe" alt="" title="" /></a>While many don't realize it, open source is key to salesforce.com. The Salesforce application is written in Java running on Sun’s JDK, and the entire development stack also runs on open source. Ian explains.]]></description>
+				<content:encoded><![CDATA[<p><img class="aligncenter wp-image-22921" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405628036/SF_OpenSource_dgiqll.png" width="900" />While many may not realize the importance of <a title="An Introduction to Open Source at Salesforce.com" href="http://developer.salesforce.com/blogs/engineering/2014/07/introduction-open-source-salesforce-com.html">open source at salesforce.com</a>, it plays a critical role here. These days, developers at salesforce.com spend all day working in open-source software, but this wasn’t always the case.</p>
+<p>In the early years of the company, the standard-issue workstation ran Windows. But a few developers noticed that building the Salesforce application went <i>much</i> faster on <a href="http://www.ubuntu.com/">Ubuntu Linux</a>, using the same exact hardware — cutting the build time from hours to minutes. They started passing around a CD, and before anyone knew what had happened, the change went viral and nearly everyone in engineering had switched to Linux. (Thankfully, our awesome corporate IT team soon followed suit and started issuing new machines with a supported version of Linux for new hires.)</p>
+<p>On top of the Linux OS, the entire development stack also runs on open source. The Salesforce application is written in <a href="http://www.java.com/en/">Java</a> and runs on Sun’s JDK (which is open source). Most developers at salesforce.com write, compile, debug, and test the application in <a href="https://www.eclipse.org/">Eclipse</a>, an open-source programming editor (maintained by the aptly named <a href="https://www.eclipse.org/org/foundation/">Eclipse Foundation</a>). Many projects use <a href="http://git-scm.com/">Git</a> as their source version control, although the central repository is Perforce because of its size.</p>
+<p><img class="alignright wp-image-22941" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405628055/SF_3_ied5o6.png" width="325" /></p>
+<p>Like most companies, we use many of the “usual suspect” Java open-source libraries during development: <a href="https://code.google.com/p/guava-libraries/">Guava</a>, <a href="https://code.google.com/p/google-gin/">Gin</a><span style="text-decoration: underline">,</span> and <a href="https://github.com/google/guice">Guice</a> (open sourced by <a href="http://google.com">Google</a>); <a href="http://commons.apache.org/">Apache Commons</a> (from the <a href="http://www.apache.org/">Apache Software Foundation</a>); <a href="http://wiki.fasterxml.com/JacksonHome">Jackson</a> (killer JSON parsing library written and maintained by Salesforce engineer Tatu Saloranta); among hundreds of others. Our extensive automated test suites make heavy use of the test frameworks <a href="http://junit.org/">JUnit</a>, <a href="https://code.google.com/p/mockito/">Mockito</a>, <a href="http://jmockit.github.io/">JMockit</a>, and <a href="http://docs.seleniumhq.org/">Selenium</a>.</p>
+<p>Building the software is a big task for a complex application like Salesforce. The application was originally built using the build framework <a href="http://ant.apache.org/">Apache Ant</a>, an open-source tool. But as the complexity of the system has grown, the core build team has been making the transition to <a href="http://maven.apache.org/">Apache Maven</a> (with the help of <a href="https://twitter.com/jvanzyl">Jason van Zyl</a>, the author of Maven). Maven’s declarative dependency management gives teams a much faster, more modular build.</p>
+<p>Once the code is written, there’s a large-scale system that builds and packages the software. Once committed, software artifacts are built and packaged for deployment using <a href="http://jenkins-ci.org/">Jenkins</a>, a simple, continuous integration and scheduling framework. Our release package store is written in Java and uses a sequence of Jenkins instances to build, package, test, and promote the resulting compiled artifacts. Internal testing — that is, running hundreds of thousands of tests on every checkin — is done by a fleet of <a href="https://www.openstack.org/">OpenStack</a> instances.</p>
+<p>Once the application is built and packaged, it needs to be deployed into production. In addition to three major releases per year, salesforce.com engineering also does hundreds of maintenance releases and patches containing performance improvements, capacity adds, configuration updates, and the like. Historically, this has been done using a homegrown tool written in Perl, which allows deployments under the extremely rigorous security restrictions that protect Salesforce production instances. However, the sheer scale of Salesforce’s deployment infrastructure has prompted recent advances in this area, upping both the automation factor as well as the security. The new systems use a suite of open-source software tools, including <a href="https://github.com/puppetlabs/razor-server">Razor</a> (hardware provisioning), <a href="https://github.com/puppetlabs/puppet">Puppet</a> (server install automation), <a href="https://github.com/saltstack/salt">Salt</a> (orchestration), and <a href="https://github.com/rundeck/rundeck">Rundeck</a> (operation).</p>
+<p>And when the software is running in production, salesforce.com engineers monitor their services using an open-source metrics aggregation platform called <a href="https://launchpad.net/graphite/">Graphite</a>. Data flows into Graphite using <a href="http://kafka.apache.org/">Apache Kafka</a>, a high-throughput distributed messaging system written by <a href="https://engineering.linkedin.com/">LinkedIn</a>.</p>
+<h2>The Importance of Open Source at Salesforce.com &#8211; Controlling Your Own Destiny</h2>
+<p>An important benefit of open source is that it lets you <b>control your own destiny</b>. Adopting open-source software gives our engineers the ability to solve problems directly, rather than relying on a third-party team for support.</p>
+<p>An example of this is the software that routes web requests to our servers (the “servlet container”). Salesforce started out using a well-established commercial product, which worked well for many years. However, a new project in 2011 ran into a snag when the servlet container lacked a key feature, and the vendor was unwilling to implement it. Instead, the team decided to switch to an open-source version called <a href="http://www.eclipse.org/jetty/">Jetty</a>. This was a big project, of course. It’s hard to switch a core component in a big, complex application — especially one that’s been in active use for 10 years! But the project was a success, and Salesforce now runs Jetty everywhere.</p>
+<p><img class="aligncenter wp-image-23061" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405629121/SF_1_copy_v6xus0.png" width="900" /></p>
+<h2>Search Indexing at Salesforce.com</h2>
+<p>Another great example of open-source software usage at Salesforce is <b>search indexing </b>(the process of taking text, like Account details and Chatter posts, and making it accessible to fast user searches).</p>
+<p>The original implementation of search at Salesforce used a popular open-source search indexer called <a href="http://lucene.apache.org/core/">Apache Lucene</a>. The search development team at the time decided to “fork” Lucene (that is, make a local version that diverges from the community-maintained version).</p>
+<p>However, as everyone knows, the scale of Salesforce has increased manyfold over the years, to the tune of over a billion transactions every day. Along the way, the search team discovered a scalability challenge in the architecture of their implementation of Lucene. The team needed a way to scale this capability “out” rather than “up,” using a large number of smaller machines to process the same requests.</p>
+<p>The solution they found was <a href="https://lucene.apache.org/solr/">Apache Solr</a>. Solr is a horizontally scalable system with a loosely coupled REST interface. This architecture allowed the team to move the query and index processes to the same host, and cut out the requirement to use a SAN. This move also netted the team a spate of new features. (Solr still uses the latest version of Lucene for the core library.) And the team has contributed to and sponsored fixes to Solr, including a somewhat uncommon one: the ability to support indexers with over 10,000 cores!</p>
+<p>In Part 2, we’ll detail more of the ways that Salesforce.com contributes to existing open-source projects.</p>
+<p><img class="aligncenter wp-image-22961" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405628058/SF_2-2_cyhzdg.png" width="900" /></p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~ff/SforceBlog?a=NWE5O7PJVJQ:_DQpuMou7vc:yIl2AUoC8zA"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=yIl2AUoC8zA" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=NWE5O7PJVJQ:_DQpuMou7vc:qj6IDK7rITs"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=qj6IDK7rITs" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=NWE5O7PJVJQ:_DQpuMou7vc:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=NWE5O7PJVJQ:_DQpuMou7vc:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=NWE5O7PJVJQ:_DQpuMou7vc:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=NWE5O7PJVJQ:_DQpuMou7vc:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=NWE5O7PJVJQ:_DQpuMou7vc:l6gmwiTKsz0"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=l6gmwiTKsz0" border="0"></img></a>
+</div><img src="http://feeds.feedburner.com/~r/SforceBlog/~4/NWE5O7PJVJQ" height="1" width="1"/>]]></content:encoded>
+			<wfw:commentRss>http://developer.salesforce.com/blogs/engineering/2014/07/open-source-at-salesforce-com.html/feed</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		<feedburner:origLink>http://developer.salesforce.com/blogs/engineering/2014/07/open-source-at-salesforce-com.html</feedburner:origLink></item>
+		<item>
+		<title>An Introduction to Open Source at Salesforce.com</title>
+		<link>http://feedproxy.google.com/~r/SforceBlog/~3/qWr7RrZYAfA/introduction-open-source-salesforce-com.html</link>
+		<comments>http://developer.salesforce.com/blogs/engineering/2014/07/introduction-open-source-salesforce-com.html#comments</comments>
+		<pubDate>Fri, 18 Jul 2014 21:32:46 +0000</pubDate>
+		<dc:creator><![CDATA[Ian Varley]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+
+		<guid isPermaLink="false">http://25.23451</guid>
+		<description><![CDATA[<a href="http://developer.salesforce.com/blogs/engineering/2014/07/introduction-open-source-salesforce-com.html"><img align="right" hspace="5" width="150" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405722294/opensource_120_sq2qql.jpg" class="alignright wp-post-image tfe" alt="" title="Open source at salesforce.com" /></a>In this series kickoff, Ian looks at the roles open source plays at salesforce.com: how the company contributes to existing projects, how new open source projects are released, and how open source software is used internally.]]></description>
+				<content:encoded><![CDATA[<address><em>Written by Ian Varley &#8212; April ‘14. This is based on a <a href="http://www.slideshare.net/salesforceeng/how-open-source-embiggens-salesforcecom">presentation from Dreamforce &#8217;13</a> of the same name.</em></address>
+<p dir="ltr"><img class="alignleft wp-image-23531" title="Open source at salesforce.com" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405722294/opensource_120_sq2qql.jpg" width="120" height="120" />Whether you realize it or not, you use open-source software every day. You&#8217;re using it right now, in fact–significant chunks of the web run on open-source software, including this blog (which runs on <a href="https://wordpress.org/about/">WordPress</a>). &#8220;Open source&#8221; means that the source code for the software program is a matter of public record, rather than a secret held by one person or company. In many cases, it also means that the software is collaboratively maintained by a group.</p>
+<p dir="ltr">What&#8217;s so great about open-source software? The simplest answer is captured by the phrase, &#8220;A rising tide lifts all boats&#8221;. In successful open-source software projects, everyone gets out more than they put in. Having a diverse pool of contributors means that an open source project is more robust than any single person or company could have made it on their own.</p>
+<p dir="ltr">So what part does open-source software play at salesforce.com? This blog series explores that question in 3 parts: <a href="http://developer.salesforce.com/blogs/engineering/2014/07/open-source-at-salesforce-com" target="_blank">how we use open source</a>, how we contribute to existing open source projects, and how we release new software as open source. We&#8217;ll update the links for each part as they are published.</p>
+<p dir="ltr"><strong>Note</strong>: This series focuses on a subset of Salesforce&#8217;s products: Sales Cloud, Service Cloud, Chatter, and the Force.com platform. It doesn&#8217;t go into details about other products in the Salesforce family like ExactTarget, Pardot, Heroku, Buddy Media, and Data.com. The exclusion isn&#8217;t because these products don&#8217;t use open source–they most certainly do! But, we&#8217;ll leave those for a future post. Also note that this post is subject to the standard safe harbor agreement; we&#8217;re not making any promises about the current or future state of our products in this post.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~ff/SforceBlog?a=qWr7RrZYAfA:kpB2Unhvy_o:yIl2AUoC8zA"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=yIl2AUoC8zA" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=qWr7RrZYAfA:kpB2Unhvy_o:qj6IDK7rITs"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=qj6IDK7rITs" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=qWr7RrZYAfA:kpB2Unhvy_o:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=qWr7RrZYAfA:kpB2Unhvy_o:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=qWr7RrZYAfA:kpB2Unhvy_o:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=qWr7RrZYAfA:kpB2Unhvy_o:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=qWr7RrZYAfA:kpB2Unhvy_o:l6gmwiTKsz0"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=l6gmwiTKsz0" border="0"></img></a>
+</div><img src="http://feeds.feedburner.com/~r/SforceBlog/~4/qWr7RrZYAfA" height="1" width="1"/>]]></content:encoded>
+			<wfw:commentRss>http://developer.salesforce.com/blogs/engineering/2014/07/introduction-open-source-salesforce-com.html/feed</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		<feedburner:origLink>http://developer.salesforce.com/blogs/engineering/2014/07/introduction-open-source-salesforce-com.html</feedburner:origLink></item>
+		<item>
+		<title>Changing the Sales Performance Landscape with Salesforce1 Mobile App – Dealmaker</title>
+		<link>http://feedproxy.google.com/~r/SforceBlog/~3/pIqq9TDGcgk/tas-group-post.html</link>
+		<comments>http://developer.salesforce.com/blogs/isv/2014/07/tas-group-post.html#comments</comments>
+		<pubDate>Thu, 17 Jul 2014 21:12:59 +0000</pubDate>
+		<dc:creator><![CDATA[Michelle Reck]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[app]]></category>
+		<category><![CDATA[appexchange]]></category>
+		<category><![CDATA[ISV]]></category>
+		<category><![CDATA[mobile app]]></category>
+		<category><![CDATA[Partner]]></category>
+		<category><![CDATA[salesforce1]]></category>
+
+		<guid isPermaLink="false">http://30.16461</guid>
+		<description><![CDATA[<a href="http://developer.salesforce.com/blogs/isv/2014/07/tas-group-post.html"><img align="right" hspace="5" width="150" src="http://res.cloudinary.com/hzxejch6p/image/upload/h_1024,w_682/v1405620437/App_jgais1.png" class="alignright wp-post-image tfe" alt="App_jgais1" title="" /></a>The TAS Group delivers smart sales transformation in the cloud and on mobile devices with their Salesforce1 Mobile app, Dealmaker.]]></description>
+				<content:encoded><![CDATA[<p>Each week we chat with an AppExchange Partner about their experience of building an app on the Salesforce1 Platform. This week, the spotlight is on <a href="http://www.thetasgroup.com/index.php" target="_blank">The TAS Group</a>, a company that helps progressive sales organizations like Akamai Technologies, Box, Concur HP, Level 3, Virgin Media Business, and more, to deliver smart sales transformation in the cloud and on mobile devices. Their customers use the Dealmaker smart software platform to maximize revenue in key accounts, increase win rates, and uncover sales vulnerabilities. The sales methodology and sales insight apps are smart, context aware, and knowledge based, making it easy for sellers, their managers and sales executives to accelerate revenue growth &#8211; predictably. More than one million sales professionals around the world use the TAS methodology to increase their sales effectiveness.</p>
+<h2>Dealmaker<a class="overlay" href="http://res.cloudinary.com/hzxejch6p/image/upload/v1405620437/App_jgais1.png"><img class=" wp-image-17561 alignright" alt="App_jgais1" src="http://res.cloudinary.com/hzxejch6p/image/upload/h_1024,w_682/v1405620437/App_jgais1.png" width="270" height="405" /></a></h2>
+<p><a href="https://appexchange.salesforce.com/results?keywords=the%20tas%20group" target="_blank">Dealmaker</a> is a smart sales performance application that runs in a web browser and on your phone. It guides salespeople to win important sales opportunities, grow revenue in their largest accounts, and uncover vulnerabilities in their forecast and pipeline. It provides sales leadership with tools to manage the behavior and performance of their sales teams. Incorporating deep sales methodology expertise, it uses smart reasoning to advise the salesperson on what they should do next, based on the data entered by the salesperson and the context of the opportunity or account.</p>
+<h2>Speed to Build</h2>
+<p>Their first applications on the Salesforce Platform were <a href="https://appexchange.salesforce.com/listingDetail?listingId=a0N300000016bYvEAI" target="_blank">Dealmaker Smart Opportunity Manager</a>, <a href="https://appexchange.salesforce.com/listingDetail?listingId=a0N30000009vtxFEAQ" target="_blank">Dealmaker Smart Account Manager</a>, and <a href="https://appexchange.salesforce.com/listingDetail?listingId=a0N30000009vtxPEAQ" target="_blank">Dealmaker Smart Sales Playbook</a>. This was because they were moving the apps from their own stack and infrastructure onto the Salesforce1 Platform and had to migrate all of their customers as well. Development time was amazingly fast. It took just 10 weeks from start to first deliverable, and as they got more familiar with the Platform, they benefitted from a single code line for multiple devices, web browser, iPad, and smartphone.</p>
+<p>Though they have a very experienced engineering team, they did not have a lot of experience in developing on the Platform before they started. They received assistance from the Technical Evangelists at salesforce.com as well as from a Salesforce Product Development Organization (PDO), Code Science, both of whom were very helpful in guiding them to get the architecture right from the outset.</p>
+<h2>Integrated in Customers&#8217; Workflow</h2>
+<p>Because everything is native, their customers view Dealmaker as part of their Salesforce deployment. Being native on the Platform gives them the same security, performance, and reliability that they have with Salesforce. They can also integrate all of the Dealmaker data with their reports and dashboards within Salesforce and embed Dealmaker in their processes on the web and phone.</p>
+<h2>Marketing Opportunities with Salesforce</h2>
+<p>By building on the Platform, many doors were opened for The TAS Group. They were invited to be part of the Salesforce1 launch last year and now have many mobile apps available on the AppExchange. At Deamforce 2013, they participated in 11 different sessions &#8211; either with customers, or with the various product management/marketing teams for Sales Cloud, Work.com Analytics, as well as being part of the Salesforce Campground. And CEO, Donal Daly, wrote the Amazon #1 Bestseller &#8211; <em>Account Planning in Salesforce</em>.</p>
+<p>For more information on The TAS Group, please go to: <a href="http://www.thetasgroup.com/index.php" target="_blank">http://www.thetasgroup.com/index.php</a></p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~ff/SforceBlog?a=pIqq9TDGcgk:koj-uJeKnsI:yIl2AUoC8zA"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=yIl2AUoC8zA" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=pIqq9TDGcgk:koj-uJeKnsI:qj6IDK7rITs"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=qj6IDK7rITs" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=pIqq9TDGcgk:koj-uJeKnsI:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=pIqq9TDGcgk:koj-uJeKnsI:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=pIqq9TDGcgk:koj-uJeKnsI:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=pIqq9TDGcgk:koj-uJeKnsI:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=pIqq9TDGcgk:koj-uJeKnsI:l6gmwiTKsz0"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=l6gmwiTKsz0" border="0"></img></a>
+</div><img src="http://feeds.feedburner.com/~r/SforceBlog/~4/pIqq9TDGcgk" height="1" width="1"/>]]></content:encoded>
+			<wfw:commentRss>http://developer.salesforce.com/blogs/isv/2014/07/tas-group-post.html/feed</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		<feedburner:origLink>http://developer.salesforce.com/blogs/isv/2014/07/tas-group-post.html</feedburner:origLink></item>
+		<item>
+		<title>#SFWITWednesday: Weekly Roundup of Women in Tech News – Week of July 16, 2014</title>
+		<link>http://feedproxy.google.com/~r/SforceBlog/~3/brDzqitNXGI/sfwitwednesday-weekly-roundup-women-in-tech-news-week-july-16-2014.html</link>
+		<comments>http://developer.salesforce.com/blogs/engineering/2014/07/sfwitwednesday-weekly-roundup-women-in-tech-news-week-july-16-2014.html#comments</comments>
+		<pubDate>Wed, 16 Jul 2014 21:24:16 +0000</pubDate>
+		<dc:creator><![CDATA[Sukrutha Bhadouria]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[wit]]></category>
+		<category><![CDATA[women in tech]]></category>
+		<category><![CDATA[women in technology]]></category>
+
+		<guid isPermaLink="false">http://25.22131</guid>
+		<description><![CDATA[<a href="http://developer.salesforce.com/blogs/engineering/2014/07/sfwitwednesday-weekly-roundup-women-in-tech-news-week-july-16-2014.html"><img align="right" hspace="5" width="150" src="https://media.licdn.com/media/p/2/000/117/288/310ef05.jpg" class="alignright wp-post-image tfe" alt="Sukrutha Bhadouria" title="" /></a>This week we read articles on more female engineers, a new Hacker Space for women, a way to hire back moms – and hence improve the pipeline problem, and why gender disparity in schools can be damaging… as Sheryl Sandberg once said – ”The time is long overdue to encourage women to dream the possible dream.”]]></description>
+				<content:encoded><![CDATA[<p>Welcome to this week&#8217;s edition of salesforce.com’s Women in Tech Wednesday roundup! <a href="https://twitter.com/search?q=%23sfwitwednesday&amp;src=typd" target="_blank">#SFWITWednesday</a></p>
+<p>This week we read articles on more female engineers, a new Hacker Space for women, a way to hire back moms – and hence improve the pipeline problem, and why gender disparity in schools can be damaging&#8230; as Sheryl Sandberg once said – &#8221;The time is long overdue to encourage women to dream the possible dream.&#8221;</p>
+<h3>Meet Google&#8217;s &#8216;Security Princess&#8217;</h3>
+<p>&#8220;As Google&#8217;s top hacker, Parisa Tabriz thinks like a criminal—and manages the brilliant, wonky guys on her team with the courage and calm of a hostage negotiator. &#8221;</p>
+<p><em>Read more here:</em><br />
+<a href="http://www.elle.com/life-love/society-career/google-parisa-tabriz-profile">http://www.elle.com/life-love/society-career/google-parisa-tabriz-profile</a></p>
+<h3>What I learned in My First Year as a Female Startup CEO</h3>
+<p>&#8220;After all, it’s not like you can choose whether to be a female CEO vs male CEO. But you can choose your attitude toward it.&#8221;</p>
+<p><em>Read more here:</em><br />
+<a href="https://medium.com/women-in-tech/what-i-learned-in-my-first-year-as-a-female-startup-ceo-19ce929c9679">https://medium.com/women-in-tech/what-i-learned-in-my-first-year-as-a-female-startup-ceo-19ce929c9679</a></p>
+<h3>Why Silicon Valley Needs The Coder Grrrls Of Double Union, The Feminist Hacker Space</h3>
+<p>&#8220;The lack of women in the tech world isn&#8217;t just a pipeline problem&#8211;it&#8217;s one of rampant sexism. Enter the haven of Double Union. They want to provide a safe place for women to try things&#8211;and potentially fail&#8211;and then dust themselves off and try again, no judgment.&#8221;</p>
+<p><em>Read more here:</em><br />
+<a href="http://www.fastcompany.com/3031944/most-creative-people/why-silicon-valley-needs-the-coder-grrrls-of-double-union-the-feminist-">http://www.fastcompany.com/3031944/most-creative-people/why-silicon-valley-needs-the-coder-grrrls-of-double-union-the-feminist-</a></p>
+<h3>Growing Your Tech Pipeline: Build a Paid Internship Program for Moms</h3>
+<p>&#8220;In today’s tech-driven economy where cutthroat bidding wars for technical talent are par for the course, wouldn’t it be wonderful to tap into an existing, underutilized pool of talent that’s already educated, experienced and hungry for a chance to skill up?&#8221;</p>
+<p><em>Read more here:</em><br />
+<a href="http://anitaborg.org/profiles/growing-your-tech-pipeline-build-a-paid-internship-program-for-moms/">http://anitaborg.org/profiles/growing-your-tech-pipeline-build-a-paid-internship-program-for-moms/</a></p>
+<h3>These 12 Tech Companies Have (Relatively) High Numbers of Women</h3>
+<p>&#8220;Entelo, a startup that analyzes social data to help corporate recruiters spot promising candidates, put together a list of tech companies with some of the highest percentages of female technologists.&#8221;</p>
+<p><em>Read more here:</em><br />
+<a href="http://mashable.com/2014/07/10/women-tech-workforce/">http://mashable.com/2014/07/10/women-tech-workforce/</a></p>
+<h3>Engineers Don&#8217;t (And Shouldn&#8217;t) Rule the World</h3>
+<p>&#8220;The gender disparity that continues to prevail in engineering schools is unacceptable. The impact is pervasive: Engineering loses out in the race for talent to other fields such as medicine, sciences and business, and students learn in an environment that does not reflect the real world where women play an increasingly prominent role.&#8221;</p>
+<p><em>Read more here:</em><br />
+<a href="http://www.huffingtonpost.ca/janusz-a-kozinski-/engineering-school_b_5579427.html">http://www.huffingtonpost.ca/janusz-a-kozinski-/engineering-school_b_5579427.html</a></p>
+<h3>Salesforce Engineer, Carolyn Grabill is in this month&#8217;s Femgineer Spotlight</h3>
+<p>&#8220;I have certainly felt impostor syndrome strike. When I found out what it was it was a complete ‘Aha’ moment. Whenever I catch myself holding back or thinking I’m not good enough, I make a mental note of it and think, ‘No, you can do better than that!’&#8221;</p>
+<p><em>Read more:</em><br />
+<a href="http://femgineer.com/2014/06/femgineer-spotlight-carolyn-grabill-software-engineer-at-salesforce/">http://femgineer.com/2014/06/femgineer-spotlight-carolyn-grabill-software-engineer-at-salesforce/</a></p>
+<h3>What other Women in Tech news did you see this week? How do you feel about these articles? Post in your comments below!</h3>
+<div><img alt="Sukrutha Bhadouria" src="https://media.licdn.com/media/p/2/000/117/288/310ef05.jpg" width="150" height="150" /><i>About the blogger:  Sukrutha Bhadouria</i><i> is a Sr Member of Technical Staff at salesforce.com, and the Managing Director of <a href="www.bayareagirlgeekdinners.com">Bay Area Girl Geek Dinners</a>. Follow Sukrutha on Twitter <a href="www.twitter.com/sukruthasays">@sukruthasays</a> and follow Salesforce WIT <a href="https://twitter.com/SalesforceWIT" target="_blank">@salesforcewit</a> to keep tabs on other great content and WIT events.</i></div>
+<div></div>
+<div></div>
+<div></div>
+<p>&nbsp;</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~ff/SforceBlog?a=brDzqitNXGI:8zr3zL8Ywv4:yIl2AUoC8zA"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=yIl2AUoC8zA" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=brDzqitNXGI:8zr3zL8Ywv4:qj6IDK7rITs"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=qj6IDK7rITs" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=brDzqitNXGI:8zr3zL8Ywv4:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=brDzqitNXGI:8zr3zL8Ywv4:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=brDzqitNXGI:8zr3zL8Ywv4:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=brDzqitNXGI:8zr3zL8Ywv4:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=brDzqitNXGI:8zr3zL8Ywv4:l6gmwiTKsz0"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=l6gmwiTKsz0" border="0"></img></a>
+</div><img src="http://feeds.feedburner.com/~r/SforceBlog/~4/brDzqitNXGI" height="1" width="1"/>]]></content:encoded>
+			<wfw:commentRss>http://developer.salesforce.com/blogs/engineering/2014/07/sfwitwednesday-weekly-roundup-women-in-tech-news-week-july-16-2014.html/feed</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		<feedburner:origLink>http://developer.salesforce.com/blogs/engineering/2014/07/sfwitwednesday-weekly-roundup-women-in-tech-news-week-july-16-2014.html</feedburner:origLink></item>
+		<item>
+		<title>Track Equipment with Less Effort with Salesforce1 Mobile App – ELTON by AccountAbility Solutions</title>
+		<link>http://feedproxy.google.com/~r/SforceBlog/~3/96Ws9ehsD-Y/draft-elton-accountability-solutions.html</link>
+		<comments>http://developer.salesforce.com/blogs/isv/2014/07/draft-elton-accountability-solutions.html#comments</comments>
+		<pubDate>Tue, 15 Jul 2014 21:07:43 +0000</pubDate>
+		<dc:creator><![CDATA[Michelle Reck]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[1/1/1]]></category>
+		<category><![CDATA[app]]></category>
+		<category><![CDATA[appexchange]]></category>
+		<category><![CDATA[ISV]]></category>
+		<category><![CDATA[Partner]]></category>
+		<category><![CDATA[salesforce1]]></category>
+
+		<guid isPermaLink="false">http://30.17271</guid>
+		<description><![CDATA[<a href="http://developer.salesforce.com/blogs/isv/2014/07/draft-elton-accountability-solutions.html"><img align="right" hspace="5" width="150" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405457157/S1_Mobile_wMap_twdgvh.png" class="alignright wp-post-image tfe" alt="" title="" /></a>All Salesforce customers have equipment and many still use spreadsheets to track who has what and where it is located. By using the Salesforce1 Mobile App, tracking equipment can be done by anyone, in real-time.]]></description>
+				<content:encoded><![CDATA[<p>Each week we chat with an AppExchange Partner about their experience of building an app on the Salesforce1 Platform. This week, the spotlight is on <a href="http://accountabilitycorp.com/" target="_blank">AccountAbility Solutions</a>, a company founded to solve a common problem: keeping track of equipment that travels with numerous staff all over the globe. Equipment used for evaluation and demonstration tools, to the various iPhones, laptops, and tablets used by the sales and service teams, and the data center&#8217;s gadgets and gear for classrooms and training centers; virtually any type of equipment that needs to be tracked. They recognized this demand to always know which staff had what gear and when important events were going to happen, such as warranty expiry or insurance renewal, without needing to rely on people to complete fill-in forms or paperwork.</p>
+<h2>More Customization with Less Effort<img class="wp-image-17351 alignright" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405457157/S1_Mobile_wMap_twdgvh.png" width="278" height="495" /></h2>
+<p>Confronted with this problem, they created the app, <a href="https://appexchange.salesforce.com/listingDetail?listingId=a0N30000009vbThEAI" target="_blank">ELTON</a> (Equipment Location Tracking Online). The idea is to track where equipment is at the current time and where and when it is scheduled to go next, as well as the lifecycle events for the equipment. There was a hybrid app by AccountAbility Solutions that was already in use that provided basic equipment tracking functionality on iOS and Android devices.</p>
+<p>They decided to rebuild the app in Salesforce1 to deliver a more satisfying experience where the users could customize page layouts and add fields themselves. They ended up with an app that was more customizable with no effort on their part. In addition, the app deploys to all devices immediately with no need to go through the AppStore or Google Play to distribute new releases. Two major headaches were eliminated!</p>
+<h2>Easier Tracking</h2>
+<p>With the Salesforce Platform, AccountAbility Solutions provides the core functionality and the end user can extend the app on the mobile, just like how they would extend the app in their browser. This was done using Mobile Cards and page layouts that created a fully functional interface that better suited the mobile user. Best of all, most of their customers can add custom fields into the page layouts and they are immediately updated on the mobile app. The hybrid app is currently supported on iOS and Android but with Salesforce1, it will be supported on many more platforms with zero additional effort.</p>
+<p>The app was created with the help of one developer and one UX engineer and took less than a week to deliver. This quick turnaround time to build the app was essential to their customers who were trying to track equipment that is geographically distributed. People can move equipment, drop off loaners, and pick up equipment that is all tracked with the app on their phone while they are doing the actual task. Data entry is more accurate and the GPS coordinates are captured for every entry.</p>
+<h2>Partnering with Salesforce</h2>
+<p>AccountAbility Solutions has received marketing opportunities through partnering with salesforce.com by participating in the <a href="https://partners.salesforce.com/s/education/AppExchange_Marketing_Program" target="_blank">AppExchange Marketing Program</a> (AMP) and being featured as an <a href="http://www.slideshare.net/Salesforce/salesforce1-appexchange-app-of-the-week/10" target="_blank">App of the Week</a>. They also adopted the <a href="http://www.salesforcefoundation.org/about-us/sharethemodel/" target="_blank">1/1/1 philanthropic model</a> by pledging to commit 1% of their resources (time, equity, product) and integrate philanthropy into their business.</p>
+<p>To learn more about ELTON and AccountAbility Solutions, please go to: <a href="http://accountabilitycorp.com/" target="_blank">http://accountabilitycorp.com/</a></p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~ff/SforceBlog?a=96Ws9ehsD-Y:NL72LaIPZyA:yIl2AUoC8zA"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=yIl2AUoC8zA" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=96Ws9ehsD-Y:NL72LaIPZyA:qj6IDK7rITs"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=qj6IDK7rITs" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=96Ws9ehsD-Y:NL72LaIPZyA:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=96Ws9ehsD-Y:NL72LaIPZyA:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=96Ws9ehsD-Y:NL72LaIPZyA:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=96Ws9ehsD-Y:NL72LaIPZyA:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=96Ws9ehsD-Y:NL72LaIPZyA:l6gmwiTKsz0"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=l6gmwiTKsz0" border="0"></img></a>
+</div><img src="http://feeds.feedburner.com/~r/SforceBlog/~4/96Ws9ehsD-Y" height="1" width="1"/>]]></content:encoded>
+			<wfw:commentRss>http://developer.salesforce.com/blogs/isv/2014/07/draft-elton-accountability-solutions.html/feed</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		<feedburner:origLink>http://developer.salesforce.com/blogs/isv/2014/07/draft-elton-accountability-solutions.html</feedburner:origLink></item>
+		<item>
+		<title>Building Salesforce1 Mobile Apps with Visualforce, AngularJS, and Bootstrap</title>
+		<link>http://feedproxy.google.com/~r/SforceBlog/~3/16GvTgoBphs/building-salesforce1-apps-visualforce-angularjs-bootstrap.html</link>
+		<comments>http://developer.salesforce.com/blogs/developer-relations/2014/07/building-salesforce1-apps-visualforce-angularjs-bootstrap.html#comments</comments>
+		<pubDate>Mon, 14 Jul 2014 17:59:20 +0000</pubDate>
+		<dc:creator><![CDATA[James Ward]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[angularJS]]></category>
+		<category><![CDATA[bootstrap]]></category>
+		<category><![CDATA[mobile]]></category>
+		<category><![CDATA[salesforce1]]></category>
+		<category><![CDATA[visualforce]]></category>
+
+		<guid isPermaLink="false">http://26.72631</guid>
+		<description><![CDATA[<a href="http://developer.salesforce.com/blogs/developer-relations/2014/07/building-salesforce1-apps-visualforce-angularjs-bootstrap.html"><img align="right" hspace="5" width="150" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405360545/angularjs-150x150_al28x3.png" class="alignright wp-post-image tfe" alt="" title="Building Salesforce1 Mobile Apps with AngularJS, Visualforce and Bootstrap" /></a>Learn how to style Salesforce1 mobile apps using Visualforce, AngularJS and Bootstrap]]></description>
+				<content:encoded><![CDATA[<p><img class="alignleft wp-image-73161" title="Building Salesforce1 Mobile Apps with AngularJS, Visualforce and Bootstrap" alt="" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405360545/angularjs-150x150_al28x3.png" width="150" height="150" />Modern web applications shift the user interface (UI) logic from the server-side to the client-side to reduce interaction latency and avoid unnecessary server requests.  This is done by running the UI logic in JavaScript. Numerous JavaScript libraries exist to help developers organize their logic and create a maintainable separation of concerns.  There also now exists numerous CSS libraries that make it easy to build a good looking UI.</p>
+<p>One of the most popular modern JavaScript UI libraries is <a href="https://angularjs.org/">AngularJS</a> since it supports data binding and makes it easy to separate the Model, View, and Controller (MVC) aspects of the UI.  For styling the UI, <a href="http://getbootstrap.com/">Bootstrap</a> is the most popular CSS library.</p>
+<p>Both AngularJS and Bootstrap are easy to use in Visualforce pages that work both on desktop browsers and in the Salesforce1 mobile app.<br />
+<span id="more-34961"></span></p>
+<p dir="ltr">Here is a quick video walkthrough that shows how to get started:</p>
+<p dir="ltr"><div style="text-align:right;"><a style="color:#aaa;font-size:9px" href="http://www.clickonf5.org/" title="IFRAME Embed for Youtube Free WordPress Plugin" target="_blank">IFRAME Embed for Youtube</a></div></p>
+<p dir="ltr">Here is the Visualforce code:</p>
+<pre>&lt;apex:page docType="html-5.0"&gt;
+
+   &lt;apex:stylesheet value="//cdn.jsdelivr.net/webjars/bootstrap-sf1/0.1.0-beta.6/css/bootstrap-namespaced.css"/&gt;
+
+   &lt;apex:includeScript value="//ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.11/angular.min.js"/&gt;
+
+   &lt;script&gt;
+       angular.module("ngApp", []);
+   &lt;/script&gt;
+
+   &lt;div ng-app="ngApp"&gt;
+       &lt;form&gt;
+           &lt;label&gt;Name:&lt;/label&gt;
+           &lt;input type="text" ng-model="yourName" placeholder="Enter a name here"/&gt;
+           &lt;hr/&gt;
+           &lt;h1&gt;Hello {{yourName}}!&lt;/h1&gt;
+       &lt;/form&gt;
+   &lt;/div&gt;
+
+&lt;/apex:page&gt;</pre>
+<p dir="ltr">Make sure you enable the Available for Salesforce mobile apps option when creating the Visualforce page so that it can be made available in the Salesforce1 app.  After creating the page you can create a new tab in Salesforce by going to <strong>Setup</strong> &gt; <strong>Create</strong> &gt; <strong>Tabs</strong> and selecting <strong>New</strong> in the <strong>Visualforce Tabs</strong> section.  To enable the new tab to show up in the Salesforce1 app go to <strong>Setup</strong> &gt; <strong>Mobile Administration</strong> &gt; <strong>Mobile Navigation</strong> and then add the new tab to the selected list and save it.</p>
+<p dir="ltr">This is a very simple example so everything is just in one page.  As an application grows the different pieces of the JavaScript application can be separated out into different files using <a href="http://www.salesforce.com/us/developer/docs/pages/index_Left.htm#CSHID=pages_resources.htm%7CStartTopic=Content%2Fpages_resources.htm%7CSkinName=webhelp">Static Resources</a>.  The AngularJS and Bootstrap libraries could also be uploaded as Static Resource if you’d rather not use the public CDNs.</p>
+<p dir="ltr">The Bootstrap CSS in this example uses the <a href="https://github.com/SalesforceFoundation/bootstrap-sf1">Salesforce1 themed version of Bootstrap</a> so that the UI matches the look of the Salesforce1 app.</p>
+<p dir="ltr">With your first AngularJS and Bootstrap enabled Visualforce page now working you are ready to build modern web apps on Salesforce1!  Also, be sure to check out the <a title="Salesforce Mobile Pack for AngularJS" href="https://developer.salesforce.com/en/mobile/getting-started/html5/#angularjs">Salesforce Mobile Pack for AngularJS</a>, which lets you quickly build mobile apps that access Salesforce data. Let us know how it goes.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~ff/SforceBlog?a=16GvTgoBphs:tamUAjKWLXI:yIl2AUoC8zA"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=yIl2AUoC8zA" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=16GvTgoBphs:tamUAjKWLXI:qj6IDK7rITs"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=qj6IDK7rITs" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=16GvTgoBphs:tamUAjKWLXI:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=16GvTgoBphs:tamUAjKWLXI:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=16GvTgoBphs:tamUAjKWLXI:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=16GvTgoBphs:tamUAjKWLXI:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=16GvTgoBphs:tamUAjKWLXI:l6gmwiTKsz0"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=l6gmwiTKsz0" border="0"></img></a>
+</div><img src="http://feeds.feedburner.com/~r/SforceBlog/~4/16GvTgoBphs" height="1" width="1"/>]]></content:encoded>
+			<wfw:commentRss>http://developer.salesforce.com/blogs/developer-relations/2014/07/building-salesforce1-apps-visualforce-angularjs-bootstrap.html/feed</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		<feedburner:origLink>http://developer.salesforce.com/blogs/developer-relations/2014/07/building-salesforce1-apps-visualforce-angularjs-bootstrap.html</feedburner:origLink></item>
+		<item>
+		<title>Year-Over-Year Commitment Keeps Company on Customer’s “Top of Mind”: TerrAlign Success Story</title>
+		<link>http://feedproxy.google.com/~r/SforceBlog/~3/4_34of4Hias/terralign-success-story-year-year-commitment-keeps-company-customers-top-mind.html</link>
+		<comments>http://developer.salesforce.com/blogs/isv/2014/07/terralign-success-story-year-year-commitment-keeps-company-customers-top-mind.html#comments</comments>
+		<pubDate>Mon, 14 Jul 2014 16:24:24 +0000</pubDate>
+		<dc:creator><![CDATA[Laura Wilensky]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[appexchange]]></category>
+		<category><![CDATA[dreamforce]]></category>
+		<category><![CDATA[ISV]]></category>
+		<category><![CDATA[Partner]]></category>
+		<category><![CDATA[success]]></category>
+
+		<guid isPermaLink="false">http://30.17061</guid>
+		<description><![CDATA[<a href="http://developer.salesforce.com/blogs/isv/2014/07/terralign-success-story-year-year-commitment-keeps-company-customers-top-mind.html"><img align="right" hspace="5" width="150" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405354104/Slide_4_Picture_-_Crowd_adczm4.png" class="alignright wp-post-image tfe" alt="Slide_4_Picture_-_Crowd_adczm4" title="" /></a>Learn how TerrAlign has taken advantage of the Dreamforce experience for eight years and has been an AppExchange Partner since 2006. ]]></description>
+				<content:encoded><![CDATA[<p><i>Sales Resource Optimization. </i>What is it? Getting the most out of your sales force. It is the product which TerrAlign provides for its ever-growing customer base. TerrAlign’s technology empowers companies to easily design or realign sales territories to maximize resources and geographic potential and ultimately, performance. Having developed the first and best products in the market for more than two decades, TerrAlign continues to innovate and looks forward to serving its customers for decades to come.</p>
+<p>I am excited to share yet another Dreamforce Sponsor Success Story from a long-time partner, The TerrAlign Group. TerrAlign has taken advantage of the Dreamforce experience for eight years and has been an AppExchange Partner since 2006.</p>
+<p>I recently spoke with Ken Kramer; Vice-President of Sales &amp; Marketing at TerrAlign, wanting to learn what was the “secret” ingredient for his successful use of TerrAlign’s partnership with Dreamforce. “The secret is very simple,” he said. “It is being there, year over year, delivering a solution with value and listening to the customers to continually make that solution better. For a smaller organization, that continuity shows our commitment to both the customer base and to the entire salesforce.com ecosystem – many of our leads come from referrals from SFDC employees.” It is one of the principle reasons when it is time for Dreamforce, it is time for TerrAlign as well.</p>
+<p>“We believe TerrAlign is a very strategic solution that delivers great value.” Kramer continued. “But we need to get that message out to companies which have sizable sales forces. Dreamforce allows us to get in front of people who have the right profile for us to really help.” He added, “At Dreamforce, we always manage to get traffic, and while we do have to do some triage to get to the quality leads, both during and after the show, we have never failed to convert some number of Dreamforce leads into customers.”</p>
+<p>They say timing is everything and half of success is just showing up – perhaps those are true, but TerrAlign also believes in putting themselves in position to succeed. Dreamforce 2013 saw TerrAlign present once again – on the floor as a veteran sponsor and familiar face. There are many companies that TerrAlign sees multiple times different years before they truly engage. Once example is Houghton Mifflin, whose Sales Operations Manager, Brian Wickham, greeted the booth by mentioning the cool give-away he learned of in the pre-show email, and questioning TerrAlign’s ability to integrate with the TM module, something they had added a couple years ago, but after initially meeting.<a class="overlay" href="http://res.cloudinary.com/hzxejch6p/image/upload/v1405354104/Slide_4_Picture_-_Crowd_adczm4.png"><img class="size-large wp-image-17101 alignright" alt="Slide_4_Picture_-_Crowd_adczm4" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405354104/Slide_4_Picture_-_Crowd_adczm4.png" width="364" height="161" /></a></p>
+<p>“We had been looking for a system to help manage out complex territories for many years, early conversations with TerrAlign at Dreamforce, possible 2009, showed us that was where we wanted to go, but budgets and specific integration functionality with regard to TM kept us from closing the deal at that time, “ Wickham stated. “When the budgets aligned and a high priority time sensitive project come up in late 2013, we immediately recognized Dreamforce as the best opportunity to get hands on with the product, do our due diligence on possible competitors and complete what is usually a multi-week evaluation and negotiation process in a very short time period, in person on the expo floor.”</p>
+<p>“Another big thing for us, “Wickham continued, “was the familiarity. While always impressed with the functionality, we’re cautious when it comes to selecting vendors, as many start-ups simply don’t survive. Seeing TerrAlign year over year and building that relationship made the decision to enter a multiyear agreement much easier; we knew they were going to be there for us, and continue to enhance the solution as they had since we first met.”</p>
+<p><img class="alignright" alt="Slide_3_Picture_-_Booth_la8hwf" src="http://res.cloudinary.com/hzxejch6p/image/upload/v1405354105/Slide_3_Picture_-_Booth_la8hwf.png" width="255" height="335" /></p>
+<p>The business might have been closed without having a booth on the show floor, but by being a recognizable, sought out, component in the sea of other exhibitors, Kramer attributed TerrAlign’s presence at Dreamforce to being able to close the deal within two weeks of attending Dreamforce<ins cite="mailto:Kramer,%20Ken" datetime="2014-05-06T14:41">.</ins> “Being there on a continuing basis keeps us ‘Top-of-Mind’ to our customers and future customers and thus contributes to our ability to start or continue the sales dialogue on the show floor.”<a class="overlay" href="http://res.cloudinary.com/hzxejch6p/image/upload/v1405354105/Slide_3_Picture_-_Booth_la8hwf.png"><br />
+</a></p>
+<p>TerrAlign is different from the majority of Dreamforce partners. It has been in existence for more than 20 years, it has no VC backing and any marketing expenditures comes from its bottom line. It is very particular how much and with whom marketing dollars are spent. Each year the Dreamforce partnership costs are weighed but each year the ROI yield value. Selling an enterprise solution means individual events can either be a success or a complete loss. If they sell something it pays for the event, if they don’t, they don’t, usually no gray are in between. While TerrAlign has viewed their Salesforce partnership as a long term investment, Kramer is still happy to see each Dreamforce produce a positive return</p>
+<p>I asked Ken to provide some tips he has experienced in his eight years of attending Dreamforce. So with this, I offer:</p>
+<p>&nbsp;</p>
+<p><b><span style="text-decoration: underline">TOP OF MIND TIPS FROM A FAMILIAR FACE IN THE DREAMFORCE CLOUD</span></b></p>
+<ul>
+<li><b><b>Know your goals ahead of the show and be sure those working the booth are on board. In most cases, you’re looking to build a big pipeline of quality leads. Know your preference for the inevitable tradeoff between quantity and quality.</b></b></li>
+<li><b></b><b><b>Be prepared and have the ability to do a quality, but brief demo on the show floor; it’s usually not wise to spend an hour with one prospect and ignore several others; if the interest exists schedule other time outside of booth hours.</b></b></li>
+<li><b><b>Always have enough people manning the booth at all time, to ensure people aren’t walking away without learning something. Just because they stopped by once, doesn’t mean they’ll be back.</b></b></li>
+<li><b><b>The most effective element of the sponsorship is the booth; it’s where the traffic is and where the leads are. If you can’t afford the additional a al carte offerings, you have to make your booth the HUB of your overall Dreamforce plan. If needed, use it as a meeting place to then find a quieter place to talk.</b></b></li>
+<li><b><b>Have a cheap chacka for the masses (something less than a dollar/unit); if that’s all they care about, give it to them quickly and move them on to make room for interested prospects.</b></b></li>
+<li><b><b>Know what you’re pitching and how it fits in – put it in the perspective of salesforce.com, again be able to do this quickly too; think of it as a noisy, short, elevator pitch. It’s sensory and information overload for a week, you need to be compelling and memorable.</b></b></li>
+<li><b><b>Put all your collateral on company branded thumb drive, no paper to throw out, and they will have a thumb drive they will keep with your company logo on it, even if they erase the content.</b></b></li>
+<li><b>Offer a good, cool, give-away, but make relevant to your solution, somehow. Promote it ahead od the conference to five people more reason to remember to come find you. Prospects seeking you out are likely better than those that have never heard of you before. </b></li>
+</ul>
+<p>For more information on TerrAlign, please go to the website: <a href="http://www.terralign.com/" target="_blank">http://www.terralign.com/</a></p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~ff/SforceBlog?a=4_34of4Hias:daF_o8UAK2I:yIl2AUoC8zA"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=yIl2AUoC8zA" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=4_34of4Hias:daF_o8UAK2I:qj6IDK7rITs"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=qj6IDK7rITs" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=4_34of4Hias:daF_o8UAK2I:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=4_34of4Hias:daF_o8UAK2I:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=4_34of4Hias:daF_o8UAK2I:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/SforceBlog?i=4_34of4Hias:daF_o8UAK2I:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/SforceBlog?a=4_34of4Hias:daF_o8UAK2I:l6gmwiTKsz0"><img src="http://feeds.feedburner.com/~ff/SforceBlog?d=l6gmwiTKsz0" border="0"></img></a>
+</div><img src="http://feeds.feedburner.com/~r/SforceBlog/~4/4_34of4Hias" height="1" width="1"/>]]></content:encoded>
+			<wfw:commentRss>http://developer.salesforce.com/blogs/isv/2014/07/terralign-success-story-year-year-commitment-keeps-company-customers-top-mind.html/feed</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		<feedburner:origLink>http://developer.salesforce.com/blogs/isv/2014/07/terralign-success-story-year-year-commitment-keeps-company-customers-top-mind.html</feedburner:origLink></item>
+	</channel>
+</rss>

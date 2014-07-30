@@ -1,0 +1,372 @@
+<apex:page sidebar="false" showHeader="false" Controller="SOLXYZCSO001.OneStepCopyReportController" tabStyle="SOLXYZCSO001__ReportOutPutGroupHistory__c" title="{!$Label.solxyzcso001__label_wf_30075}">
+<apex:form >
+<apex:actionFunction name="doInit" action="{!init}" rerender="allPanel"/>
+</apex:form>
+<apex:form >
+
+
+<apex:outputPanel id="allPanel">
+    <apex:outputPanel rendered="{!NOT(initialised)}">
+        <p align="center" style='{font-family:"Arial", Helvetica, sans-serif; font-size:20px;}'><apex:image value="/img/loading.gif"/>&nbsp;Please wait</p>
+        <script>
+           window.onload=function()
+           {
+             doInit();
+           };
+        </script>
+    </apex:outputPanel>
+<apex:outputPanel rendered="{!initialised}">
+
+
+<apex:iframe src="/apex/CSO_WR_Error?code={!wr_userInfo.code}&massage={!wr_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(wr_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(wr_userInfo.showErrPage == false, true, false)}">
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css?20120828')}" />
+<head>
+    <link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.yui_skin)}" />
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_min)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_event)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_container)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_animation)}"></script>
+</head>
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__WRCSOScript" />
+
+<iframe src="{!$Label.field_CSO_URL}/common/AuthenticationApi?id={!URLENCODE($User.UserName)}&tk={!ECMToken}&isEvidence=false" height="0" width="0" id="auth_frame" style="display:none;"/>
+<style type="text/css">
+.wordWrap {
+    word-break: break-all;
+}
+</style>
+
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+    setOutput();
+
+    checkExistsReportDef();
+});
+
+function checkExistsReportDef() {
+    var existsReportDef = $('input[id$="existsReportDef"]').val()
+    if (existsReportDef != 'true') {
+        window.alert("{!$Label.msg_wr_createreport_00005}");
+        window.close();
+    }
+}
+
+function setOutput() {
+
+    var saveLocation = $('input[id$="saveLocation"]').val();
+
+    if (saveLocation == 'space') {
+        $('#save_ecm').attr('checked', 'checked');
+        var saveSpace = $('input[id$="saveSpace"]').val();
+        $('#saveSpaceTxt').val(saveSpace);
+    } else if (saveLocation == 'folder') {
+        $('#save_folder').attr('checked', 'checked');
+        var saveFolder = $('input[id$="saveFolder"]').val();
+        $('#saveFolderTxt').val(saveFolder);
+    } else {
+        if ($('#save_ecm').size() > 0) {
+            $('#save_ecm').attr('checked', 'checked');
+        } else {
+            $('#save_folder').attr('checked', 'checked');
+        }
+    }
+
+    outputChanged();
+}
+
+// 出力先チェック切替
+function outputChanged(){
+    var output = $('input[name="output"]:checked').val();
+
+    if (output == "ecmSpace") {  //ECMスペース
+        $("#saveSpaceBtn").attr("disabled", false);
+        $("#saveFolderTxt").val("");
+        $("#saveSpaceTxt").attr("disabled", false);
+        $("#saveFolderBtn").attr("disabled", true);
+        $("#saveFolderTxt").attr("disabled", true);
+    } else if (output == "folder") {  // フォルダ
+        $("#saveSpaceBtn").attr("disabled", true);
+        $("#saveSpaceTxt").val("");
+        $("#saveSpaceTxt").attr("disabled", true);
+        $("#saveFolderBtn").attr("disabled", false);
+        $("#saveFolderTxt").attr("disabled", false);
+    }
+}
+
+// 出力先スペースの選択
+function openSpaceSearchWindow(){
+    var searchPageUrl = "{!$Page.FE_SpaceSearch}";
+    var openResult = window.open( searchPageUrl,'ShohinSearchWindow','width=670,height=400,resizable=yes,toolbar=no,status=no,scrollbars=yes,menubar=no,directories=no,location=no,dependant=yes');
+    if (openResult == null){
+        alert("{!$Label.msg_010086_fe}");
+    }
+    return false;
+}
+function spaceSearchReturn(Id,Name) {
+    $('input[id$="saveSpaceTxt"]').val([Name]);
+    $('input[id$="saveSpaceId"]').val([Id]);
+    $('input[id$="saveSpace"]').val([Name]);
+}
+
+// 出力先フォルダーの選択
+function openFolderSearchWindow(){
+    var searchPageUrl = "{!$Page.FE_FolderSearch}";
+    var openResult = window.open( searchPageUrl,'ShohinSearchWindow','width=300, height=200, menubar=no, toolbar=no, location=no, scrollbars=no, status=no, left=400, top=300');
+    if (openResult == null){
+        alert("{!$Label.msg_010086_fe}");
+    }
+    return false;
+}
+
+// 保存先をセット
+function setSaveLocation() {
+
+    // 保存先をセット
+    var spaceChecked = $('#save_ecm').is(':checked');
+    var folderChecked = $('#save_folder').is(':checked');
+    if (spaceChecked) {
+        $('input[id$="saveLocation"]').val("space");
+    } else if (folderChecked) {
+        $('input[id$="saveLocation"]').val("folder");
+    }
+}
+
+// 実行前の処理
+function beforeExecute() {
+
+    setSaveLocation();
+
+    //入力項目の無効化
+    window.setTimeout(function() {
+        $(':input').attr('disabled', 'disabled');
+    }, 100);
+
+    return true;
+}
+function folderReturn(Id, Name) {
+    $('input[id$="saveFolderTxt"]').val([Name]);
+    $('input[id$="saveFolder"]').val([Name]);
+    $('input[id$="saveFolderId"]').val([Id]);
+}
+
+// 画面グレー化
+function maskOpen(){
+    var ds = document.createElement('div');
+    ds.setAttribute('id','mask')
+    ds.style.position='absolute';
+    ds.style.width='100%';
+    ds.style.height=document.body.clientHeight+'px';
+    ds.style.left='0px';
+    ds.style.top='0px';
+    var userAgent = window.navigator.userAgent.toLowerCase();
+    if (userAgent.indexOf("msie") > -1) {
+        ds.style.display = 'none';
+        ds.style.backgroundColor = '#D3D3D3';
+        ds.style.filter='alpha(opacity=50)';
+    }else {
+        ds.style.backgroundColor = '#D3D3D3';
+        ds.style.opacity=.5;
+    }
+    document.body.appendChild(ds);
+    if (userAgent.indexOf("msie") > -1) {
+        ds.style.display = '';
+    }
+}
+// 画面グレー化解除
+function maskClose() {
+    var dom_obj=document.getElementById('mask');
+    var dom_obj_parent=dom_obj.parentNode;
+    dom_obj_parent.removeChild(dom_obj);
+}
+</script>
+<style type="text/css">
+.waiting{
+    position            :fixed;
+    bottom              :50%;
+    left                :50%;
+    margin-top          :67px;
+    margin-left         :-33px;
+    display             :block;
+}
+*html .waiting{
+    position            :absolute!important;
+    top                 :expression( (document.body.scrollTop + document.body.clientHeight/2) + 'px' );
+    left                :400px;
+    margin              :-33px;
+}
+.tertiaryPalette {
+    background-color: #94B9D1 !important;
+    border-color: #94B9D1 !important;
+}
+</style>
+    <div id="c_head">
+        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/report.png')}"/>
+        <div id="c_headTitle">{!$Label.solxyzcso001__label_wf_00046}</div>
+        <div id="c_headSubTitle">{!$Label.solxyzcso001__label_wr_reportcopy_00001}</div>
+    </div>
+    <!-- apex:form -->
+        <apex:outputPanel id="inputArea">
+            <apex:pageBlock >
+                <apex:pageMessages />
+                <apex:pageBlockButtons >
+                    <apex:commandLink styleClass="btn" style="text-decoration:none;margin-right:50px;padding:4px 3px;" target="_blank" action="{!preview}" value="{!$Label.solxyzcso001__field_010146}" rendered="{!canExecute}" />
+                    <apex:commandButton id="execute" value="{!$Label.solxyzcso001__field_common_execute}" onclick="if(!beforeExecute()){return false;};execute_JS();return false;" rendered="{!canExecute}" status="windowStatus"/>
+                    <apex:commandButton id="cancel" value="{!closeButtonLabel}" onclick="window.close()"/>
+                    <apex:inputHidden value="{!existsReportDef}" id="existsReportDef"/>
+                </apex:pageBlockButtons>
+                <apex:pageBlockSection collapsible="false" columns="1" rendered="{!createReportResult}">
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00080}" style="vertical-align:middle; width: 100px;"/>
+                        <apex:variable rendered="true" var="" value="">
+                            <div class="wordWrap">
+                                <apex:outputText value="{!reportFileName}"/>
+                            </div>
+                        </apex:variable>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30069}" style="vertical-align:middle; width: 100px;"/>
+                        <apex:variable rendered="true" var="" value="">
+                            <div class="wordWrap">
+                                <apex:outputText value="{!reportDefName}"/>
+                            </div>
+                        </apex:variable>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00090}" style="vertical-align:middle; width: 100px;"/>
+                        <apex:variable rendered="true" var="" value="">
+                            <div class="wordWrap">
+                                <apex:outputText value="{!reportSavePlace}"/>
+                            </div>
+                        </apex:variable>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                <apex:pageBlockSection collapsible="false" rendered="{!!createReportResult}">
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00068}"/>
+                        <apex:selectList id="reportDefSelect" value="{!reportDefId}" size="1" style="width: 200px;" disabled="true">
+                            <apex:selectOptions value="{!items}"/>
+                        </apex:selectList>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                <apex:pageBlockSection >
+                    <apex:outputPanel />
+                </apex:pageBlockSection>
+                <apex:pageBlockSection collapsible="false" columns="1" rendered="{!!createReportResult}">
+                    <apex:pageBlockSection id="basicInfo" title="{!$Label.solxyzcso001__label_wf_00079}" collapsible="false">
+                        <apex:pageBlockSection id="inputLeftArea" columns="1">
+                            <apex:pageBlockSectionItem >
+                                <apex:outputPanel >
+                                    <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00080}" style="vertical-align:middle; width: 100px;"/>
+                                </apex:outputPanel>
+                                <apex:outputPanel styleClass="requiredInput" layout="block">
+                                    <apex:outputPanel Id="reqpanel" styleClass="requiredBlock" layout="block" />
+                                    <apex:inputText id="reportName" value="{!reportName}" style="width: 300px;" maxlength="250" />
+                                </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel />
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem rendered="{!outputFileOptionFlag}">
+                                <apex:outputPanel >
+                                    <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_50006}" style="vertical-align:middle; "/>
+                                </apex:outputPanel>
+                                <apex:outputText >
+                                    <apex:selectRadio value="{!fileFormat}">
+                                        <apex:actionSupport event="onclick" action="{!changeFileFormat}" rerender="inputLeftArea, additionalInputArea"/>
+                                        <apex:selectOptions value="{!fileFormatOptions}"/>
+                                    </apex:selectRadio>
+                                </apex:outputText>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem rendered="{!excelOutputTypeSelectableFlag}">
+                                <apex:outputPanel >
+                                    <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00448}" style="vertical-align:middle; "/>
+                                </apex:outputPanel>
+                                <apex:outputText >
+                                    <apex:selectRadio value="{!excelOutputType}" disabled="{!isMultiOverlay}">
+                                        <apex:selectOptions value="{!excelOutputTypeOptions}"/>
+                                    </apex:selectRadio>
+                                </apex:outputText>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageBlockSection>
+                        <apex:pageBlockSection columns="1">
+                            <apex:pageBlockSectionItem >
+                                <apex:outputPanel >
+                                    <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00090}" style="vertical-align:middle; "/>
+                                </apex:outputPanel>
+                                <apex:outputPanel >
+                                    <table>
+                                        <apex:outputText rendered="{!isECMActiveUser}">
+                                            <tr>
+                                                <td><input type="radio" name="output" id="save_ecm" value="ecmSpace" onclick="outputChanged()"/></td>
+                                                <td style="white-space: nowrap;"><label for="save_ecm">{!$Label.label_wf_30056}</label></td>
+                                                <td style="white-space: nowrap;">
+                                                    <span id="saveOption">
+                                                        <input size="40" type="text" id="saveSpaceTxt" style="margin: 0px 5px 0px 0px;" readonly="readonly"/>
+                                                        <input type="button" class="btn" value="{!$Label.label_wf_00069}" id="saveSpaceBtn" onclick="openSpaceSearchWindow()"/>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </apex:outputText>
+                                        <tr>
+                                            <td><input type="radio" name="output" id="save_folder" value="folder" onclick="outputChanged()"/></td>
+                                            <td style="white-space: nowrap;"><label for="save_folder">{!$Label.label_wf_30057}</label></td>
+                                            <td style="white-space: nowrap;">
+                                                <span id="saveOption">
+                                                    <input size="40" type="text" id="saveFolderTxt" style="margin: 0px 5px 0px 0px;" readonly="readonly" disabled="disabled"/>
+                                                    <input type="button" class="btn" value="{!$Label.label_wf_00069}" id="saveFolderBtn" disabled="disabled" onclick="openFolderSearchWindow()"/>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <apex:inputHidden id="saveSpaceId" value="{!saveSpaceId}"/>
+                                    <apex:inputHidden id="saveFolderId" value="{!saveFolderId}"/>
+                                    <apex:inputHidden value="{!saveLocation}" Id="saveLocation"/>
+                                    <apex:inputHidden value="{!saveSpace}" id="saveSpace"/>
+                                    <apex:inputHidden value="{!saveFolder}" id="saveFolder"/>
+                                </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageBlockSection>
+                    </apex:pageBlockSection>
+                    <apex:outputPanel id="additionalInputArea">
+                        <apex:outputPanel rendered="{!needAdditionalInput}">
+                            <apex:pageBlockSection columns="1" title="{!$Label.solxyzcso001__label_wf_30072}" collapsible="false" rendered="{!needPdfInputField}">
+                                <apex:pageBlockSectionItem rendered="{!needPdfOpenPWInputField}">
+                                    <apex:outputPanel >
+                                        <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30054}" style="vertical-align:middle; width: 100px;"/>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                                        <apex:outputPanel Id="reqpanel" styleClass="requiredBlock" layout="block"/>
+                                        <apex:inputText size="50" maxlength="50" value="{!pdfOpenPassword}" id="pdfOpenPassword"/>
+                                    </apex:outputPanel>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem rendered="{!needPdfAuthorizePWInputField}">
+                                    <apex:outputPanel >
+                                        <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30055}" style="vertical-align:middle; width: 100px;"/>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                                        <apex:outputPanel Id="reqpanel" styleClass="requiredBlock" layout="block"/>
+                                        <apex:inputText size="50" maxlength="50" value="{!pdfAuthorizePassword}" id="pdfAuthorizePassword"/>
+                                    </apex:outputPanel>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+        </apex:outputPanel>
+        <apex:actionStatus id="windowStatus" startStyleClass="waiting" onstart="maskOpen();" onstop="maskClose();">
+            <apex:facet name="start"><img src="{!URLFOR($Resource.searchNow)}" /></apex:facet>
+        </apex:actionStatus>
+        <apex:actionFunction action="{!execute}" name="execute_JS" status="windowStatus"/>
+    <iframe id="delegateFrame" name="delegateFrame" style="display:none;"></iframe>
+</apex:outputPanel>
+</apex:outputPanel>
+</apex:outputPanel>
+</apex:form>
+</apex:page>

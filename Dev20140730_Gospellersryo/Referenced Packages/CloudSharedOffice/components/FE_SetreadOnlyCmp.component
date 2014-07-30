@@ -1,0 +1,13 @@
+<apex:component >
+    <script type="text/javascript">
+        function setreadOnly(){
+            var readOnlySubmit = document.getElementsByTagName('input');
+            for(var i = 0, element; element = readOnlySubmit[i]; i++) {
+                if(element.className == 'readonly'){
+                    element.readOnly = true;
+                }
+            }
+        }
+        setreadOnly();
+    </script>
+</apex:component>

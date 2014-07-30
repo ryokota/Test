@@ -1,0 +1,304 @@
+<apex:page sidebar="false" showHeader="false" cache="false" controller="SOLXYZCSO001.SpacePortalController">
+
+<script type="text/javascript">
+var ActionFlg;
+var includeSpace = false;
+function init_moveout(action){
+    $("#loadingMoveOutTree").show();
+    $("#moveoutTree").empty();
+    $("#selectMoveoutId").empty();
+    $("#selectMoveoutId").val("");
+    $("#selectMoveoutName").empty();
+    $("#selectMoveoutName").val("");
+
+    var itemsIds = "";
+
+    ActionFlg = action;
+    /*
+    if(ActionFlg == "spaceRule"){
+        $('#roleOption').css({'display':'none'});
+    }
+    */
+
+    if(!includeSpace){
+        $('.spaceMoveOption').css({'display':'none'});
+    } else {
+        $('.spaceMoveOption').css("display", "table-row");
+    }
+
+    for(var iIds = 0; iIds < g_moveout.moveoutIds.length; iIds++){
+        if (iIds > 0) {
+            itemsIds = itemsIds + ',';
+        }
+        itemsIds = itemsIds + g_moveout.moveoutIds[iIds];
+    }
+
+    var callback =  function(data){
+        var branches = $(data["tree"]).appendTo("#moveoutTree");
+        $("#moveoutTree").treeview({
+                collapsed: true,
+                add: branches,
+                url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+                asrt:"moveout"
+        });
+        $("#loadingMoveOutTree").hide();
+        synchronizedSpaceTreeMv(itemsIds);
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"moveout", 'itemsType' : '1', "itemsIds": itemsIds, "returnType":"html"}, callback);
+}
+
+
+
+
+function synchronizedSpaceTreeMv(itemsIds){
+	var spaceid = 0;
+	if (getAsrt() == "search") {
+		if (searchPathIds.length == 0) {
+			return;
+		}
+		var ids = getSelectedRowIdList();
+		for (var i=0; i<ids.length; i++) {
+			var index = $("#listView1").getInd(ids[i]);
+			for (var j=0; j<searchPathIds[index].length; j++) {
+				spaceid = searchPathIds[index][j];
+				var expanded = expandSpaceTreeMv(spaceid, itemsIds);
+		        if(!expanded){
+		            return false;
+		        }
+			}
+		}
+	} else {
+	    var $ids = $('#fullPathDisplay').children("a");
+	    if($ids.length == 0){
+	        $ids = $('#spacePath div div h3').children("a");
+	    }
+	    if($ids.length == 0){
+	        return;
+	    }
+	    $ids.each(function(){
+	        spaceid = $(this).attr("id");
+	        var expanded = expandSpaceTreeMv(spaceid, itemsIds);
+	        if(!expanded){
+	            return false;
+	        }
+	    });
+	    
+	    if($ids.length == 1){
+	        expandSpaceTreeMv(spaceid, itemsIds);
+	    }
+    }
+    
+    setTimeout(function(){
+        var obj = $("#moveoutTree li").filter("#" + spaceid);
+        var top = obj.offset().top;
+        var treeArea = $("#moveoutTreeContainer");
+        var areaTop = treeArea.offset().top;
+        var scrollTop = treeArea.scrollTop();
+        if(scrollTop == 0){
+            $("#moveoutTreeContainer").scrollTop(top - areaTop - 150);
+        }
+        else{
+            $("#moveoutTreeContainer").scrollTop(top - areaTop - 150 + scrollTop);
+        }
+    }, 500);
+}
+
+function expandSpaceTreeMv(spaceid, itemsIds){
+    // Redmine 8607
+    var $li = $("#moveoutTree #" + spaceid);
+    if($li.length == 0){
+        return false;
+    }
+    if($li.hasClass("collapsable")){
+        return true;
+    }
+
+    if($li.hasClass("hasChildren")){
+        // read children
+        var asrt = "moveout";
+        var $div = $li.find("div:first");
+            var callback =  function(data){
+                if (!data.result) return;
+
+                var $ul = $li.find("ul:first");
+                $ul.empty();
+                $.each(data.children, function(i, child){
+                    $ul.append(child.toString());
+                });
+                $li.removeClass("hasChildren");
+                $li.treeview({
+                    url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+                    add: $ul,
+                    asrt: asrt,
+                    itemsType: 2,
+                    animated:  "fast",
+                });
+
+                setTimeout(function(){
+                    synchronizedSpaceTreeMv(itemsIds);
+                }, 10);
+            };
+
+        secureGetAsync("/contentsmanagement/SpaceTreeChildrenApi.json",{ "parent": spaceid, "itemsIds": itemsIds, "asrt": asrt, "itemsType": 2, "returnType":"html"}, callback);
+
+        return false;
+    }else{
+        // open children
+        var $div = $li.find("div:first");
+        if($div.hasClass("hitarea")){
+            $div.click();
+        }
+        return true;
+    }
+}
+
+function change_moveout_space(node, id){
+    if(g_moveout.preSelectNode){
+        $(g_moveout.preSelectNode).removeClass("selectNode");
+    }
+    $("#selectMoveoutName").val($(node).text());
+    $("#selectMoveoutId").val(id);
+    $(node).addClass("selectNode");
+    g_moveout.preSelectNode = node;
+
+    return false;
+}
+
+/*
+ * コンテンツを移動する。
+ */
+function execMoveout(){
+
+    // スペースルールの場合
+    if(ActionFlg == "spaceRule"){
+        var callback =  function(data){
+            $("#srMoveMoveToSpaceId").val($("#selectMoveoutId").val());
+            $("#srMoveMoveToSpaceName").val(data.path);
+            moveDialogDivClose();
+        };
+        secureGetAsync('/common/SpacePathGet.json', {"spaceId": $("#selectMoveoutId").val(), "returnType": "text"}, callback);
+        return;
+    } else {
+        // スペース・コンテンツ移動の場合
+        if(g_moveout.moveoutIds.length < 1){
+            alert("{!$Label.msg_00095}");
+            return;
+        }
+
+        if($("#selectMoveoutId").val().length == 0){
+            alert("{!$Label.msg_00038}");
+            return;
+        }else{
+            var deleteIds = '[';
+            for(var iIds = 0; iIds < g_moveout.moveoutIds.length; iIds++){
+                if (iIds > 0) {
+                    deleteIds = deleteIds + ',';
+                }
+                deleteIds = deleteIds + '{"id":"' + g_moveout.moveoutIds[iIds] + '","asrt":"my","spaceId":""}';
+            }
+            deleteIds = deleteIds + ']';
+
+            var callerror =  function(data){
+                CsoScript_loadingStop();
+                alert(data);
+            };
+            CsoScript_loadingStart();
+            securePostAsync('/contentsmanagement/SpaceContentsMoveCheck.json', {"ids" : deleteIds, "delete" : "false"}, SpaceContentsMoveCheck_moveout_callback, callerror);
+        }
+    }
+}
+function SpaceContentsMoveCheck_moveout_callback(movecheckback){
+    var msg;
+    if (!movecheckback["result"]) {
+        msg = "{!$Label.msg_00026}";
+    } else {
+        msg = "{!$Label.msg_00028}";
+    }
+
+    CsoScript_loadingStop();
+    if (confirm(msg)) {
+        $("#moveout_OkBtn").attr({"disabled":"disabled"});
+        $("#moveout_CancelBtn").attr({"disabled":"disabled"});
+        $("#modalDialogDiv").dialog("close");
+
+        var serverUrl = window.location.protocol + "//" + window.location.host
+
+        var moveIds = '';
+        for(var iIds = 0; iIds < g_moveout.moveoutIds.length; iIds++){
+            if (iIds > 0) {
+                moveIds = moveIds + ',';
+            }
+            moveIds = moveIds + g_moveout.moveoutIds[iIds];
+        }
+
+        var callback = function(movecoutback){
+            CsoScript_loadingStop();
+            if(movecoutback["result"]){
+                moveDialogDivClose();
+                reloadNow();
+                reloadTree();
+            } else {
+                alert(movecoutback["message"]);
+            }
+
+            $("#moveout_OkBtn").removeAttr("disabled");
+            $("#moveout_CancelBtn").removeAttr("disabled");
+        };
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+        CsoScript_loadingStart();
+       securePostAsync('/contentsmanagement/SpaceContentsMove.json', {"idlist": moveIds, "spaceId": "", "recieveId": $("#selectMoveoutId").val(), "url":serverUrl, "overwriteRole": $("#moveoutOverwriteRole").attr("checked"), "overwriteSpaceSetting": $("#moveoutOverwriteSpaceSetting").attr("checked") }, callback, callerror);
+//        securePostAsync('/contentsmanagement/SpaceContentsMove.json', {"idlist": moveIds, "spaceId": "", "recieveId": $("#selectMoveoutId").val(), "url":serverUrl}, callback, callerror);
+    }
+}
+
+/*
+ * moveDialogを閉じる。
+ */
+function moveDialogDivClose(){
+    $("#moveDialog").dialog("close");
+}
+</script>
+
+<div id="moveDialog" style="display:none">
+    <form>
+    <table class="moveOutContentsTbl">
+        <tr>
+            <td align="left" colspan="2">{!$Label.msg_00038}<br />{!$Label.msg_00040}</td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10048}</th>
+            <td>
+                <input type="text" disabled="disabled" id="selectMoveoutName" style="width:100%; border: none; background-color: #EEEEEE;"></input>
+                <input type="hidden" id="selectMoveoutId" name="recieveId" />
+            </td>
+        </tr>
+        <tr class="spaceMoveOption" align="left">
+            <td colspan="2"><input type="checkbox" id="moveoutOverwriteRole" name="overwriteRole" checked="checked" />{!$Label.label_10420}</td>
+        </tr>
+        <tr class="spaceMoveOption" align="left">
+            <td colspan="2"><input type="checkbox" id="moveoutOverwriteSpaceSetting" name="overwriteSpaceSetting" />{!$Label.label_13161}</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+            <div id="moveoutTreeContainer" style="width: 570px;max-width:570px;height: 300px; overflow: auto; border: 1px solid #999999; background-color: white;">
+                <ul id="moveoutTree" class="selectTree filetree">
+                </ul>
+                <span id="loadingMoveOutTree" style="display:none;">
+                    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 50%;left: 47%; " id="moveOutTreeLoadImg" />
+                </span>
+            </div>
+            </td>
+        </tr>
+        <tr>
+        <td colspan="2" style="text-align: center;">
+            <input type="button" class="btn" value="{!$Label.label_00075}" id="moveout_OkBtn"     onclick="execMoveout();" />
+            <input type="button" class="btn" value="{!$Label.label_00058}" id="moveout_CancelBtn" onclick="moveDialogDivClose();"/>
+        </td>
+        </tr>
+    </table>
+    </form>
+</div>
+</apex:page>

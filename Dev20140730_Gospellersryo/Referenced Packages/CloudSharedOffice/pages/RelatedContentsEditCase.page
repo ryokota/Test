@@ -1,0 +1,8 @@
+<apex:page standardController="Case" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Case">
+  <apex:variable var="Sf_type" value="Case" />
+  <apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Case}" />
+<!-- 
+  <apex:include pageName="RelatedContentsEdit"/>
+ -->
+  <c:RelatedContentsEditComp id="relatedContentsEditComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

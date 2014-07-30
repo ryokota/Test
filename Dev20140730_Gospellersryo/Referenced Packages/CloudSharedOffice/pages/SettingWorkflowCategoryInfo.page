@@ -1,0 +1,531 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingWorkflowController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_workflow_category == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_workflow_category == 'true' && userInfo.showErrPage == false, true, false)}">
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.undertab.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<!--apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery.resizeJqGrid.js')}" /-->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.undertab.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.csoBalloon.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<style type="text/css">
+.subLabelHeight{
+    height: 21px;
+}
+.list-name-top a {
+    font-size: 16px;
+}
+.list-name-bottom {
+    color: #666;
+}
+.modal {
+    display: none;
+}
+.input-area {
+    padding: 20px 0 0 20px;
+}
+.search-txt {
+    width: 230px;
+}
+#searchTable {
+    padding : 5px;
+}
+#searchTable th {
+    padding-right : 5px;
+    text-align: right;
+}
+
+.upper-area {
+    height: 160px;
+    overflow: auto;
+}
+.selected {
+    color: #F00 !important;
+}
+.treeview a {
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.under-area {
+    display: none;
+}
+.ui-tabs {
+    background : none;
+    border:none;
+    padding: 0;
+}
+.ui-tabs .ui-tabs-nav {
+    background: none;
+    border: none;
+}
+.ui-tabs .ui-tabs-panel {
+    background : none;
+    border:none;
+    padding: 0;
+}
+.ui-widget-header .ui-state-default {
+    background : none;
+    border: 2px solid #DFEFFC;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+    background: #11579c;
+}
+.ui-tabs .ui-tabs-nav a {
+    font-weight: bold;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a{
+    color: #FFFFFF;
+}
+
+.tab-inner {
+    overflow: auto;
+}
+#tabManager, #tabUsers {
+    padding: 10px 0 10px 10px;
+}
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/category.png')}" alt="{!$Label.solxyzcso001__label_10678}" title="{!$Label.solxyzcso001__label_10678}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10673}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10678}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+
+                        <apex:pageBlockButtons >
+                           <apex:commandButton id="btnEdit" value="{!$Label.solxyzcso001__label_00073}" onclick="editButton();return false;"/>
+                        </apex:pageBlockButtons>
+
+                        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10679}"  collapsible="false"/>
+                        <div class="upper-area">
+                            <ul id="wfCategoryList">
+                            </ul>
+                        </div>
+
+                        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}"  collapsible="false"/>
+                        <div class="under-area">
+                            <div id="tabUnderDiv">
+                                <div id="tabManager">
+                                    <table id="managerTable"></table>
+                                    <div id="managerTablePager"></div>
+                                </div>
+                                <div id="tabUsers">
+                                    <table id="usersTable"></table>
+                                    <div id="usersTablePager"></div>
+                                </div>
+                                <ul>
+                                    <li><a href="#tabManager">{!$Label.label_10779}</a></li>
+                                    <li><a href="#tabUsers">{!$Label.label_10780}</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div id="commentFloatDiv" style="overflow: auto; max-height: 135px; min-height: 135px; white-space:pre; display: none;">
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<script type="text/javascript">
+
+var _b_managerGridLoaded = false;
+var _b_usersGridLoaded = false;
+
+jQuery.event.add(window, "load", function(){
+
+    loadCategory();
+
+    onCategoryClicked(0);
+
+    setResize();
+
+    $(".under-area").css("display", "block");
+
+    $(".upper-area").scroll(function () {
+        $(this).csoBalloonHide();
+    });
+});
+
+function setResize(){
+    $("#managerTable").resizeJqGrid_SF({
+        "margin-bottom" : 50,
+        "margin-right"  : 10,
+    });
+
+    $("#usersTable").resizeJqGrid_SF({
+        "margin-bottom" : 50,
+        "margin-right"  : 10,
+    });
+
+    $("#tabUnderDiv").undertab({
+        resizeFunc  : resizeJqGrid_SF,
+    });
+
+    $(window).resize(function(){
+        resizeJqGrid_SF();
+    });
+    resizeJqGrid_SF();
+
+    setTimeout(function(){
+        resizeJqGrid_SF();
+    }, 50);
+}
+
+function loadCategory(){
+    var param = {
+        edit         : "0",
+        show_comment : "true"
+    }
+    var callback =  function(data){
+        if(data.result){
+            reloadTree(data["tree"]);
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowCategoryInfo.json', param, callback);
+}
+
+function reloadTree(tree){
+    var branches = $("#wfCategoryList").html(tree);
+    $("#wfCategoryList").treeview({
+        animated    : "fast",
+        unique      : false,
+        persist     : "cookie",
+        cookieId    : "wfcategory",
+        add         : branches,
+        toggle      : function() {
+        }
+    });
+}
+
+function loadManager(parentId){
+    $("#managerTable").jqGrid({
+        url:_apiUrl + "/workflowmanagement.setting/WorkflowCategoryManagerList.json",
+        postData:{
+            cat_id          : parentId,
+            row_num         : this.rowNum,
+            is_get_manager  : true,
+        },
+        datatype:"jsonp",
+        jsonReader:{
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames:[
+                '',
+                '{!$Label.label_10131}',
+                '{!$Label.label_10650}',
+        ],
+        colModel:[
+                {name:'id',     index:'id',     hidden:true},
+                {name:'name',   index:'name',   sortable:false, width:475},
+                {name:'org',    index:'org',    sortable:false, width:245},
+        ],
+        onSelectRow : function(id, b_check){
+        },
+        rowNum: 30,
+        height: 220,
+        width: 750,
+        autowidth: false,
+        rowList: [10,30,50],
+        sortname: 'name',
+        sortorder: 'asc',
+        pager: $('#managerTablePager'),
+        viewrecords: true,
+        multiselect: false,
+        onPaging : function(b) {
+            $(this).setGridParam({
+                postData : {
+                    useCache : "true"
+                }
+            });
+        },
+        loadComplete: function(data){
+            var rows = $("td[aria-describedby=managerTable_name]");
+            for(var i=0; i<rows.length; i++){
+                $(rows[i]).attr("title", $(rows[i]).find("#name").html());
+            }
+        }
+    });
+    $("#managerTable").jqGrid('navGrid','#managerTablePager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function loadUsers(parentId){
+    $("#usersTable").jqGrid({
+        url:_apiUrl + "/workflowmanagement.setting/workflowCategoryManagerList.json",
+        postData:{
+            cat_id          : parentId,
+            row_num         : this.rowNum,
+            is_get_manager  : false,
+        },
+        datatype:"jsonp",
+        jsonReader:{
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames:[
+                '',
+                '{!$Label.label_10131}',
+                '{!$Label.label_10650}',
+        ],
+        colModel:[
+                {name:'id',     index:'id',     hidden:true},
+                {name:'name',   ndex:'name',    sortable:false, width:475},
+                {name:'org',    index:'org',    sortable:false, width:245},
+        ],
+        onSelectRow : function(id, b_check){
+        },
+        rowNum: 30,
+        height: 220,
+        width: 750,
+        autowidth: false,
+        rowList: [10,30,50],
+        sortname: 'name',
+        sortorder: 'asc',
+        pager: $('#usersTablePager'),
+        viewrecords: true,
+        multiselect: false,
+        onPaging : function(b) {
+            $(this).setGridParam({
+                postData : {
+                    useCache : "true"
+                }
+            });
+        },
+        loadComplete: function(data){
+            var rows = $("td[aria-describedby=usersTable_name]");
+            for(var i=0; i<rows.length; i++){
+                $(rows[i]).attr("title", $(rows[i]).find("#name").html());
+            }
+        }
+    });
+    $("#usersTable").jqGrid('navGrid','#usersTablePager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function onCategoryClicked(parentId){
+    $(".selected").removeClass("selected");
+    $("#" + parentId).addClass("selected");
+
+    if(!_b_managerGridLoaded){
+        _b_managerGridLoaded = true;
+        loadManager(parentId);
+    }else{
+        $("#managerTable").setGridParam({
+            postData:{
+                cat_id  : parentId,
+                row_num : this.rowNum,
+            }
+        }).trigger("reloadGrid");
+    }
+
+    if(!_b_usersGridLoaded){
+        _b_usersGridLoaded = true;
+        loadUsers(parentId);
+    }else{
+        $("#usersTable").setGridParam({
+            postData:{
+                cat_id  : parentId,
+                row_num : this.rowNum,
+            }
+        }).trigger("reloadGrid");
+    }
+}
+
+function commentAllDisplay(parentId, obj){
+    var param = {
+        cat_id      : parentId
+    };
+    var callback =  function(data){
+        if(data.result){
+            var height = 135;
+            var width  = 420;
+            if(getBrowserType() == "IE8"){
+                height = 145;
+            }
+            if(!initFloatDiv("commentFloatDiv", $(obj).offset(), width, height)) return;
+            $("#commentFloatDiv").text(data["comment"]);
+            $("#commentFloatDiv").csoBalloonLoadHtml();
+        } else {
+            alert(data.message);
+        }
+    };
+    var callerror =  function(data){
+        alert("workflowCategoryCommentGet:" + data);
+    };
+    secureGetAsync('/workflowmanagement.setting/workflowCategoryCommentGet.json', param, callback, callerror);
+}
+function initFloatDiv(pd, p, w, h){
+
+    var left   = parseInt(p.left) + 10;
+    var top    = parseInt(p.top)  + 5;
+    var udlr   = 0;
+    var align  = 0;
+    var height = h;
+    var width  = w;
+
+    /*-- 下に隠れる場合 --*/
+    var windowHeight = $(window).height();
+    if (top + height + 50 > windowHeight) {
+        udlr = 1;
+        top = top - 15;
+    }
+
+    /*-- 右側が隠れる場合 --*/
+    var windowWidth = $(window).width();
+    if (left + width + 20 - width/7 > windowWidth) {
+        align  = 2;
+    }
+    /*-- さらに右側が隠れる場合 --*/
+    if (left + 20 + width/7 > windowWidth) {
+        if(udlr == 1){
+            align  = 2;
+            top = top + 15;
+        }
+        else{
+            align  = 0;
+        }
+        udlr = 3;
+        top = top - 10;
+        left = left - 25;
+    }
+
+    $("#" + pd).csoBalloon({
+        width      : w,
+        height     : h,
+        posX       : left,
+        posY       : top,
+        show       : false,
+        udlr       : udlr,
+        align      : align,
+        loadingGif : "{!URLFOR($Resource.cso, 'image/loading2.gif')}",
+    });
+
+    return true;
+}
+
+function editButton(){
+    location.href = "SettingWorkflowCategoryEdit";
+}
+
+function resizeJqGrid_SF(){
+    $("[resize-jqgrid=1]").each(function(){
+        if($(this).offset().top == 0){
+            return;
+        }
+        if($(this).attr("isjqgrid") == 1){
+            var width = getBrowserWidth() - $(this).offset().left - 50 - $(this).attr("right");
+            if (width > 600) {
+                $(this).setGridWidth(width);
+            }
+
+            var height = 0;
+            if($(".err").length){
+                height = getBrowserHeight() - $(this).offset().top - $(".err").height() - 66 - $(this).closest(".ui-jqgrid-bdiv").scrollTop() - $(this).attr("bottom");
+            }else{
+                height = getBrowserHeight() - $(this).offset().top - 43 - $(this).closest(".ui-jqgrid-bdiv").scrollTop() - $(this).attr("bottom");
+            }
+            if (height > 200) {
+                $(this).setGridHeight(height);
+            }
+        }else{
+            var width = getBrowserWidth() - $(this).offset().left - 1 - $(this).attr("right");
+            if(width < 0){
+                width = 0;
+            }
+            $(this).width(width);
+            width = null;
+
+            var height = 0;
+            if($(".err").length){
+                height = getBrowserHeight() - $(this).offset().top - $(".err").height() - 66 - $(this).attr("bottom");
+            }else{
+                height = getBrowserHeight() - $(this).offset().top - 43 - $(this).attr("bottom");
+            }
+            if(height < 0){
+                height = 0;
+            }
+            $(this).height(height);
+            height = null;
+        }
+    });
+}
+
+(function($){
+    $.fn.resizeJqGrid_SF=function(options){
+        var options = $.extend({
+            "margin-bottom" : 0,
+            "margin-right"  : 0,
+            "isJqGrid"      : 1,
+        }, options);
+
+        if($(this).attr("resize-jqgrid") != 1){
+            $(this).attr({
+                "resize-jqgrid" : "1",
+                "bottom"        : options["margin-bottom"],
+                "right"         : options["margin-right"],
+                "isjqgrid"      : options["isJqGrid"],
+            });
+        }
+
+        return $(this);
+    }
+})($);
+
+</script>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

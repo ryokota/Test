@@ -1,0 +1,43 @@
+<apex:page sidebar="false" showHeader="false" controller="SOLXYZCSO001.InquiryDialogController" >
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_support_standard == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_support_standard == 'true' && cso_userInfo.showErrPage == false, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<!-- ヘッダー -->
+<div id="c_head">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/voice-support.png')}"/>
+    <div id="c_headTitle">
+        {!$Label.solxyzcso001__label_00002}
+    </div>
+    <div id="c_headSubTitle">
+        {!$Label.solxyzcso001__label_10284}
+    </div>
+</div>
+
+<!-- 問い合わせフォーム -->
+<apex:form >
+    <apex:pageBlock title="{!$Label.solxyzcso001__label_10111}" tabStyle="setting__tab" >
+        <!-- コマンドボタン -->
+        <apex:pageBlockButtons >
+            <apex:commandButton value="{!$Label.solxyzcso001__label_00075}" onclick="return clickRegist()"/>
+            <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" onclick="top.window.close();"/>
+        </apex:pageBlockButtons>
+        <apex:include pageName="SOLXYZCSO001__InquiryForm"/>
+    </apex:pageBlock>
+</apex:form>
+</apex:outputPanel>
+</apex:page>

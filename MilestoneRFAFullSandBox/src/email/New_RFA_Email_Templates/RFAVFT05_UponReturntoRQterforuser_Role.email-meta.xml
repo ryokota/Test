@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>true</available>
+    <description>Notify Requester and Primary point of contact when the RFA is pushed to the stage &quot;Return to Sender&quot;</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>RFAVFT05 Upon Return to Requester for user Role</name>
+    <style>none</style>
+    <subject>要確認（Action Required）:</subject>
+    <type>visualforce</type>
+</EmailTemplate>

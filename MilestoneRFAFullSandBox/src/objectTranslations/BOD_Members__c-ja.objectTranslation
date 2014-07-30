@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>取締役会メンバー</value>
+    </caseValues>
+    <fields>
+        <label><!-- Acronym --></label>
+        <name>Acronym__c</name>
+    </fields>
+    <fields>
+        <label>取締役会</label>
+        <name>BOD_Meeting__c</name>
+        <relationshipLabel>取締役会メンバー</relationshipLabel>
+    </fields>
+    <fields>
+        <label>ユーザ</label>
+        <name>Username__c</name>
+        <relationshipLabel><!-- 取締役会メンバー --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Duplicate Check for BOD Members --></label>
+        <name>duplicate_check__c</name>
+    </fields>
+    <layouts>
+        <layout>BOD Admin Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>BOD Advisor Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>BOD Guest Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>BOD Member Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>BOD Secretary Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>取締役会メンバー名</nameFieldLabel>
+    <recordTypes>
+        <label>アドミニストレーション</label>
+        <name>Admin_of_BOD</name>
+    </recordTypes>
+    <recordTypes>
+        <label>アドバイザー</label>
+        <name>BOD_Advisor</name>
+    </recordTypes>
+    <recordTypes>
+        <label>取締役会ゲスト</label>
+        <name>BOD_Guest</name>
+    </recordTypes>
+    <recordTypes>
+        <label>取締役会メンバー</label>
+        <name>BOD_Member</name>
+    </recordTypes>
+    <recordTypes>
+        <label>秘書</label>
+        <name>Secretary_of_BOD</name>
+    </recordTypes>
+</CustomObjectTranslation>

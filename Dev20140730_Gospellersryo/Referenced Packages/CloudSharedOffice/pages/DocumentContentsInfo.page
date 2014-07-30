@@ -1,0 +1,1235 @@
+<apex:page sidebar="false" showHeader="false" controller="SOLXYZCSO001.DocumentContentsInfoController">
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.showErrPage == true,false,true)}">
+<apex:outputPanel rendered="{!IF(processResult == false, true, false)}">
+    <apex:pageMessages />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(processResult != false, true, false)}">
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css?20120828')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.tagit.css')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/tag-it.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.customfields.css')}" />
+<apex:include pageName="SOLXYZCSO001__CustomFieldsPlugin"/>
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<!-- ライフサイクル -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.csoBalloon.js')}" />
+<apex:include pageName="SOLXYZCSO001__LifeCyclePulgin"/>
+
+<apex:include pageName="SOLXYZCSO001__CSOPreviewPlugin"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.csopreview.css')}" />
+<script type="text/javascript" src="{!$Label.field_CSO_DVURL}/js/document-viewer.js?v100"></script>
+<!--[if lte IE 8]>
+<script type="text/javascript" src="{!$Label.field_CSO_URL}/js/jquery.backgroundSize.js"></script>
+<![endif]-->
+<script type="text/javascript">
+var editVer;
+var documentContentsInfoballoonItem = 0;
+$(window).unload(function() {
+    top.window.opener.reloadNow();
+
+});
+
+var ContentId="";
+var ContentType = "";
+var LCInfos=[];
+var lcDataList = new Array();
+
+
+$(document).ready(function(){
+    if (window.opener) {
+        window.resizeTo(810, 730);
+    }
+
+    $("#preview-area").csopreview({
+        loadComplete : function(){
+            $("#preview-area").editLink(false);
+        },
+        resource : {
+            zoomWidthFit        : '{!$Label.label_fileviewer_zoomWidthFit}',
+            zoomHeightFit       : '{!$Label.label_fileviewer_zoomHeightFit}',
+            downloadMsg         : '{!$Label.label_fileviewer_downloadMsg}',
+            download            : '{!$Label.label_fileviewer_download}',
+            search_s            : '{!$Label.label_fileviewer_searchS}',
+            search_e            : '{!$Label.label_fileviewer_searchE}',
+            no_hit              : '{!$Label.label_fileviewer_noHit}',
+            password_1          : '{!$Label.label_fileviewer_password1}',
+            password_2          : '{!$Label.label_fileviewer_password2}',
+            dialog_info         : "INFO",
+        },
+    }, function(){
+        window.resizeTo(810, 730);
+    });
+
+    ContentId='{!fileId}';
+    ContentType ='{!fileType}';
+    if(ContentId!=""){
+        //  カスタム項目
+        $("#customfieldsTbl").customfields({
+            obj_id  : ContentId,
+            attach  : "contents",
+            edit    : false,
+        });
+
+         //ライフサイクル情報取得
+        var callback=function(data){
+
+            if(data.result){
+
+                if(data.lifecycle){
+//                    $("#contents_info_tab_5").show();
+                    //ライフサイクルが設定されている場合
+                    for(var i=0;i<data.lifecycle.length;i++){
+                        var lcData = new Object();
+                        lcData.action = data.lifecycle[i].action+1;
+                        lcData.date_unit = 0;
+                        var d = new Date(data.lifecycle[i].datetime);
+
+                        var dd = d.getDate();
+                        var mm = d.getMonth()+1;//January is 0!
+                        var yyyy = d.getFullYear();
+                        if(dd<10){dd='0'+dd}
+                        if(mm<10){mm='0'+mm}
+
+                        if("{!userinfo.locale}" == "en") {
+                            lcData.time = mm+"/"+dd+"/"+yyyy;
+                        } else {
+                            lcData.time = yyyy+"/"+mm+"/"+dd;
+                        }
+                        lcDataList.push(lcData);
+                    }
+
+                    if(lcDataList.length == 0){
+/*
+                        $("#lifeCycleView").append($("<div>").css({
+                            "font-size" : "20px",
+                        }).html("{!$Label.msg_01104}"));
+                        $("#lifeCycleView").css("left", "10px");
+*/
+                    }else{
+                        $("#lifeCycleView").lifecycle({
+                            mode : 0,
+                            actSelect : "",
+                            data : lcDataList,
+                            resource : {
+                                Store   : "{!$Label.label_13019}",
+                                Archive : "{!$Label.label_00055}",
+                                Trash   : "{!$Label.label_00056}",
+                                Delete  : "{!$Label.label_13012}",
+                                Day     : "{!$Label.label_13064}",
+                                Week    : "{!$Label.label_13065}",
+                                Month   : "{!$Label.label_13066}",
+                                Year    : "{!$Label.label_13067}",
+                            }
+                        });
+                    }
+                }else{
+                    $("#lifeCycleView").append($("<div>").css({
+                        "font-size" : "20px",
+                    }).html("{!$Label.msg_01104}"));
+                    $("#lifeCycleView").css("left", "10px");
+                }
+            }else{
+                alert(data.message);
+            }
+        }
+        secureGetAsync('/contentsmanagement/ContentsPropertyGet.json?fileId=' + ContentId +'&type='+ ContentType ,"", callback);
+    }
+
+});
+
+
+jQuery.event.add(window, "load", function() {
+
+
+
+    $(window).resize(resize);
+    resize();
+
+    $("#contents_info_tab_1").click(function(){tab(1);});
+    $("#contents_info_tab_2").click(function(){tab(2);});
+    if("{!link}" === "false" && "{!removeSymbolicLink}" === "true"){
+         $("#contents_info_tab_3").click(function(){tab(3);});
+    }
+    $("#contents_info_tab_4").click(function(){tab(4);});
+    $("#contents_info_tab_5").click(function(){tab(5);});
+    if({!discloseDisplay}){
+         $("#contents_info_tab_6").click(function(){tab(6);});
+         $("#contents_info_tab_1, #contents_info_tab_2, #contents_info_tab_3, #contents_info_tab_4, #contents_info_tab_5, #contents_info_tab_6").css("margin-left", "0.2em");
+    }
+
+    if({!IF(saveDateFlag != false, true, false)}){
+        $("#saveDateRow").show();
+    } else {
+        $("#saveDateRow").hide();
+    }
+    if({!AND(copiedContentsVersion != '', copiedContentsVersion != null)}){
+        $("#copiedContentsVersionRow").show();
+    } else {
+        $("#copiedContentsVersionRow").hide();
+    }
+    if({!linkAccess}){
+        $("#copiedContentsVersionOriginalDiv").show();
+        $("#copiedContentsVersionDiv").hide();
+    } else {
+        $("#copiedContentsVersionOriginalDiv").hide();
+        $("#copiedContentsVersionDiv").show();
+    }
+
+    displayDiscloseInfoInit();
+
+
+
+});
+
+function resize() {
+    var browserWidth = getBrowserWidth();
+    if(browserWidth < 745) {
+        $("#versionHistory").setGridWidth(700);
+        $("#symbolicLinkList").setGridWidth(700);
+        $("#workflowHistory").setGridWidth(700);
+    } else{
+        $("#versionHistory").setGridWidth(browserWidth - 45);
+        $("#symbolicLinkList").setGridWidth(browserWidth - 45);
+        $("#workflowHistory").setGridWidth(browserWidth - 45);
+    }
+
+    //$("#balloon").css("left", $("#j_id0\\:Form\\:j_id56\\:balloon" + documentContentsInfoballoonItem).position().left + 17);
+}
+
+function jq(myid) {
+    return '#' + myid.replace(/(:|\.)/g,'\\\$1');
+}
+
+$(function(){
+    var contentsName = '{!JSENCODE(docName)}';
+    var contentsSize = '{!JSENCODE(sizeStr)}';
+    var adjustName = getAdjustName('contentNameSize', contentsName, $('#contentNameSize').width() - 100);
+    $('#contentNameSize').text(adjustName + contentsSize);
+    $('#c_headSubTitle').text(contentsName);
+    $('#c_headSubTitle').attr('title', $('#c_headSubTitle').text());
+    setFlexibleTextForSF("#c_headSubTitle", 45);
+
+    $("#tagNames").tagit({readOnly: true});
+
+    $("#versionHistory").jqGrid({
+        url : _apiUrl + "/contentsmanagement/updateHistory.json",
+        postData : {
+            id : "{!fileId}",
+            type : "{!fileType}",
+        },
+        jsonReader :{
+            repeatitems: false,
+            id         : "id"
+        },
+        colNames : ['id',
+                    '{!$Label.label_10038}',
+                    '{!$Label.solxyzcso001__label_10018}',
+                    '{!$Label.solxyzcso001__label_10024}',
+                    '{!$Label.label_10066}',
+                    '{!$Label.label_10174}',
+                    '',
+                    ],
+        colModel : [
+                    {name : "id", index : "id", hidden : true},
+                    {name : "version", index : "version", width : 80},
+                    {name : "updateDate", index : "updateDate", width : 110, align : "center"},
+                    {name : "updateUser", index : "updateUser", width : 100},
+                    {name : "reason", index : "reason", width : 200, hidden : false},
+                    {name : "action", index : "action", width : 170, sortable : false, align : "center"},
+                    {name : "deleted", index : "deleted", hidden : true},
+                    ],
+        width:500,
+        height:230,
+        sortname:"version",
+        sortorder:"desc",
+        pager : "#updateHistoryPager",
+        viewrecords: true,
+        multiselect: false,
+        multiboxonly:false,
+        shrinkToFit : false,
+        //caption:'{!$Label.label_10039}',
+        afterInsertRow : function(rowid, rowdata, rowelem) {
+            var deleted = parseInt(rowdata.deleted);
+
+            if (deleted != 0) {
+                $(this).setRowData(rowid, {}, {"background-color" : "#666666"});
+            }
+        },
+    });
+
+    $("#symbolicLinkList").jqGrid({
+        url: _apiUrl + "/contentsmanagement/SymbolicLinkListGet.json",
+        postData : {
+            "fileId" : "{!fileId}"
+        },
+        //datatype:"jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id         : "contentsId"
+        },
+        colNames:[
+            'contentsId',
+            '{!$Label.label_11060}',
+            '{!$Label.label_cm_action}',
+            'spaceId'
+        ],
+        colModel:[
+            {name:"contentsId", hidden:true ,align:"left"},
+            {name:"path", width:510 ,align:"left" },
+            {name:"action", width:100 ,align:"center", sortable:false },
+            {name:"spaceId", hidden:true ,align:"left"}
+        ],
+        width:700,
+        height:230,
+        sortname:"start_date",
+        sortorder:"desc",
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly:true,
+        pager : "#symbolicLinkListPager",
+        shrinkToFit : false,
+        loadComplete : function(data){
+        },
+        onSelectRow: function(contentsId, b_check){
+        }
+    });
+
+    $("#workflowHistory").jqGrid({
+        url : _apiUrl + "/workflowmanagement/workflowHistory.json",
+        postData : {
+            id : "{!fileId}"
+        },
+        datatype:"jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id         : "id"
+        },
+        colNames : ['id',
+                    '{!$Label.label_10123}',
+                    '{!$Label.label_10038}',
+                    '{!$Label.label_10587}',
+                    '{!$Label.label_10691}',
+                    '{!$Label.field_010057}',
+                    ''
+                    ],
+        colModel : [
+                    {name : "id", index : "id", hidden : true},
+                    {name : "workflow", index : "workflow", width : 300},
+                    {name : "version", index : "version", width : 60, align : "center", sortable : false},
+                    {name : "condition", index : "condition", width : 80, align : "center", sortable : false},
+                    {name : "applicant", index : "applicant", width : 160},
+                    {name : "action", index : "action", width : 70, sortable : false, align : "center"},
+                    {name : "apply_date", index : "apply_date", hidden : true}
+                    ],
+        width:770,
+        height:230,
+        sortname:"apply_date",
+        sortorder:"asc",
+        pager : "#workflowHistoryPager",
+        viewrecords: true,
+        multiselect: false,
+        multiboxonly:false,
+        shrinkToFit : false
+    });
+
+    $("#versionHistory").setGridWidth(680);
+    $("#symbolicLinkList").setGridWidth(680);
+    $("#workflowHistory").setGridWidth(680);
+
+    $("#editLinkDialog").dialog({
+        autoOpen : false,
+        modal : true,
+        width :310,
+        resizable : false
+    });
+
+});
+
+/*
+ * ダウンロード処理
+ */
+
+function contents_info_download(param, param1, param2, param3){
+    //param - fileId/param in fileviewer
+    //param1 - version
+    //param2 - type
+    //param3 - version
+    var fileId;
+    var version;
+    var type;
+    if(typeof param1 != "undefined"){
+        //parameters set in content property
+        fileId = param;
+        version = param1;
+        type = param2;
+    }else{
+        //parameters set in fileviewer
+        fileId = param.fileId;
+        version = param.version;
+        type = param.type;
+    }
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '{!$Page.DownloadPopupWindow}';
+        url = url + '?downloadType=ContentsInfo';
+        url = url + '&fileId='  + fileId;
+        url = url + '&version=' + encodeURIComponent(version);
+        url = url + '&type='    + type;
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+
+    CsoScript_loadingStart();
+    top.window.opener.securePostAsync('/contentsmanagement/SingleContentsDownloadApi.json', JSON.stringify({"fileId" : fileId, "ver" : version, "type" : type}), callback, callerror);
+}
+
+function contents_info_viewing(paramFileId, paramVer, paramType, version){
+    window.resizeTo($(window.opener).width(), $(window.opener).height());
+    $("#preview-area").loadPreview(paramFileId, '{!spaceId}', version, "", "", "", [paramFileId], 1);
+}
+
+function downloadExec(url){
+    location.href = url;
+}
+
+function deleteVersion(id, v) {
+    if (confirm(getMsg([v], '{!$Label.msg_01041}'))) {
+        top.window.opener.securePostAsync("/contentsmanagement/deleteSpecificVersion.json", JSON.stringify({id:"{!fileId}", version:v}),
+            function(result){
+                if(result.result){
+                    // グリッドのリロード処理
+                    $("#versionHistory").trigger("reloadGrid");
+                }else{
+                    alert(result.message);
+                }
+
+            },
+            function(){
+            }
+        );
+    }
+}
+
+function editVersion() {
+    var newVersion = $("#v_major").val() + "." + $("#v_minor").val() + "." + $("#v_revision").val() + "." + $("#v_build").val();
+
+    var major = $("#v_major").val();
+    var minor = $("#v_minor").val();
+    var revision = $("#v_revision").val();
+    var build = $("#v_build").val();
+
+    var err = false;
+
+    if (!isNumeric(major)) {
+            err = true;
+    } else {
+        if (parseInt(major) < 0 || parseInt(major) > 10000) {
+            err = true;
+        }
+    }
+
+    if (!isNumeric(minor)) {
+            err = true;
+    } else {
+        if (parseInt(minor) < 0 || parseInt(minor) > 10000) {
+            err = true;
+        }
+    }
+
+    if (!isNumeric(revision)) {
+            err = true;
+    } else {
+        if (parseInt(revision) < 0 || parseInt(revision) > 10000) {
+            err = true;
+        }
+    }
+
+    if (!isNumeric(build)) {
+            err = true;
+    } else {
+        if (parseInt(build) < 0 || parseInt(build) > 10000) {
+            err = true;
+        }
+    }
+
+    if (err) {
+        alert('{!$Label.msg_01042}');
+        return false;
+    }
+
+    top.window.opener.securePostAsync("/contentsmanagement/editVersion.json", JSON.stringify({id:"{!fileId}", oldVersion:editVer, newVersion:newVersion}),
+        function(result){
+            if(result.result){
+                // グリッドのリロード処理
+                $("#versionHistory").trigger("reloadGrid");
+                $("#editVerDialog").dialog("close");
+            }else{
+                alert(result.message);
+            }
+
+        },
+        function(){
+        }
+    );
+
+
+}
+
+function restoreVersion(id, v) {
+    if (confirm(getMsg([v], '{!$Label.msg_01043}'))) {
+        top.window.opener.securePostAsync("/contentsmanagement/restoreVersion.json", JSON.stringify({id:"{!fileId}", version:v}),
+            function(result){
+                if(result.result){
+                    // グリッドのリロード処理
+                    $("#versionHistory").trigger("reloadGrid");
+                }else{
+                    alert(result.message);
+                }
+
+            },
+            function(){
+            }
+        );
+    }
+}
+
+/*
+ * コピー元参照
+ */
+function copyOriginal(){
+    <apex:variable rendered="{!AND(copiedContentsId != '', copiedContentsId != null)}" var="" value="">
+    location.href = '{!$Page.SOLXYZCSO001__DocumentContentsInfo}?fileId={!copiedContentsId}&type=alive&security={!security}&ecmSessionId={!ecmSessionId}';
+    </apex:variable>
+}
+
+function openEditVersion(id, v){
+    editVer = v;
+    var v = v.split(".");
+    $("#v_major").val(v[0]);
+    $("#v_minor").val(v[1]);
+    $("#v_revision").val(v[2]);
+    $("#v_build").val(v[3]);
+    $("#editVerDialog").dialog({modal:true, width:320, "title":"{!$Label.solxyzcso001__label_11036}"});
+}
+
+function changeView(item){
+/*
+    var pos = $("#j_id0\\:Form\\:j_id56\\:balloon" + item).position().left + 17;
+    documentContentsInfoballoonItem = item;
+    $("#balloon").animate({
+        left: pos
+    }, 500, null, function(e){
+        switch(item){
+        case 0:
+            $("#baseInfoDiv").show();
+            $("#updateHistoryDiv").hide();
+            $("#symbolicLinkDiv").hide();
+            $("#workflowDiv").hide();
+            $("#workflowBlankDiv").hide();
+            break;
+        case 1:
+            $("#baseInfoDiv").hide();
+            $("#updateHistoryDiv").show();
+            $("#symbolicLinkDiv").hide();
+            $("#workflowDiv").hide();
+            $("#workflowBlankDiv").hide();
+            break;
+        case 2:
+            $("#baseInfoDiv").hide();
+            $("#updateHistoryDiv").hide();
+            $("#symbolicLinkDiv").show();
+            $("#workflowDiv").hide();
+            $("#workflowBlankDiv").hide();
+            break;
+        case 3:
+            $("#baseInfoDiv").hide();
+            $("#updateHistoryDiv").hide();
+            $("#symbolicLinkDiv").hide();
+            if("{!userInfo.proAuth_workflow_standard}" == "true"){
+                $("#workflowDiv").show();
+            }
+            else{
+                $("#workflowBlankDiv").show();
+            }
+            break;
+        }
+    });
+*/
+}
+
+function applyWorkflow(){
+    location.href = '{!$Page.SOLXYZCSO001__WorkflowApply}?fileId={!fileId}&callType=';
+}
+
+
+function applyWorkflow(workflowId, copyflg){
+    location.href = '{!$Page.SOLXYZCSO001__WorkflowApply}?fileId={!fileId}&callType=&workflowId=' + workflowId + '&cFlg=' + copyflg;
+}
+
+
+function showDetail(id) {
+    var windowObj;
+    if (window.opener) {
+        windowObj = top.window.opener;
+    } else {
+        windowObj = window;
+    }
+    windowObj.open("{!$Page.SOLXYZCSO001__WorkflowDetail}?workflowId=" + id, "_blank");
+}
+
+function withdraw(id) {
+    if (!confirm('{!$Label.solxyzcso001__msg_00308}')) {
+        return false;
+    }
+
+    CsoScript_loadingStart();
+    var wfid = JSON.stringify([id]);
+    top.window.opener.securePostAsync("/workflowmanagement/withdraw.json", {wfid : wfid},
+        function(data){
+            CsoScript_loadingStop();
+            if(data.result){
+                // グリッドのリロード処理
+                $("#workflowHistory").trigger("reloadGrid");
+            }else{
+                if((data.userMsg != null) && (data.userMsg != "")){
+                    alert(data.userMsg);
+                }
+                if((data.message != null) && (data.message != "")){
+                    alert(data.message);
+                }
+            }
+        },
+        function(data){
+            CsoScript_loadingStop();
+            alert("withdraw:" + data);
+        }
+    );
+
+    return false;
+}
+
+function symbolicLinkDelete(spaceId, contentsId, fileIdList){
+    if(confirm("{!$Label.solxyzcso001__msg_01066}")){
+        top.window.opener.securePostAsync("/contentsmanagement/SymbolicLinkDelete.json", JSON.stringify({spaceId:spaceId, contentsId:contentsId, linkToIds:fileIdList}),
+            function(result){
+               if(result.result){
+                    // グリッドのリロード処理
+                    $("#symbolicLinkList").trigger("reloadGrid");
+                }else{
+                    alert(result.message);
+                }
+            },
+            function(){
+            }
+        );
+    }
+}
+
+function deleteLinks(){
+    var selRowList = $("#symbolicLinkList").jqGrid('getGridParam','selarrrow');
+    if(selRowList.length == 0){
+        return;
+    }
+
+    var idList = new Array();
+    var linkToIdList = new Array();
+
+    for(i in selRowList){
+        var ret = $("#symbolicLinkList").jqGrid('getRowData', selRowList[i]);
+        idList.push(ret.spaceId);
+        linkToIdList.push(ret.contentsId);
+    }
+
+    symbolicLinkDelete(idList.join(","), "{!fileId}", linkToIdList.join(","));
+}
+
+var _docInf_spaceId;
+var _docInf_contentsId;
+function editLink(spaceId, contentsId, flg){
+    _docInf_spaceId = spaceId;
+    _docInf_contentsId = contentsId;
+    if(flg){
+        $("#viewLinkIcon").attr("checked", "checked");
+    } else {
+        $("#viewLinkIcon").removeAttr("checked");
+    }
+    $("#editLinkDialog").dialog("open");
+}
+
+function applyLinkEdit(){
+
+    top.window.opener.securePostAsync("/contentsmanagement/SymbolicLinkEdit.json", JSON.stringify({spaceId:_docInf_spaceId, contentsId:_docInf_contentsId, isView:$("#viewLinkIcon").attr("checked")}),
+        function(result){
+           if(result.result){
+                // グリッドのリロード処理
+                $("#symbolicLinkList").trigger("reloadGrid");
+                $("#editLinkDialog").dialog("close");
+            }else{
+                alert(result.message);
+            }
+        },
+        function(){
+        }
+    );
+}
+
+function tab(tab){
+    var i = 1;
+    $(".contents_info_tab").each(function(){
+        if(tab == i){
+            $("#tab_" + i).show();
+            $(this).removeClass("contents_info_tab_deactive");
+            $(this).addClass("contents_info_tab_active");
+        }else{
+            $("#tab_" + i).hide();
+            $(this).removeClass("contents_info_tab_active");
+            $(this).addClass("contents_info_tab_deactive");
+        }
+        i++;
+    });
+}
+
+/*ライフサイクル取得 20130528 王
+*/
+function getLifeCycleAct(act){
+    if(act == "ARCHIVE"){
+        return 1;
+    }else if(act == "TRASH"){
+        return 2;
+    }else if(act == "WIPE"){
+        return 3;
+    }
+    return -1;
+}
+
+/*
+ * コンテンツ公開初期表示
+ */
+function displayDiscloseInfoInit(){
+    if('{!discloseEnable}' == 'true'){
+        $("#discloseStatus").text("{!$Label.solxyzcso001__label_00083}");
+    } else {
+        $("#discloseStatus").text("{!$Label.solxyzcso001__label_00084}");
+    }
+    if('{!discloseMode}' == '0'){
+        if('{!discloseEnable}' == 'true'){
+            $("#discloseType").text("{!$Label.solxyzcso001__label_13126}");
+        } else {
+            $("#discloseType").text("{!$Label.solxyzcso001__label_10431}");
+        }
+    } else if('{!discloseMode}' == '1') {
+        $("#discloseType").text("{!$Label.solxyzcso001__label_13127}");
+    } else if('{!discloseMode}' == '2') {
+        $("#discloseType").text("{!$Label.solxyzcso001__label_13128}");
+    }
+    if(('{!discloseMode}' == '0')&&('{!discloseEnable}' == 'true')){
+        $("#discloseTerm").text("{!discloseStartDate} {!$Label.solxyzcso001__label_10316} {!discloseEndDate}");
+        $("#discloseTermTimeZone").show();
+    } else {
+        $("#discloseTerm").text("{!$Label.solxyzcso001__label_10431}");
+        $("#discloseTermTimeZone").hide();
+    }
+
+    // スペース設定表示
+    if('{!spaceDiscloseMode}' == '0'){
+        if('{!spaceDiscloseEnable}' == 'true'){
+            $("#spaceDiscloseType").text("{!$Label.solxyzcso001__label_13126}");
+        } else {
+            $("#spaceDiscloseType").text("{!$Label.solxyzcso001__label_10431}");
+        }
+    } else if('{!spaceDiscloseMode}' == '1') {
+        $("#spaceDiscloseType").text("{!$Label.solxyzcso001__label_13127}");
+    } else if('{!spaceDiscloseMode}' == '2') {
+        $("#spaceDiscloseType").text("{!$Label.solxyzcso001__label_13128}");
+    }
+    if(('{!spaceDiscloseMode}' == '0')&&('{!spaceDiscloseEnable}' == 'true')){
+        $("#spaceDiscloseTerm").text("{!spaceDiscloseStartDate} {!$Label.solxyzcso001__label_10316} {!spaceDiscloseEndDate}");
+        $("#spaceDiscloseTermTimeZone").show();
+    } else {
+        $("#spaceDiscloseTerm").text("{!$Label.solxyzcso001__label_10431}");
+        $("#spaceDiscloseTermTimeZone").hide();
+    }
+}
+
+</script>
+<style>
+body {
+    min-width: 790px;
+}
+
+div#updateHistoryDiv tr.deleted {
+    background-color: #666666 !important;
+}
+
+.ui-widget-content {
+    border: 1px solid #a6c9e2;
+    background: #fcfdfd  50% bottom repeat-x;
+    color: #222222;
+}
+
+#histroyTitle, #workFlowTitle, #linkContentsTitle {
+    color: #4A4A56;
+    font-size: 91%;
+    font-weight: bold;
+    margin-bottom:5px;
+
+}
+
+.footer-icon{
+    padding: 0px 20px 0px 20px;
+    width: 48px;
+    height: 48px;
+    border: none;
+}
+
+.bottomitem {
+    font-size: 0.8em;
+    color: gray;
+}
+
+.detailList td {
+    vertical-align: middle !important;
+}
+
+.popBtn {
+    font-family: 'MS UI Gothic','MS PGothic','Hiragino Kaku Gothic Pro','Osaka','Arial','Helvetica',sans-serif !important;
+}
+
+#contents_info_tab {
+    margin-top: 0px;
+}
+
+#contents_info_tab li {
+    list-style: none;
+    line-height: 10px;
+    float: left;
+    margin-right: 5px;
+    border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    display: block;
+    text-decoration: none;
+    padding: 9px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 0.2em;
+}
+
+#contents_info_tab a {
+    display: block;
+    text-decoration: none;
+    padding: 9px 17px;
+    font-weight: bold;
+}
+
+.contents_info_tab_active {
+    background-color: #F8F8F8;
+    color: #445566 !important;
+}
+
+.contents_info_tab_active a {
+    color: #445566 !important;
+}
+.contents_info_tab_active a:hover {
+    color: #445566 !important;
+}
+
+.contents_info_tab_deactive {
+    background-color: #0033ff;
+    filter:alpha(opacity=50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    color: white;
+}
+
+.contents_info_tab_deactive a {
+    color: white;
+}
+
+.contents_info_tab_deactive a:hover {
+    color: white;
+}
+
+.jqgrow{
+    height: 40px;
+}
+
+.word-break h3 {
+    word-wrap: break-word;
+}
+
+.tag-container ul {
+    width: 320px;
+}
+
+.tag-container li > span {
+    font-size: 80%;
+}
+
+.disclose-table {
+    padding: 15px 0 0 50px;
+}
+
+.disclose-table th {
+    text-align: right;
+    font-weight: bold;
+    height: 30px;
+    padding: 0 10px 0 0;
+}
+.disclose-space-title {
+    margin: 30px 0 0 50px;
+    font-weight: bold;
+}
+.disclose-contents-explanation {
+    margin: 10px 0 35px 50px;
+}
+
+</style>
+<apex:form id="Form">
+<!-- ヘッダー -->
+<div id="c_head">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/property.png')}"/>
+    <div id="c_headTitle">
+        {!$Label.label_00002}
+    </div>
+    <div id="c_headSubTitle"></div>
+</div>
+<apex:pageBlock tabStyle="ContentTab__tab">
+    <div class="word-break">
+        <apex:pageBlockSection title="{!spacePath}" collapsible="false"/>
+    </div>
+</apex:pageBlock>
+<apex:pageBlock id="contentTab" tabStyle="ContentTab__tab" title="">
+    <!-- エラー／警告メッセージ表示エリア -->
+    <apex:pageMessages />
+    <!-- ボタン -->
+    <apex:pageBlockButtons >
+        <apex:commandButton value="{!$Label.solxyzcso001__label_00073}" action="{!edit}" rendered="{!IF(fileType == 'garbage' || canEdit == 'false' || fileType == 'archive' || link == 'true', false, true)}"/>
+        <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" onclick="top.window.close();"/>
+    </apex:pageBlockButtons>
+
+    <!-- ページボディー -->
+<div id ="tab_1" style="padding-bottom:15px; height:340px; overflow:auto">
+    <table id="customfieldsTbl" class="customfields">
+        <!-- コンテンツ -->
+        <tr cfname="name">
+            <th>{!$Label.label_10011}</th>
+            <td>
+                <div id="contentNameSize"/>
+            </td>
+        </tr>
+        <!-- 保存期間 -->
+        <!-- apex:pageBlockSectionItem >
+            <apex:outputLabel for="expire" value="{!$Label.label_10013}"/>
+            <div id="expire" colspan="3" >{!saveDate}</div>
+        </apex:pageBlockSectionItem-->
+        <!-- 保存期間が過ぎた場合 -->
+        <tr id="saveDateRow">
+            <th>{!$Label.label_10060}</th>
+            <td>
+                <div id="expireover" colspan="3" >{!expireover}</div>
+            </td>
+        </tr>
+        <!-- 説明 -->
+        <tr cfname="explanation">
+            <th>{!$Label.label_10012}</th>
+            <td>
+                <textarea class="c_textarea_m" style="resize: none;" readonly="readonly" disabled="disabled">{!explanation}</textarea>
+            </td>
+        </tr>
+        <!-- タグ -->
+        <tr cfname="tag">
+            <th>{!$Label.label_00057}</th>
+            <td>
+                <div class="tag-container" style="margin-top:-10px;margin-bottom: -10px;">
+                    <input type="text" id="tagNames" style="height: 1.2em; width: 320px;" value="{!tagNames}" readonly="readonly" disabled="disabled" />
+                </div>
+            </td>
+        </tr>
+        <!-- Copied content source -->
+        <tr id="copiedContentsVersionRow">
+            <th>{!$Label.label_10230}</th>
+            <td>
+                <div id="copiedContentsVersionOriginalDiv">
+                    <a href="javascript:void(0)" onclick="copyOriginal();">{!copiedContentsVersion}</a>
+                </div>
+                <div id="copiedContentsVersionDiv">
+                    {!copiedContentsVersion}
+                </div>
+            </td>
+        </tr>
+        <!-- バージョン -->
+        <tr cfname="version">
+            <th>{!$Label.label_10038}</th>
+            <td>
+                <div id="version" colspan="3" >{!releaseVersionString}</div>
+            </td>
+        </tr>
+    </table>
+    <!-- ページボディー -->
+    <apex:pageBlockSection columns="2">
+        <!-- 作成者 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="creator" value="{!$Label.solxyzcso001__label_10015}"/>
+            <apex:variable rendered="true" var="" value="">
+                <div id="regUserName" colspan="3" ><apex:outputText escape="false" value="{!regUserName}" /></div>
+            </apex:variable>
+        </apex:pageBlockSectionItem>
+        <!-- 作成日時 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="created_date" value="{!$Label.solxyzcso001__label_10014}"/>
+            <div id="regDate" colspan="3" >{!regDate}</div>
+        </apex:pageBlockSectionItem>
+        <!-- 更新者 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_person" value="{!$Label.solxyzcso001__label_10024}"/>
+            <apex:variable rendered="true" var="" value="">
+                <div id="upUserName" colspan="3" ><apex:outputText escape="false" value="{!upUserName}" /></div>
+            </apex:variable>
+        </apex:pageBlockSectionItem>
+        <!-- 更新日時 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_date" value="{!$Label.solxyzcso001__label_10018}"/>
+            <div id="upDate" colspan="3" >{!upDateString}</div>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+</div>
+<div id ="tab_2" style="display:none; padding-bottom:15px; height:340px;">
+    <apex:pageBlockSection columns="1">
+        <!-- 変更履歴 -->
+        <!-- <apex:pageBlockSectionItem ><apex:outputLabel for="" value=""/></apex:pageBlockSectionItem>  -->
+        <apex:pageBlockSectionItem >
+            <table width="100%" >
+                <tr>
+                    <td id="histroyTitle">
+                        <div style="height: 19px; margin-top: -5px;">{!$Label.label_10039}</div>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+            <div id="updateHistoryDiv">
+                <table id="versionHistory"></table>
+                <div id="updateHistoryPager"></div>
+            </div>
+        </apex:pageBlockSectionItem>
+
+    </apex:pageBlockSection>
+</div>
+
+<div id ="tab_3" style="display: none; padding-bottom:15px; height:340px;">
+    <apex:pageBlockSection columns="1">
+        <!-- リンクコンテンツ -->
+        <apex:pageBlockSectionItem >
+            <table width="100%" style="margin-top: -10px;">
+                <tr>
+                    <td id="linkContentsTitle">
+                        {!$Label.label_11097}
+                    </td>
+                    <td align="right" style="display:{!if(link == 'false' && removeSymbolicLink == 'true','block','none')}" >
+                        <input class="btn" type="button" value='{!$Label.label_11092}' onclick="deleteLinks();"/>
+                    </td>
+                </tr>
+            </table>
+            <div id="linkContentsDiv">
+                <table id="symbolicLinkList"></table>
+                <div id="symbolicLinkListPager"></div>
+            </div>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+</div>
+
+<div id ="tab_4" style="display:none; padding-bottom:15px; height:340px;">
+    <apex:pageBlockSection columns="1">
+        <!-- ワークフロー -->
+        <apex:pageBlockSectionItem >
+            <table width="100%" style="margin-top: -10px;">
+                <tr>
+                    <td id="workFlowTitle">
+                        {!$Label.label_10692}
+                    </td>
+                    <td align="right" style="display:{!if(canStartWorkflow == 'true','block','none')}">
+                        <input id="commitButton" class="btn" type="button" value='{!$Label.label_00087}' onclick="applyWorkflow()" />
+                    </td>
+                </tr>
+            </table>
+            <div id="workflowDiv">
+                <table id="workflowHistory"></table>
+                <div id="workflowHistoryPager"></div>
+            </div>
+        </apex:pageBlockSectionItem>
+
+    </apex:pageBlockSection>
+</div>
+<!-- ライフサイクル詳細 -->
+<div id ="tab_5" style="display:none; padding-bottom:15px; height:340px;">
+    <div id="lifeCycleView" style="position: absolute;"></div>
+
+</div>
+
+<div id ="workflowBlankDiv" style="display:none; padding-bottom:15px; height:310px;">
+    <apex:pageBlockSection columns="1">
+        <!-- ワークフロー -->
+        <apex:pageBlockSectionItem >
+            <table width="100%">
+                <tr>
+                    <td id="histroyTitle">
+                        {!$Label.solxyzcso001__label_10692}
+                    </td>
+                </tr>
+            </table>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+</div>
+
+<div id="tab_6" style="display:none; padding-bottom:15px; height:340px;">
+    <table class="disclose-table">
+        <tr>
+            <th>{!$Label.label_00083}</th>
+            <td>
+                <div id="discloseStatus" style="font-size: 15px; margin: 0 0 0 5px;"></div>
+            </td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_13125}</th>
+            <td>
+                <div id="discloseType" style="font-size: 15px; margin: 0 0 0 5px;"></div>
+            </td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_13129}</th>
+            <td>
+                <div id="discloseTerm" style="font-size: 15px; margin: 0 0 0 5px;"></div>
+            </td>
+        </tr>
+        <tr>
+            <th style="height: 18px;"></th>
+            <td>
+                <div id="discloseTermTimeZone" style="font-size: 15px; margin: 0 0 0 5px; display:none;">{!timeZoneText}</div>
+            </td>
+        </tr>
+    </table>
+    <p class="disclose-contents-explanation">{!$Label.label_13130}</p>
+    <hr />
+    <p class="disclose-space-title">{!$Label.label_13131}</p>
+    <table class="disclose-table">
+        <tr>
+            <th>{!$Label.label_13125}</th>
+            <td><div id="spaceDiscloseType" style="font-size: 15px; margin: 0 0 0 5px;"></div></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_13129}</th>
+            <td>
+                <div id="spaceDiscloseTerm" style="font-size: 15px; margin: 0 0 0 5px;"></div>
+            </td>
+        </tr>
+        <tr>
+            <th style="height: 18px;"></th>
+            <td><div id="spaceDiscloseTermTimeZone" style="font-size: 15px; margin: 0 0 0 5px; display:none;">{!timeZoneText}</div></td>
+        </tr>
+    </table>
+</div>
+
+<!--
+<div style="width: 100%; height: 100%; text-align: center; border-top: solid silver 1px; padding-top: 30px; position: relative; background-color: #7593D7;">
+    <div style="height: 25px; width: 50px; overflow: hidden; position: absolute; left: 212px; top: -1px; background-color: #7593D7;" id="balloon">
+        <div style="border: 25px solid; border-color: silver transparent; position: absolute; border-bottom-width: 0px;"></div>
+        <div style="border: 24px solid; border-color: #F8F8F8 transparent; left: 1px; position: absolute; border-bottom-width: 0px;"></div>
+    </div>
+
+    <a href="javascript:changeView(0);"><apex:image id="balloon0" styleClass="footer-icon" url="{!URLFOR($Resource.cso, 'image/test/Cloud.png')}" title="{!$Label.label_10128}"/></a>
+    <a href="javascript:changeView(1);"><apex:image id="balloon1" styleClass="footer-icon" url="{!URLFOR($Resource.cso, 'image/test/Grocery-Bag.png')}" title="{!$Label.label_10039}"/></a>
+    <a href="javascript:changeView(2);"><apex:image id="balloon2" styleClass="footer-icon" url="{!URLFOR($Resource.cso, 'image/test/Link2.png')}" title="{!$Label.label_11072}"/></a>
+    <a href="javascript:changeView(3);"><apex:image id="balloon3" styleClass="footer-icon" url="{!URLFOR($Resource.cso, 'image/test/Chats.png')}" title="{!$Label.label_11073}"/></a>
+</div>
+ -->
+    <div style="background-color: #7593D7; height:50px; width:100%;">
+        <ul id="contents_info_tab">
+            <li id="contents_info_tab_1" class="contents_info_tab contents_info_tab_active">{!$Label.label_10128}</li>
+            <li id="contents_info_tab_2" class="contents_info_tab contents_info_tab_deactive">{!$Label.label_10039}</li>
+            <li id="contents_info_tab_3" class="contents_info_tab contents_info_tab_deactive" style="display:{!if(link == 'false' && removeSymbolicLink == 'true','block','none')}" >{!$Label.label_11072}</li>
+            <li id="contents_info_tab_4" class="contents_info_tab contents_info_tab_deactive">{!$Label.label_10692}</li>
+            <li id="contents_info_tab_5" class="contents_info_tab contents_info_tab_deactive">{!$Label.label_13017}</li>
+            <li id="contents_info_tab_6" class="contents_info_tab contents_info_tab_deactive" style="display:{!if(discloseDisplay == true,'block','none')}" >{!$Label.label_13129}</li>
+        </ul>
+    </div>
+</apex:pageBlock>
+</apex:form>
+
+<!-- コンテンツダウンロードIFRAME -->
+<iframe id="downframe" height="0" width="0" style="display:none"/>
+<!-- バージョン編集ダイアログ Start -->
+<div id="editVerDialog" style="padding:20px; display:none;">
+    <div>{!$Label.msg_01044}</div>
+    <div style="padding-left:20px;padding-top:10px;">
+        <input type="text" style="width:50px;" id="v_major" maxlength="4" />.
+        <input type="text" style="width:50px;" id="v_minor" maxlength="4" />.
+        <input type="text" style="width:50px;" id="v_revision" maxlength="4" />.
+        <input type="text" style="width:50px;" id="v_build" maxlength="4" />
+    </div>
+    <div style="text-align:right;padding-top:10px;">
+        <input type="button" class="btn" value="{!$Label.solxyzcso001__label_00058}" onclick="$('#editVerDialog').dialog('close');" />
+        <input type="button" class="btn" value="{!$Label.label_00075}" onclick="editVersion();" />
+    </div>
+</div>
+<!-- バージョン編集ダイアログ End -->
+
+<div id="editLinkDialog" title="{!$Label.label_11093}" style="padding: 20px;">
+    <div>
+        <label><input type="checkbox" style="vertical-align: -2px;" id="viewLinkIcon" />{!$Label.label_11094}</label>
+    </div>
+    <div style="width: 100%; text-align: right; margin-top: 30px;">
+        <input type="button" class="btn popBtn" value="{!$Label.field_common_cancel}" onclick="$('#editLinkDialog').dialog('close');" />
+        <input type="button" class="btn popBtn" value="{!$Label.field_common_ok}" onclick="applyLinkEdit();" />
+    </div>
+</div>
+</apex:outputPanel>
+</apex:outputPanel>
+<div id="preview-area" style="display: none;"></div>
+</apex:page>

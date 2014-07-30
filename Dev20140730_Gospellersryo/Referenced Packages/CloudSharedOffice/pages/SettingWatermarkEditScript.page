@@ -1,0 +1,1187 @@
+<apex:page cache="false" >
+
+<script type="text/javascript">
+/*-- =======//
+//  変  数  //
+//======= --*/
+/*--  ID  --*/
+var WM_WatermarkId = "dummy";
+/*--  ImageFileInfo ID  --*/
+var WM_ImageFileInfoIdOld = "";
+
+/*--  アップロードファイルID  --*/
+var PDF_UploadFileId = "";
+/*--  アップロード結果  --*/
+var plupload_result = true;
+
+/*--  エラーの有無  --*/
+var WM_err = false;
+
+function uploaderInit(){
+    /*-- -------------- --*/
+    /*--  uploader関連  --*/
+    /*-- -------------- --*/
+
+    var uploadRuntime = '';
+    if(navigator.userAgent.indexOf('MSIE') !== -1) {
+        uploadRuntime = 'silverlight';
+    } else {
+        uploadRuntime = 'html5,silverlight';
+    }
+
+    var uploader = new plupload.Uploader({
+        runtimes : uploadRuntime,
+        send_browser_cookies : true,
+        browse_button : 'WM_selectFile',
+        container: 'button-container',
+        max_file_size : '2mb',
+        url : _apiUrl + '/setup/WatermarkImageUploadApi.json',
+        silverlight_xap_url : '{!$Resource.SOLXYZCSO001__pluploadsilverlight}',
+        multi_selection : false,
+        dragdrop : true,
+        multipart : true,
+        filters : [{
+            title : "Image files",
+            extensions : "jpg,jpeg,png,gif"
+        }],
+    });
+
+    uploader.init();
+
+    $('#WM_uploadFile').click(function(e) {
+        if (uploader.files.length > 0) {
+            uploader.start();
+            e.preventDefault();
+        }
+    });
+
+    uploader.bind('FilesAdded', function(up, files) {
+    });
+
+    uploader.bind('QueueChanged', function(up) {
+        if (up.files.length == 0) {
+            return false;
+        }
+        var file = up.files[up.files.length - 1];
+        for (var i = 0; i < up.files.length - 2; i++) {
+            up.removeFile(up.files[i]);
+        }
+
+        $("#WM_fileName").val(file.name);
+
+        $("#WM_uploadFile").trigger('click');
+    });
+
+    uploader.bind('Error', function(up, err) {
+        switch(err.code) {
+        case plupload.FILE_SIZE_ERROR :
+            alert('{!$Label.solxyzcso001__msg_00281}' + '\n' + err.file.name);
+            break;
+        case plupload.FILE_EXTENSION_ERROR :
+            alert('{!$Label.solxyzcso001__msg_00282}' + '\n' + err.file.name);
+            break;
+        }
+        up.refresh();
+    });
+
+    uploader.bind('FileUploaded', function(up, file, obj) {
+        if (obj.response) {
+            var resp = JSON.parse(obj.response);
+            if (resp.result != true) {
+                plupload_result = false;
+                alert(resp.errorMessage);
+                return;
+            }
+            PDF_UploadFileId = resp.imageId;
+            /*--  有効化する  --*/
+            enabledUserImage();
+            if($('#' + PDF_ID_PreviewObjectUserImage).css('display') == 'none'){
+                $('#' + PDF_ID_PreviewObjectUserImage).show();
+            }
+            /*--  画像のdownload  --*/
+            if(WM_browserType == 'IE8'){
+                $("span").remove("#" + PDF_ID_PreviewObjectUserImage);
+                $("img").remove("#" + PDF_ID_PreviewObjectUserImage);
+                var objUserImage = $("<img/>").attr('src', _apiUrl + '/WatermarkImageDownload?imageId=' + PDF_UploadFileId).attr('id', PDF_ID_PreviewObjectUserImage).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+                $('#' + PDF_ID_PreviewCanvas).append(objUserImage);
+                objUserImage.rotate(0);
+                objUserImage.bind('load', function(){
+                    var obj = $("#" + PDF_ID_PreviewObjectUserImage);
+                    obj.mousedown(function(){preview_object_select(this);});
+                    draggable(PDF_ID_PreviewObjectUserImage);
+                    $('#' + PDF_ID_PreviewObjectUserImage + '_rvml').css("background-color","#ffffff");
+                    sliderEffect("", "", $("#" + PDF_ID_SliderAlphaValue).val());
+                    /*--  再配置  --*/
+                    itemRearrangeAll();
+                } );
+                /*--  画像の入れ替えを複数回行うと                      --*/
+                /*--  loadイベントが発生しない場合があり、              --*/
+                /*--  その際はここでloadイベント時と同様の処理を行うと  --*/
+                /*--  期待通りの動作となった。                          --*/
+                objUserImage = $("#" + PDF_ID_PreviewObjectUserImage);
+                objUserImage.mousedown(function(){preview_object_select(this);});
+                draggable(PDF_ID_PreviewObjectUserImage);
+                $('#' + PDF_ID_PreviewObjectUserImage + '_rvml').css("background-color","#ffffff");
+                sliderEffect("", "", $("#" + PDF_ID_SliderAlphaValue).val());
+            }
+            else{
+                setImageSrc(PDF_ID_PreviewObjectUserImage, _apiUrl + "/WatermarkImageDownload?imageId=" + PDF_UploadFileId);
+            }
+            /*--  画像サイズを設定  --*/
+            PDF_ImageSizeUserImage = {"width": resp.width, "height": resp.height};
+            $("#PDF_SpinWidth") .val(PDF_ImageSizeUserImage.width);
+            $("#PDF_SpinHeight").val(PDF_ImageSizeUserImage.height);
+            /*--  再配置  --*/
+            itemRearrangeAll();
+        }
+    });
+
+    uploader.bind('UploadComplete', function(up, file) {
+    });
+}
+
+function WM_loadStringImage(data){
+    var info = data.detail.info;
+
+    /*--  画像サイズを取得  --*/
+    var strFormat = info.timeStampAttr.format;
+    if((strFormat == null) || (strFormat == "")){
+        strFormat = PDF_TimestampFormatDefault;
+    }
+    var srcUserId    = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.userIdAttr.color    + "&format=userid&point=" + PDF_StringImageFontSize;
+    var srcUserName  = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.usernameAttr.color  + "&format=username&point=" + PDF_StringImageFontSize;
+    var srcTimestamp = _apiUrl + "/WatermarkTextDownload?type=1&color=" + info.timeStampAttr.color + "&format=" + encodeURI(strFormat) + "&point=" + PDF_StringImageFontSize;
+    var srcCorp      = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.corpAttr.color      + "&format=corp&point=" + PDF_StringImageFontSize;
+    var srcPost      = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.postAttr.color      + "&format=post&point=" + PDF_StringImageFontSize;
+    var srcNumber    = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.numberAttr.color    + "&format=number&point=" + PDF_StringImageFontSize;
+    var srcEmail     = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.emailAttr.color     + "&format=email&point=" + PDF_StringImageFontSize;
+    var srcText      = _apiUrl + "/WatermarkTextDownload?type=2&color=" + info.textAttr.color      + "&format=" + encodeURIComponent(info.textAttr.text) + "&point=" + PDF_StringImageFontSize;
+    var srcUserImage = _apiUrl + "/WatermarkFileDownload?imageId="      + info.imageAttr.imgId;
+
+
+    /*--  画像の読み込みフラグを初期化  --*/
+    WM_InitLoadImageUserId    = false;
+    WM_InitLoadImageUserName  = false;
+    WM_InitLoadImageTimestamp = false;
+    WM_InitLoadImageUserImage = false;
+    WM_InitLoadImageCorp      = false;
+    WM_InitLoadImagePost      = false;
+    WM_InitLoadImageNumber    = false;
+    WM_InitLoadImageEmail     = false;
+    WM_InitLoadImageText      = false;
+
+    /*--  ユーザID  --*/
+    var imgUserId = new Image();
+    imgUserId.onload = function(){
+        PDF_ImageSizeUserId = {width: this.width, height: this.height};
+        WM_InitLoadImageUserId = true;
+    }
+    imgUserId.onerror = function(){
+        $("#" + PDF_ID_PreviewObjectUserId).attr('src', WM_LoadImageErrFile);
+        PDF_ImageSizeUserId = {width: 150, height: 150};
+        WM_InitLoadImageUserId = true;
+    }
+    imgUserId.src = srcUserId;
+
+    /*--  ユーザ名  --*/
+    var imgUserName = new Image();
+    imgUserName.onload = function(){
+        PDF_ImageSizeUserName = {width: this.width, height: this.height};
+        WM_InitLoadImageUserName = true;
+    }
+    imgUserName.onerror = function(){
+        $("#" + PDF_ID_PreviewObjectUserName).attr('src', WM_LoadImageErrFile);
+        PDF_ImageSizeUserName = {width: 150, height: 150};
+        WM_InitLoadImageUserName = true;
+    }
+    imgUserName.src = srcUserName;
+
+    /*--  タイムスタンプ  --*/
+    var imgTimestamp = new Image();
+    imgTimestamp.onload = function(){
+        PDF_ImageSizeTimestamp = {width: this.width, height: this.height};
+        WM_InitLoadImageTimestamp = true;
+    }
+    imgTimestamp.onerror = function(){
+        $("#" + PDF_ID_PreviewObjectTimestamp).attr('src', WM_LoadImageErrFile);
+        PDF_ImageSizeTimestamp = {width: 150, height: 150};
+        WM_InitLoadImageTimestamp = true;
+    }
+    imgTimestamp.src = srcTimestamp;
+
+    /*--  所属組織  --*/
+    var imgCorp = new Image();
+    imgCorp.onload = function(){
+        PDF_ImageSizeCorp = {width: this.width, height: this.height};
+        WM_InitLoadImageCorp = true;
+    }
+    imgCorp.onerror = function(){
+        $("#" + PDF_ID_PreviewObjectCorp).attr('src', WM_LoadImageErrFile);
+        PDF_ImageSizeCorp = {width: 150, height: 150};
+        WM_InitLoadImageCorp = true;
+    }
+    imgCorp.src = srcCorp;
+
+    /*--  部署・役職  --*/
+    var imgPost = new Image();
+    imgPost.onload = function(){
+        PDF_ImageSizePost = {width: this.width, height: this.height};
+        WM_InitLoadImagePost = true;
+    }
+    imgPost.onerror = function(){
+        $("#" + PDF_ID_PreviewObjectPost).attr('src', WM_LoadImageErrFile);
+        PDF_ImageSizePost = {width: 150, height: 150};
+        WM_InitLoadImagePost = true;
+    }
+    imgPost.src = srcPost;
+
+    /*--  社員番号  --*/
+    var imgNumber = new Image();
+    imgNumber.onload = function(){
+        PDF_ImageSizeNumber = {width: this.width, height: this.height};
+        WM_InitLoadImageNumber = true;
+    }
+    imgNumber.onerror = function(){
+        $("#" + PDF_ID_PreviewObjectNumber).attr('src', WM_LoadImageErrFile);
+        PDF_ImageSizeNumber = {width: 150, height: 150};
+        WM_InitLoadImageNumber = true;
+    }
+    imgNumber.src = srcNumber;
+
+    /*--  メールアドレス  --*/
+    var imgEmail = new Image();
+    imgEmail.onload = function(){
+        PDF_ImageSizeEmail = {width: this.width, height: this.height};
+        WM_InitLoadImageEmail = true;
+    }
+    imgEmail.onerror = function(){
+        $("#" + PDF_ID_PreviewObjectEmail).attr('src', WM_LoadImageErrFile);
+        PDF_ImageSizeEmail = {width: 150, height: 150};
+        WM_InitLoadImageEmail = true;
+    }
+    imgEmail.src = srcEmail;
+
+    /*--  フリーテキスト  --*/
+    var imgText = new Image();
+    imgText.onload = function(){
+        PDF_ImageSizeText = {width: this.width, height: this.height};
+        WM_InitLoadImageText = true;
+    }
+    imgText.onerror = function(){
+        $("#" + PDF_ID_PreviewObjectText).attr('src', WM_LoadImageErrFile);
+        PDF_ImageSizeText = {width: 150, height: 150};
+        WM_InitLoadImageText = true;
+    }
+    imgText.src = srcText;
+
+
+    setImageSrc(PDF_ID_PreviewObjectUserId,    srcUserId);
+    setImageSrc(PDF_ID_PreviewObjectUserName,  srcUserName);
+    setImageSrc(PDF_ID_PreviewObjectTimestamp, srcTimestamp);
+    setImageSrc(PDF_ID_PreviewObjectCorp,      srcCorp);
+    setImageSrc(PDF_ID_PreviewObjectPost,      srcPost);
+    setImageSrc(PDF_ID_PreviewObjectNumber,    srcNumber);
+    setImageSrc(PDF_ID_PreviewObjectEmail,     srcEmail);
+    setImageSrc(PDF_ID_PreviewObjectText,      srcText);
+
+    /*--  画像  --*/
+    if(WM_TargetUserImage == true){
+        var imgUserImage= new Image();
+        imgUserImage.onload = function(){
+            PDF_ImageSizeUserImage= {width: this.width, height: this.height};
+            WM_InitLoadImageUserImage= true;
+        }
+        imgUserImage.onerror = function(){
+            $("#" + PDF_ID_PreviewObjectUserImage).attr('src', WM_LoadImageErrFile);
+            PDF_ImageSizeUserImage= {width: 150, height: 150};
+            WM_InitLoadImageUserImage= true;
+        }
+        imgUserImage.src = srcUserImage;
+        setImageSrc(PDF_ID_PreviewObjectUserImage, srcUserImage);
+    }
+    else{
+        WM_InitLoadImageUserImage = true;
+    }
+
+
+}
+function WM_displayInit(data){
+    var info = data.detail.info;
+
+    WM_check('WM_enabled',        info.enabled);                    /*--  有効化                        --*/
+    WM_check('WM_timingSpace',     info.timingSpace);               /*--  タイミング（スペース）        --*/
+    WM_check('WM_timingDelivery',  info.timingDelivery);            /*--  タイミング（配信）            --*/
+    if(info.method == 0){                                           /*--  透かし方法                    --*/
+        $('#WM_methodStamp').attr('checked', 'checked');
+    }
+    else{
+        $('#WM_methodBackGround').attr('checked', 'checked');
+    }
+
+    /*--  透かし対象の表示／非表示を保持  --*/
+    WM_TargetTimestamp = eval(info.targetTimestamp);            /*--  透かし対象（タイムスタンプ）  --*/
+    WM_TargetUserName  = eval(info.targetUsername);             /*--  透かし対象（ユーザ名）        --*/
+    WM_TargetUserId    = eval(info.targetUserid);               /*--  透かし対象（ユーザID）        --*/
+    WM_TargetUserImage = eval(info.targetImage);                /*--  透かし対象（画像）            --*/
+    WM_TargetCorp      = eval(info.targetCorp);                 /*--  透かし対象（所属組織）        --*/
+    WM_TargetPost      = eval(info.targetPost);                 /*--  透かし対象（部署・役職）      --*/
+    WM_TargetNumber    = eval(info.targetNumber);               /*--  透かし対象（社員番号）        --*/
+    WM_TargetEmail     = eval(info.targetEmail);                /*--  透かし対象（メールアドレス）  --*/
+    WM_TargetText      = eval(info.targetText);                 /*--  透かし対象（フリーテキスト）  --*/
+
+    /*--  タブをすべて非表示  --*/
+    delConfigTab(PDF_ID_PreviewObjectTimestamp);
+    delConfigTab(PDF_ID_PreviewObjectUserName);
+    delConfigTab(PDF_ID_PreviewObjectUserId);
+    delConfigTab(PDF_ID_PreviewObjectUserImage);
+    delConfigTab(PDF_ID_PreviewObjectCorp);
+    delConfigTab(PDF_ID_PreviewObjectPost);
+    delConfigTab(PDF_ID_PreviewObjectNumber);
+    delConfigTab(PDF_ID_PreviewObjectEmail);
+    delConfigTab(PDF_ID_PreviewObjectText);
+    disabledUserImage();
+}
+function WM_check(id, check){
+    $('#' + id).attr('checked', eval(check));
+}
+function WM_displayInit2(data){
+    var info = data.detail.info;
+
+    /*--  フォントサイズ  --*/
+    $("#PDF_FontSizeTextTimestamp").val(info.timeStampAttr.fontSize);
+    $("#PDF_FontSizeTextUserName" ).val(info.usernameAttr.fontSize);
+    $("#PDF_FontSizeTextUserId"   ).val(info.userIdAttr.fontSize);
+    $("#PDF_FontSizeTextCorp"     ).val(info.corpAttr.fontSize);
+    $("#PDF_FontSizeTextPost"     ).val(info.postAttr.fontSize);
+    $("#PDF_FontSizeTextNumber"   ).val(info.numberAttr.fontSize);
+    $("#PDF_FontSizeTextEmail"    ).val(info.emailAttr.fontSize);
+    $("#PDF_FontSizeTextText"     ).val(info.textAttr.fontSize);
+
+    /*--  透過  --*/
+    var alphaValue = getAlphaValue(info);
+    $("#" + PDF_ID_SliderAlphaValue).val(alphaValue);
+    allOpacity(alphaValue);
+
+    /*--  回転  --*/
+    var objSliderAngleValueTimestamp = $("#PDF_SliderAngleValueTimestamp");
+    var objSliderAngleValueUserName  = $("#PDF_SliderAngleValueUserName");
+    var objSliderAngleValueUserId    = $("#PDF_SliderAngleValueUserId");
+    var objSliderAngleValueUserImage = $("#PDF_SliderAngleValueUserImage");
+    var objSliderAngleValueCorp      = $("#PDF_SliderAngleValueCorp");
+    var objSliderAngleValuePost      = $("#PDF_SliderAngleValuePost");
+    var objSliderAngleValueNumber    = $("#PDF_SliderAngleValueNumber");
+    var objSliderAngleValueEmail     = $("#PDF_SliderAngleValueEmail");
+    var objSliderAngleValueText      = $("#PDF_SliderAngleValueText");
+
+    /*--  タイムスタンプ  --*/
+    if((WM_WatermarkId != "dummy") || (info.timeStampAttr.position > 0)){
+        if(WM_WatermarkId != "") PDF_ItemPosNoTimestamp = info.timeStampAttr.position;
+    }
+    setCurrentPosition($("#" + PDF_ID_ButtonPosition + "Timestamp-" + PDF_ItemPosNoTimestamp));
+    if(WM_TargetTimestamp == true){
+        /*--  フォーマット  --*/
+        $("#PDF_FormatTextTimestamp").val(info.timeStampAttr.format);
+    }
+    /*--  ユーザ名  --*/
+    if((WM_WatermarkId != "dummy") || (info.usernameAttr.position > 0)){
+        if(WM_WatermarkId != "") PDF_ItemPosNoUserName = info.usernameAttr.position;
+    }
+    setCurrentPosition($("#" + PDF_ID_ButtonPosition + "UserName-" + PDF_ItemPosNoUserName));
+    /*--  ユーザID  --*/
+    if((WM_WatermarkId != "dummy") || (info.userIdAttr.position > 0)){
+        if(WM_WatermarkId != "") PDF_ItemPosNoUserId = info.userIdAttr.position;
+    }
+    setCurrentPosition($("#" + PDF_ID_ButtonPosition + "UserId-" + PDF_ItemPosNoUserId));
+    /*--  画像  --*/
+    if((WM_WatermarkId != "dummy") || (info.imageAttr.position > 0)){
+        if(WM_WatermarkId != "") PDF_ItemPosNoUserImage = info.imageAttr.position;
+    }
+    setCurrentPosition($("#" + PDF_ID_ButtonPosition + "UserImage-" + PDF_ItemPosNoUserImage));
+    if(WM_TargetUserImage == true){
+        /*--  画像ファイル名  --*/
+        $("#WM_fileName").val(info.imageAttr.imgName);
+        /*--  画像サイズ  --*/
+        $("#PDF_SpinWidth").val(info.imageAttr.width);
+        $("#PDF_SpinHeight").val(info.imageAttr.height);
+    }
+    /*--  所属組織  --*/
+    if((WM_WatermarkId != "dummy") || (info.corpAttr.position > 0)){
+        if(WM_WatermarkId != "") PDF_ItemPosNoCorp = info.corpAttr.position;
+    }
+    setCurrentPosition($("#" + PDF_ID_ButtonPosition + "Corp-" + PDF_ItemPosNoCorp));
+    /*--  部署・役職  --*/
+    if((WM_WatermarkId != "dummy") || (info.postAttr.position > 0)){
+        if(WM_WatermarkId != "") PDF_ItemPosNoPost = info.postAttr.position;
+    }
+    setCurrentPosition($("#" + PDF_ID_ButtonPosition + "Post-" + PDF_ItemPosNoPost));
+    /*--  社員番号  --*/
+    if((WM_WatermarkId != "dummy") || (info.numberAttr.position > 0)){
+        if(WM_WatermarkId != "") PDF_ItemPosNoNumber = info.numberAttr.position;
+    }
+    setCurrentPosition($("#" + PDF_ID_ButtonPosition + "Number-" + PDF_ItemPosNoNumber));
+    /*--  メールアドレス  --*/
+    if((WM_WatermarkId != "dummy") || (info.emailAttr.position > 0)){
+        if(WM_WatermarkId != "") PDF_ItemPosNoEmail = info.emailAttr.position;
+    }
+    setCurrentPosition($("#" + PDF_ID_ButtonPosition + "Email-" + PDF_ItemPosNoEmail));
+    /*--  フリーテキスト  --*/
+    if((WM_WatermarkId != "dummy") || (info.textAttr.position > 0)){
+        if(WM_WatermarkId != "") PDF_ItemPosNoText = info.textAttr.position;
+    }
+    setCurrentPosition($("#" + PDF_ID_ButtonPosition + "Text-" + PDF_ItemPosNoText));
+    if(WM_TargetText == true){
+        /*--  フリーテキスト  --*/
+        $("#PDF_FreeText").val(info.textAttr.text);
+    }
+
+    /*--  色  --*/
+    $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Timestamp).val(info.timeStampAttr.color);
+    $("#" + PDF_ID_SelectColor + PDF_ID_BASE_UserName ).val(info.usernameAttr.color);
+    $("#" + PDF_ID_SelectColor + PDF_ID_BASE_UserId   ).val(info.userIdAttr.color);
+    $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Corp     ).val(info.corpAttr.color);
+    $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Post     ).val(info.postAttr.color);
+    $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Number   ).val(info.numberAttr.color);
+    $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Email    ).val(info.emailAttr.color);
+    $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Text     ).val(info.textAttr.color);
+
+    /*--  中央では、回転を有効化  --*/
+    if(PDF_ItemPosNoTimestamp == 5){
+        slider(PDF_ID_PreviewObjectTimestamp, PDF_ID_SliderAngleTimestamp, PDF_ID_SliderAngleValueTimestamp, 0, 360, info.timeStampAttr.angle);
+        $('#' + PDF_ID_SliderAngleTimestamp).slider({value: objSliderAngleValueTimestamp.val()});
+        objSliderAngleValueTimestamp.attr('disabled', false);
+        $("#PDF_RowAngleTimestamp").show();
+    }else{
+        $("#PDF_RowAngleTimestamp").hide();
+        rotate(PDF_ID_PreviewObjectTimestamp, 0);
+    }
+
+    if(PDF_ItemPosNoUserName == 5){
+        slider(PDF_ID_PreviewObjectUserName, PDF_ID_SliderAngleUserName, PDF_ID_SliderAngleValueUserName, 0, 360, info.usernameAttr.angle);
+        $('#' + PDF_ID_SliderAngleUserName).slider({value: objSliderAngleValueUserName.val()});
+        objSliderAngleValueUserName.attr('disabled', false);
+        $("#PDF_RowAngleUserName").show();
+    }else{
+        $("#PDF_RowAngleUserName").hide();
+        rotate(PDF_ID_PreviewObjectUserName,  0);
+    }
+    if(PDF_ItemPosNoUserId == 5){
+        slider(PDF_ID_PreviewObjectUserId, PDF_ID_SliderAngleUserId, PDF_ID_SliderAngleValueUserId, 0, 360, info.userIdAttr.angle);
+        $('#' + PDF_ID_SliderAngleUserId).slider({value: objSliderAngleValueUserId.val()});
+        objSliderAngleValueUserId.attr('disabled', false);
+        $("#PDF_RowAngleUserId").show();
+    }else{
+        $("#PDF_RowAngleUserId").hide();
+        rotate(PDF_ID_PreviewObjectUserId,    0);
+    }
+    if(PDF_ItemPosNoUserImage == 5){
+        slider(PDF_ID_PreviewObjectUserImage, PDF_ID_SliderAngleUserImage, PDF_ID_SliderAngleValueUserImage, 0, 360, info.imageAttr.angle);
+        $('#' + PDF_ID_SliderAngleUserImage).slider({value: objSliderAngleValueUserImage.val()});
+        objSliderAngleValueUserImage.attr('disabled', false);
+        if(WM_TargetUserImage == true) $("#PDF_RowAngleUserImage").show();
+    }else{
+        $("#PDF_RowAngleImage").hide();
+        rotate(PDF_ID_PreviewObjectUserImage, 0);
+    }
+    if(PDF_ItemPosNoCorp == 5){
+        slider(PDF_ID_PreviewObjectCorp, PDF_ID_SliderAngleCorp, PDF_ID_SliderAngleValueCorp, 0, 360, info.corpAttr.angle);
+        $('#' + PDF_ID_SliderAngleCorp).slider({value: objSliderAngleValueCorp.val()});
+        objSliderAngleValueCorp.attr('disabled', false);
+        $("#PDF_RowAngleCorp").show();
+    }else{
+        $("#PDF_RowAngleCorp").hide();
+        rotate(PDF_ID_PreviewObjectCorp,      0);
+    }
+    if(PDF_ItemPosNoPost == 5){
+        slider(PDF_ID_PreviewObjectPost, PDF_ID_SliderAnglePost, PDF_ID_SliderAngleValuePost, 0, 360, info.postAttr.angle);
+        $('#' + PDF_ID_SliderAnglePost).slider({value: objSliderAngleValuePost.val()});
+        objSliderAngleValuePost.attr('disabled', false);
+        $("#PDF_RowAnglePost").show();
+    }else{
+        $("#PDF_RowAnglePost").hide();
+        rotate(PDF_ID_PreviewObjectPost,      0);
+    }
+    if(PDF_ItemPosNoNumber == 5){
+        slider(PDF_ID_PreviewObjectNumber, PDF_ID_SliderAngleNumber, PDF_ID_SliderAngleValueNumber, 0, 360, info.numberAttr.angle);
+        $('#' + PDF_ID_SliderAngleNumber).slider({value: objSliderAngleValueNumber.val()});
+        objSliderAngleValueNumber.attr('disabled', false);
+        $("#PDF_RowAngleNumber").show();
+    }else{
+        $("#PDF_RowAngleNumber").hide();
+        rotate(PDF_ID_PreviewObjectNumber,    0);
+    }
+    if(PDF_ItemPosNoEmail == 5){
+        slider(PDF_ID_PreviewObjectEmail, PDF_ID_SliderAngleEmail, PDF_ID_SliderAngleValueEmail, 0, 360, info.emailAttr.angle);
+        $('#' + PDF_ID_SliderAngleEmail).slider({value: objSliderAngleValueEmail.val()});
+        objSliderAngleValueEmail.attr('disabled', false);
+        $("#PDF_RowAngleEmail").show();
+    }else{
+        $("#PDF_RowAngleEmail").hide();
+        rotate(PDF_ID_PreviewObjectEmail,     0);
+    }
+    if(PDF_ItemPosNoText == 5){
+        slider(PDF_ID_PreviewObjectText, PDF_ID_SliderAngleText, PDF_ID_SliderAngleValueText, 0, 360, info.textAttr.angle);
+        $('#' + PDF_ID_SliderAngleText).slider({value: objSliderAngleValueText.val()});
+        objSliderAngleValueText.attr('disabled', false);
+        $("#PDF_RowAngleText").show();
+    }else{
+        $("#PDF_RowAngleText").hide();
+        rotate(PDF_ID_PreviewObjectText,      0);
+    }
+
+    setTimeout("chkInitLoadImage()",100);
+}
+function chkInitLoadImage(){
+    if((WM_InitLoadImageUserId    == false) ||
+       (WM_InitLoadImageUserName  == false) ||
+       (WM_InitLoadImageUserImage == false) ||
+       (WM_InitLoadImageTimestamp == false) ||
+       (WM_InitLoadImageCorp      == false) ||
+       (WM_InitLoadImagePost      == false) ||
+       (WM_InitLoadImageNumber    == false) ||
+       (WM_InitLoadImageEmail     == false) ||
+       (WM_InitLoadImageText      == false)){
+        setTimeout("chkInitLoadImage()",100);
+        return;
+    }
+
+    /*--  タイムスタンプ  --*/
+    if(WM_TargetTimestamp == true){
+        $('#' + PDF_ID_PreviewObjectTimestamp).show();
+        addConfigTab(PDF_ID_PreviewObjectTimestamp);
+    }
+    /*--  ユーザ名  --*/
+    if(WM_TargetUserName == true){
+        $('#' + PDF_ID_PreviewObjectUserName).show();
+        addConfigTab(PDF_ID_PreviewObjectUserName);
+    }
+    /*--  ユーザID  --*/
+    if(WM_TargetUserId == true){
+        $('#' + PDF_ID_PreviewObjectUserId).show();
+        addConfigTab(PDF_ID_PreviewObjectUserId);
+    }
+    /*--  画像  --*/
+    if(WM_TargetUserImage == true){
+        $('#' + PDF_ID_PreviewObjectUserImage).show();
+        addConfigTab(PDF_ID_PreviewObjectUserImage);
+        enabledUserImage();
+    }
+    /*--  所属組織  --*/
+    if(WM_TargetCorp == true){
+        $('#' + PDF_ID_PreviewObjectCorp).show();
+        addConfigTab(PDF_ID_PreviewObjectCorp);
+    }
+    /*--  部署・役職  --*/
+    if(WM_TargetPost == true){
+        $('#' + PDF_ID_PreviewObjectPost).show();
+        addConfigTab(PDF_ID_PreviewObjectPost);
+    }
+    /*--  社員番号  --*/
+    if(WM_TargetNumber == true){
+        $('#' + PDF_ID_PreviewObjectNumber).show();
+        addConfigTab(PDF_ID_PreviewObjectNumber);
+    }
+    /*--  メールアドレス  --*/
+    if(WM_TargetEmail == true){
+        $('#' + PDF_ID_PreviewObjectEmail).show();
+        addConfigTab(PDF_ID_PreviewObjectEmail);
+    }
+    /*--  フリーテキスト  --*/
+    if(WM_TargetText == true){
+        $('#' + PDF_ID_PreviewObjectText).show();
+        addConfigTab(PDF_ID_PreviewObjectText);
+    }
+
+    if(WM_browserType == 'IE8'){
+        /*--  rotate()でvmlタグに作り直しておく  --*/
+        rotate(PDF_ID_PreviewObjectUserId,    0);
+        rotate(PDF_ID_PreviewObjectUserName,  0);
+        rotate(PDF_ID_PreviewObjectTimestamp, 0);
+        rotate(PDF_ID_PreviewObjectUserImage, 0);
+        rotate(PDF_ID_PreviewObjectCorp,      0);
+        rotate(PDF_ID_PreviewObjectPost,      0);
+        rotate(PDF_ID_PreviewObjectNumber,    0);
+        rotate(PDF_ID_PreviewObjectEmail,     0);
+        rotate(PDF_ID_PreviewObjectText,      0);
+        /*--  ドラッグ可能とする  --*/
+        draggable(PDF_ID_PreviewObjectUserId);
+        draggable(PDF_ID_PreviewObjectUserName);
+        draggable(PDF_ID_PreviewObjectTimestamp);
+        draggable(PDF_ID_PreviewObjectUserImage);
+        draggable(PDF_ID_PreviewObjectCorp);
+        draggable(PDF_ID_PreviewObjectPost);
+        draggable(PDF_ID_PreviewObjectNumber);
+        draggable(PDF_ID_PreviewObjectEmail);
+        draggable(PDF_ID_PreviewObjectText);
+        /*--  mousedownイベントを追加する  --*/
+        var objUserId    = $("#" + PDF_ID_PreviewObjectUserId);
+        var objUserName  = $("#" + PDF_ID_PreviewObjectUserName);
+        var objTimestamp = $("#" + PDF_ID_PreviewObjectTimestamp);
+        var objUserImage = $("#" + PDF_ID_PreviewObjectUserImage);
+        var objCorp      = $("#" + PDF_ID_PreviewObjectCorp);
+        var objPost      = $("#" + PDF_ID_PreviewObjectPost);
+        var objNumber    = $("#" + PDF_ID_PreviewObjectNumber);
+        var objEmail     = $("#" + PDF_ID_PreviewObjectEmail);
+        var objText      = $("#" + PDF_ID_PreviewObjectText);
+        objUserId.mousedown(function(){preview_object_select(this);});
+        objUserName.mousedown(function(){preview_object_select(this);});
+        objTimestamp.mousedown(function(){preview_object_select(this);});
+        objUserImage.mousedown(function(){preview_object_select(this);});
+        objCorp.mousedown(function(){preview_object_select(this);});
+        objPost.mousedown(function(){preview_object_select(this);});
+        objNumber.mousedown(function(){preview_object_select(this);});
+        objEmail.mousedown(function(){preview_object_select(this);});
+        objText.mousedown(function(){preview_object_select(this);});
+        /*--  背景色を指定しないと、透過した際に黒ずんでしまう  --*/
+        $('#' + PDF_ID_PreviewObjectUserId    + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectUserName  + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectTimestamp + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectUserImage + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectCorp      + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectPost      + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectNumber    + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectEmail     + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectText      + '_rvml').css("background-color","#ffffff");
+        /*--  透過  --*/
+        allOpacity($("#" + PDF_ID_SliderAlphaValue).val());
+        /*--  非表示  --*/
+        if(WM_TargetUserId    == false) objUserId.offset({"top":10000,"left":10000});
+        if(WM_TargetUserName  == false) objUserName.offset({"top":10000,"left":10000});
+        if(WM_TargetTimestamp == false) objTimestamp.offset({"top":10000,"left":10000});
+        if(WM_TargetUserImage == false) objUserImage.offset({"top":10000,"left":10000});
+        if(WM_TargetCorp      == false) objCorp.offset({"top":10000,"left":10000});
+        if(WM_TargetPost      == false) objPost.offset({"top":10000,"left":10000});
+        if(WM_TargetNumber    == false) objNumber.offset({"top":10000,"left":10000});
+        if(WM_TargetEmail     == false) objEmail.offset({"top":10000,"left":10000});
+        if(WM_TargetText      == false) objText.offset({"top":10000,"left":10000});
+    }
+
+    /*--  再配置  --*/
+    itemRearrangeAll();
+}
+
+function enabledUserImage(){
+    if(PDF_ItemPosNoUserImage == 5){
+        $("#PDF_RowAngleUserImage").show();
+    }
+    $("#PDF_RowSizeUserImage").show();
+    $("#PDF_RowPositionUserImage").show();
+}
+function disabledUserImage(){
+    $("#PDF_RowAngleUserImage").hide();
+    $("#PDF_RowSizeUserImage").hide();
+    $("#PDF_RowPositionUserImage").hide();
+}
+
+function WM_checkInputData(){
+    var styleClass = "error";
+    var obj = null;
+    var value = null;
+
+    /*-- ---------------------- --*/
+    /*-- タイミング選択チェック --*/
+    /*-- ---------------------- --*/
+    if(!($('#WM_timingSpace').attr('checked') || $('#WM_timingDelivery').attr('checked'))){
+        WM_err = true;
+        alert('{!$Label.solxyzcso001__msg_00278}');
+    }
+
+    /*-- ---------- --*/
+    /*-- 透かし対象 --*/
+    /*-- ---------- --*/
+    if((WM_TargetTimestamp != true) && (WM_TargetUserName != true) &&
+       (WM_TargetUserId != true)    && (WM_TargetUserImage != true) &&
+       (WM_TargetCorp != true)      && (WM_TargetPost != true) &&
+       (WM_TargetNumber != true)    && (WM_TargetText != true) &&
+       (WM_TargetEmail != true)){
+        WM_err = true;
+        alert(getMsg(new Array('{!$Label.solxyzcso001__label_10580}'), '{!$Label.solxyzcso001__msg_00311}'));
+    }
+
+    /*-- ---- --*/
+    /*-- 全般 --*/
+    /*-- ---- --*/
+    obj = $("#" + PDF_ID_SliderAlphaValue);
+    value = obj.val();
+    if((value.match(/[^0-9]/g)) || (value == "")){
+        WM_err = true;
+        alert(getMsg(new Array('{!$Label.solxyzcso001__label_10649}', '{!$Label.solxyzcso001__label_10602}'), '{!$Label.solxyzcso001__msg_00285}'));
+    }
+    else{
+        if((value < 0) || (value > 100)){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10649}'), '{!$Label.solxyzcso001__msg_00288}'));
+        }
+    }
+
+    /*-- -------------- --*/
+    /*-- タイムスタンプ --*/
+    /*-- -------------- --*/
+    if(WM_TargetTimestamp == true){
+        /*-- 角度 --*/
+        obj = $("#" + PDF_ID_SliderAngleValueTimestamp);
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10581}', '{!$Label.solxyzcso001__label_10601}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 0) || (value > 360)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10581}'), '{!$Label.solxyzcso001__msg_00287}'));
+            }
+        }
+        /*-- フォントサイズ --*/
+        obj = $("#PDF_FontSizeTextTimestamp");
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10581}', '{!$Label.solxyzcso001__label_10603}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 7) || (value > 100)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10581}'), '{!$Label.solxyzcso001__msg_00286}'));
+            }
+        }
+        /*-- フォーマット --*/
+        if ($.trim($("#PDF_FormatTextTimestamp").val()) == "") {
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10581}'), '{!$Label.solxyzcso001__msg_00226}'));
+        }
+    }
+
+    /*-- -------- --*/
+    /*-- ユーザ名 --*/
+    /*-- -------- --*/
+    if(WM_TargetUserName == true){
+        /*-- 角度 --*/
+        obj = $("#" + PDF_ID_SliderAngleValueUserName);
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10021}', '{!$Label.solxyzcso001__label_10601}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 0) || (value > 360)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10021}'), '{!$Label.solxyzcso001__msg_00287}'));
+            }
+        }
+        /*-- フォントサイズ --*/
+        obj = $("#PDF_FontSizeTextUserName");
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10021}', '{!$Label.solxyzcso001__label_10603}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 7) || (value > 100)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10021}'), '{!$Label.solxyzcso001__msg_00286}'));
+            }
+        }
+    }
+
+    /*-- -------- --*/
+    /*-- ユーザID --*/
+    /*-- -------- --*/
+    if(WM_TargetUserId == true){
+        /*-- 角度 --*/
+        obj = $("#" + PDF_ID_SliderAngleValueUserId);
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10003}', '{!$Label.solxyzcso001__label_10601}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 0) || (value > 360)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10003}'), '{!$Label.solxyzcso001__msg_00287}'));
+            }
+        }
+        /*-- フォントサイズ --*/
+        obj = $("#PDF_FontSizeTextUserId");
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10003}', '{!$Label.solxyzcso001__label_10603}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 7) || (value > 100)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10003}'), '{!$Label.solxyzcso001__msg_00286}'));
+            }
+        }
+    }
+
+    /*-- ---- --*/
+    /*-- 画像 --*/
+    /*-- ---- --*/
+    if(WM_TargetUserImage == true){
+        /*-- 画像 --*/
+        if ($.trim($("#WM_fileName").val()) == "") {
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10582}'), '{!$Label.solxyzcso001__msg_00311}'));
+        }
+        else{
+            /*-- 角度 --*/
+            obj = $("#" + PDF_ID_SliderAngleValueUserImage);
+            value = obj.val();
+            if((value.match(/[^0-9]/g)) || (value == "")){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10582}', '{!$Label.solxyzcso001__label_10601}'), '{!$Label.solxyzcso001__msg_00285}'));
+            }
+            else{
+                if((value < 0) || (value > 360)){
+                    WM_err = true;
+                    alert(getMsg(new Array('{!$Label.solxyzcso001__label_10582}'), '{!$Label.solxyzcso001__msg_00287}'));
+                }
+            }
+            /*-- 幅 --*/
+            obj = $("#PDF_SpinWidth");
+            value = obj.val();
+            if((value.match(/[^0-9]/g)) || (value == "")){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10582}', '{!$Label.solxyzcso001__label_10605}'), '{!$Label.solxyzcso001__msg_00285}'));
+            }
+            else{
+                if((value < 1) || (value > 9999)){
+                    WM_err = true;
+                    alert(getMsg(new Array('{!$Label.solxyzcso001__label_10582}', '{!$Label.solxyzcso001__label_10605}'), '{!$Label.solxyzcso001__msg_00294}'));
+                }
+            }
+            /*-- 高さ --*/
+            obj = $("#PDF_SpinHeight");
+            value = obj.val();
+            if((value.match(/[^0-9]/g)) || (value == "")){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10582}', '{!$Label.solxyzcso001__label_10606}'), '{!$Label.solxyzcso001__msg_00285}'));
+            }
+            else{
+                if((value < 1) || (value > 9999)){
+                    WM_err = true;
+                    alert(getMsg(new Array('{!$Label.solxyzcso001__label_10582}', '{!$Label.solxyzcso001__label_10606}'), '{!$Label.solxyzcso001__msg_00294}'));
+                }
+            }
+        }
+    }
+
+    /*-- -------- --*/
+    /*-- 所属組織 --*/
+    /*-- -------- --*/
+    if(WM_TargetCorp == true){
+        /*-- 角度 --*/
+        obj = $("#" + PDF_ID_SliderAngleValueCorp);
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10650}', '{!$Label.solxyzcso001__label_10601}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 0) || (value > 360)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10650}'), '{!$Label.solxyzcso001__msg_00287}'));
+            }
+        }
+        /*-- フォントサイズ --*/
+        obj = $("#PDF_FontSizeTextCorp");
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10650}', '{!$Label.solxyzcso001__msg_00285}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 7) || (value > 100)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10650}'), '{!$Label.solxyzcso001__msg_00286}'));
+            }
+        }
+    }
+
+    /*-- ---------- --*/
+    /*-- 部署・役職 --*/
+    /*-- ---------- --*/
+    if(WM_TargetPost == true){
+        /*-- 角度 --*/
+        obj = $("#" + PDF_ID_SliderAngleValuePost);
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10652}', '{!$Label.solxyzcso001__label_10601}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 0) || (value > 360)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10652}'), '{!$Label.solxyzcso001__msg_00287}'));
+            }
+        }
+        /*-- フォントサイズ --*/
+        obj = $("#PDF_FontSizeTextPost");
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10652}', '{!$Label.solxyzcso001__msg_00285}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 7) || (value > 100)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10652}'), '{!$Label.solxyzcso001__msg_00286}'));
+            }
+        }
+    }
+
+    /*-- -------- --*/
+    /*-- 社員番号 --*/
+    /*-- -------- --*/
+    if(WM_TargetNumber == true){
+        /*-- 角度 --*/
+        obj = $("#" + PDF_ID_SliderAngleValueNumber);
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10651}', '{!$Label.solxyzcso001__label_10601}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 0) || (value > 360)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10651}'), '{!$Label.solxyzcso001__msg_00287}'));
+            }
+        }
+        /*-- フォントサイズ --*/
+        obj = $("#PDF_FontSizeTextNumber");
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10651}', '{!$Label.solxyzcso001__msg_00285}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 7) || (value > 100)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10651}'), '{!$Label.solxyzcso001__msg_00286}'));
+            }
+        }
+    }
+
+    /*-- -------- --*/
+    /*-- メールアドレス --*/
+    /*-- -------- --*/
+    if(WM_TargetEmail == true){
+        /*-- 角度 --*/
+        obj = $("#" + PDF_ID_SliderAngleValueEmail);
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10016}', '{!$Label.solxyzcso001__label_10601}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 0) || (value > 360)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10016}'), '{!$Label.solxyzcso001__msg_00287}'));
+            }
+        }
+        /*-- フォントサイズ --*/
+        obj = $("#PDF_FontSizeTextEmail");
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10016}', '{!$Label.solxyzcso001__msg_00285}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 7) || (value > 100)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10016}'), '{!$Label.solxyzcso001__msg_00286}'));
+            }
+        }
+    }
+
+    /*-- -------------- --*/
+    /*-- フリーテキスト --*/
+    /*-- -------------- --*/
+    if(WM_TargetText == true){
+        /*-- 角度 --*/
+        obj = $("#" + PDF_ID_SliderAngleValueText);
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10654}', '{!$Label.solxyzcso001__label_10601}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 0) || (value > 360)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10654}'), '{!$Label.solxyzcso001__msg_00287}'));
+            }
+        }
+        /*-- フォントサイズ --*/
+        obj = $("#PDF_FontSizeTextText");
+        value = obj.val();
+        if((value.match(/[^0-9]/g)) || (value == "")){
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10654}', '{!$Label.solxyzcso001__msg_00285}'), '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else{
+            if((value < 7) || (value > 100)){
+                WM_err = true;
+                alert(getMsg(new Array('{!$Label.solxyzcso001__label_10654}'), '{!$Label.solxyzcso001__msg_00286}'));
+            }
+        }
+        /*-- テキスト --*/
+        if ($.trim($("#PDF_FreeText").val()) == "") {
+            WM_err = true;
+            alert(getMsg(new Array('{!$Label.solxyzcso001__label_10654}'), '{!$Label.solxyzcso001__msg_00226}'));
+        }
+    }
+
+}
+
+function setPreviewDefaultValue(){
+    var DEFAULT_COLOR = "0x000000";
+    /*-- ------------------ --*/
+    /*-- デフォルト値の設定 --*/
+    /*-- ------------------ --*/
+    /*-- タイムスタンプ --*/
+    if(WM_TargetTimestamp != true){
+        PDF_ItemPosNoTimestamp = PDF_ItemPosNoDefault;
+        $("#" + PDF_ID_SliderAngleValueTimestamp).val(PDF_AngleValueDefault);
+        $("#PDF_FontSizeTextTimestamp").val(PDF_FontSizeDefault);
+        $("#PDF_FormatTextTimestamp").val(PDF_TimestampFormatDefault);
+        $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Timestamp).val(DEFAULT_COLOR);
+    }
+    /*-- ユーザ名 --*/
+    if(WM_TargetUserName != true){
+        PDF_ItemPosNoUserName = PDF_ItemPosNoDefault;
+        $("#" + PDF_ID_SliderAngleValueUserName).val(PDF_AngleValueDefault);
+        $("#PDF_FontSizeTextUserName").val(PDF_FontSizeDefault);
+        $("#" + PDF_ID_SelectColor + PDF_ID_BASE_UserName).val(DEFAULT_COLOR);
+    }
+    /*-- ユーザID --*/
+    if(WM_TargetUserId != true){
+        PDF_ItemPosNoUserId = PDF_ItemPosNoDefault;
+        $("#" + PDF_ID_SliderAngleValueUserId).val(PDF_AngleValueDefault);
+        $("#PDF_FontSizeTextUserId").val(PDF_FontSizeDefault);
+        $("#" + PDF_ID_SelectColor + PDF_ID_BASE_UserId).val(DEFAULT_COLOR);
+    }
+    /*-- 画像 --*/
+    if(WM_TargetUserImage != true){
+        PDF_ItemPosNoUserImage = PDF_ItemPosNoDefault;
+        $("#" + PDF_ID_SliderAngleValueUserImage).val(PDF_AngleValueDefault);
+        $("#PDF_SpinWidth").val(0);
+        $("#PDF_SpinHeight").val(0);
+    }
+    /*-- 所属組織 --*/
+    if(WM_TargetCorp != true){
+        PDF_ItemPosNoCorp = PDF_ItemPosNoDefault;
+        $("#" + PDF_ID_SliderAngleValueCorp).val(PDF_AngleValueDefault);
+        $("#PDF_FontSizeTextCorp").val(PDF_FontSizeDefault);
+        $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Corp).val(DEFAULT_COLOR);
+    }
+    /*-- 部署・役職 --*/
+    if(WM_TargetPost != true){
+        PDF_ItemPosNoPost = PDF_ItemPosNoDefault;
+        $("#" + PDF_ID_SliderAngleValuePost).val(PDF_AngleValueDefault);
+        $("#PDF_FontSizeTextPost").val(PDF_FontSizeDefault);
+        $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Post).val(DEFAULT_COLOR);
+    }
+    /*-- 社員番号 --*/
+    if(WM_TargetNumber != true){
+        PDF_ItemPosNoNumber = PDF_ItemPosNoDefault;
+        $("#" + PDF_ID_SliderAngleValueNumber).val(PDF_AngleValueDefault);
+        $("#PDF_FontSizeTextNumber").val(PDF_FontSizeDefault);
+        $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Number).val(DEFAULT_COLOR);
+    }
+    /*-- メールアドレス --*/
+    if(WM_TargetEmail != true){
+        PDF_ItemPosNoEmail = PDF_ItemPosNoDefault;
+        $("#" + PDF_ID_SliderAngleValueEmail).val(PDF_AngleValueDefault);
+        $("#PDF_FontSizeTextEmail").val(PDF_FontSizeDefault);
+        $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Email).val(DEFAULT_COLOR);
+    }
+    /*-- フリーテキスト --*/
+    if(WM_TargetText != true){
+        PDF_ItemPosNoText = PDF_ItemPosNoDefault;
+        $("#" + PDF_ID_SliderAngleValueText).val(PDF_AngleValueDefault);
+        $("#PDF_FontSizeTextText").val(PDF_FontSizeDefault);
+        $("#PDF_FreeText").val("");
+        $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Text).val(DEFAULT_COLOR);
+    }
+}
+
+function getAlphaValue(info){
+    var bExist = false;
+    var alphaValue = 0;
+    var value = 0;
+
+    if(WM_TargetTimestamp == true){
+        bExist = true;
+        try{value = parseInt(info.timeStampAttr.trans);}catch(e){value = 0;}
+        if(value > alphaValue){
+            alphaValue = value;
+        }
+    }
+    if(WM_TargetUserName == true){
+        bExist = true;
+        try{value = parseInt(info.usernameAttr.trans);}catch(e){value = 0;}
+        if(value > alphaValue){
+            alphaValue = value;
+        }
+    }
+    if(WM_TargetUserId == true){
+        bExist = true;
+        try{value = parseInt(info.userIdAttr.trans);}catch(e){value = 0;}
+        if(value > alphaValue){
+            alphaValue = value;
+        }
+    }
+    if(WM_TargetUserImage == true){
+        bExist = true;
+        try{value = parseInt(info.imageAttr.trans);}catch(e){value = 0;}
+        if(value > alphaValue){
+            alphaValue = value;
+        }
+    }
+    if(WM_TargetCorp == true){
+        bExist = true;
+        try{value = parseInt(info.corpAttr.trans);}catch(e){value = 0;}
+        if(value > alphaValue){
+            alphaValue = value;
+        }
+    }
+    if(WM_TargetPost == true){
+        bExist = true;
+        try{value = parseInt(info.postAttr.trans);}catch(e){value = 0;}
+        if(value > alphaValue){
+            alphaValue = value;
+        }
+    }
+    if(WM_TargetNumber == true){
+        bExist = true;
+        try{value = parseInt(info.numberAttr.trans);}catch(e){value = 0;}
+        if(value > alphaValue){
+            alphaValue = value;
+        }
+    }
+    if(WM_TargetEmail == true){
+        bExist = true;
+        try{value = parseInt(info.emailAttr.trans);}catch(e){value = 0;}
+        if(value > alphaValue){
+            alphaValue = value;
+        }
+    }
+    if(WM_TargetText == true){
+        bExist = true;
+        try{value = parseInt(info.textAttr.trans);}catch(e){value = 0;}
+        if(value > alphaValue){
+            alphaValue = value;
+        }
+    }
+
+    /*-- 透かし対象がない場合 --*/
+    if(bExist == false){
+        alphaValue = PDF_AlphaValueDefault;
+    }
+
+    return alphaValue;
+}
+
+</script>
+
+</apex:page>

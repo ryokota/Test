@@ -1,0 +1,20 @@
+<apex:page sidebar="true" showHeader="true" standardController="Opportunity" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Opportunity">
+<apex:form >
+<apex:variable var="Sf_ID" value="{!Id}" />
+<apex:variable var="Sf_name" value="{!Opportunity.name}" />
+<apex:variable var="Sf_type" value="Opportunity" />
+<apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Opportunity}" />
+<apex:variable var="pageType" value="list" />
+
+  <apex:detail />
+  <!-- 
+  <apex:include pageName="ContentsSelect"/>
+   -->
+  <c:ContentsSelectComp id="contentsSelectComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:form>
+<!-- スペース登録 -->
+<!-- 
+<apex:include pageName="AddSpace"/>
+ -->
+<c:AddSpaceComp id="addSpaceComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

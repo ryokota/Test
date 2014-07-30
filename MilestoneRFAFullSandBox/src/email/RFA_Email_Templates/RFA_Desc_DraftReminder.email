@@ -1,0 +1,18 @@
+<div style = " font-size:14px;">
+<B>RFA Title</B>: {!RFA__c.RequestTitle__c} <B> Click link to open the RFA  </B> : <a href="/{!RFA__c.Id}">{!RFA__c.Name}</a>  <BR/><BR/>
+
+<p> Outlined are the detailed instructions to modify the DRAFT REMINDER email body</p>
+
+<p> Change Email Subject </p>
+<ul>
+<li> Navigate to Custom Label : Setup > App Setup > Create > Custom Label</li>
+<li> Open Custom Label : RFA CL127 and update the content</li> 
+</ul>
+<p> Change Email Body</p>
+<ul>
+<li> Navigate to Custom Label : Setup > App Setup > Create > Custom Label</li>
+<li> Open Custom Label : RFA CL128 and update the content</li> 
+</ul>
+<span style='font-size:9pt;font-family:"Arial","sans-serif";color:red'>Note: THE STRING FOR THE CUSTOM LABELS SHOULD BE IN A PROPER HTML FORMAT TO PREVENT BATCH FAILURES. </span>
+
+ </div>

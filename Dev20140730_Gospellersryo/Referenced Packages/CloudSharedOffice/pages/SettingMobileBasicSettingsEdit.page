@@ -1,0 +1,144 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingMobileBasicSettingsController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(csoUserInfo.proAuth_mobile_settings == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!csoUserInfo.code}&massage={!csoUserInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(csoUserInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(csoUserInfo.proAuth_mobile_settings == 'true' && csoUserInfo.showErrPage == false, true, false)}">
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<style type="text/css">
+#editMain {
+    width:100%;
+    height: 100%;
+}
+
+.checkbox{
+    width: 20px;
+    height: 20px;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function(){
+    $('input[id$="keepLoginInfo"]').change(function () {
+        keepLoginIfoOnChange(this);
+    }).change();
+
+    $('input[id$="enablePINLock"]').change(function () {
+        passcodeLengthOnChange(this);
+    }).change();
+});
+
+function keepLoginIfoOnChange(object){
+    if($(object).attr('checked')){
+         $('input[id$="enablePINLock"]').removeAttr('disabled');
+         if($('input[id$="enablePINLock"]').attr('checked')){
+             $('select[id$="securitySetting"]').removeAttr('disabled');
+             $('select[id$="passcodeLength"]').removeAttr('disabled');
+         }
+    }else{
+        $('input[id$="enablePINLock"]').attr('disabled', 'disabled');
+        $('select[id$="securitySetting"]').attr('disabled', 'disabled');
+        $('select[id$="passcodeLength"]').attr('disabled', 'disabled');
+    }
+}
+
+function passcodeLengthOnChange(object){
+    if($(object).attr('checked')){
+         $('select[id$="securitySetting"]').removeAttr('disabled');
+         $('select[id$="passcodeLength"]').removeAttr('disabled');
+    }else{
+        $('select[id$="securitySetting"]').attr('disabled', 'disabled');
+        $('select[id$="passcodeLength"]').attr('disabled', 'disabled');
+    }
+}
+
+function showLoadingOnSave() {
+    CsoScript_loadingStart();
+    return true;
+}
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/menu_mobile_settings.png')}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_mobilesettings_00001}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_mobilesettings_00006}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <apex:pageBlockButtons >
+                           <apex:commandButton id="btnSave" value="{!$Label.solxyzcso001__label_00075}" onclick="return showLoadingOnSave();" action="{!save}" />
+                           <apex:commandButton id="btnCancel" value="{!$Label.solxyzcso001__label_00058}" onclick="return showLoadingOnSave();" action="{!cancel}" />
+                        </apex:pageBlockButtons>
+                        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_mobilesettings_00034}"  collapsible="false"/>
+                        <div id ="editMain">
+                            <apex:pageblockSection columns="1" >
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_mobilesettings_00007}</apex:outputLabel>
+                                    <apex:inputCheckbox disabled="false" selected="{!keepLoginInfoOnDevice}" id="keepLoginInfo" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_mobilesettings_00008}</apex:outputLabel>
+                                   <apex:inputCheckbox disabled="false" selected="{!enablePINLock}" id="enablePINLock" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_mobilesettings_00009}</apex:outputLabel>
+                                    <apex:outputLabel >
+                                        <apex:selectList value="{!securityOptionVal}" size="1" multiselect="false" id="securitySetting">
+                                            <apex:selectOptions value="{!securityOptionItems}"/>
+                                        </apex:selectList>
+                                    </apex:outputLabel>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_mobilesettings_00010}</apex:outputLabel>
+                                    <apex:outputLabel >
+                                        <apex:selectList value="{!passcodeLengthOptionVal}" size="1" multiselect="false" id="passcodeLength">
+                                            <apex:selectOptions value="{!passcodeLengthItems}"/>
+                                        </apex:selectList>
+                                    </apex:outputLabel>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageblockSection>
+                        </div>
+
+                        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_mobilesettings_00030}"  collapsible="false"/>
+                        <div id ="otherSettingsBlock">
+                            <apex:pageblockSection columns="1" >
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_mobilesettings_00031}</apex:outputLabel>
+                                    <apex:inputCheckbox disabled="false" selected="{!banBrowserLogin}"/>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageblockSection>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+</apex:outputPanel>
+</apex:page>

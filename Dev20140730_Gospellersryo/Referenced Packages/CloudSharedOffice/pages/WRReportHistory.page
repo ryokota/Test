@@ -1,0 +1,522 @@
+<apex:page sidebar="false" id="evidencePage" controller="SOLXYZCSO001.WRReportHistoryImplantController" action="{!init}" tabStyle="WRReportHistory__tab">
+<apex:iframe src="{!$Page.SOLXYZCSO001__CSO_WR_Error}?code={!wr_userInfo.code}&massage={!wr_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(wr_userInfo.showErrPage == true,true,false)}"/>
+
+<apex:outputPanel rendered="{!IF(wr_userInfo.showErrPage == false, true, false)}">
+    <!-- CSO連携モジュール -->
+    <apex:include pageName="SOLXYZCSO001__WRCSOBridge" />
+    <!--apex:stylesheet value="{!URLFOR($Resource.wrcso, 'css/ui.jqgrid.css?20121221')}" /-->
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.custom.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/redmond/jquery-ui-1.8.9.custom.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/evidence.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+    <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'ja', true, false)}">
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /></apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'en', true, false)}">
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /></apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'zh', true, false)}">
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /></apex:outputPanel>
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+    <!-- CSO共通スクリプト -->
+    <apex:include pageName="SOLXYZCSO001__WRCSOScript" />
+    <style type="text/css">
+        #evidence_tab {
+            margin-top: 0px;
+        }
+        #evidence_tab li {
+            list-style: none;
+            line-height: 10px;
+            float: left;
+            margin-right: 5px;
+            border-radius: 0px 0px 3px 3px;
+            -webkit-border-radius: 0px 0px 3px 3px;
+            -moz-border-radius: 0px 0px 3px 3px;
+        }
+        #evidence_tab a {
+            display: block;
+            text-decoration: none;
+            padding: 9px 17px;
+            font-weight: bold;
+        }
+        .evidence_tab_active {
+            background-color: #F8F8F8;
+        }
+        .evidence_tab_active a {
+            color: #456;
+        }
+        .evidence_tab_active a:hover {
+            color: #456 !important;
+        }
+        .evidence_tab_deactive {
+            background-color: #0033ff;
+            filter:alpha(opacity=50);
+            -moz-opacity: 0.5;
+            opacity: 0.5;
+        }
+        .evidence_tab_deactive a {
+            color: white;
+        }
+        .evidence_tab_deactive a:hover {
+            color: white;
+        }
+        #evidence_tab a {
+            display: block;
+            text-decoration: none;
+            padding: 9px 17px;
+            font-weight: bold;
+        }
+        .evidence_tab_active {
+            background-color: #F8F8F8;
+        }
+        .evidence_tab_active a {
+            color: #456;
+        }
+        .evidence_tab_active a:hover {
+            color: #456 !important;
+        }
+        .evidence_tab_deactive {
+            background-color: #af7070;
+            filter:alpha(opacity=50);
+            -moz-opacity: 0.5;
+            opacity: 0.5;
+        }
+        .evidence_tab_deactive a {
+            color: white;
+        }
+        .evidence_tab_deactive a:hover {
+            color: white;
+        }
+
+        #evidenceList tr td {
+            white-space: nowrap;
+        }
+    </style>
+    <script type="text/javascript">
+        /*
+         * 読込処理
+         */
+        jQuery.event.add(window, "load", function () {
+
+            //20130722 add
+            if({!isSessionTimeouted}){
+                setErrorMessage("{!$Label.label_wf_00146}");
+                return;
+            }
+
+            // 検索ダイアログ定義
+            $('#searchDiv').dialog({
+                autoOpen: false,
+                width: 600
+            });
+
+            $("#evidence a").css({
+                color: "#33FFFF",
+                fontWeight: "bold"
+            });
+
+            $(window).resize(resizeGrid);
+
+            // Datepicker定義
+            $("#from").datepicker({
+                dateFormat: "yy/mm/dd"
+            });
+            $("#to").datepicker({
+                dateFormat: "yy/mm/dd"
+            });
+
+            //  検索条件の一覧を取得する
+            var rowNum = $.cookie('wr_evi_rowNum') == null ? 50 : $.cookie('wr_evi_rowNum');
+            var page = 1;
+            var sortName = 'datetime';
+            var sortOrder = 'asc';
+
+            //Sample
+            var username = '';
+            var from = '';
+            var to = '';
+            var action = '';
+
+            //検索条件
+            var ovlnm = '';
+            var ovjnm = '';
+            var reportdefnm = '';
+            var reportnm = '';
+            var user = '';
+            var from = '';
+            var to = '';
+
+            $("#evidenceList").jqGrid({
+                beforeRequest: function () {
+                    rowNum = $(this).getGridParam("rowNum");
+                    page = $(this).getGridParam("page");
+
+                    sortName = $(this).getGridParam("sortname");
+                    sortOrder = $(this).getGridParam("sortorder");
+
+                    //Sample
+                    username = $.trim($("#usernameUser").val());
+                    from = $.trim($("#fromUser").val());
+                    to = $.trim($("#toUser").val());
+                    action = $.trim($('#actionUser').val());
+
+                    //検索条件
+                    ovlnm = $.trim($("#ovlnm").val());
+                    ovjnm = $.trim($("#ovjnm").val());
+                    reportdefnm = $.trim($("#reportdefnm").val());
+                    reportnm = $.trim($("#reportnm").val());
+
+                    var hasPermissionWRAdmin = {!hasPermissionWRAdmin};
+                    if (!hasPermissionWRAdmin) {
+                        user = "{!JSENCODE(wr_userInfo.uid)}";
+                        $("#user").val(user);
+                        $("#user").attr("disabled","disabled");
+                    } else {
+                        user = $.trim($("#user").val());
+                    }
+                    from = $.trim($("#from").val());
+                    to = $.trim($("#to").val());
+
+                    //var newUrl =_apiUrlSf + '/rest/rephis/list/report'+ '/' + rowNum + '/' + page + '/' + sortName + '/' + sortOrder + '{!JSENCODE(credential)}' +
+                    var newUrl =_apiUrlSf + '/rest/rephis/list2/report'+ '/' + rowNum + '/' + page + '/' + sortName + '/' + sortOrder + '{!JSENCODE(credential)}' +
+                        '&locale={!JSENCODE(sfUserInfo.LocaleSidKey)}' + '&timezone={!JSENCODE(sfUserInfo.TimeZoneSidKey)}' + '&from=' + from + '&to=' + to + '&ovlnm=' + ovlnm + '&ovjnm=' + ovjnm + '&reportdefnm=' + reportdefnm + '&reportnm=' + reportnm+ '&user=' + user;
+
+                    $(this).setGridParam({
+                        url: newUrl
+                    });
+                },
+                datatype: "json",
+                jsonReader: {
+                    repeatitems: false,
+                    id: "id"
+                },
+                colNames: [
+                    '',
+                    '{!$Label.label_wf_00053}',         //アクション
+                    '{!$Label.label_wf_50002}',         //履歴番号
+                    '{!$Label.label_wf_50011}',         //オブジェクト
+                    '{!$Label.label_wf_50012}',         //帳票定義
+                    '{!$Label.label_wf_00080}',         //帳票名
+                    '{!$Label.label_wf_50013}',         //オーバレイ
+                    '{!$Label.label_wf_50009}',         //保存先
+                    '{!$Label.label_wf_00058}',         //作成者
+                    '{!$Label.label_wf_00010}'          //作成日
+                    ],
+                colModel: [{
+                    name: 'id',
+                    index: 'id',
+                    width: 100,
+                    hidden: true
+                }, {
+                    name: 'dataaction',
+                    index: 'dataaction',
+                    width: 70,
+                    align: "center"
+
+                }, {
+                    name: 'hisid',
+                    index: 'hisid',
+                    width: 140,
+                    align: "left"
+                },  {
+                    name: 'sfobjname',
+                    index: 'sfobjname',
+                    width: 140,
+                    align: "left"
+                }, {
+                    name: 'sfrepdefname',
+                    index: 'sfrepdefname',
+                    width: 140,
+                    align: "left",
+                },  {
+                     name: 'filename',
+                    index: 'filename',
+                    width: 140,
+                    align: "left",
+                },{
+                    name: 'ovlname',
+                    index: 'ovlname',
+                    width: 140,
+                    align: "left"
+                },{
+                     name: 'type',
+                    //index: 'type',
+                    width: 180,
+                    align: "left",
+                    sortable: false
+                },{
+                    name: 'sfid',
+                    index: 'sfid',
+                    width: 95,
+                    align: 'left'
+                }, {
+                    name: 'date',
+                    index: 'date',
+                    width: 120
+                }],
+                rowNum: 50,
+                autowidth: true,
+                height: getBrowserHeight() - 300,
+                width: getBrowserWidth() - 85,
+                rowList: [50, 100, 300],
+                sortname: "datetime",
+                pager: "#evidenceListPager",
+                viewrecords: true,
+                sortorder: "desc",
+                shrinkToFit: false,
+                loadComplete: function () {
+                    // 検索結果件数設定
+                    $(getId('{!$Component.evidencePage.evidenceForm.evidenceBlock.recordCount} h3')).text($("#evidenceList").jqGrid("getGridParam", "records") + "{!$Label.msg_00006}");
+                    $.cookie('wr_evi_rowNum', $(this).getGridParam("rowNum"));
+                }
+            });
+            $("#evidenceList").jqGrid("navGrid", '#evidenceListPager', {
+                edit: false,
+                add: false,
+                del: false,
+                search: false
+            });
+            resizeGrid();
+
+           // initUser(); //変数のバッティングを避けるため関数にする。
+        });
+
+        /*
+         * 検索条件のタグを編集する
+         */
+        function createActionListString(id, name) {
+            var str = "<option id='" + id + "' value='" + id + "'>" + name + "</option>";
+            return str;
+        }
+
+        /*
+         * 画面リサイズ時の各要素のサイズをリサイズ
+         */
+        function resizeGrid() {
+            var browserWidth = getBrowserWidth();
+            var browserHeight = getBrowserHeight();
+
+            if ((getBrowserWidth() - 85) < 940) {
+                $("#evidenceList").setGridWidth(940);
+                $("#evidenceUserList").setGridWidth(940);
+            } else {
+                if (getBrowserType() != 'IE8') {
+                    $("#evidenceList").setGridWidth(getBrowserWidth() - 85);
+                    $("#evidenceUserList").setGridWidth(getBrowserWidth() - 85);
+                } else {
+                    $("#evidenceList").setGridWidth(getBrowserWidth() - 68);
+                    $("#evidenceUserList").setGridWidth(getBrowserWidth() - 68);
+                }
+            }
+
+            $("#evidenceList").setGridHeight(getBrowserHeight() - 370);
+            $("#evidenceUserList").setGridHeight(getBrowserHeight() - 370);
+        }
+
+        /*
+         * 検索条件に合わせてデータを検索する
+         */
+        function evidenceSearch() {
+            var ovlnm = $.trim($("#ovlnm").val());
+            var ovjnm = $.trim($("#ovjnm").val());
+            var reportdefnm = $.trim($("#reportdefnm").val());
+            var reportnm = $.trim($("#reportnm").val());
+            var user = $.trim($("#user").val());
+            var from = $.trim($("#from").val());
+            var to = $.trim($("#to").val());
+
+
+            if ((from.length != 0 && !isDateFormat(from)) || (to.length != 0 && !isDateFormat(to))) {
+                alert("{!$Label.msg_00062}");
+                return;
+            } else if (!isRightDate(from, to)) {
+                alert("{!$Label.msg_00063}");
+                return;
+            }
+
+            jQuery("#evidenceList").jqGrid("setGridParam", {
+                search:true,
+                page:1,
+                postData : {
+                    ovlnm : ovlnm,
+                    ovjnm : ovjnm,
+                    reportdefnm : reportdefnm,
+                    user : user,
+                    reportnm : reportnm,
+                    from : from,
+                    to : to
+
+                }
+            });
+            $('#evidenceList').trigger('reloadGrid');
+        }
+
+        /*
+         * 検索条件をクリアする
+         */
+        function clearCondition() {
+            $("#ovlnm").val("");
+            $("#ovjnm").val("");
+            $("#reportdefnm").val("");
+            $("#reportnm").val("");
+            $("#user").val("");
+
+            $("#from").val("");
+            $("#to").val("");
+            evidenceSearch();
+        }
+
+        /*
+         * 検索条件ダイアログを表示する
+         */
+        function searchEvidence() {
+            $("#searchDiv").dialog("open");
+        }
+        /*
+         * 再出力
+         */
+        function onModifyClicked(reportid){
+
+            //top.location.href = '{!salesforceBaseUrl}/apex/FE_CopyReport?Id=' + reportid;
+
+            //再出力確認用
+            top.location.href = '{!salesforceBaseUrl}{!$Page.WRReportCopy}?reportid=' + reportid;
+
+        }
+
+        /**
+		 * エラーメッセージを表示
+		 */
+		function setErrorMessage(message){
+
+		    $("#setErrorMessageDiv").text(message);
+		    $("#setErrorMessageDiv").css("display", "block");
+
+		    $("#c_wrapper").css("display", "none");
+		}
+
+    </script>
+    <!-- warapper -->
+    <apex:pageMessages />
+    <!--div id="c_wrapper"-->
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- header container -->
+            <td id="c_head">
+                <!-- ヘッダー -->
+                <table width="100%">
+                    <tr>
+                        <td id="c_headLeft" nowrap="nowrap">
+                            <div id="folder_image">
+                                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/evidence.png')}" alt="{!$Label.solxyzcso001__label_10226}" title="{!$Label.solxyzcso001__label_10226}" />
+                            </div>
+                            <br/>
+                             <h2 id="c_headLeftSubTitle">{!$Label.label_wf_50004}</h2>
+                        </td>
+                        <td id="c_headCenter" nowrap="nowrap" />
+                        <!-- 操作ボックス -->
+                        <td id="c_headRight">
+                            <apex:include pageName="SOLXYZCSO001__WROptionsLink" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <!-- content container -->
+            <td id="c_right">
+                <apex:form id="evidenceForm">
+                    <apex:pageBlock id="evidenceBlock">
+                        <div id="tab_wr" class="tab-div">
+                            <!-- コマンドボタン表示 -->
+                            <div class="c_command_l">
+                                <ul class="c_command_pipe">
+                                    <li class="last">
+                                        <!-- 検索ボタン -->
+                                        <apex:commandButton value="{!$Label.solxyzcso001__label_00069}" onclick="searchEvidence(); return false;" />
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- データ件数表示-->
+                            <apex:pageBlockSection title="" collapsible="false" id="recordCount" />
+                            <!-- 証跡データ一覧 -->
+                            <div id="jqgridDiv" style="width:99%;">
+                                <table id="evidenceList" />
+                                <div id="evidenceListPager" /></div>
+                            <!-- 検索ポップアップ -->
+                            <div id="searchDiv" style="display: none; width: 600px;" title="{!$Label.solxyzcso001__label_00069}">
+                                <table id="searchTable" cellpadding="5">
+                                    <tr>
+                                        <td>
+                                            <!-- オーバレイ名 -->
+                                            <th>{!$Label.label_wf_00014}</th>
+                                            <td>
+                                                <input type="text" id="ovlnm" class="c_text_m" name="ovlnm" />
+                                            </td>
+                                        </td>
+                                        <td>
+                                            <!-- 帳票名 -->
+                                            <th>{!$Label.label_wf_00080}</th>
+                                            <td>
+                                                <input type="text" id="reportnm" class="c_text_m" name="reportnm" />
+                                            </td>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <!-- オブジェクト名 -->
+                                            <th>{!$Label.label_wf_00054}</th>
+                                            <td>
+                                                <input type="text" id="ovjnm" class="c_text_m" name="ovjnm" />
+                                            </td>
+                                        </td>
+                                        <td>
+                                            <!-- ユーザ -->
+                                            <th>{!$Label.label_wf_00027}</th>
+                                            <td>
+                                                <input type="text" id="user" class="c_text_m" name="user" />
+                                            </td>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <!-- 帳票定義名 -->
+                                            <th>{!$Label.label_wf_30039}</th>
+                                            <td>
+                                                <input type="text" id="reportdefnm" class="c_text_m" name="reportdefnm" />
+                                            </td>
+                                        </td>
+                                        <td>
+                                            <!-- 期間 -->
+                                            <th>{!$Label.label_10175}</th>
+                                            <td>
+                                                <input type="text" id="from" class="c_text_s" name="from" />{!$Label.label_10316}
+                                                <input type="text" id="to" class="c_text_s" name="to" />
+                                            </td>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <p style="width: 100%; text-align: center;">
+                                    <input type="submit" class="btn" value="{!$Label.solxyzcso001__label_00069}" onclick="evidenceSearch();" />
+                                    <input type="button" class="btn" value="{!$Label.label_00070}" onclick="clearCondition();" />
+                                    <input type="button" class="btn" value="{!$Label.label_00058}" onclick="$('#searchDiv').dialog('close');" />
+                                </p>
+                            </div>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright">{!$Label.solxyzcso001__label_00001}</div>
+    <apex:include pageName="SOLXYZCSO001__WRCSOSilverlight" />
+    <!--
+    <apex:outputPanel rendered="{!IF(wr_userInfo.uid == null && wr_userInfo.showErrPage == false,true,false)}">{!$Label.msg_00142}</apex:outputPanel>
+     -->
+
+    </apex:outputPanel>
+
+</apex:page>

@@ -1,0 +1,291 @@
+<apex:page cache="false" sidebar="false" controller="SOLXYZCSO001.DeliveryListController" showHeader="false" action="{!init}">
+<style type="text/css">
+
+/*--------------*/
+/*  全体の定義  */
+/*--------------*/
+.delivery_menu{
+    font-size: 8pt;
+}
+/*------------*/
+/*  DTの定義  */
+/*------------*/
+.delivery_menu_dt{
+    margin-top: 8px;
+}
+/*------------*/
+/*  DDの定義  */
+/*------------*/
+.delivery_menu_dd{
+    margin-top: 8px;
+}
+/*---------------*/
+/*  imageの定義  */
+/*---------------*/
+.delivery_menu_image{
+    cursor:pointer;
+    cursor:hand;
+}
+/*------------------*/
+/*  アンカーの定義  */
+/*------------------*/
+.delivery_menu_anchor{
+    text-decoration: none;
+}
+.delivery_menu_anchor:hover {
+    text-decoration:underline;
+    padding-bottom:1px;
+}
+
+</style>
+
+
+<script type="text/javascript">
+    //========//
+    //  定数  //
+    //========//
+    //  機能数
+    var DeliveryMenu_menuTotal = 3;
+
+    //  機能種類
+    var DeliveryMenu_DeliveryStatus  = 0;  //  配信状況
+    var DeliveryMenu_AddressSetting  = 1;  //  配信アドレス設定
+    var DeliveryMenu_Signature       = 2;  //  署名設定
+
+    //  項目種類
+    var DeliveryMenu_Item_List      =  1;
+    var DeliveryMenu_Item_AdminList =  2;
+    var DeliveryMenu_Item_OpenList  =  3;
+    var DeliveryMenu_Item_CloseList =  4;
+    //
+    var DeliveryMenu_Item_AddressList = 11;
+    //
+    var DeliveryMenu_Item_Signature   = 31;
+
+    //  Cookie
+    var DeliveryMenu_OpenMenuList = "DeliveryMenu_OpenMenuList"   //  メニューの開閉
+    var DeliveryMenu_SelectedItem = "DeliveryMenu_SelectedItem"   //  選択項目
+
+
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+
+        menuDelivery_initDisplay();
+
+//        $("#delivery_menu_div * .delivery_menu_anchor").each(function(){
+//            var before = $(this).attr("href");
+//            if(before == "#"){
+//                return;
+//            }
+//            var search = window.location.search;
+//            var hash   = window.location.hash;
+//            var after = before + search + hash;
+//            $(this).attr("href", after);
+//        });
+
+    });
+
+    //============//
+    //  初期表示  //
+    //============//
+    function menuDelivery_initDisplay(){
+        //------------------------------------
+        //  cookieを取得
+        //------------------------------------
+        //  cookieの名前
+        var name = DeliveryMenu_OpenMenuList;
+        //  cookieの値を変数に代入
+        var cookVal = $.cookie(name);
+        if(cookVal == null){
+            cookVal = "";
+        }
+
+        var list = cookVal.split(":");
+        //------------------------------------
+        //  開閉処理
+        //------------------------------------
+        for(var idx=0; idx<DeliveryMenu_menuTotal; idx++){
+            //  閉じていた場合
+            if ($.inArray(String(idx), list) < 0) {
+                $("#menuId-close-" + idx).show();
+            }
+            //  開いていた場合
+            else{
+                $("#menuId-open-" + idx).show();
+            }
+        }
+    }
+
+
+    //=========================//
+    //  メニュー項目のOnClick  //
+    //=========================//
+    function mainMenuOnClick(menuIndex){
+        //  何番目の機能なのかを変数に代入
+        var index = menuIndex / 2;
+        index = parseInt(index);
+        //  開いていた(1) or 閉じていた(0)
+        var openclose = menuIndex % 2;
+
+        //------------//
+        //  開閉処理  //
+        //------------//
+        //  閉じていた場合
+        if(openclose == 0){
+            $("#menuId-close-" + index).hide();
+            $("#menuId-open-" + index).show();
+        }
+        //  開いていた場合
+        else{
+            $("#menuId-open-" + index).hide();
+            $("#menuId-close-" + index).show();
+        }
+
+        //--------------------------//
+        //  開閉状態をcookieに保存  //
+        //--------------------------//
+        //  cookieの名前
+        var name = DeliveryMenu_OpenMenuList;
+        //  cookieの値を変数に代入
+        var cookVal = $.cookie(name);
+        if(cookVal == null){
+            cookVal = "";
+        }
+        //  cookieがない場合
+        if (cookVal == "") {
+            //  cookieを新たにセットする
+            $.cookie(name, index);
+            return;
+        }
+
+        var list = cookVal.split(":");
+
+        //  開いていた場合
+        var pos = $.inArray(String(index), list);
+        if (pos != -1) {
+            //  １つしかなかった場合はcookie自体を削除
+            if ((list.length) == 1) {
+                $.cookie(name, null);
+                return;
+            }
+
+            //  pos番目をリストから削除
+            list.splice(pos, 1);
+        }
+        // 閉じていた場合
+        else{
+            //  リストに追加
+            list.push(index);
+        }
+        //  リストを連結
+        cookVal = list.join(":");
+        //  cookieに保存
+        $.cookie(name, cookVal);
+    }
+
+
+    //=============================//
+    //  サブメニュー項目のOnClick  //
+    //=============================//
+    function itemOnClick(itemIndex){
+        //  Cookieに項目番号を保存
+        $.cookie(DeliveryMenu_SelectedItem, itemIndex);
+    }
+
+</script>
+
+
+<div class="delivery_menu" id="delivery_menu_div">
+<dl>
+    <!-- ---------------- -->
+    <!--  配信状況（閉）  -->
+    <!-- ---------------- -->
+    <div style="display:none" id="menuId-close-0">
+        <dt class="delivery_menu_dt">
+            <span  class="delivery_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_plus.gif')}" onclick="mainMenuOnClick(0);return false;" alt="{!$Label.solxyzcso001__label_10441}" title="{!$Label.solxyzcso001__label_10441}"/></span>
+            <a class="delivery_menu_anchor" href="#" onclick="mainMenuOnClick(0);return false;">{!$Label.solxyzcso001__label_10441}</a>
+        </dt>
+    </div>
+    <!-- ---------------- -->
+    <!--  配信状況（開）  -->
+    <!-- ---------------- -->
+    <div style="display:none" id="menuId-open-0" >
+        <dt class="delivery_menu_dt">
+            <span  class="delivery_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_minus.gif')}" onclick="mainMenuOnClick(1);return false;" alt="{!$Label.solxyzcso001__label_10441}" title="{!$Label.solxyzcso001__label_10441}"/></span>
+            <a class="delivery_menu_anchor" href="#" onclick="mainMenuOnClick(1);return false;">{!$Label.solxyzcso001__label_10441}</a>
+        </dt>
+        <dd class="delivery_menu_dd">
+            <a class="delivery_menu_anchor" href="{!$Page.DeliveryList}" onclick="itemOnClick(DeliveryMenu_Item_List);">
+              {!$Label.label_10442}
+            </a>
+        </dd>
+        <dd class="delivery_menu_dd" style="display:{!IF(cso_userInfo.proAuth_delivery_manage == 'true', 'block', 'none')}">
+            <a class="delivery_menu_anchor" href="{!$Page.DeliveryList}?status=admin" onclick="itemOnClick(DeliveryMenu_Item_AdminList);">
+                {!$Label.label_10443}
+            </a>
+        </dd>
+        <dd class="delivery_menu_dd">
+            <a class="delivery_menu_anchor" href="{!$Page.DeliveryList}?status=open" onclick="itemOnClick(DeliveryMenu_Item_OpenList);">
+                {!$Label.label_10444}
+            </a>
+        </dd>
+        <dd class="delivery_menu_dd">
+            <a class="delivery_menu_anchor" href="{!$Page.DeliveryList}?status=close" onclick="itemOnClick(DeliveryMenu_Item_CloseList);">
+                {!$Label.label_10445}
+            </a>
+        </dd>
+    </div>
+    <!-- -------------------- -->
+    <!--  配信アドレス管理（閉）  -->
+    <!-- -------------------- -->
+    <div style="display:none" id="menuId-close-1" >
+        <dt class="delivery_menu_dt">
+            <span  class="delivery_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_plus.gif')}" onclick="mainMenuOnClick(2);return false;" alt="{!$Label.solxyzcso001__label_10545}" title="{!$Label.solxyzcso001__label_10545}"/></span>
+            <a class="delivery_menu_anchor" href="#" onclick="mainMenuOnClick(2);return false;">{!$Label.solxyzcso001__label_10545}</a>
+        </dt>
+    </div>
+    <!-- -------------------- -->
+    <!--  配信アドレス管理（開）  -->
+    <!-- -------------------- -->
+    <div style="display:none" id="menuId-open-1" >
+        <dt class="delivery_menu_dt">
+            <span  class="delivery_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_minus.gif')}" onclick="mainMenuOnClick(3);return false;" alt="{!$Label.solxyzcso001__label_10545}" title="{!$Label.solxyzcso001__label_10545}"/></span>
+            <a class="delivery_menu_anchor" href="#" onclick="mainMenuOnClick(3);return false;">{!$Label.solxyzcso001__label_10545}</a>
+        </dt>
+        <dd class="delivery_menu_dd">
+            <a class="delivery_menu_anchor" href="{!$Page.DeliveryAddressList}" onclick="itemOnClick(DeliveryMenu_Item_AddressList);">
+                {!$Label.solxyzcso001__label_10545}
+            </a>
+        </dd>
+    </div>
+    <!-- -------------------- -->
+    <!--  署名設定（閉）  -->
+    <!-- -------------------- -->
+    <div style="display:none" id="menuId-close-2" >
+        <dt class="delivery_menu_dt">
+            <span  class="delivery_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_plus.gif')}" onclick="mainMenuOnClick(4);return false;" alt="{!$Label.solxyzcso001__label_10399}" title="{!$Label.solxyzcso001__label_10399}"/></span>
+            <a class="delivery_menu_anchor" href="#" onclick="mainMenuOnClick(4);return false;">{!$Label.solxyzcso001__label_10399}</a>
+        </dt>
+    </div>
+    <!-- -------------------- -->
+    <!--  署名設定（開）  -->
+    <!-- -------------------- -->
+    <div style="display:none" id="menuId-open-2" >
+        <dt class="delivery_menu_dt">
+            <span  class="delivery_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_minus.gif')}" onclick="mainMenuOnClick(5);return false;" alt="{!$Label.solxyzcso001__label_10399}" title="{!$Label.solxyzcso001__label_10399}"/></span>
+            <a class="delivery_menu_anchor" href="#" onclick="mainMenuOnClick(5);return false;">{!$Label.solxyzcso001__label_10399}</a>
+        </dt>
+        <dd class="delivery_menu_dd">
+            <a class="delivery_menu_anchor" href="{!$Page.SOLXYZCSO001__SignatureInfo}" onclick="itemOnClick(DeliveryMenu_Item_Signature);">
+                {!$Label.solxyzcso001__label_10400}
+            </a>
+        </dd>
+    </div>
+
+</dl>
+
+</div>
+
+</apex:page>

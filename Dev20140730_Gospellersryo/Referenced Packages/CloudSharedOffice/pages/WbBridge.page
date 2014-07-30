@@ -1,0 +1,196 @@
+<apex:page showHeader="false" sidebar="false" controller="SOLXYZCSO001.WBBridgeController">
+<div id="auth_frame"/>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery-1.5.2.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/Silverlight.js')}" />
+    <apex:include pageName="SOLXYZCSO001__WRCSOSilverlight"/>
+
+<script type="text/javascript">
+
+/*
+ * API呼び出し先URL
+ */
+var _apiUrl = '{!$Label.field_CSO_URL}';
+
+
+/*
+ * SFDCセッションID保持
+ */
+var __sfdcSessionId = '{!GETSESSIONID()}';
+
+/*
+ * ECMセッションID保持
+ */
+var __ecmSessionId;
+
+
+/*
+ * Cookieに値を格納
+ */
+function GetCookie(key){
+    var tmp = document.cookie + ";";
+    var index1 = tmp.indexOf(key, 0);
+    if(index1 != -1){
+        tmp = tmp.substring(index1,tmp.length);
+        var index2 = tmp.indexOf("=",0) + 1;
+        var index3 = tmp.indexOf(";",index2);
+        return(unescape(tmp.substring(index2,index3)));
+    }
+    return("");
+}
+
+/*
+ * Cookieの値を取得
+ */
+function SetCookie(key, val){
+    document.cookie = key + "=" + escape(val) + ";expires=Fri, 31-Dec-2030 23:59:59;";
+}
+
+
+/*
+ * ECMセッションID要求/受取ハンドラ
+ */
+if(window.addEventListener) {
+    window.addEventListener("message",
+                            function(e){
+                                __ecmSessionId = e.data;
+                                ents = $("#auth_frame").contents();
+                            },
+                            false);
+} else {
+    window.attachEvent("onmessage",
+                       function(e){
+                           __ecmSessionId = e.data;
+                           ents = $("#auth_frame").contents();
+                       },
+                       false);
+}
+
+/*
+ * ECMセッションID要求/受取ハンドラ
+ */
+function getSessionId(){
+    if(window.addEventListener) {
+        window.addEventListener("message",
+                                function(e){
+                                    __ecmSessionId = e.data;
+                                    ents = $("#auth_frame").contents();
+                                },
+                                false);
+    } else {
+        window.attachEvent("onmessage",
+                           function(e){
+                               __ecmSessionId = e.data;
+                               ents = $("#auth_frame").contents();
+                           },
+                           false);
+    }
+}
+
+/*
+ * 認証IFRAME読込完了まで
+ * 元ページの読み込みを遅延させる
+//window.onload = function () {
+//    jQuery($('#auth_frame')).ready(function () {
+//        jQuery(document).ready(function(){
+//            ents = $("#auth_frame").contents();
+//        });
+//    });
+//};
+ */
+</script>
+<script type="text/javascript" src="/soap/ajax/20.0/connection.js"></script>
+<script type="text/javascript" src="/soap/ajax/20.0/apex.js"></script>
+<script type="text/javascript">
+/**
+ * 同期GETメソッド
+ */
+function secureGet(__url, __data, __callback, __callerror){
+    jsonpAccess(__url, __data, false, false, __callback, __callerror);
+};
+
+/**
+ * 非同期GETメソッド
+ */
+function secureGetAsync(__url, __data, __callback, __callerror){
+    jsonpAccess(__url, __data, true, false, __callback, __callerror);
+};
+
+/**
+ * 同期POSTメソッド
+ */
+function securePost(__url, __data){
+    return toolKitAccess(__url, __data);
+};
+
+/**
+ * 非同期POSTメソッド(Deprecated)
+ */
+//function securePostAsync(__url, __data, __callback, __callerror){
+//    toolKitAccess(__url, 'POST', __data, false, false,'application/json', __callback, __callerror);
+//};
+
+/*
+ * 基底メソッド(JSONPベース)
+ */
+function jsonpAccess(__url, __data, __sync, __cache, __callback, __callerror){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = defaultCallError;
+    }
+
+    $.ajax({
+            url     : _apiUrl + __url,
+            // GET固定
+            type    : 'GET',
+            data    : __data,
+            dataType: 'jsonp',
+            sync    : __sync,
+            cache   : __cache,
+            success : __callback,
+            error   : __callerror
+    });
+}
+
+/**
+ * 基底メソッド(SFDC tool kitベース)
+ */
+function toolKitAccess(__url, __data){
+    try{
+        return JSON.parse(sforce.apex.execute('CSOPostService', 'csoPost',{'url':__url, 'data' : JSON.stringify(__data), 'ecmSessionId' : __ecmSessionId}));
+    }catch(e){
+        alert('APIのPOSTに失敗しました\nurl:[' + __url + ']\n cause:[' + e + ']');
+        return undefined;
+    }
+}
+
+/*
+ * 標準エラーコールバック
+ */
+var defaultCallError = function(data, status, throwz){
+    alert(data);
+}
+
+/*
+ * jQuery向けIDセレクター生成
+ */
+function getId(id) {
+    return '#' + id.replace(/(:|\.)/g,'\\\\$1');
+}
+
+/*--------------
+  名前空間分離サンプル
+*/
+var g_move = {};
+g_move.id = 'bbbb';
+g_move.name;
+
+function test(){
+    g_move.id='aaa';
+//    g_move = {};
+    alert(g_move.id);
+}
+//test();
+</script>
+<!--button onclick="alert(__ecmSessionId);">test</button-->
+</apex:page>

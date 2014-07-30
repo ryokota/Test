@@ -1,0 +1,161 @@
+<apex:page sidebar="false" showHeader="false" controller="SOLXYZCSO001.OverlayInfoController">
+
+<apex:include pageName="SOLXYZCSO001__WRCSOBridge"/>
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery-1.5.2.min.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/common.child.css')}" />
+
+<style>
+	.fixed-table-layout table {
+		table-layout: fixed;
+	}
+
+	.ellipsis-overflow {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+</style>
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/grid.locale-ja.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/callActiveX.js')}" />
+<script type="text/javascript">
+$(window).unload(function() {
+    top.window.opener.reloadNow();
+});
+/*
+ * ダウンロード
+ */
+function contentsDownload(downUrl){
+    var __callback = function(data){
+        $('#downframe').attr('src', _apiUrlSf + data["path"]);
+    }
+
+    var contextError = function(data){
+    }
+    secureGetAsync("/api/OverlayDownload.json?id="+'{!overlayID}-file'+'&ver='+downUrl +'&{!credential}',{},__callback,contextError);
+}
+
+</script>
+<apex:form id="Form">
+<!-- ヘッダ -->
+<div id="c_head">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__FE_CSO, 'image/manager/overlay.png')}"/>
+    <div id="c_headTitle">
+        Cloud Shared Office
+    </div>
+    <div id="c_headSubTitle" class="ellipsis-overflow">
+        <apex:outputLabel value="{!overlayName}" escape="true"/>
+    </div>
+</div>
+<!--
+<apex:pageBlock >
+    <apex:pageBlockSection title="{!spacePath}"  collapsible="false"/>
+</apex:pageBlock>
+-->
+<apex:pageBlock title="">
+    <!-- エラーページを表示 -->
+    <apex:pageMessages />
+    <!-- buttons -->
+    <apex:pageBlockButtons location="top">
+        <apex:commandButton value="{!$Label.solxyzcso001__label_wf_00020}" action="{!edit}"/>
+        <apex:commandButton value="{!$Label.solxyzcso001__label_wf_00021}" onclick="top.window.close();"/>
+    </apex:pageBlockButtons>
+
+    <!-- Basic Informations. -->
+    <div class="fixed-table-layout">
+    <apex:pageblocksection columns="1">
+    <apex:pageBlockSection columns="1">
+
+        <!-- name -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="content" value="{!$Label.solxyzcso001__label_wf_00014}"/>
+            <apex:variable rendered="true" var="" value="">
+				<div class="ellipsis-overflow"><apex:outputLabel value="{!overlayName}" escape="true"/></div>
+			</apex:variable>
+        </apex:pageBlockSectionItem>
+        <!-- overlay file name/ ovelay file size -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="content" value="{!$Label.solxyzcso001__label_wf_00015}"/>
+            <!-- <apex:outputLabel value="{!overlayFileName}" escape="false"/> -->
+            <!-- #4284 2012.11.13 add -->
+            <apex:outputLabel value="{!overlayFileName + ' (' + overlayFileSize + 'KB)'}" escape="true"/>
+        </apex:pageBlockSectionItem>
+
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="content" value="{!$Label.solxyzcso001__label_wf_00016}"/>
+            <apex:outputLabel value="{!JSENCODE(overlayID)}" />
+        </apex:pageBlockSectionItem>
+
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="comment" value="{!$Label.solxyzcso001__label_wf_00007}"/>
+            <apex:inputtextarea rows="8" cols="80" value="{!explanation}" disabled="true" style="resize: none;" />
+        </apex:pageBlockSectionItem>
+
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="version" value="{!$Label.solxyzcso001__label_wf_00008}"/>
+            <div id="version" colspan="3" >{!releaseVersionString}</div>
+        </apex:pageBlockSectionItem>
+
+    </apex:pageBlockSection>
+
+    <!-- Regist / Update Infos -->
+    <!--  <apex:pageBlockSection columns="2">  -->
+        <!-- Registerd UserName -->
+    <!-- <apex:pageBlockSectionItem > -->
+    <!--        <apex:outputLabel for="creator" value="{!$Label.label_wf_00009}"/> -->
+    <!--        <div id="regUserName" colspan="3" >{!regUserName}</div> -->
+    <!-- </apex:pageBlockSectionItem> -->
+        <!--  Registerd Date-->
+        <!-- <apex:pageBlockSectionItem > -->
+            <!-- <apex:outputLabel for="created_date" value="{!$Label.label_wf_00010}"/> -->
+            <!-- <div id="regDate" colspan="3" >{!regDate}</div> -->
+        <!-- </apex:pageBlockSectionItem> -->
+        <!-- Updated UserName -->
+        <!-- <apex:pageBlockSectionItem > -->
+            <!-- <apex:outputLabel for="updated_person" value="{!$Label.solxyzcso001__label_wf_00011}"/> -->
+            <!-- <div id="upUserName" colspan="3" >{!upUserName}</div> -->
+        <!-- </apex:pageBlockSectionItem> -->
+        <!-- Updated Date -->
+        <!-- <apex:pageBlockSectionItem > -->
+            <!-- <apex:outputLabel for="updated_date" value="{!$Label.label_wf_00012}"/> -->
+            <!-- <div id="upDate" colspan="3" >{!upDateString}</div> -->
+        <!-- </apex:pageBlockSectionItem> -->
+    <!-- </apex:pageBlockSection> -->
+
+    <!-- Update Histories... -->
+    <apex:pageBlockSection columns="1">
+
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_history" value="{!$Label.solxyzcso001__label_wf_00038}"/>
+            <apex:pageBlockTable value="{!updateHistory}" var="h">
+                <apex:column width="60" headerValue="{!$Label.solxyzcso001__label_wf_00008}" value="{!h.version}"/>
+                <apex:column width="80" headerValue="{!$Label.solxyzcso001__label_wf_00017}" value="{!h.checkinDate}"/>
+                <apex:column width="100" headerValue="{!$Label.solxyzcso001__label_wf_00011}" value="{!h.checkinUserName}"/>
+                <apex:column width="*" headerValue="{!$Label.solxyzcso001__label_wf_00018}" value="{!h.checkinComment}"/>
+                <apex:column width="60" headerValue="{!$Label.solxyzcso001__label_wf_00019}"
+                        rendered="{!IF(asrt != 'garbage', true, false)}"
+                        >
+                    <apex:outputLink style="text-align:center" onclick="contentsDownload('{!h.url}');" value="javascript:void(0)">
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'image/001_51.png')}" alt="download" width="20" height="20" style="border: none;" title="{!$Label.solxyzcso001__label_wf_00039}" />
+                    </apex:outputLink>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+    </apex:pageblocksection>
+    </div>
+</apex:pageBlock>
+</apex:form>
+
+<iframe id="downframe" height="0" width="0" style="display:none"/>
+</apex:page>

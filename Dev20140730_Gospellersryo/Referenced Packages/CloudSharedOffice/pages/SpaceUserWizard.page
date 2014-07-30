@@ -1,0 +1,858 @@
+<apex:page cache="false" controller="SOLXYZCSO001.SpaceUserController" sidebar="false" showHeader="false" tabStyle="ContentTab__tab">
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.showErrPage == true,false,true)}">
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/_colorado.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/redmond/jquery-ui-1.8.9.custom.popup.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<title>{!$Label.label_10279}</title>
+
+<style type="text/css">
+
+.step-div ul{
+    width: 100%;
+    display: table;
+    position: relative;
+    height: 59px;
+    padding-left: 0px;
+    border-top: solid 1px #c0c0c0;
+    border-bottom: solid 1px #c0c0c0;
+}
+
+.step-div li{
+    display: table-cell;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.wizard-step{
+    position:absolute;
+    top: 1px;
+}
+
+.wizard-step-10 {
+    border-color:transparent transparent transparent #7593D7;
+    border-style:solid;
+    border-width:30px;
+    content:"";
+    display:block;
+    position:absolute;
+    width:0;
+    z-index:1;
+}
+
+.wizard-step-11 {
+    border-color:transparent transparent transparent #c0c0c0;
+    border-style:solid;
+    border-width:30px;
+    content:"";
+    display:block;
+    left:1px;
+    position:absolute;
+    width:0;
+}
+.wizard-step-20 {
+    border-color:transparent transparent transparent #EAEAEA;
+    border-style:solid;
+    border-width:30px;
+    content:"";
+    display:block;
+    position:absolute;
+    width:0;
+    z-index:1;
+}
+
+.wizard-step-21 {
+    border-color:transparent transparent transparent #c0c0c0;
+    border-style:solid;
+    border-width:30px;
+    content:"";
+    display:block;
+    left:1px;
+    position:absolute;
+    width:0;
+}
+
+.wizard-step-active {
+    background-color: #7593D7;
+    color: white;
+}
+
+.wizard-step-deactive {
+    background-color: #EAEAEA;
+}
+
+.wizardDiv{
+    height: 400px;
+    padding: 10px;
+}
+
+html{
+    /*overflow: hidden;*/
+}
+
+.gc-usr-name{
+    font-size: 13px;
+    font-weight: bold;
+    margin-left: 50px;
+}
+
+.gc-usr-post{
+    font-size: 10px;
+    margin-left: 50px;
+}
+
+.gc-role-name{
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.gc-role-comment{
+    font-size: 10px;
+    color: gray;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.gc-grp-name{
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.gc-grp-comment{
+    font-size: 10px;
+}
+
+.gc-post-name{
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.gc-post-path{
+    font-size: 10px;
+    color: gray;
+}
+
+.notify-textarea{
+    width: 95%;
+    max-width: 95%;
+    min-width: 95%;
+    height: 350px;
+    max-height: 350px;
+    min-height: 350px;
+    margin-top: 10px;
+    margin-left: 10px;
+    border: solid 1px silver;
+    padding: 5px;
+}
+
+.cb{
+    width: 16px;
+    height: 16px;
+    border: none;
+    vertical-align: -3px;
+}
+
+.ui-jqgrid tr.jqgrow td {
+    height: 42px;
+}
+
+</style>
+
+<script type="text/javascript">
+
+    var spaceUserWizard_step;
+    var spaceUW_stepList1Selected = {};
+    var spaceUW_stepList1Loading = false;
+    var spaceUW_isPublic = {!isPublic};
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+
+        window.focus();
+        if({!if(wizardPage == 4, 'true', 'false')} == true && {!continueInvflg}){
+            top.window.opener.spaceUserManager_invUserListReload_local();
+            //top.window.close();
+        }else if({!if(wizardPage == 4, 'true', 'false')} == true){
+            top.window.opener.spaceUserManager_invUserListReload_local();
+            top.window.close();
+        }
+
+        createStepIndicator();
+
+        spaceUserWizard_step = 0;
+
+        initGrid();
+
+        $('select[id$="userType"]').change(function(){
+            var t = $('select[id$="userType"]').val();
+            var ph = "";
+
+            if(t == "user") {
+                ph = "{!$Label.label_11075}";
+            } else if(t == "group") {
+                ph = "{!$Label.label_10548}";
+            } else if(t == "post") {
+                ph = "{!$Label.label_11098}";
+            }
+
+            $("#searchText1").attr("placeholder", ph);
+
+            $("#searchText1").val("");
+            $("#searchBtn1").trigger("click");
+
+        });
+
+        $("#searchText1").val("");
+
+        $('select[id$="userType"]').change();
+
+        $("input[id$=notifyCheckbox]").click(function(){
+            if($(this).attr("checked")){
+                $("#notifyText").attr("disabled", "disabled");
+            }else{
+                $("#notifyText").removeAttr("disabled");
+            }
+        });
+
+        $(window).resize(resize);
+        resize();
+
+        $("[id $= btnInvOk]").hide();
+        $("[id $= btnInvOk2]").hide();
+
+        $("#searchText1").keydown(function(e) {
+            if(e.keyCode == 13){
+                searchJQGrid('1');
+                e.preventDefault();
+            }
+        });
+
+        $("#searchText2").keydown(function(e) {
+            if(e.keyCode == 13){
+                searchJQGrid('2');
+                e.preventDefault();
+            }
+        });
+
+        $("#notifyText").change(function () {
+            var str = $("#notifyText").val();
+            $('textarea[id$="MAIL_TEXT"]').text(str);
+        });
+
+        if(spaceUW_isPublic){
+            $("#labelMy").hide();
+            $("#labelPublic").show();
+        }else{
+            $("#labelMy").show();
+            $("#labelPublic").hide();
+        }
+    });
+
+function onSelectStepList1Row(){
+	var gridUserIDs = $("#stepList1").getDataIDs();
+	for(var i=0; i<gridUserIDs.length; i++){
+		var row = $("#stepList1").getRowData(gridUserIDs[i]);
+		if($("#stepList1").find("input[type=checkbox][id=jqg_" + row.column_01 + "]").attr("checked")){
+			spaceUW_stepList1Selected[row.column_01] = row.column_01;
+		}else{
+			delete spaceUW_stepList1Selected[row.column_01];
+		}
+	}
+}
+
+function createAndAssignColumnModelNameMap(jqgridObj) {
+    var colModel = jqgridObj.getGridParam('colModel');
+    var colModelNameMap = [];
+    for (var i=0; i<colModel.length; ++i) {
+        colModelNameMap[colModel[i].name] = i;
+    }
+    jqgridObj.data('colModelNameMap', colModelNameMap);
+}
+
+function getColumnModelNameMap(jqgridObj) {
+    return jqgridObj.data('colModelNameMap');
+}
+
+function initGrid(){
+
+    $("#stepList1").jqGrid({
+        url: _apiUrl + "/common/SearchUserListGet.json",
+        postData : {
+            "text" : "",
+            "type" : 0,
+            "isUsingApi":true,
+            available : true,
+            excludeSelf : false,
+            spaceId : "{!spaceId}"
+        },
+        datatype:"jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id         : "column_01"
+        },
+        colNames:[
+            'id',
+            '{!$Label.label_10477}'
+        ],
+        colModel:[
+            {name:"column_01", hidden:true ,align:"left"},
+            {name:"column_02", width:650 ,align:"left" },
+        ],
+        width:700,
+        height:270,
+        sortname:"id",
+        sortorder:"desc",
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly:true,
+        pager : "#stepList1Pager",
+        shrinkToFit : false,
+        loadComplete : function(data){
+            spaceUW_stepList1Loading = true;
+            for(var id in spaceUW_stepList1Selected){
+                $(this).setSelection(id);
+            }
+            spaceUW_stepList1Loading = false;
+        },
+        onSelectRow : function(id, b_check){
+            if(!spaceUW_stepList1Loading){
+                onSelectStepList1Row();
+            }
+        },
+        onSelectAll : function(id, b_check){
+            if(!spaceUW_stepList1Loading){
+                onSelectStepList1Row();
+            }
+        }
+    });
+
+    $("#stepList2").jqGrid({
+        url: _apiUrl + "/space.user.role/roleListGet.json",
+        postData : {
+            "text" : "",
+        },
+        datatype:"jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id         : "id"
+        },
+        colNames:[
+            'id',
+            '{!$Label.label_10477}',
+            'simpleName'
+        ],
+        colModel:[
+            {name:"id", hidden:true},
+            {name:"name", width:650},
+            {name:"simpleName", width:100 , hidden : true},
+        ],
+        width:700,
+        height:270,
+        sortname:"id",
+        sortorder:"desc",
+        viewrecords: true,
+        pager : "#stepList2Pager",
+        shrinkToFit : false,
+        loadComplete : function(data){
+        },
+    });
+    createAndAssignColumnModelNameMap($("#stepList2"));
+
+    $("#confirmList").jqGrid({
+        datatype: "local",
+        jsonReader: {
+            repeatitems: false,
+            id         : "id"
+        },
+        colNames:[
+            'id',
+            '{!$Label.label_10477}',
+            '{!$Label.label_10029}'
+        ],
+        colModel:[
+            {name:"column_01", hidden:true},
+            {name:"column_02", width:400},
+            {name:"column_03", width:280},
+        ],
+        width:700,
+        height:130,
+        sortname:"column_01",
+        sortorder:"desc",
+        viewrecords: true,
+        pager : "#confirmListPager",
+        shrinkToFit : false,
+        loadComplete : function(data){
+        },
+    });
+}
+
+function reloadConfirmList(type, ids) {
+	$('.loading').show();
+	var params = {
+		text		: "",
+		isUsingApi	: true,
+        spaceId		: "{!spaceId}",
+        _search		: false,
+        nd			: 0,
+        rows		: 10,
+        page		: 1,
+        sidx		: "column_01",
+        sord		: "desc",
+        type		: type,
+        id			: ids,
+        role		: $($("#stepList2").find("#" + $("#stepList2").jqGrid('getGridParam','selrow') + " td")[getColumnModelNameMap($("#stepList2"))["simpleName"]]).text()
+    };
+    var callback = function(data) {
+        $("#confirmList").jqGrid('clearGridData').setGridParam({
+            data : data.rows
+        }).trigger("reloadGrid");
+        $('.loading').hide();
+    };
+    
+    // Change to POST when API is ready
+    //securePostAsync("/common/SearchUserListGet.json", params, callback);
+    secureGetAsync("/common/SearchUserListGet.json", params, callback);
+}
+
+function createStepIndicator() {
+	var i = 0;
+	$(".step-div ul li").each(function(){
+	    var $div = $("<div/>").attr("id", "wizardStep_" + i).addClass("wizard-step");
+	    var $bf = $("<div/>");
+	    var $af = $("<div/>");
+	    if(i == 0){
+	        $(this).addClass("wizard-step-active");
+	    }else if(i == 1){
+	        $bf.addClass("wizard-step-10");
+	        $af.addClass("wizard-step-11");
+	        $(this).addClass("wizard-step-deactive");
+	    }else{
+	        $bf.addClass("wizard-step-20");
+	        $af.addClass("wizard-step-21");
+
+	        $(this).addClass("wizard-step-deactive");
+	    }
+	    $div.append($bf).append($af);
+	    $(this).append($div);
+	    i++;
+	    spaceUserWizard_step = i;
+	});
+}
+
+function setWizardStep(spaceUserWizard_step){
+    var i = 0;
+    $(".step-div ul li").each(function(){
+
+        if(i == spaceUserWizard_step){
+
+            $(this).removeClass("wizard-step-deactive");
+            $(this).addClass("wizard-step-active");
+            $("#wizardStep_" + spaceUserWizard_step).children(":first-child").removeAttr("class");
+            $("#wizardStep_" + spaceUserWizard_step).children(":last-child").removeAttr("class");
+
+            if(i != 0){
+                $("#wizardStep_" + spaceUserWizard_step).children(":first-child").addClass("wizard-step-20");
+                $("#wizardStep_" + spaceUserWizard_step).children(":last-child").addClass("wizard-step-21");
+
+            }
+            $("#wizardStep_" + (i + 1)).children(":first-child").removeAttr("class");
+            $("#wizardStep_" + (i + 1)).children(":last-child").removeAttr("class");
+            $("#wizardStep_" + (i + 1)).children(":first-child").addClass("wizard-step-10");
+            $("#wizardStep_" + (i + 1)).children(":last-child").addClass("wizard-step-11");
+
+        }else if(i < spaceUserWizard_step){
+            if(i != 0){
+                $("#wizardStep_" + i).children(":first-child").removeAttr("class");
+                $("#wizardStep_" + i).children(":last-child").removeAttr("class");
+                $("#wizardStep_" + i).children(":first-child").addClass("wizard-step-20");
+                $("#wizardStep_" + i).children(":last-child").addClass("wizard-step-21");
+            }
+            $(this).addClass("wizard-step-deactive");
+            $(this).removeClass("wizard-step-active");
+        }else if(i > spaceUserWizard_step){
+            $(this).addClass("wizard-step-deactive");
+            $(this).removeClass("wizard-step-active");
+            $("#wizardStep_" + (i + 1)).children(":first-child").removeAttr("class");
+            $("#wizardStep_" + (i + 1)).children(":last-child").removeAttr("class");
+            $("#wizardStep_" + (i + 1)).children(":first-child").addClass("wizard-step-20");
+            $("#wizardStep_" + (i + 1)).children(":last-child").addClass("wizard-step-21");
+        }
+        i++;
+    });
+}
+
+function backOnClick(){
+    spaceUserWizard_step--;
+    setWizardStep(spaceUserWizard_step);
+    if((spaceUserWizard_step + 1) < $(".step-div ul li").length){
+        //$("#wizardNext").removeAttr("disabled");
+        $("#wizardNext").show();
+        $(".inv").each(function(){
+            $(this).attr("disabled", "disabled");
+        });
+    }
+
+    $(".wizardDiv").each(function(){
+        if($(this).attr("id") == "step" + (spaceUserWizard_step + 1)){
+            $(this).show();
+        }else{
+            $(this).hide();
+        }
+    });
+
+    if(spaceUserWizard_step == 0){
+        //$("#wizardBack").attr("disabled", "disabled");
+        $("#wizardBack").hide();
+    }
+
+    $("[id $= btnInvOk]").hide();
+    $("[id $= btnInvOk2]").hide();
+    $("#btnNext").show();
+}
+
+function nextOnClick(){
+
+    switch(spaceUserWizard_step){
+    case 0:
+        if(!validateStep1()) return;
+        if($("input[id $= childSpaceApply]").attr("checked")){
+            $("#confirmChildSpaceApply").attr("src", "{!URLFOR($Resource.cso, '/image/check_on.png')}");
+        }else{
+            $("#confirmChildSpaceApply").attr("src", "{!URLFOR($Resource.cso, '/image/check_off.png')}");
+        }
+
+        break;
+    case 1:
+        if(!validateStep2()) return;
+
+        var ids = "";
+        for(var key in spaceUW_stepList1Selected){
+            if(ids != ""){
+                ids += ",";
+            }
+            ids += key;
+        }
+
+        var type;
+        if(getUserTypeNum()){
+            type = getUserTypeNum();
+        }else{
+            type = 0;
+        }
+        
+        reloadConfirmList(type, ids);
+        break;
+    case 2:
+        if(!validateStep3()) return;
+        if(!$("input[id $= notifyCheckbox]").attr("checked")){
+            $("#confirmNotifyCheckbox").attr("src", "{!URLFOR($Resource.cso, '/image/check_on.png')}");
+            $("#confirmNotifyText").val($("#notifyText").val());
+            if($("#notifyText").val().length == 0){
+                $("#notifyInfoDiv").text("{!$Label.msg_01061}");
+            }else{
+                $("#notifyInfoDiv").text("");
+            }
+        }else{
+            $("#confirmNotifyText").val("");
+            $("#confirmNotifyCheckbox").attr("src", "{!URLFOR($Resource.cso, '/image/check_off.png')}");
+            $("#notifyInfoDiv").text("{!$Label.msg_01062}");
+        }
+
+        $("[id $= btnInvOk]").show();
+        $("[id $= btnInvOk2]").show();
+        $("#btnNext").hide();
+
+        break;
+    default:
+        return;
+    }
+
+    spaceUserWizard_step++;
+    setWizardStep(spaceUserWizard_step);
+    if(spaceUserWizard_step > 0){
+        //$("#wizardBack").removeAttr("disabled");
+        $("#wizardBack").show();
+    }
+
+    $(".wizardDiv").each(function(){
+        if($(this).attr("id") == "step" + (spaceUserWizard_step + 1)){
+            $(this).show();
+        }else{
+            $(this).hide();
+        }
+    });
+
+    if((spaceUserWizard_step + 1) == $(".step-div ul li").length){
+        //$("#wizardNext").attr("disabled", "disabled");
+        $("#wizardNext").hide();
+        $(".inv").each(function(){
+            $(this).removeAttr("disabled");
+        });
+    }
+}
+
+var count = function(obj) {
+    var cnt = 0;
+    for (var key in obj) {
+        cnt++;
+    }
+    return cnt;
+}
+
+function validateStep1(){
+//    var rows = $("#stepList1").jqGrid('getGridParam','selarrrow');
+//    if(rows.length == 0){
+//        alert("{!$Label.msg_01063}");
+//        return;
+//    }
+    if(count(spaceUW_stepList1Selected) < 1){
+        if(spaceUW_isPublic){
+            alert("{!$Label.msg_01063}")
+            return;
+        }else{
+            alert("{!$Label.label_11074}");;
+            return;
+        }
+    }
+    return true;
+}
+
+function validateStep2(){
+    if(!$("#stepList2").jqGrid('getGridParam','selrow')){
+        alert("{!$Label.msg_01064}");
+        return false;
+    }
+    return true;
+}
+
+function validateStep3(){
+    return true;
+}
+
+function resize(){
+//  var browserType = getBrowserType();
+//  var browserWindowHeight = getBrowserHeight();
+    var browserWidth = getBrowserWidth();
+    $("#stepList1").setGridWidth(browserWidth - 57);
+    $("#stepList2").setGridWidth(browserWidth - 57);
+    $("#confirmList").setGridWidth(browserWidth - 57);
+}
+
+function inv(flg){
+
+    if(confirm("{!$Label.msg_00048}")){
+
+        CsoScript_loadingStart();
+
+        var rows = $("#stepList1").jqGrid('getGridParam','selarrrow');
+        var role = $("#stepList2").jqGrid('getGridParam','selrow');
+
+        //var addUsersHidden = $(document.getElementById("{!$Component.Page.Form.Block.addUsersHidden}"));
+        var addUsersHidden = $("[id $= addUsersHidden]");
+        var addList = $("#addUsers");
+
+        var role = $("#stepList2").jqGrid('getGridParam','selrow');
+        for(var key in spaceUW_stepList1Selected){
+            var $opt = $("<option>").attr("value", key + ":" + role).attr("selected", "selected");
+            $("#addUsers").append($opt);
+        }
+
+        //  結合文字列を取得
+        var dataJonString = "{!dataJonString}";
+        //  招待者一覧を生成（結合）
+        $.each(addList.attr("options"), function(){
+            if(addUsersHidden.val() != ""){
+                addUsersHidden.val(addUsersHidden.val() + dataJonString);
+            }
+            addUsersHidden.val(addUsersHidden.val() + $(this).val());
+        });
+
+       $("[id $= continueInvflg]").val(flg);
+
+    } else {
+        return false;
+    }
+    return true;
+}
+
+function getUserTypeNum() {
+
+    var t = $('select[id$="userType"]').val();
+    var typeNum = 0;
+    if(t == "user") {
+        typeNum = 0;
+    } else if(t == "group") {
+        typeNum = 1;
+    } else if(t == "post") {
+        typeNum = 2;
+    }
+
+    return typeNum;
+
+}
+
+
+function searchJQGrid(s){
+    var text = $.trim($("#searchText" + s).val());
+	if($("#searchText" + s).val() == $("#searchText" + s).attr("placeholder")){
+		text = "";
+	}
+    var pd = {text : text};
+
+    if(s == "1"){
+        pd.type = getUserTypeNum();
+    }
+
+    $('#stepList' + s).setGridParam({
+        postData : pd
+    });
+
+    $('#stepList' + s).trigger('reloadGrid');
+}
+
+</script>
+<apex:form id="Form">
+    <!-- ヘッダー -->
+    <div id="c_head">
+        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting-person.png')}"/>
+        <div id="c_headTitle">
+            {!$Label.solxyzcso001__label_00002}
+        </div>
+        <div id="c_headSubTitle">
+            {!$Label.solxyzcso001__label_10077}
+        </div>
+    </div>
+
+    <apex:pageBlock tabStyle="ContentTab__tab">
+        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10280}{!spacePath}"  collapsible="false"/>
+    </apex:pageBlock>
+
+    <apex:pageBlock id="Block" tabStyle="ContentTab__tab">
+    <!-- エラー／警告メッセージ表示エリア -->
+    <apex:pageMessages />
+
+        <div id="step1" class="wizardDiv">
+            <div id ="labelMy" style = "display : none">{!$Label.label_11074}</div>
+            <div id = "labelPublic" style = "display : none">{!$Label.msg_01071} {!$Label.msg_01063}</div>
+
+            <!-- [検索] -->
+            <apex:selectList value="{!wizard1_userType}" id="userType" multiselect="false" size="1" style="display:{!if(isPublic == true,'inline','none')}">
+                <apex:selectOptions value="{!userTypeItems}"/>
+            </apex:selectList>
+
+                <input type="text" id="searchText1" maxlength="255" style="width: 300px;" placeholder="{!$Label.label_11075}" />
+                <input type="button" id="searchBtn1" class="btn" value="{!$Label.label_00069}"  onclick="searchJQGrid(1);"/>
+
+            <div style="padding: 20px 5px 10px 5px;">
+                <table id="stepList1"></table>
+                <div id="stepList1Pager"></div>
+            </div>
+
+            <label><apex:inputCheckbox value="{!wizard1_applyChildren}" style="vertical-align: -2px;" id="childSpaceApply" selected="true"  /><span style="margin-left: 5px; font-weight: bold;">{!$Label.solxyzcso001__label_11086}</span></label>
+
+
+            <!-- コマンドボタン -->
+            <apex:pageBlockButtons location="bottom">
+
+                <table width="100%">
+                    <tr>
+                        <td align="right">
+                            <!-- [戻る] -->
+                            <input type="button"  class="btn " id="wizardBack" onclick="backOnClick();" value="{!$Label.field_common_back}" style="display: none;"/>
+                            <!-- [連続招待] -->
+                            <apex:commandButton id="btnInvOk2" styleClass="btn userInvBtn inv"  action="{!register}" onclick="return inv(true)" value="{!$Label.solxyzcso001__label_11078}"/>
+                            <!-- [OK] -->
+                            <apex:commandButton id="btnInvOk" styleClass="btn userInvBtn inv"  action="{!register}" onclick="return inv(false)" value="{!$Label.solxyzcso001__label_00059}" />
+                            <!-- [次へ] -->
+                            <input type="button"  id="btnNext" class="btn " onclick="nextOnClick();" value="{!$Label.label_00067}"/>
+                            <!-- [キャンセル] -->
+                            <input class="btn " id = "cancelBtn" type="button" value="{!$Label.label_00058}" onclick="top.window.close();" />
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                </table>
+
+            </apex:pageBlockButtons>
+        </div>
+
+        <div id="step2" class="wizardDiv" style="display: none;">
+            <div>{!$Label.label_11076}</div>
+
+            <input type="text" id="searchText2" maxlength="255" style="width: 300px;" placeholder="{!$Label.label_10198}" />
+            <input type="button" id="searchBtn2" class="btn" value="{!$Label.label_00069}" onclick="searchJQGrid(2);"/>
+
+            <div style="padding: 20px 5px 0px 5px;">
+                <table id="stepList2"></table>
+                <div id="stepList2Pager"></div>
+            </div>
+        </div>
+
+
+        <div id="step3" class="wizardDiv" style="display: none;">
+            <div>{!$Label.label_11080}</div>
+            <div style="padding-top: 10px;">
+                <label><apex:inputCheckbox value="{!wizard2_notMailSend}" style="vertical-align: -2px;" id="notifyCheckbox" selected="fales" /><span style="margin-left: 5px; font-weight: bold;">{!$Label.label_11077}</span></label>
+                <textarea class="notify-textarea" maxlength="1024" placeholder="{!$Label.label_11082}" id="notifyText"></textarea>
+                <apex:inputTextarea value="{!wizard2_mailText }" id="MAIL_TEXT" styleClass="notify-textarea" style="display:none;" />
+            </div>
+        </div>
+
+        <div id="step4" class="wizardDiv" style="display: none;">
+            <div>{!$Label.label_11083}</div>
+            <div style="padding-top: 10px; padding-left: 5px;">
+                <div style="padding-bottom: 5px; font-weight: bold;">{!$Label.label_11084}</div>
+                <table id="confirmList"></table>
+                <div id="confirmListPager"></div>
+                <div style="padding-top: 5px; font-weight: bold;"><img src= "{!URLFOR($Resource.cso, '/image/check_on.png')}" id="confirmChildSpaceApply" class="cb" />{!$Label.label_11079}</div>
+                <div style="padding-top: 5px; font-weight: bold;"><img src="{!URLFOR($Resource.cso, '/image/check_on.png')}" id="confirmNotifyCheckbox" class="cb" />{!$Label.label_11085}</div>
+                <div style="position: relative;">
+                    <textarea class="notify-textarea" style="height: 120px !important; max-height: 120px !important; min-height: 120px !important;" id="confirmNotifyText" disabled="disabled"></textarea>
+                    <div style="font-size: 24px; color: gray; position: absolute; top: 60px; left: 50px;" id="notifyInfoDiv"></div>
+                </div>
+            </div>
+        </div>
+
+    <select id="addUsers" name="addUsers" multiple="multiple" size="3" style="display:none;">
+    </select>
+    <apex:inputHidden id="addUsersHidden" value="{!wizard1_addUsers}"/>
+    <apex:inputHidden id="continueInvflg" value="{!continueInvflg}"/>
+
+    </apex:pageBlock>
+
+
+
+</apex:form>
+
+<div class="step-div">
+    <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+    </ul>
+</div>
+</apex:outputPanel>
+</apex:page>

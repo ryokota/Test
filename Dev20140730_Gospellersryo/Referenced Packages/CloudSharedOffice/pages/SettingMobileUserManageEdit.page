@@ -1,0 +1,919 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingMobileUserManageController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(csoUserInfo.proAuth_mobile_users == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!csoUserInfo.code}&massage={!csoUserInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(csoUserInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(csoUserInfo.proAuth_mobile_users == 'true' && csoUserInfo.showErrPage == false, true, false)}">
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<style type="text/css">
+#editMain {
+    width:100%;
+    height: 100%;
+}
+
+.checkbox{
+    width: 20px;
+    height: 20px;
+}
+.updateDateTbl td{
+    padding-right: 30px;
+    padding-left: 10px;
+}
+.ui-tabs .ui-tabs-panel{
+    background: none;
+    border: 2px solid #11579c;
+}
+#tabDiv {
+    border: none;
+}
+
+#tab_position {
+    height: 332px;
+    overflow: auto;
+}
+
+.search-btn {
+    padding: 4px 3px !important;
+}
+
+#userForm, #groupForm, #partnerForm {
+    margin-bottom: 10px;
+}
+._modal{
+    width:650px;
+}
+
+.search-txt {
+    width: 230px;
+}
+
+#info_dialog{
+    z-index: 1005 !important;
+}
+.chargedLicense-statusTable {
+    border: solid 1px silver !important;
+    border-collapse: collapse;
+    width: 550px;
+}
+.chargedLicense-statusTable th {
+    border: solid 1px silver !important;
+    text-align: center !important;
+    background-color: #ccffff;
+    vertical-align: middle !important;
+    width: 150px;
+    height: 16px;
+}
+.chargedLicense-statusTable td {
+    border: solid 1px silver !important;
+    vertical-align: middle !important;
+    text-align: right;
+    height: 16px;
+}
+</style>
+<script type="text/javascript">
+
+var selectedIdMap = {};
+
+$(function(){
+
+    selectedIdMap = {!nameJSON};
+
+    initPage();
+
+    $(window).bind('resize', function () {
+        resizeGrid();
+    }).trigger('resize');
+
+});
+
+function initModal(){
+    $("#managerModal").dialog({
+        autoOpen: false,
+        modal: true,
+        caption: '{!$Label.label_mobilesettings_00027}',
+        bgiframe: true,
+        closeText: "{!$Label.label_00071}",
+        buttons: {
+            '{!$Label.field_common_ok}': function(){
+                $(this).dialog("close");
+            }
+        },
+        width:600,
+        height:430
+    });
+    $("#rowMemberlist").jqGrid({
+        url:_apiUrl + "/setup.nevada.user/memberList.json",
+        datatype:"jsonp",
+        jsonReader:{
+        repeatitems : false,
+            id : "id"
+        },
+        colNames : [ '',
+                    '',
+                    '{!$Label.label_10131}',
+                    '{!$Label.label_10097}'],
+        colModel:[
+                {name:'id',index:'id', hidden:true},
+                {name:'name',index:'name', hidden:true},
+                {name:'info',index:'name', width:390},
+                {name:'partner',index:'partner', width:150, align:"center"},
+        ],
+        rowNum : 50,
+        height: 250,
+        width: 550,
+        rowList:[10,50,100],
+        sortname:"name",
+        viewrecords : true,
+        forceFit:true,
+        multiselect:false,
+        pager:"#rowMemberlistPager",
+        shrinkToFit:true,
+        loadComplete:function(data){
+        }
+    });
+    $("#rowMemberlist").jqGrid("navGrid", "#rowMemberlistPager", {edit:false, add:false,del:false, refresh:false, search:false});
+    $('#rowMemberlist').setGridWidth(550);
+
+}
+
+function initPage(){
+
+    if('{!isActive}' === 'true'){
+        $('#check_active').attr('checked', 'checked');
+    }else{
+        $('#check_active').removeAttr('checked');
+    }
+
+    $("#select_target").val({!permitType});
+
+    $("#addModalWindow").dialog({
+        autoOpen : false,
+        modal : true,
+        title :  "{!$Label.field_010300}",
+        width : 650,
+        height : 480,
+    });
+
+    initGrid();
+
+    initializeSearchWindow();
+
+    initModal();
+
+}
+
+function resizeGrid(){
+    $('#listtable').setGridWidth(getBrowserWidth() - 350).setGridHeight(getBrowserHeight() - 330);
+}
+
+function initGrid(){
+    $("#listtable").jqGrid({
+        url:_apiUrl + "/setup/nevada/user/list.json",
+        datatype:"jsonp",
+        jsonReader:{
+            id          : "id",
+            repeatitems : false,
+        },
+        postData : {
+            type : "user",
+            ids : JSON.stringify(selectedIdMap["user"])
+        },
+        colNames:[
+                '{!$Label.label_00039}',
+                '',
+                '{!$Label.label_mobilesettings_00019}',
+                '',
+                ''
+        ],
+        colModel:[
+                {name:'info', index:'info', width:400},
+                {name:'id', index:'id', hidden:true},
+                {name:'ecmcharged', index:'ecmcharged', width:110, align:"center"},
+                {name:'members', index:'members', hidden:true},
+                {name:'name', index:'name', hidden:true},
+        ],
+        rowNum: 30,
+        height: 220,
+        width: 750,
+        autowidth: false,
+        rowList: [10,30,50],
+        sortname: 'name',
+        sortorder: 'asc',
+        pager: $('#listtablepager'),
+        viewrecords: true,
+        multiselect: true,
+        loadComplete: function(data){
+        }
+    });
+    $("#listtable").jqGrid("navGrid", "#listtablepager", {edit:false, add:false,del:false, refresh:false, search:false});
+}
+
+function changeActive(id, active, optionNum, active){
+
+    var callback = function(data){
+        refChanged();
+    };
+
+    securePostAsync('/setup/nevada/user/mobileChargedFunctionRegister.json', {"id": id, "type": $("#reftype").val(), "num": optionNum, "toactive": active }, callback);
+
+}
+
+function searchSelected(){
+
+    $("#listtable").setGridParam({
+        datatype : "jsonp",
+        postData:{
+            type : $("#reftype").val(),
+            //ids : JSON.stringify(selectedIdMap[$("#reftype").val()]),
+            name : $("#searchName").val()
+        }
+    }).trigger('reloadGrid');
+
+}
+
+function refChanged(){
+
+    if(!selectedIdMap[$("#reftype").val()])
+        selectedIdMap[$("#reftype").val()] = {};
+
+    console.info(JSON.stringify(selectedIdMap[$("#reftype").val()]));
+    console.info(selectedIdMap[$("#reftype").val()]);
+
+
+    // 更新する
+    $('#listtable').setGridParam({
+        datatype : "jsonp",
+        postData : {
+            type : $("#reftype").val(),
+            ids : JSON.stringify(selectedIdMap[$("#reftype").val()])
+        }
+    });
+    $('#listtable').trigger('reloadGrid');
+
+}
+
+function rowAdd(){
+
+    createDialogTab();
+
+    $("#addModalWindow").dialog("open");
+    initializeSearchTables();
+}
+
+function createDialogTab(){
+
+    $('#tabDiv').tabs({
+        select: function(event, ui){
+        },
+        selected : 0
+    }).show();
+
+    //  全体的にフォントが大きくなる原因となるクラスを削除
+    $("#tabDiv").removeClass("ui-widget");
+
+    // レイアウトが崩れる原因となるクラスを削除
+    $("#tabDiv > ul").removeClass("ui-widget-header");
+
+}
+
+function initializeSearchWindow(){
+
+    $("#searchUserName").val("");
+    $("#userlistTable").jqGrid({
+        url:_apiUrl + "/setup/nevada/user/userList.json",
+        datatype:"jsonp",
+        jsonReader:{
+            repeatitems : false,
+            id : "id"
+        },
+        colNames : [ '',
+                    '',
+                    '{!$Label.label_10131}',
+                    '{!$Label.label_10097}'],
+        colModel:[
+                {name:'id',index:'id', hidden:true},
+                {name:'name',index:'name', hidden:true},
+                {name:'info',index:'name', width:400},
+                {name:'partner',index:'partner', width:150, align:"center"},
+        ],
+        postData:{
+            excepts : JSON.stringify(selectedIdMap["user"])
+        },
+        rowNum : 50,
+        height: 250,
+        width: 550,
+        rowList:[10,50,100],
+        sortname:"name",
+        viewrecords : true,
+        multiselect : true,
+        pager:"#userlistTablePager",
+        loadComplete:function(data){
+        }
+    });
+    $("#userlistTable").jqGrid("navGrid", "#userlistTablePager", {edit:false, add:false,del:false, refresh:false, search:false});
+
+    $("#userForm").submit(function(e){
+        searchAdditionalUser();
+        e.preventDefault();
+        return false;
+    });
+
+    $("#grouplistTable").jqGrid({
+        url:_apiUrl + "/setup/nevada/user/groupList.json",
+        datatype:"jsonp",
+        jsonReader:{
+            repeatitems : false,
+            id : "id"
+        },
+        colNames : [ '',
+                '{!$Label.label_10576}'
+        ],
+        colModel:[
+                {name:'id',index:'id', hidden:true},
+                {name:'name',index:'name',width:550, hidden:false}
+        ],
+        postData:{
+            excepts : JSON.stringify(selectedIdMap["group"])
+        },
+        rowNum : 50,
+        height: 250,
+        width: 550,
+        rowList:[10,50,100],
+        sortname:"name",
+        viewrecords : true,
+        multiselect : true,
+        pager:"#grouplistTablePager",
+        loadComplete:function(data){
+
+        }
+    });
+    $("#grouplistTable").jqGrid("navGrid", "#grouplistTablePager", {edit:false, add:false,del:false, refresh:false, search:false});
+
+    $("#groupForm").submit(function(e){
+        searchAdditionalGroup();
+        e.preventDefault();
+        return false;
+    });
+
+    $("#partnerlistTable").jqGrid({
+        url:_apiUrl + "/setup/nevada/user/partnerList.json",
+        datatype:"jsonp",
+        jsonReader:{
+            repeatitems : false,
+            id : "id"
+        },
+        colNames : [ '',
+                    '{!$Label.field_010049}'
+        ],
+        colModel:[
+                {name:'id',index:'id', hidden:true},
+                {name:'corpName',index:'corpName',width:550, hidden:false}
+        ],
+        postData:{
+            excepts : JSON.stringify(selectedIdMap["partner"])
+        },
+        rowNum : 50,
+        height: 250,
+        width: 550,
+        rowList:[10,50,100],
+        sortname:"corpName",
+        viewrecords : true,
+        multiselect : true,
+        pager:"#partnerlistTablePager",
+        loadComplete:function(data){
+
+    }
+    });
+    $("#partnerlistTable").jqGrid("navGrid", "#partnerlistTablePager", {edit:false, add:false,del:false, refresh:false, search:false});
+
+    $("#partnerForm").submit(function(e){
+        searchAdditionalPartner();
+        e.preventDefault();
+        return false;
+    });
+
+     var positionListCallback = function(data){
+         var branches = $("#positionsTree").html(data["tree"]);
+
+         $("#positionsTree").treeview({
+             animated : "fase",
+             collapsed : true
+         });
+
+         setisChildSet(true);
+     };
+
+    secureGetAsync('/setup/nevada/user/positionsList.json', '', positionListCallback);
+
+}
+
+function setisChildSet(flg){
+
+    if(!flg) return;
+
+    $("#positionsTree input:checkbox").change(function(){
+        if ($(this).is(':checked')) {
+            $(this).parent().find("input:checkbox").attr('checked', 'checked');
+        }
+    });
+
+}
+
+function searchAdditionalUser(){
+    $("#userlistTable").setGridParam({
+        postData:{search : $("#searchUserName").val(), excepts : JSON.stringify(selectedIdMap["user"])}
+    });
+    $("#userlistTable").trigger('reloadGrid');
+
+}
+
+function searchAdditionalGroup(){
+    $("#grouplistTable").setGridParam({
+        postData:{gn : $("#searchGroupName").val(), excepts : JSON.stringify(selectedIdMap["group"])}
+    });
+    $("#grouplistTable").trigger('reloadGrid');
+}
+
+function searchAdditionalPartner(){
+    $("#partnerlistTable").setGridParam({
+        postData:{name : $("#searchPartnerName").val(), excepts : JSON.stringify(selectedIdMap["partner"])}
+    });
+    $("#partnerlistTable").trigger('reloadGrid');
+}
+
+function removeUser(){
+
+    var ids = $("#listtable").jqGrid('getGridParam','selarrrow');
+    for(i in ids){
+        delete selectedIdMap[$("#reftype").val()][ids[i]];
+    }
+
+    refChanged();
+
+}
+//追加する
+function addSelected(){
+
+    // user
+    var userids = selectedIdMap["user"];
+
+    if(!userids) userids = {};
+
+    var noSelectedCounter = 0;
+
+    var userrowids = $("#userlistTable").jqGrid('getGridParam','selarrrow');
+    for(i in userrowids) {
+        var ret = $("#userlistTable").jqGrid('getRowData',userrowids[i]);
+        userids[ret.id] = 1;
+    }
+    noSelectedCounter += userrowids.length;
+
+    // group
+    var groupids = selectedIdMap["group"];
+    if(!groupids) groupids = {};
+
+    var grouprowids = $("#grouplistTable").jqGrid('getGridParam','selarrrow');
+    for(i in grouprowids){
+        var ret = $("#grouplistTable").jqGrid("getRowData", grouprowids[i]);
+        groupids[ret.id] = 1;
+    }
+    noSelectedCounter += grouprowids.length;
+
+    // partner
+    var partnerids = selectedIdMap["partner"];
+    if(!partnerids) partnerids = {};
+
+    var partnerrowids = $("#partnerlistTable").jqGrid("getGridParam", "selarrrow");
+    for(i in partnerrowids){
+        var ret = $("#partnerlistTable").jqGrid("getRowData", partnerrowids[i]);
+        partnerids[ret.id] = 1;
+    }
+    noSelectedCounter += partnerrowids.length;
+
+    var positionids = {};
+
+    // position
+    $("#positionsTree input:checkbox").each(function(){
+        if($(this).is(':checked')){
+            positionids[$(this).val()] = 1;
+            noSelectedCounter++;
+        }
+    });
+
+    //何も追加されていない
+    if(noSelectedCounter == 0){
+        alert("{!$Label.msg_mobile_00002}");
+        return;
+    }
+
+    // call
+    selectedIdMap["user"] = userids;
+    selectedIdMap["group"] = groupids;
+    selectedIdMap["partner"] = partnerids;
+    selectedIdMap["position"] = positionids;
+
+    $('#addModalWindow').dialog('close');
+    initializeSearchTables();
+
+    refChanged();
+}
+
+function showMember(id){
+    //alert(type+" / "+id);
+    $("#managerModal").dialog("open");
+
+    var type = $("#reftype").val()
+
+    $("#rowMemberlist").setGridParam({
+        postData:{
+            type : type,
+            id : id
+        }
+    }).trigger("reloadGrid");
+}
+
+//適用範囲を変更された場合の処理
+function select_targetChanged(){
+
+}
+
+function rowDelete(){
+    var ids = $("#listtable").jqGrid('getGridParam','selarrrow');
+    for(i in ids){
+        // delete
+        delete selectedIdMap[$("#reftype").val()][ids[i]];
+    }
+    refChanged();
+}
+
+function initializeSearchTables(){
+
+    $("#searchUserName").val("");
+    $("#userlistTable").setGridParam({
+            postData : {
+            search: "",
+            excepts : JSON.stringify(selectedIdMap["user"])
+        }
+    }).trigger("reloadGrid");
+
+    $("#searchGroupName").val("");
+    $("#grouplistTable").setGridParam({
+        postData : {
+            search: "",
+            excepts : JSON.stringify(selectedIdMap["group"])
+        }
+    }).trigger("reloadGrid");
+
+    $("#searchPartnerName").val("");
+    $("#partnerlistTable").setGridParam({
+        postData : {
+            search: "",
+            excepts : JSON.stringify(selectedIdMap["partner"])
+        }
+    }).trigger("reloadGrid");
+
+    $("#searchPotisionName").val("");
+    $("#positionlistTable").setGridParam({
+        postData : {
+            search: ""
+        }
+    }).trigger("reloadGrid");
+    
+    
+	var positions = selectedIdMap["position"];
+	$("#positionsTree").find(":checkbox").each(function(){
+		if(!!positions[$(this).val()]){
+			$(this).attr("checked", true);
+		}else{
+            $(this).attr("checked", false);
+        }
+	});
+}
+
+function selectChanged(id, objId, value, checked){
+
+    if(!selectedIdMap[$("#reftype").val()][id]){
+        selectedIdMap[$("#reftype").val()][id] = value;
+    }else{
+        var _value = checked ? value : -value;
+        selectedIdMap[$("#reftype").val()][id] += _value;
+    }
+
+    getChargedCount();
+
+}
+
+function postDatas(){
+    CsoScript_loadingStart();
+    var active = true;
+    var params = {
+             'type' : $("#select_target").val(),
+             'ids' : JSON.stringify(selectedIdMap),
+             'user' : JSON.stringify(selectedIdMap["user"]),
+             'group' : JSON.stringify(selectedIdMap["group"]),
+             'position' : JSON.stringify(selectedIdMap["position"]),
+             'partner' : JSON.stringify(selectedIdMap["partner"]),
+             'active' : $("#check_active").attr("checked")
+         };
+    var callback = function(data){
+        if(data.result){
+            location.href = '{!$Page.SettingMobileUserManageInfo}';
+        }else{
+            CsoScript_loadingStop();
+            alert(data.message);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+    };
+
+    securePostAsync('/setup/nevada/user/mobileUserRegister.json', params, callback, callerror);
+
+    return false;
+
+}
+function showMember(id){
+//alert(type+" / "+id);
+    $("#managerModal").dialog("open");
+
+    var type = $("#reftype").val();
+
+    $("#rowMemberlist").setGridParam({
+        postData:{
+            type : type,
+            id : id
+        }
+    }).trigger("reloadGrid");
+}
+
+function searchTrigger(e){
+    if (!e) var e = window.event;
+
+    if(e.keyCode == 13){
+        searchSelected();
+    }
+}
+
+function onSearchDialog(){
+    $("#searchDiv").dialog({
+        width : 310,
+        height: 130
+    });
+}
+
+function cancelClick(){
+    $("#searchDiv").dialog("close");
+    return false;
+}
+
+function clearClick(){
+    $("#searchName").val("");
+    searchSelected();
+}
+
+function getChargedCount(){
+
+    $("#mobileLicenseTotal").text("-");
+    $("#mobileLicenseUsed").text("-");
+    $("#mobileLicenseRemained").text("-");
+
+
+    $.ajax({
+        type:"POST",
+        url:_apiUrl + "/setting.nevada.user/calculateUsersCount.json",
+        dataType: 'jsonp',
+        data:{
+            ids : JSON.stringify(selectedIdMap),
+            user : JSON.stringify(selectedIdMap["user"]),
+            group : JSON.stringify(selectedIdMap["group"]),
+            position : JSON.stringify(selectedIdMap["position"]),
+            partner : JSON.stringify(selectedIdMap["partner"])
+        },
+        success : function(data){
+            if(data.result){
+
+                var map = data.options;
+
+                // 更新してみる
+                if({!mobileChargedTotal} < 0){
+                    // 無制限
+                    $("#mobileLicenseTotal").text("{!$Label.label_10008}");
+                    $("#mobileLicenseUsed").text(data.options[-1]);
+                    $("#mobileLicenseRemained").text("-");
+                }else{
+                    $("#mobileLicenseTotal").text(data.totalCharged);
+                    $("#mobileLicenseUsed").text(data.options[-1]);
+                    $("#mobileLicenseRemained").text(data.totalCharged - data.options[-1]);
+                }
+
+            }else{
+                alert(data.message);
+            }
+        }
+    });
+}
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/menu_mobile_users.png')}" />
+                <h1 id="c_headLeftTitle">{!$Label.label_mobilesettings_00001}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_mobilesettings_00020}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <apex:pageBlockButtons location="top">
+                           <input type="button" id="btnSave" value="{!$Label.field_common_save}" class="btn" onclick="postDatas();"/>
+                           <apex:commandButton id="btnCancel" value="{!$Label.solxyzcso001__field_common_cancel}" action="{!cancel}"/>
+                        </apex:pageBlockButtons>
+                        <div id ="editMain">
+                            <apex:pageblockSection columns="1" >
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_10450}</apex:outputLabel>
+                                    <input id="check_active" type="checkbox"  />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_mobilesettings_00022}</apex:outputLabel>
+                                    <select id="select_target" onchange="select_targetChanged()" >
+                                        <option value="1">{!$Label.label_mobilesettings_00023}</option>
+                                        <option value="2">{!$Label.label_mobilesettings_00025}</option>
+                                        <option value="3">{!$Label.label_mobilesettings_00024}</option>
+                                    </select>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_mobilesettings_00033}</apex:outputLabel>
+                                    <apex:outputLabel >
+                                        <table class="chargedLicense-statusTable">
+                                            <tr>
+                                                <th>{!$Label.solxyzcso001__label_13033}</th>
+                                                <th>{!$Label.solxyzcso001__label_13034}</th>
+                                                <th>{!$Label.solxyzcso001__label_13035}</th>
+                                            </tr>
+                                            <tr>
+                                                <td id="mobileLicenseTotal">{!IF(mobileChargedTotal == -1, $Label.solxyzcso001__label_10008, mobileChargedTotal)}</td>
+                                                <td id="mobileLicenseUsed">{!mobileChargedUsed}</td>
+                                                <td id="mobileLicenseRemained">{!IF(mobileChargedTotal == -1, '-', mobileChargedUnUsed)}</td>
+                                            </tr>
+                                        </table>
+                                    </apex:outputLabel>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel ></apex:outputLabel>
+                                    <table class="updateDateTbl">
+                                        <tbody>
+                                            <tr>
+                                                <th>{!$Label.solxyzcso001__field_010064}</th>
+                                                <td>{!registUserName}</td>
+                                                <th>{!$Label.solxyzcso001__field_010065}</th>
+                                                <td>{!registDate}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>{!$Label.solxyzcso001__label_10024}</th>
+                                                <td>{!updateUserName}</td>
+                                                <th>{!$Label.solxyzcso001__label_10018}</th>
+                                                <td>{!updateDate}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <div class="c_command_l">
+                                        <ul class="c_command_pipe">
+                                            <li class="item">
+                                                <select id="reftype" onchange="refChanged();">
+                                                    <option value="user">{!$Label.label_10131}</option>
+                                                    <option value="group">{!$Label.label_10576}</option>
+                                                    <option value="position">{!$Label.label_10652}</option>
+                                                    <option value="partner">{!$Label.label_10097}</option>
+                                                </select>
+                                            </li>
+                                            <li class="item">
+                                                <input class="btn" type="button" value="{!$Label.label_00069}" onclick="onSearchDialog();return false;"/>
+                                            </li>
+                                            <li class="last">
+                                                <input class="btn" type="button" value="{!$Label.field_common_remove}" onclick="removeUser(); return false;" />
+                                            </li>
+                                            <li class="last">
+                                                <input class="btn" type="button" value="{!$Label.label_10020}" onclick="rowAdd(); return false;" />
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageblockSection>
+                            <div id="availableUserBlock">
+                                <table id="listtable"></table>
+                                <div id="listtablepager"></div>
+                            </div>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+
+    <div id="addModalWindow" style="display: none;" >
+        <div id="tabDiv" style="display: none; overflow: auto;">
+           <ul>
+                <li><a href="#tab_user">{!$Label.label_10131}</a></li>
+                <li><a href="#tab_group">{!$Label.label_10576}</a></li>
+                <li><a href="#tab_position">{!$Label.label_10652}</a></li>
+                <li><a href="#tab_partner">{!$Label.label_10097}</a></li>
+           </ul>
+
+           <div id="tab_user" class="tabInner">
+                <form id="userForm">
+                    <input type="text" class="middleWidth" id="searchUserName" name="searchName" maxlength="255" />
+                    <button type="button" class="btn search-btn" id="userSearchButton"  onclick="searchAdditionalUser()">{!$Label.label_00069}</button>
+                </form>
+                <table id="userlistTable"></table>
+                <div id="userlistTablePager"></div>
+            </div>
+            <div id="tab_group" class="tabInner" >
+                <form id="groupForm">
+                    <input type="text" class="middleWidth" id="searchGroupName" name="searchName" maxlength="255" />
+                    <button type="button" class="btn search-btn" id="groupSearchButton" onclick="searchAdditionalGroup()">{!$Label.label_00069}</button>
+                </form>
+                <table id="grouplistTable"></table>
+                <div id="grouplistTablePager"></div>
+            </div>
+            <div id="tab_position" class="tabInner">
+                <div id="positionsTree"></div>
+            </div>
+            <div id="tab_partner" class="tabInner">
+                <form action="#" id="partnerForm" method="get">
+                    <input type="text" class="middleWidth" id="searchPartnerName" name="searchName" maxlength="255" />
+                    <button type="button" class="btn search-btn" id="partnerSearchButton" onclick="searchAdditionalPartner()">{!$Label.label_00069}</button>
+                </form>
+                <table id="partnerlistTable"></table>
+                <div id="partnerlistTablePager"></div>
+            </div>
+            <div style="width: 100%; text-align: center; margin-top: 15px;">
+                <input type="button" value="{!$Label.field_common_ok}" class="btn" onclick="addSelected();"/>
+                <input type="button" value="{!$Label.label_00058}" class="btn" onclick="$('#addModalWindow').dialog('close'); initializeSearchTables();"/>
+            </div>
+        </div>
+    </div>
+    <div id="managerModal" class="_modal" title="{!$Label.label_mobilesettings_00027}">
+        <div style="margin-left: 1em; margin-top: 1em; width:660px;">
+            <table id="rowMemberlist"></table>
+            <div id="rowMemberlistPager"></div>
+        </div>
+    </div>
+    <div id="searchDiv" class="searchDiv" style="display: none;" title="{!$Label.label_00069}">
+        <p style="width: 100%; text-align: right;"><span style="font-weight: bold; margin-right: 10px;" >{!$Label.label_10131}</span><input type="text" id="searchName" class="search-txt" maxlength="255" onKeyPress="searchTrigger(event);"/></p>
+        <p style="width: 100%; text-align: right;">
+            <input type="button" class="btn" value="{!$Label.label_00069}"  onclick="searchSelected();"/>
+            <input type="button" class="btn" value="{!$Label.label_00070}"  onclick="clearClick();" />
+            <input type="button" class="btn" value="{!$Label.label_00058}"  onclick="cancelClick();"/>
+        </p>
+    </div>
+
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

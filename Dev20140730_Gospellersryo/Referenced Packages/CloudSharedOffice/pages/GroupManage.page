@@ -1,0 +1,970 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.GroupManageController" tabStyle="setting__tab">
+    <apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_user_group_manage == 'false' && userInfo.isgroupadmin == false, true, false)}">{!$Label.solxyzcso001__msg_00137}</apex:outputPanel>
+    <apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}" />
+    <apex:outputPanel rendered="{!IF(userInfo.proAuth_user_group_manage == 'true' && userInfo.showErrPage == false || userInfo.isgroupadmin == true, true, false)}">
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__CsoBridge" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /></apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+        <style type="text/css">
+        #UserInfoSelectForExport {
+            display: none;
+        }
+        #UserInfoSelectForExport table {
+            width : 100%;
+            height: 100%;
+        }
+        #UserInfoSelectForExport th {
+            font-weight : bold;
+            text-align:right;
+            width : 80px;
+        }
+        .changeLink {
+            text-align: right;
+        }
+        /* 出力項目設定用 */
+        .select-group-dialog-input-header {
+            margin: 10px 0 3px 0;
+        }
+        .select-group-dialog-select-box {
+            float: left;
+            margin: 0 0 5px 0;
+        }
+        .select-group-dialog-select {
+            width: 195px;
+            height: 200px;
+        }
+        .select-group-dialog-operate-box {
+            float: left;
+            padding: 80px 15px 0 15px;
+        }
+        .select-group-dialog-operate-button {
+            display: block;
+            margin: 10px 0 0 0;
+        }
+        .button-box {
+            float: right;
+            margin: 15px 5px 10px 0;
+        }
+        .treeRegion {
+            height: 160px;
+            overflow: auto;
+        }
+
+.tree-area {
+    height: 680px;
+    width: 200px;
+    overflow: auto;
+}
+/* グループツリー文字色 */
+.target {
+    color: red;
+    font-weight: normal;
+    cursor: pointer;
+    text-decoration:underline;
+}
+.nontarget {
+    color: black;
+    font-weight: normal;
+    cursor: pointer;
+    text-decoration:underline;
+}
+.fullWidth {
+    width: 100%;
+}
+.leftLabelText {
+    text-align: left;
+    white-space: pre;
+}
+        </style>
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__CsoScript" />
+        <script type="text/javascript">
+
+            // エクスポート用
+            var _GroupCategory1DataAll  = null;
+            var _GroupCategory2DataAll = null;
+            var _GroupDataAll   = null;
+            // ツリー表示用
+            var _b_usersGridLoaded = false;
+            var chgfg = 1;
+
+var chgfg = 1;
+
+var dispGroup ="";
+
+var _fromExportDialog   = false;
+var _b_SusersGridLoaded = false;
+var cnt=0;
+
+    (function($, undefined) {
+
+    $.extend($.fn.fmatter, {
+        htmlEscapeFormatter: function(cellvalue, options, rowdata) {
+            if (cellvalue !== null) {
+                return $.jgrid.htmlEncode(cellvalue);
+            }
+                
+            return "";
+        }
+    });
+
+    })(jQuery);
+
+
+            /*
+             * 読込処理
+             */
+            jQuery.event.add(window, "load", function () {
+                var _selectedSearchGroups = new Array();
+                $("#language").val("{!userInfo.locale}");
+
+//                _selectedSearchGroups = new Array();
+                $(window).resize(resizeGrid); // ウィンドサイズのリサイズに合わせて表示サイズを変更する
+
+                // jqGridの設定
+                $("#groupList").jqGrid({
+                    url: _apiUrl + '/setup/GroupListV2Get.json',
+                    datatype: "jsonp",
+                    jsonReader: {
+                        repeatitems: false,
+                        id: "id"
+                    },
+                    colNames: [
+                            '{!$Label.label_10174}',
+                            '{!$Label.label_13040}',
+                            '',
+                            '{!$Label.label_10804}',
+                            '{!$Label.label_10805}',
+                            ''
+                    ],
+                    colModel: [{
+                            name: 'action',
+                            index: 'action',
+                            width: 120,
+                            align: "center",
+                            sortable: false
+                        }, {
+                            name: 'name',
+                            index: 'name',
+                            width: 390
+                        }, {
+                            name: 'id',
+                            index: 'id',
+                            width: 230,
+                            hidden: true
+                        }, {
+                            name: 'regDate',
+                            index: 'regDate',
+                            width: 120,
+                            align: "center",
+                            hidden: true
+                        }, {
+                            name: 'upDate',
+                            index: 'upDate',
+                            width: 120,
+                            align: "center"
+                        }, {
+                            name: 'editable',
+                            index: 'editable',
+                            width: 120,
+                            hidden: true
+                        }
+                    ],
+                    autowidth: true,
+                    shrinkToFit : true,
+                    rowNum:{!userInfo.groupRows}, // 表示件数の初期設定（ユーザごとのデータを保存）
+                    height: getBrowserHeight() - 270, // 高さ  ブラウザの高さ - 287px
+                    width: getBrowserWidth() - 340, // 幅    ブラウザの幅 - 340px
+                    rowList: [10, 50, 100], // １ページ当たりの表示件数リスト
+                    sortname: 'name', // 最初のソート名
+                    pager: '#groupListPager', // フッターの表示箇所を指定
+                    viewrecords: true, // true = ページャーバーのクエリから総レコードを表示
+                    multiselect: true, // true = 行の複数の選択肢が有効
+                    multiboxonly: true, // true = 選択状態の時、行の選択解除はチェックボックスのクリックで行う
+                });
+                setGroupCategory1();
+                // グリッドの表示
+                $("#groupList").jqGrid('navGrid', '#groupListPager', {
+                    edit: false,
+                    add: false,
+                    del: false,
+                    refresh: false,
+                    search: false
+                });
+
+                resizeGrid(); // 表示サイズの調整
+
+                var Action = "";
+                for(var i=0; i<_selectedSearchGroups.length; i++){
+                    if(i!=0){
+                        Action += ",";
+                    }
+                    Action += _selectedSearchGroups[i].val();
+                }
+                // データ表示
+                initDisplay();
+
+    $("#UserInfoSelectForExport").dialog({
+        autoOpen: false,
+        title: '{!$Label.solxyzcso001__label_13042}',
+        modal: true,
+        resizable: false,
+        width: 520,
+        autoOpen: false,
+        resizable: false,
+        });
+
+                //loadGroupTree();
+
+            });
+
+            /*
+             * 表示サイズの調整
+             */
+            function resizeGrid(){
+                if ($("#containerList").is(":visible")) {
+                    var height = getBrowserHeight() - 370;
+                    $("#groupList").setGridWidth($("#containerList").innerWidth());    
+                
+                    if (height >= 270) {
+                        $("#groupList").setGridHeight(height);
+                    }
+                } else if ($("#containerTree").is(":visible")) {                
+                    $("#treeRegion").css("overflow", "auto");
+                    $("#treeRegion").height(getBrowserHeight() - 235);
+                    $("#userarea").width(getBrowserWidth() - 540);                    
+                    $("#userlist").setGridWidth(1);                    
+                    $("#userlist").setGridWidth($("#userlist_parent").innerWidth());    
+                }                
+
+            }
+
+            /*
+             * 一覧の「削除」が押された時の処理
+             */
+
+            function removeRow(id) {
+
+                if (confirm('{!$Label.msg_00049}')) {
+                    var callback = function (postback) {
+                        CsoScript_loadingStop();
+                        // 削除できなかった場合にはメッセージを表示する
+                        if (!postback.result) {
+                            alert(postback.message);
+                        }
+                        $('#groupList').trigger('reloadGrid'); // 一覧をリロード
+                    };
+                    var callerror = function (data) {
+                        CsoScript_loadingStop();
+                        alert(data);
+                    };
+                    CsoScript_loadingStart();
+                    securePostAsync('/setup/GroupDelete.json', {"deleteIds" : id}, callback, callerror);
+                }
+            }
+
+            /*
+             * 削除ボタンが押されたときの処理
+             */
+
+             function removeButton() {
+                // システムプロファイルかどうかの判定
+                var allIds = $("#groupList").jqGrid('getGridParam', 'selarrrow');
+                var delIds = new Array();
+                $.each(allIds, function (n, id) {
+                    if ($("#groupList").getRowData(id).editable == 'true') {
+                        delIds.push(id);
+                    }
+                });
+                // ダイアログ表示
+                if (allIds.length == 0) {
+                    alert("{!$Label.msg_01123}");
+                    return false;
+                } else if (delIds.length != allIds.length) {
+                    alert("{!$Label.msg_01124}"); // Everyoneの削除時に表示
+                    return false;
+                } else if (confirm('{!$Label.msg_00049}')) {
+                    $("#deleteIds").val(allIds);
+                    var callback = function (postback) {
+                        CsoScript_loadingStop();
+                        // 削除できなかった場合にはメッセージを表示する
+                        if (!postback.result) {
+                            alert(postback.message);
+                        }
+                        $('#groupList').trigger('reloadGrid'); // 一覧をリロード
+                    };
+                    var callerror = function (data) {
+                        CsoScript_loadingStop();
+                        alert(data);
+                    };
+                    CsoScript_loadingStart();
+                    securePostAsync('/setup/GroupDelete.json', {
+                        "deleteIds": delIds.join(",")
+                    }, callback, callerror);
+                }
+            }
+
+            /*
+             * 検索ダイアログで検索ボタンを押されたときの処理
+             */
+
+            function execSearch() {
+                var groupName = $.trim($("#groupName").val()); // テキストボックスに入力されたグループ名を取得
+
+    if (chgfg > 0) {
+
+                $('#groupList').setGridParam({
+                    page:1,
+                    postData: {
+                        gn: groupName
+                    }
+                });
+
+                $('#groupList').trigger('reloadGrid'); // 一覧をリロード
+
+    } else {
+        // 検索ユーザ一覧表示
+        $("#container li").removeClass("target").addClass("nontarget");
+        if(!_b_SusersGridLoaded){
+            _b_SusersGridLoaded = true;
+            onSearchUser(groupName);
+        }else{
+            $("#userlist").setGridParam({
+                url: _apiUrl + '/setup/userGroupUserList.json',
+                postData:{
+                    username        : groupName,
+                },
+                pager: '#userlistPager',
+             });
+
+            $('#userlist').trigger('reloadGrid');
+    }
+
+    }
+            }
+            /*
+             * 検索ダイアログでクリアボタンを押されたときの処理
+             */
+
+            function clearCondition() {
+                $("#groupName").val(""); // テキストボックスに入力されたグループ名を削除
+                execSearch(); // 検索結果一覧を表示（全てのグループを表示）
+            }
+
+            /*
+             * 検索ダイアログの表示
+             */
+
+            function searchDialog() {
+                $("#searchDiv").dialog({
+                    width: 280,
+        minWidth : 280,
+        resizable: true
+                });
+            }
+
+function searchUserDialog(){
+    $("#searchDiv").dialog({
+        width : 350,
+        minWidth : 350,
+        resizable: true
+    });
+}
+
+        //======================//
+        //  ツリー表示用        //
+        //======================//
+
+        /*
+         * 初期表示
+         */
+        function initDisplay(){
+            $("#containerTree").hide();
+    $("#searchGroupbtn").hide();
+    $("#btnUserInfoSelect").hide();
+    $("#groupName").val("");
+//            $("#btnUserInfoSelect").attr('disabled',false); // ボタンを無効ではなく消した
+
+        }
+
+        /*
+         * グループ表示切替
+         */
+        function changeView(){
+            $("#searchDiv").dialog("close");
+            $("#containerTree").toggle();
+            $("#containerList").toggle();
+            resizeGrid();
+            if($("#containerTree").css("display") == "block" && $("#container").html() == ""){
+                loadGroupTree();
+                $("#container").treeview({animated: "fast"});
+            }
+
+    $("#groupName").val("");
+                if (chgfg > 0) {
+                    // グループツリー表示
+                    cnt=1;
+                    $("#removeGroupbtn").hide();
+                    $("#createGroupbtn").hide();
+                    $("#searchGroupbtn").hide();
+                    $("#searchUserbtn").show();
+                    $("#btnUserInfoSelect").show();
+                    $("#searchLabel").html("{!$Label.field_010050}");
+                } else {
+                    // グループリスト表示
+                    cnt=0;
+                    $("#removeGroupbtn").show();
+                    $("#createGroupbtn").show();
+                    $("#searchGroupbtn").show();
+                    $("#searchUserbtn").hide();
+                    $("#btnUserInfoSelect").hide();
+                    $("#searchLabel").html("{!$Label.label_10548}");
+                }
+            chgfg = chgfg * (-1);
+
+                if (chgfg < 0) {
+                    // グループツリー表示
+                    execSearch();
+                }
+
+    }
+
+    /*
+     * ツリー表示
+     */
+    function buildNestedList(treeNodes, rootId) {
+          var nodesBypid = {};
+
+          $.each(treeNodes, function(i, node) {
+            if (!(node.pid in nodesBypid)) nodesBypid[node.pid] = [];
+            nodesBypid[node.pid].push(node);
+          });
+
+          function buildTree(children) {
+            var $container = $("<ul>");
+
+            if (!children) return;
+            $.each(children, function(i, child) {
+                var targetstr;
+            if(child.deco == "target"){
+                targetstr = $("<li>", {text: child.name}).attr('id',  child.id).addClass("target");
+            }else{
+                targetstr = $("<li>", {text: child.name}).attr('id',  child.id).addClass("nontarget");
+            }
+                targetstr.appendTo($container)
+              .append( buildTree(nodesBypid[child.cid]) );
+            });
+            return $container;
+          }
+          return buildTree(nodesBypid[rootId]);
+    }
+
+    function loadGroupTree(){
+        var param = {
+        }
+        var callback =  function(data){
+
+            if(data.result){
+                $("#container").append(buildNestedList(data.data, 0));
+                $("#container").treeview({});
+            } else {
+            }
+
+            var expandable              = $("#container_parent").find(".expandable");
+            expandable.removeClass("expandable");
+            expandable.addClass("collapsable");
+            var expandable_hitarea      = $("#container_parent").find(".expandable-hitarea");
+            expandable_hitarea.removeClass("expandable-hitarea");
+            expandable_hitarea.addClass("collapsable-hitarea");
+            var lastExpandable          = $("#container_parent").find(".lastExpandable");
+            lastExpandable.removeClass("lastExpandable");
+            lastExpandable.addClass("lastCollapsable");
+            var lastExpandable_hitarea  = $("#container_parent").find(".lastExpandable-hitarea");
+            lastExpandable_hitarea.removeClass("lastExpandable-hitarea");
+            lastExpandable_hitarea.addClass("lastCollapsable-hitarea");
+
+        }
+        secureGetAsync('/setup/groupTree.json', param, callback);
+    }
+
+    /*
+     * グループツリーのクリック
+     */
+    $("#container li").live('click',function() {
+            var myid = this.id;
+            $("#groupName").val("");
+        $("#container li").removeClass("target");
+        $("#container li").addClass("nontarget");
+        $(this).removeClass("nontarget");
+        $(this).addClass("target");
+
+        $("#userlist").setGridParam({
+        url: _apiUrl + '/setup/groupGroupUserList.json',
+        postData:{
+                gid: myid,
+                row_num: {!userInfo.groupRows},
+            },
+            pager: '#userlistPager'
+        });
+        $('#userlist').trigger('reloadGrid');
+
+        return false;
+    });
+
+
+    //======================//
+    //  グループユーザ抽出  //
+    //======================//
+
+    /*
+     * エクスポートダイアログの表示
+     */
+    function callUserInfoSelect() {
+
+        $("#UserInfoSelectForExport").dialog({
+            autoOpen: false,
+            title : '{!$Label.solxyzcso001__label_13042}',
+            modal: true,
+            resizable: false,
+            width: 525,
+            autoOpen    : false,
+            resizable   : false,
+            modal       : true,
+            });
+
+        _fromExportDialog = true;
+
+        setAllGroupsByCache();
+
+        $("#UserInfoSelectForExport").dialog('open');
+    }
+
+    /*
+     * グループユーザExcelエクスポート
+     */
+    function exportExcel(){
+        if(confirm("{!$Label.msg_01110}")){
+            var language = $("#language option:selected").val();
+
+            var fileName = "";
+
+            var itemList = new Array();
+            $("#selectGroupDialogSelectedAction OPTION").each(function() {
+                //alert($(this).val());
+                itemList.push($(this).val());
+            });
+            var itemListString = itemList.toString();
+
+            var strParam = "?language=" + language + "&filename=" + fileName + "&itemList=" + itemListString;
+
+            $('#GroupUser_downframe').attr('src', _apiUrl + '/setup/GroupUserDownload.json' + strParam);
+        } else {
+            return;
+        }
+
+        $("#UserInfoSelectForExport").dialog('close');
+    }
+
+    /*
+     * TODO 説明追加
+     */
+    function onselectGroupDialogAddClicked(){
+        var forSortList = new Array();
+        $("#selectGroupDialogSelectableAction").find("option:selected").each(function(){
+            forSortList.push($(this));
+        });
+        $("#selectGroupDialogSelectedAction").find("option").each(function(){
+            forSortList.push($(this));
+        });
+
+        forSortList = ActionSort(forSortList);
+
+        for(var i=0; i<forSortList.length; i++){
+            $("#selectGroupDialogSelectedAction").append(forSortList[i]);
+        }
+    }
+
+    /*
+     * TODO 説明追加
+     */
+    function onselectGroupDialogDelClicked(){
+        var forSortList = new Array();
+        $("#selectGroupDialogSelectableAction").find("option").each(function(){
+            forSortList.push($(this));
+        });
+        $("#selectGroupDialogSelectedAction").find("option:selected").each(function(){
+            if (this.value != "NAME" && this.value != "USERID"){
+                $(this).remove();
+                forSortList.push($(this));
+        } else if  (this.value == "NAME") {
+            alert(["{!$Label.msg_01111}"]);
+        } else if  (this.value == "USERID") {
+            alert(["{!$Label.msg_01112}"]);
+            }
+        });
+
+        forSortList = ActionSort(forSortList);
+
+        for(var i=0; i<forSortList.length; i++){
+            $("#selectGroupDialogSelectableAction").append(forSortList[i]);
+        }
+    }
+
+    /*
+     * TODO 説明追加
+     */
+    function ActionSort(arr){
+        arr.sort(function(o, n){
+            if($(o).attr("sort") > $(n).attr("sort")){
+                return 1;
+            }else if($(o).attr("sort") < $(n).attr("sort")){
+                return -1;
+            }else{
+                return 0;
+            }
+        });
+        return arr;
+    }
+
+
+    /*
+     * グループの全ユーザ一覧表示
+     */
+    function onSearchUser(username){
+        // jqGridの設定
+        $("#userlist").jqGrid({
+            url:_apiUrl + '/setup/userGroupUserList.json',
+            postData : {
+                username : username,
+            },
+            datatype: "jsonp",
+            jsonReader :{
+                repeatitems: false,
+                id: "id"
+            },
+            colNames : [
+                '{!$Label.label_10131}',
+                '',
+                '{!$Label.label_00039}',
+                '{!$Label.label_10003}',
+                '{!$Label.label_10097}',
+                '{!$Label.label_10317}',
+                '{!$Label.label_10548}',
+            ],
+            colModel : [
+        {name:'merge', index:'merge', width:300},
+                {name:'id', index:'id', hidden:true},
+                {name:'name', index:'name', width:100},
+                {name:'id_show', index:'id_show', hidden:true},
+                {name:'corporation', index:'corporation', hidden:true, formatter: 'htmlEscapeFormatter'},
+                {name:'position', index:'position', hidden:true},
+        {name:'groupname', index:'groupname', width:180},
+            ],
+            rowNum : 50,
+        autowidth: true,
+        height: getBrowserHeight() - 270, // 高さ  ブラウザの高さ - 287px
+            rowList : [10, 50, 100],
+            sortname: 'name',
+            pager: '#userlistPager',
+            viewrecords: true,
+        multiselect: false,
+            loadComplete : function(data) {
+                $(".usrActIcon").each(function(){
+                    $(this).click(function(){
+                        clickFlg = true;
+                    });
+                });
+
+                if (data.creatable) {
+                    $("#createUserButton").show();
+                } else {
+                    $("#createUserButton").hide();
+                }
+            }
+        });
+        $("#userlist").jqGrid('navGrid','#userlistPager',{edit:false,add:false,del:false,refresh:false,search:false});
+        resizeGrid();
+    }
+
+
+    /*
+     * 出力項目設定処理
+     */
+    function setAllGroupsByCache(){
+        $("#selectGroupDialogCategory1").html("");
+        for(var key in _GroupCategory1DataAll){
+            var option = $("<option>").attr({
+                "value" : key,
+            }).html(_GroupCategory1DataAll[key]);
+            $("#selectGroupDialogCategory1").append(option);
+        }
+
+        $("#selectGroupDialogCategory2").html("");
+        for(var key in _GroupCategory2DataAll){
+            var option = $("<option>").attr({
+                "value" : key,
+            }).html(_GroupCategory2DataAll[key]);
+            $("#selectGroupDialogCategory2").append(option);
+        }
+
+        $("#selectGroupDialogSelectableAction").html("");
+        for(var key in _GroupDataAll){
+            if($("#selectGroupDialogSelectedAction").find("[value=" + key + "]").length > 0){
+                continue;
+            }
+            var option = $("<option>").attr({
+                "value"     : key,
+                "sort"      : _GroupDataAll[key].sort,
+                "category1" : _GroupDataAll[key].category1,
+                "category2" : _GroupDataAll[key].category2,
+            }).html(_GroupDataAll[key].name);
+            $("#selectGroupDialogSelectableAction").append(option);
+        }
+    }
+
+    /*
+     * TODO 説明追加
+     */
+    function setGroupCategory1(){
+
+        var param = {
+        }
+        var callback =  function(data){
+                if(_GroupCategory1DataAll==null){
+                    _GroupCategory1DataAll = data.list;
+                }
+                $("#selectGroupDialogCategory1").html("");
+                for(var key in data.list){
+                        var option = $("<option>").attr({
+                            "value" : key,
+                        }).html(data.list[key]);
+                        $("#selectGroupDialogCategory1").append(option);
+                }
+                setGroupCategory2($("#selectGroupDialogCategory1").val());
+        }
+        secureGetAsync('/evidence/ActionCategory1List.json', param, callback);
+
+    }
+
+    /*
+     * TODO 説明追加
+     */
+    function setGroupCategory2(category1){
+        if(category1==undefined || category1==null){
+            category1 = "ALL";
+        }
+
+        var param = {
+            category1 : category1
+        }
+        var callback =  function(data){
+                if(_GroupCategory2DataAll==null && category1=="ALL"){
+                    _GroupCategory2DataAll = data.list;
+                }
+                $("#selectGroupDialogCategory2").html("");
+                for(var key in data.list){
+                    var option = $("<option>").attr({
+                        "value" : key,
+                    }).html(data.list[key]);
+                    $("#selectGroupDialogCategory2").append(option);
+                }
+                setGroupList(
+                    $("#selectGroupDialogCategory1").val(),
+                    $("#selectGroupDialogCategory2").val()
+                );
+        }
+        secureGetAsync('/evidence/ActionCategory2List.json', param, callback);
+    }
+
+    /*
+     * TODO 説明追加、API動作の検証
+     */
+    function setGroupList(category1, category2){
+        if(category1==undefined || category1==null){
+            category1 = "ALL";
+        }
+        if(category2==undefined || category2==null){
+            category2 = "ALL";
+        }
+
+        var param = {
+            category1 : category1,
+            category2 : category2
+        }
+        var callback =  function(data){
+                if(_GroupDataAll==null && category1=="ALL" && category2=="ALL"){
+                    _GroupDataAll = data.list;
+                }
+                $("#selectGroupDialogSelectableAction").html("");
+                for(var key in data.list){
+                    if($("#selectGroupDialogSelectedAction").find("[value=" + key + "]").length > 0){
+                        continue;
+                    }
+                    var option = $("<option>").attr({
+                        "value"     : key,
+                        "sort"      : data.list[key].sort,
+                        "category1" : data.list[key].category1,
+                        "category2" : data.list[key].category2,
+                    }).html(data.list[key].name);
+
+                    if((key == "NAME")||(key == "USERID")||(key == "GROUPADMININFO")){
+                        $("#selectGroupDialogSelectedAction").append(option);
+                    } else {
+                        $("#selectGroupDialogSelectableAction").append(option);
+                    }
+
+                }
+        }
+        secureGetAsync('/manage.group/ActionList.json', param, callback);
+    }
+    </script>
+        <!-- warapper -->
+        <div id="c_wrapper">
+            <!-- content container -->
+            <table id="c_container" cellspacing="0" border="0">
+                <tr id="c_header">
+                    <!-- left menu container -->
+                    <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                        <apex:include pageName="SOLXYZCSO001__SettingMenu" />
+                    </td>
+                    <!-- right header container -->
+                    <td id="c_headLeft" nowrap="nowrap">
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/h004.png')}" alt="{!$Label.solxyzcso001__label_10098}" title="{!$Label.solxyzcso001__label_10098}" />
+                         <h1 id="c_headLeftTitle">{!$Label.label_10260}</h1>
+                        <br/>
+                         <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10098}</h2>
+                    </td>
+                    <!-- 操作ボックス -->
+                    <td id="c_headRight">
+                        <apex:include pageName="SOLXYZCSO001__OperationLinks" />
+                    </td>
+                </tr>
+                <tr>
+                    <!-- right content container -->
+                    <td id="c_right" colspan="2">
+                        <apex:form >
+                            <apex:pageBlock >
+                                <!-- コマンドボタン表示 -->
+                                <div class="c_command_l">
+                                    <ul class="c_command_pipe">
+                                        <li class="item" id="searchGroupbtn"><!-- 検索ボタン -->
+                                            <apex:commandButton value="{!$Label.solxyzcso001__label_00069}" onclick="searchDialog();return false;"/>
+                                        </li>
+                                        <li class="item" id="searchUserbtn"><!-- ユーザ検索ボタン -->
+                                            <apex:commandButton value="{!$Label.solxyzcso001__label_00069}" onclick="searchUserDialog();return false;"/>
+                                        </li>
+                                        <li class="item" id="changeViewbtn"><!-- 表示切替ボタン -->
+                                            <input type="button" value="{!$Label.label_13043}" onclick="changeView();return false;" class="btn" />
+                                        </li>
+                                        <li class="item" id="removeGroupbtn"><!-- 削除ボタン -->
+                                            <apex:commandButton value="{!$Label.solxyzcso001__label_00072}" onclick="removeButton();return false;" />
+                                        </li>
+                                        <li class="last" id="createGroupbtn"><!-- 新規作成ボタン -->
+                                            <apex:commandButton value="{!$Label.solxyzcso001__label_00074}" action="{!CreateGroup}" rendered="{!IF(userInfo.enablecreategroup == true || userInfo.proAuth_user_group_manage == 'true', true, false)}"/>
+                                        </li>
+                                        <li class="last" id="btnUserInfoSelect"><!-- エクスポートボタン -->
+                                            <apex:commandButton value="{!$Label.solxyzcso001__label_13042}" onclick="callUserInfoSelect(); return false;"/>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- グリッド -->
+                                <div id="containerList">
+                                    <table id="groupList" />
+                                    <div id="groupListPager" style="text-align:center;" />
+                                </div>
+                                <!-- ツリー表示 -->
+                                <div id="containerTree"><!-- TODO 選択状態変化 -->
+                                    <table id="TreeTable" class="fullWidth" style="padding:0px 0px;" cellspacing="0" cellpadding="0">
+                                        <tr>
+                                            <td id="container_parent" style="max-width:200px; overflow: auto; vertical-align: top;">
+                                                <div style="padding-top: 10px;" id="treeRegion" class="tree-area" ><div id="container"></div></div>
+                                            </td>
+                                            <td id="userlist_parent" style="vertical-align: top; width: 100%;">
+                                                <div style="padding-top: 0px; padding-left: 0px;">
+                                                    <div id ="userarea">
+                                                        <table id="userlist"></table>
+                                                        <div id="userlistPager" style="text-align:center;"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- 検索ダイアログ -->
+                                <div id="searchDiv" style="display: none;" title="{!$Label.solxyzcso001__label_00069}">
+                                    <p class="select-group-dialog-input-header"></p>
+                                    <table class="searchtable" cellspacing="5">
+                                        <tr>
+                                            <th class="leftLabelText" id="searchLabel">{!$Label.label_13002}</th>
+                                            <td class="fullWidth"><input type="text" id="groupName" class="c_text_m fullWidth" name="group" maxlength="255" /></td>
+                                        </tr>
+                                    </table>
+                                    <div style="text-align: center; margin-top: 5px;">
+                                        <input type="submit" class="btn" value='{!$Label.solxyzcso001__label_00069}' onclick="execSearch();return false;"/>
+                                        <input type="button" class="btn" value='{!$Label.label_00070}' onclick="clearCondition();return false;" />
+                                    </div>
+                                </div>
+                                <!-- エクスポートダイアログ -->
+                                <div id="UserInfoSelectForExport" class="modal" style="padding: 5px 15px 5px 25px;" title="{!$Label.label_13046}">
+                                    <div>
+                                        <p class="select-group-dialog-input-header">{!$Label.label_13047}</p>
+                                            <select name="language" id="language">
+                                                <option value="ja">{!$Label.label_13056}</option>
+                                                <option value="zh">{!$Label.label_13048}</option>
+                                                <option value="en">{!$Label.label_13049}</option>
+                                                </select>
+                                    </div>
+                                    <div>
+                                        <div class="select-group-dialog-select-box">
+                                            <p class="select-group-dialog-input-header">{!$Label.label_13055}</p>  <!-- 選択可能な出力項目 -->
+                                            <!--<select id="selectGroupDialogSelectableAction" class="select-group-dialog-select" multiple></select>-->
+                                            <select id="selectGroupDialogSelectableAction" class="select-group-dialog-select" multiple="multiple"></select>
+                                        </div>
+                                        <div class="select-group-dialog-operate-box">
+                                            <input type="button" class="btn select-group-dialog-operate-button" onclick="onselectGroupDialogAddClicked();" value="{!$Label.label_10020}" />
+                                            <input type="button" class="btn select-group-dialog-operate-button" onclick="onselectGroupDialogDelClicked();" value="{!$Label.field_common_remove}" />
+                                        </div>
+                                        <div class="select-group-dialog-select-box">
+                                            <p class="select-group-dialog-input-header">{!$Label.label_13050}</p>  <!-- 選択した出力項目 -->
+                                            <!--<select id="selectGroupDialogSelectedAction" class="select-group-dialog-select" multiple></select>-->
+                                            <select id="selectGroupDialogSelectedAction" class="select-group-dialog-select" multiple="multiple"></select>
+                                        </div>
+                                    </div>
+                                    <div class="button-box">
+                                        <input type="button" class="btn" value="{!$Label.field_common_cancel}" onclick="$('#UserInfoSelectForExport').dialog('close');" size="30" />
+                                        <input type="button" class="btn" value="{!$Label.field_common_ok}" id="csvDownload"  onclick="exportExcel();"  size="30" />
+                                    </div>
+                                </div>
+
+                                <!-- 削除ID -->
+                                <input type="hidden" id="deleteIds" name="deleteIds" />
+                            </apex:pageBlock>
+                        </apex:form>
+                    </td>
+                </tr>
+            </table>
+            <div id="copyright">{!$Label.solxyzcso001__label_00001}</div>
+        </div>
+    <apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+    </apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(userInfo.uid == null && userInfo.showErrPage == false, true, false)}">{!$Label.solxyzcso001__msg_00142}</apex:outputPanel>
+    <!-- コンテンツダウンロードIFRAME -->
+    <iframe id="GroupUser_downframe" height="0" width="0" style="display:none"/>
+</apex:page>

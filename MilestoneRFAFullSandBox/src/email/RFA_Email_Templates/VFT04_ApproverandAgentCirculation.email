@@ -1,0 +1,39 @@
+<!--
+   Email template is sent out when RFA request enters a circulation stage.
+   Recipients : Approver and Agents. 
+ -->
+<messaging:emailTemplate subject="承認申請（Request for Approval）: {!relatedTo.RFA__r.Name} - {!relatedTo.RFA__r.RequestTitle__c}" recipientType="User" relatedToType="RFAUserRole__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = " font-size:14px;">
+                     <p>
+                        <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="To :"/> &nbsp;<apex:outputText value="{!relatedTo.UserName__r.Name}"/><br/>
+                     </p>
+                     <p>
+                        <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="CC :" rendered="{!(relatedTo.Agent1__c != null || relatedTo.Agent2__c != null || relatedTo.Agent3__c != null)}"/> &nbsp;
+                            <apex:outputText value="{!relatedTo.Agent1__r.Name}" rendered="{!relatedTo.Agent1__c != null}"/>
+                            <apex:outputText value=", {!relatedTo.Agent2__r.Name}" rendered="{!relatedTo.Agent2__c != null}"/>
+                            <apex:outputText value=", {!relatedTo.Agent3__r.Name}" rendered="{!relatedTo.Agent3__c != null}"/>
+                            <br/>
+                     </p>
+                     <p>下記リンクより申請内容を確認の上、承認をお願い致します。<BR/>
+                     Your approval is requested for the following RFA.</p>
+                     
+                    <c:RFA_C03_EmailTemplateBodyRFAuserRole rfaObj="{!relatedTo}"/>
+                    
+                    <p><B>下記リンクをクリックし、承認申請リクエストの文書をご確認ください:<BR/>
+                    Click this link to open the RFA Request Document:<BR/>
+                     <a href="{!$label.RFA_CL026}/{!relatedTo.RFA__c}">{!relatedTo.RFA__r.Name}</a></B></p>
+                    <BR/>
+                <!--    <p><B>Click this link to open the RFA Request in KO Approve 
+                    <a href="{!$Label.RFA_CL101}{!relatedTo.RFA__c}">{!relatedTo.RFA__r.Name}</a></B></p>
+                    <BR/> -->
+                    <p>ご質問がございましたら、<a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a> へご連絡ください。<BR/>
+                    If you have any inquiries kindly contact <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a>.
+                    </p>
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

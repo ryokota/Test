@@ -1,0 +1,511 @@
+<apex:page cache="false" sidebar="false" controller="SOLXYZCSO001.SpacePortalController">
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.plupload.queue.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.plupload.queue.js')}" />
+<apex:include pageName="SOLXYZCSO001__SettingWatermarkEditPreviewScript"/>
+
+<div id ="editMain">
+    <div id="detailDiv">
+        <table>
+            <tr>
+                <td style="vertical-align: top;width:400px;">
+                    <table style="width: 400px; margin: 5px 0px 5px 10px;">
+                        <tr>
+                            <th>{!$Label.label_10450}</th>
+                            <td><input type="checkbox" name="WM_enabled" id="WM_enabled" /></td>
+                            <td colspan="3">
+                                <label id="WM_enabledmsg" for="WM_enabled" style="color:red; display: none;">
+                                    {!$Label.label_10590}
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{!$Label.label_10579}</th>
+                            <td>
+                                <input type="checkbox" name="WM_timing" id="WM_timingSpace" />
+                            </td>
+                            <td style="white-space:nowrap">
+                                <label for="WM_timingSpace">{!$Label.label_11013}</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="WM_timing" id="WM_timingDelivery" />
+                            </td>
+                            <td style="white-space:nowrap">
+                                <label for="WM_timingDelivery">{!$Label.label_11014}</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{!$Label.label_10583}</th>
+                            <td>
+                                <input type="radio" name="WM_method" id="WM_methodStamp"  value="STAMP"/>
+                            </td>
+                            <td>
+                                <label for="WM_methodStamp">{!$Label.label_10577}</label>
+                            </td>
+                            <td>
+                                <input type="radio" name="WM_method" id="WM_methodBackGround" value="BACKGROUND"/>
+                            </td>
+                            <td>
+                                <label for="WM_methodBackGround">{!$Label.label_10578}</label>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <apex:include pageName="SOLXYZCSO001__SettingWatermarkPreviewCommonScript"/>
+                    <apex:include pageName="SOLXYZCSO001__SettingWatermarkEditPreview"/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table class="historyTbl">
+                        <tr>
+                            <th>{!$Label.label_10015}</th>
+                            <td><span id="WM_registUserName"></span></td>
+                            <th>{!$Label.label_10005}</th>
+                            <td><span id="WM_registDate"></span></td>
+                        </tr>
+                        <tr>
+                            <th>{!$Label.label_10024}</th>
+                            <td><span id="WM_updateUserName"></span></td>
+                            <th>{!$Label.label_10006}</th>
+                            <td><span id="WM_updateDate"></span></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- [下位スペースにも適用する]確認メッセージ -->
+<div id="watermarkApplyModal" title="{!$Label.label_10009}" style="display: none;">
+    <div style="padding-top:10px;">
+            {!$Label.label_13254}
+    </div>
+
+    <div style="text-align:right; padding-top:20px;">
+       	<input type="button" class="btn" value="{!$Label.label_00061}" onclick="saveWatermark(false);" />
+        <input type="button" class="btn" value="{!$Label.label_00060}"     onclick="saveWatermark(true);" />
+    </div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__SettingWatermarkEditScript"/>
+
+
+<script type="text/javascript">
+
+var WM_SpaceId = "";
+var WM_existChild = false;
+
+function WatermarkInit(){
+    WM_WatermarkId = "dummy";
+
+    /*--  ブラウザの種類を保持  --*/
+    WM_browserType = getBrowserType();
+
+    preview_ready();
+    setPreviewTabHeight();
+}
+
+function getInitWatermark(spaceId){
+
+    WM_SpaceId = spaceId;
+
+    /*-- -------- --*/
+    /*--  初期化  --*/
+    /*-- -------- --*/
+    /*--  プレビュー以外  --*/
+    WM_check('WM_enabled',         false);          /*--  有効化                        --*/
+    WM_check('WM_timingSpace',     false);          /*--  タイミング（スペース）        --*/
+    WM_check('WM_timingDelivery',  false);          /*--  タイミング（配信）            --*/
+    $('#WM_fileName').val('');                      /*--  画像ファイル名                --*/
+    $('#WM_methodStamp').attr('checked', 'checked');
+    /*--  位置  --*/
+    PDF_ItemPosNoUserId    = PDF_ItemPosNoDefault;  /*--  ユーザID        --*/
+    PDF_ItemPosNoUserName  = PDF_ItemPosNoDefault;  /*--  ユーザ名        --*/
+    PDF_ItemPosNoTimestamp = PDF_ItemPosNoDefault;  /*--  タイムスタンプ  --*/
+    PDF_ItemPosNoUserImage = PDF_ItemPosNoDefault;  /*--  画像            --*/
+    PDF_ItemPosNoCorp      = PDF_ItemPosNoDefault;  /*--  所属組織        --*/
+    PDF_ItemPosNoPost      = PDF_ItemPosNoDefault;  /*--  部署・役職      --*/
+    PDF_ItemPosNoNumber    = PDF_ItemPosNoDefault;  /*--  社員番号        --*/
+    PDF_ItemPosNoEmail     = PDF_ItemPosNoDefault;  /*--  メールアドレス        --*/
+    PDF_ItemPosNoText      = PDF_ItemPosNoDefault;  /*--  フリーテキスト  --*/
+    /*--  画像サイズ  --*/
+    PDF_ImageSizeUserId    = {width: 0, height: 0};
+    PDF_ImageSizeUserName  = {width: 0, height: 0};
+    PDF_ImageSizeTimestamp = {width: 0, height: 0};
+    PDF_ImageSizeUserImage = {width: 0, height: 0};
+    PDF_ImageSizeCorp      = {width: 0, height: 0};
+    PDF_ImageSizePost      = {width: 0, height: 0};
+    PDF_ImageSizeNumber    = {width: 0, height: 0};
+    PDF_ImageSizeEmail     = {width: 0, height: 0};
+    PDF_ImageSizeText      = {width: 0, height: 0};
+    /*--  アップロードファイルID  --*/
+    PDF_UploadFileId = "";
+    /*--  透かし対象  --*/
+    if(WM_browserType == 'IE8'){
+        /*--  IE8の場合、imgタグをvmlタグに作り替えているが  --*/
+        /*--  vmlタグのsrcを変更しても画像がかわらないので、 --*/
+        /*--  タグを作り替える必要がある。                   --*/
+        /*--  （vmlタグをimgタグに作り直しておく）           --*/
+        $("span").remove("#" + PDF_ID_PreviewObjectTimestamp);
+        $("span").remove("#" + PDF_ID_PreviewObjectUserId);
+        $("span").remove("#" + PDF_ID_PreviewObjectUserName);
+        $("span").remove("#" + PDF_ID_PreviewObjectUserImage);
+        $("span").remove("#" + PDF_ID_PreviewObjectCorp);
+        $("span").remove("#" + PDF_ID_PreviewObjectPost);
+        $("span").remove("#" + PDF_ID_PreviewObjectNumber);
+        $("span").remove("#" + PDF_ID_PreviewObjectEmail);
+        $("span").remove("#" + PDF_ID_PreviewObjectText);
+        $("img").remove("#" + PDF_ID_PreviewObjectTimestamp);
+        $("img").remove("#" + PDF_ID_PreviewObjectUserId);
+        $("img").remove("#" + PDF_ID_PreviewObjectUserName);
+        $("img").remove("#" + PDF_ID_PreviewObjectUserImage);
+        $("img").remove("#" + PDF_ID_PreviewObjectCorp);
+        $("img").remove("#" + PDF_ID_PreviewObjectPost);
+        $("img").remove("#" + PDF_ID_PreviewObjectNumber);
+        $("img").remove("#" + PDF_ID_PreviewObjectEmail);
+        $("img").remove("#" + PDF_ID_PreviewObjectText);
+        /*--  オブジェクト生成  --*/
+        var objCanvas = $('#' + PDF_ID_PreviewCanvas);
+        var objUserId    = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectUserId).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+        var objUserName  = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectUserName).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+        var objTimestamp = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectTimestamp).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+        var objUserImage = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectUserImage).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+        var objCorp      = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectCorp).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+        var objPost      = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectPost).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+        var objNumber    = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectNumber).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+        var objEmail     = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectEmail).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+        var objText      = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectText).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+        /*--  オブジェクト追加  --*/
+        objCanvas.append(objUserImage);
+        objCanvas.append(objUserId);
+        objCanvas.append(objUserName);
+        objCanvas.append(objTimestamp);
+        objCanvas.append(objCorp);
+        objCanvas.append(objPost);
+        objCanvas.append(objNumber);
+        objCanvas.append(objEmail);
+        objCanvas.append(objText);
+    }
+    /*--  透かし対象を非表示  --*/
+    if(WM_browserType == 'IE8'){
+        $("#" + PDF_ID_PreviewObjectUserId).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectUserName).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectTimestamp).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectUserImage).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectCorp).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectPost).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectNumber).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectEmail).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectText).offset({"top":10000,"left":10000});
+    }
+    else{
+        $("#" + PDF_ID_PreviewObjectUserId).hide();
+        $("#" + PDF_ID_PreviewObjectUserName).hide();
+        $("#" + PDF_ID_PreviewObjectTimestamp).hide();
+        $("#" + PDF_ID_PreviewObjectUserImage).hide();
+        $("#" + PDF_ID_PreviewObjectCorp).hide();
+        $("#" + PDF_ID_PreviewObjectPost).hide();
+        $("#" + PDF_ID_PreviewObjectNumber).hide();
+        $("#" + PDF_ID_PreviewObjectEmail).hide();
+        $("#" + PDF_ID_PreviewObjectText).hide();
+    }
+    /*--  タブを非表示  --*/
+    $("#PDF_TabUserId").hide();
+    $("#PDF_TabUserName").hide();
+    $("#PDF_TabTimestamp").hide();
+    $("#PDF_TabUserImage").hide();
+    $("#PDF_TabUserCorp").hide();
+    $("#PDF_TabUserPost").hide();
+    $("#PDF_TabUserNumber").hide();
+    $("#PDF_TabUserEmail").hide();
+    $("#PDF_TabUserText").hide();
+    /*--  透かし対象選択リストを初期化  --*/
+    initTargetSelectOption();
+    /*--  位置ボタンを初期化  --*/
+    $(".posBtn").each(function () {
+        $(this).removeClass("PDF_wm_pos_click");
+    });
+    /*--  用紙タブを選択  --*/
+    $('#preview_config_container').tabs({
+        selected: 0
+    });
+//    $("#config_panel_container").css("width", "430px");
+    /*--  メッセージを非表示  --*/
+    $("#WM_enabledmsg").hide();
+
+    /*--  uploaderの初期化  --*/
+    uploaderInit();
+
+    /*-- [下位スペースにも適用する]確認ダイアログの初期化 --*/
+    $("#watermarkApplyModal").dialog({
+        autoOpen: false,
+        bgiframe: true,
+        modal: true,
+        resizable: false,
+        closeText: "Close",
+        width : 300,
+        height: 120
+    });
+
+    /*-- ---------------- --*/
+    /*--  設定情報を取得  --*/
+    /*-- ---------------- --*/
+    var callback =  function(data, status){
+        if(!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+        if(data.existChild){
+            WM_existChild = true;
+        }else{
+            WM_existChild = false;
+        }
+        WM_initData(data);
+        setPreviewDefaultValue();
+        CsoScript_loadingStop();
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("WatermarkDetailApi:" + data);
+    };
+    CsoScript_loadingStart();
+    secureGetAsync('/contentsmanagement/SpaceWatermarkDetailApi.json?id=' + spaceId, '', callback, callerror);
+}
+
+function WM_initData(data){
+    var info = data.detail.info;
+
+    /*--  画面タイトル・パスセット  --*/
+    $('#c_headLeftSubTitle').html(data.detail.spaceName);
+    setPathList(data.detail.sfpath);
+
+    WM_ImageFileInfoIdOld = info.imageAttr.imgId;
+
+    $(".btn").removeAttr("disabled");
+
+    /*--  メッセージの表示  --*/
+    if(eval(data.detail.pw) == true){
+        $("#WM_enabledmsg").show();
+    }
+
+    /*--  プレビュー以外の設定  --*/
+    WM_displayInit(data);
+    $('#WM_registUserName').text(data.detail.registerUser);     /*--  作成者    --*/
+    $('#WM_registDate').text(data.detail.registerDate);         /*--  作成日    --*/
+    $('#WM_updateUserName').text(data.detail.updateUser);       /*--  更新者    --*/
+    $('#WM_updateDate').text(data.detail.updateDate);           /*--  更新日    --*/
+    /*--  画像の読み込み  --*/
+    WM_loadStringImage(data);
+    /*--  プレビューの設定  --*/
+    WM_displayInit2(data);
+}
+
+function setPreviewTabHeight(){
+    var browserType = getBrowserType();
+    if(browserType == 'IE8'){
+        $("#config_panel_container").css("height", "27px");
+    }
+    else if(browserType == 'IE9'){
+        $("#config_panel_container").css("height", "27px");
+    }
+    else if(browserType == 'Firefox'){
+        $("#config_panel_container").css("height", "27px");
+    }
+    else if(browserType == 'Chrome'){
+        $("#config_panel_container").css("height", "27px");
+    }
+    else if(browserType == 'Safari'){
+        $("#config_panel_container").css("height", "27px");
+    }
+}
+
+function cancelWatermark(){
+    var callback = function(data){
+        cancelWatermarkMain();
+    };
+    var callerror =  function(data){
+        alert("WatermarkImageRemoveApi:" + data);
+        cancelWatermarkMain();
+    };
+    securePostAsync('/setup/WatermarkImageRemoveApi.json', {"dummy":"dummy"}, callback, callerror);
+}
+function cancelWatermarkMain(){
+    changeHashToCurrentSpace();
+    $('#listView1').trigger('reloadGrid');
+    reloadTree();
+    displayList();
+}
+
+function editWatermark() {
+    $(".btn").attr("disabled", "disabled");
+
+    /*-- -------------- --*/
+    /*-- エラーチェック --*/
+    /*-- -------------- --*/
+    WM_err = false;
+    WM_checkInputData();
+
+    $(".btn").removeAttr("disabled");
+
+    /*-- エラーがあった場合 --*/
+    if (WM_err == true){
+        $(".btn").removeAttr("disabled");
+        return false;
+    }
+
+    if(WM_existChild){
+        $("#watermarkApplyModal").dialog("open");
+    }
+    else{
+        saveWatermark(false);
+    }
+}
+
+
+function saveWatermark(apply){
+    $("#watermarkApplyModal").dialog("close");
+
+    $(".btn").attr("disabled", "disabled");
+
+    /*-- ------------------ --*/
+    /*-- デフォルト値の設定 --*/
+    /*-- ------------------ --*/
+    setPreviewDefaultValue();
+
+    /*-- ---------------- --*/
+    /*-- パラメータの生成 --*/
+    /*-- ---------------- --*/
+    var query = {
+            id              : WM_SpaceId,
+			apply           : apply,
+            enabled         : $("#WM_enabled").attr("checked"),
+            timingSpace     : $('#WM_timingSpace').attr('checked'),
+            timingDelivery  : $('#WM_timingDelivery').attr('checked'),
+            targetTimestamp : WM_TargetTimestamp,
+            targetUsername  : WM_TargetUserName,
+            targetUserid    : WM_TargetUserId,
+            targetImage     : WM_TargetUserImage,
+            targetCorp      : WM_TargetCorp,
+            targetPost      : WM_TargetPost,
+            targetNumber    : WM_TargetNumber,
+            targetEmail     : WM_TargetEmail,
+            targetText      : WM_TargetText,
+            method          : $("input[name=WM_method]:checked").val(),
+
+            /*-- タイムスタンプ --*/
+            timestampPosition : PDF_ItemPosNoTimestamp,
+            timestampAngle    : $('#' + PDF_ID_SliderAngleValueTimestamp).val(),
+            timestampTrans    : $('#' + PDF_ID_SliderAlphaValue).val(),
+            timestampSize     : $('#PDF_FontSizeTextTimestamp').val(),
+            timestampFormat   : $('#PDF_FormatTextTimestamp').val(),
+            timestampColor    : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Timestamp).val(),
+            /*-- ユーザ名 --*/
+            usernamePosition  : PDF_ItemPosNoUserName,
+            usernameAngle     : $('#' + PDF_ID_SliderAngleValueUserName).val(),
+            usernameTrans     : $('#' + PDF_ID_SliderAlphaValue).val(),
+            usernameSize      : $('#PDF_FontSizeTextUserName').val(),
+            usernameColor     : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_UserName).val(),
+            /*-- ユーザID --*/
+            useridPosition    : PDF_ItemPosNoUserId,
+            useridAngle       : $('#' + PDF_ID_SliderAngleValueUserId).val(),
+            useridTrans       : $('#' + PDF_ID_SliderAlphaValue).val(),
+            useridSize        : $('#PDF_FontSizeTextUserId').val(),
+            useridColor       : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_UserId).val(),
+            /*-- 画像 --*/
+            imagePosition     : PDF_ItemPosNoUserImage,
+            imageAngle        : $('#' + PDF_ID_SliderAngleValueUserImage).val(),
+            imageTrans        : $('#' + PDF_ID_SliderAlphaValue).val(),
+            imageWidth        : $('#PDF_SpinWidth').val(),
+            imageHeight       : $('#PDF_SpinHeight').val(),
+            imageFileName     : $("#WM_fileName").val(),
+            imageFileInfoId   : PDF_UploadFileId,
+            imageFileInfoIdOld: WM_ImageFileInfoIdOld,
+            /*-- 所属組織 --*/
+            corpPosition      : PDF_ItemPosNoCorp,
+            corpAngle         : $('#' + PDF_ID_SliderAngleValueCorp).val(),
+            corpTrans         : $('#' + PDF_ID_SliderAlphaValue).val(),
+            corpSize          : $('#PDF_FontSizeTextCorp').val(),
+            corpColor         : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Corp).val(),
+            /*-- 部署・役職 --*/
+            postPosition      : PDF_ItemPosNoPost,
+            postAngle         : $('#' + PDF_ID_SliderAngleValuePost).val(),
+            postTrans         : $('#' + PDF_ID_SliderAlphaValue).val(),
+            postSize          : $('#PDF_FontSizeTextPost').val(),
+            postColor         : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Post).val(),
+            /*-- 社員番号 --*/
+            numberPosition    : PDF_ItemPosNoNumber,
+            numberAngle       : $('#' + PDF_ID_SliderAngleValueNumber).val(),
+            numberTrans       : $('#' + PDF_ID_SliderAlphaValue).val(),
+            numberSize        : $('#PDF_FontSizeTextNumber').val(),
+            numberColor       : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Number).val(),
+            /*-- メールアドレス --*/
+            emailPosition    : PDF_ItemPosNoEmail,
+            emailAngle       : $('#' + PDF_ID_SliderAngleValueEmail).val(),
+            emailTrans       : $('#' + PDF_ID_SliderAlphaValue).val(),
+            emailSize        : $('#PDF_FontSizeTextEmail').val(),
+            emailColor       : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Email).val(),
+            /*-- フリーテキスト --*/
+            textPosition      : PDF_ItemPosNoText,
+            textAngle         : $('#' + PDF_ID_SliderAngleValueText).val(),
+            textTrans         : $('#' + PDF_ID_SliderAlphaValue).val(),
+            textSize          : $('#PDF_FontSizeTextText').val(),
+            textColor         : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Text).val(),
+            textText          : $('#PDF_FreeText').val()
+    }
+
+    /*-- -------- --*/
+    /*-- 登録処理 --*/
+    /*-- -------- --*/
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+        CsoScript_loadingStop();
+        $(".btn").removeAttr("disabled");
+        changeHashToCurrentSpace();
+        $('#listView1').trigger('reloadGrid');
+        reloadTree();
+        displayList();
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("SpaceWatermarkEditApi:" + data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SpaceWatermarkEditApi.json', query, callback, callerror);
+
+    return true;
+
+}
+
+ECM.pdfWatermark = ECM.pdfWatermark || { loaded: $.Deferred() };
+(function() {
+    $.extend(ECM.pdfWatermark, {
+        // intentionally empty
+    });
+    ECM.pdfWatermark.loaded.resolve();
+})();
+
+</script>
+
+
+</apex:page>

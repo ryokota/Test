@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectSharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <ownerRules>
+        <fullName>BOD_Extra_Admin</fullName>
+        <sharedTo>
+            <group>BOD_Extra_Admin</group>
+        </sharedTo>
+        <sharedFrom>
+            <allInternalUsers></allInternalUsers>
+        </sharedFrom>
+        <accessLevel>Edit</accessLevel>
+        <name>BOD Extra Admin</name>
+    </ownerRules>
+</CustomObjectSharingRules>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>true</available>
+    <description>Email template for the base Completion Memo communication</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>RFAVFT07 Completion Memo</name>
+    <style>none</style>
+    <subject>Final Approval Status - :</subject>
+    <type>visualforce</type>
+</EmailTemplate>

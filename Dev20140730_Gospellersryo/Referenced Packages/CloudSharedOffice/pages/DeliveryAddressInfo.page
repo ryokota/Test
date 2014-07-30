@@ -1,0 +1,576 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.DeliveryAddressInfoController" tabStyle="delivery__tab">
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid != null && cso_userInfo.showErrPage == false, true, false)}">
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/delivery.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<style type="text/css">
+.comment{
+    height: 150px;
+    width: 350px;
+}
+</style>
+
+<script type="text/javascript">
+
+var query;
+
+$(document).ready(function(){
+
+    $('input[type!="submit"][type!="button"],select').keypress(function(e){
+      if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+        return false;
+      }else{
+        return true;
+      }
+    });
+
+});
+
+/*
+ * 画面読込処理
+ */
+$.event.add(window, "load", function(){
+    // 新規追加以外の場合はエントリー種類とタイプを設定し、エントリー種類を編集不可とする
+    if("{!editMode}" != "INS"){
+        $("#isGroup").val("{!isGroup}");
+        $("#userType").val("{!type}");
+        $("#isGroup").attr('disabled', 'disabled');
+    }
+
+    // 参照の場合はタイプ編集不可とする
+    if("{!editMode}" == "REF"){
+        $("#userType").attr('disabled', 'disabled');
+    }
+
+});
+
+// エントリー種類による項目切替
+function changeGroup(){
+    if($("#isGroup option:selected").attr('value') == 'false'){
+        // 個人の場合
+        $("#entryUser").show();
+        $("#entryGroup").hide();
+    }else{
+        // グループの場合
+        $("#entryUser").hide();
+        $("#entryGroup").show();
+    }
+}
+
+// 配信アドレス管理一覧戻り処理
+function backPage(){
+    location.href='{!$Page.DeliveryAddressList}';
+}
+
+//新規登録または変更登録
+var submitAddressRegist = function(){
+    // 入力チェック＆データセット
+    if($("#isGroup option:selected").attr('value') == 'false'){
+        // 個人の場合
+        if(!validateUser()){
+            //エラーなのでそのまま終了
+            return;
+        }
+    }else{
+        // グループの場合
+        if(!validateGroup()){
+            //エラーなのでそのまま終了
+            return;
+        }
+    }
+    // 更新の場合のみデータにIDをセット
+    if("{!editMode}" != 'INS'){
+        // 更新の場合
+        query['address_id'] = "{!id}";
+    }
+
+    var cofMsg;
+    if("{!editMode}" == 'INS'){
+        cofMsg = '{!$Label.msg_00246}';    // この情報で作成します。\nよろしいですか？
+    } else {
+        cofMsg = '{!$Label.msg_00247}';    // この情報で更新します。\nよろしいですか？
+    }
+
+    if(confirm(cofMsg)){
+       var callback = function(data){
+                CsoScript_loadingStop();
+                if(!data.result){
+                    alert(data.message);
+                }
+                //正常
+                backPage();
+
+            };
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+
+        CsoScript_loadingStart();
+
+        // 配信アドレス情報登録／更新
+        securePostAsync('/deliverymanagement/deliveryAddressRegisterEdit.json',
+            query,
+            callback, callerror);
+
+
+/**************************
+        $.ajax({
+            type: "post",
+            data: query,
+            dataType: "json",
+            url: "/delivery/addressInfo.json",
+            success: function(data, dataType){
+                if(data["code"]){
+                    viewErr($("#sectionHeader"), new Aray(data["message"]));
+                }else{
+                    location.href = "#/DeliveryAddressList";
+                }
+            }
+        });
+**************************/
+    }
+
+
+}
+// 入力チェック
+var validateUser = function(){
+    // クエリパラメータの初期化
+    query = new Object();
+
+    // グループであるか
+    query["group"] = "false";
+    query["type"] = $("#userType option:selected").attr('value');
+    query['token'] = $('#token').val();
+
+    var val;
+    // 苗字
+    val = $.trim($("#userSname").val());
+    if(val.length == 0){
+        alert(getMsg(new Array("{!$Label.label_10086}"), "{!$Label.msg_00196}"));    // 姓 {0}を入力してください。
+        return false;
+    }else if(val.length > 255){
+        alert(getMsg(new Array("{!$Label.label_10086}",255), "{!$Label.msg_00230}"));    // 姓 {0}は{1}文字以下で入力してください。
+        return false;
+    }
+    query["sname"] = val;
+
+    // 名前
+    val = $.trim($("#userFname").val());
+    if(val.length == 0){
+        alert(getMsg(new Array("{!$Label.label_00088}"), "{!$Label.msg_00196}"));    // 名 {0}を入力してください。
+        return false;
+    }else if(val.length > 255){
+        alert(getMsg(new Array("{!$Label.label_00088}",255), "{!$Label.msg_00230}"));    // 名 {0}は{1}文字以下で入力してください。
+        return false;
+    }
+    query["fname"] = val;
+
+    // メール
+    val = $.trim($("#userMail").val());
+    if(val.length == 0){
+        alert(getMsg(new Array("{!$Label.solxyzcso001__label_10016}"), "{!$Label.msg_00196}"));    // メールアドレス {0}を入力してください。
+        return false;
+    }else if(!isMailAddress($("#userMail").val())){
+        alert(getMsg(new Array("{!$Label.solxyzcso001__label_10016}"), "{!$Label.msg_00191}"));    // メールアドレス {0}の形式が不正です。
+        return false;
+    }
+    query["mail"] = val;
+
+    // 苗字(カナ)
+    query["sname_kana"] = $.trim($("#userSnameKana").val());
+    // 名前(カナ)
+    query["fname_kana"] = $.trim($("#userFnameKana").val());
+    // 役職
+    query["title"] = $.trim($("#userTitle").val());
+    //部署
+    query["section"] = $.trim($("#userSection").val());
+
+    // 会社名
+    query["company"] = $.trim($("#userCompany").val());
+    // 郵便番号
+    query["postalcode"] = $.trim($("#userPostalcode").val());
+    // 都道府県
+    query["state"] = $.trim($("#userState").val());
+    // 都市
+    query["city"] = $.trim($("#userCity").val());
+    // 番地
+    query["street"] = $.trim($("#userStreet").val());
+    // 電話番号
+    query["tel"] = $.trim($("#userTel").val());
+    // FAX
+    query["fax"] = $.trim($("#userFax").val());
+
+    return true;
+    if(err.length > 0){
+        viewErr($("#sectionHeader"), err);
+        return false;
+    }else{
+        return true;
+    }
+}
+
+// 入力チェック
+var validateGroup = function(){
+    // クエリパラメータの初期化
+    query = new Object();
+
+    // グループであるか
+    query["group"] = "true";
+    query["type"] = $("#userType option:selected").attr('value');
+    query['token'] = $('#token').val();
+
+    var val;
+    // グループ名(カナ)
+    val = $.trim($("#groupkana").val());
+    if(val.length > 255){
+        alert(getMsg(new Array("{!$Label.solxyzcso001__label_10547}",255), "{!$Label.msg_00230}"));    // フリガナ {0}は{1}文字以下で入力してください。
+        return false;
+    }
+    query["groupkana"] = val;
+
+    // グループ名
+    val = $.trim($("#groupname").val());
+    if(val.length == 0){
+        alert(getMsg(new Array("{!$Label.solxyzcso001__label_10548}"), "{!$Label.msg_00196}"));    // グループ名 {0}を入力してください。
+        return false;
+    }else if(val.length > 255){
+        alert(getMsg(new Array("{!$Label.solxyzcso001__label_10548}",255), "{!$Label.msg_00230}"));    // グループ名 {0}は{1}文字以下で入力してください。
+        return false;
+    }
+    query["groupname"] = val;
+
+    // グループメンバ一覧
+    var memberList = new Array();
+    $("#added option").each(function () {
+        var val = $(this).val().split(',')[0];
+        var mailaddress = $(this).val().split(',')[1];
+        //var text = $(this).text();
+        var user = new Object();
+        user[val] = mailaddress;
+        memberList.push(user);
+    });
+
+    query["userid"] = JSON.stringify(memberList);
+
+    return true;
+}
+
+// 選択アドレスMOVE
+var move = function (moveFrom, moveTo){
+    $("#" + moveFrom + " option:selected").each(function(){
+        var val = $(this).val();
+        var text = $(this).text();
+        $("#" + moveTo).append($("<option>").val(val).text(text));
+        $(this).remove();
+    });
+}
+
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__DeliveryMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/address-book.png')}" alt="{!$Label.solxyzcso001__label_10545}" title="{!$Label.solxyzcso001__label_10545}"/>    <!-- 配信アドレス管理 配信アドレス管理 -->
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10545}</h1><br/>
+                <h2 id="c_headLeftSubTitle" style="display:{!IF(editMode == 'INS', 'block', 'none')}">{!$Label.label_10549}</h2>    <!-- 新しい配信アドレスの作成 -->
+                <h2 id="c_headLeftSubTitle" style="display:{!IF(editMode != 'INS', 'block', 'none')}">{!$Label.solxyzcso001__label_10545}</h2>    <!-- 配信アドレス管理 -->
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinksDelivery"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                <apex:pageBlock >
+                    <apex:pageMessages ></apex:pageMessages>
+                    <!-- コマンドボタン -->
+                    <table class="c_command_lcr" cellspacing="0" cellpadding="0" id="editorCommand">
+                    <tr>
+                        <td class="item_l"></td>
+                        <td class="item_c">
+                            <!-- 保存ボタン -->
+                            <button class="c_commandButton" name="ok" id="ok" style="width:50px; display:{!IF(editMode != 'REF', 'inline', 'none')}" onclick="submitAddressRegist(); return false;">
+                                {!$Label.label_00075}
+                            </button>
+                            <!-- キャンセルボタン -->
+                            <button class="c_commandButton" name="cancel" id="cancel" style="width:80px;" onclick="backPage(); return false;">
+                                {!$Label.label_00058}
+                            </button>
+                        </td>
+                        <td class="item_r">
+                            <span>{!$Label.label_10527}&nbsp;    <!-- エントリーの種類 -->
+                            <select id="isGroup" onchange="changeGroup();" class="c_text_s" style="margin-right:5px; padding-left:0px;">
+                                <option value="false" selected="selected">{!$Label.label_10173}</option>    <!-- 個人 -->
+                                <option value="true">{!$Label.label_10022}</option>    <!-- グループ -->
+                            </select>
+                            &nbsp;
+                            {!$Label.label_10546}    <!-- タイプ -->
+                            <select id="userType" class="c_text_s" style="margin-right:5px; padding-left:0px;">
+                                <option value="0">{!$Label.label_10550}</option>    <!-- パブリック -->
+                                <option value="1" selected="selected">{!$Label.label_10551}</option>    <!-- プライベート -->
+                            </select>
+                            </span>
+                        </td>
+                    </tr>
+                    </table>
+
+                    <!-----------------------------------
+                        個人情報編集・参照エリア
+                     ------------------------------------>
+                    <div id="entryUser" style="display:{!IF(isGroup == 'false' , 'block', 'none')};">
+                        <!-- 基本情報 -->
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10128}" collapsible="false">
+                            <!-- フリガナ（姓） -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!lastNameKanaTitle}</apex:outputLabel>
+                                <input id="userSnameKana" type="text" value="{!userInfo.snameKana}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" maxlength="255"></input>
+                                <div style="display:{!IF(editMode == 'REF', 'block', 'none')}">{!userInfo.snameKana}&nbsp;{!userInfo.fnameKana}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- フリガナ（名） -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!firstNameKanaTitle}</apex:outputLabel>
+                                <input id="userFnameKana" type="text" value="{!userInfo.fnameKana}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" maxlength="255"></input>
+                            </apex:pageBlockSectionItem>
+                            <!-- 姓 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!lastNameTitle}</apex:outputLabel>
+                                <span class="c_require" style="border-left: 3px solid #C00; display:{!IF(editMode != 'REF', 'block', 'none')}">
+                                <input id="userSname" type="text" value="{!userInfo.sname}" maxlength="255"></input>
+                                </span>
+                                <div style="display:{!IF(editMode == 'REF', 'block', 'none')}">{!userInfo.sname}&nbsp;{!userInfo.fname}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- 名 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!firstNameTitle}</apex:outputLabel>
+                                <span class="c_require" style="border-left: 3px solid #C00; display:{!IF(editMode != 'REF', 'block', 'none')}">
+                                <input id="userFname" type="text" value="{!userInfo.fname}" maxlength="255"></input>
+                                </span>
+                            </apex:pageBlockSectionItem>
+                            <!-- Eメール -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10016}</apex:outputLabel>    <!-- メールアドレス -->
+                                <span class="c_require" style="border-left: 3px solid #C00; display:{!IF(editMode != 'REF', 'block', 'none')}">
+                                <input id="userMail" type="text" value="{!userInfo.mail}" class="c_text_l" maxlength="80"></input>
+                                </span>
+                                <div style="display:{!IF(editMode == 'REF', 'block', 'none')}">{!userInfo.mail}</div>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <!-- 組織の情報 -->
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10552}" collapsible="false">    <!-- 組織の情報 -->
+                            <!-- 会社名 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10553}</apex:outputLabel>    <!-- 会社名 -->
+                                <input type="text" id="userCompany"  value="{!userInfo.company}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" class="c_text_l" maxlength="255"></input>
+                                <div style="display:{!IF(editMode == 'REF', 'block', 'none')}">{!userInfo.company}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- ダミー -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel ></apex:outputLabel>
+                            </apex:pageBlockSectionItem>
+                            <!-- 部署 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!sectionTitle}</apex:outputLabel>
+                                <input id="userSection" type="text" value="{!userInfo.section}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" class="c_text_m" maxlength="255"></input>
+                                <div style="display:{!IF(editMode == 'REF', 'block', 'none')}">{!userInfo.section}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- 役職 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!postTitle}</apex:outputLabel>
+                                <input id="userTitle" type="text" value="{!userInfo.title}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" class="c_text_m" maxlength="255"></input>
+                            </apex:pageBlockSectionItem>
+                            <!-- 郵便番号 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_00033}</apex:outputLabel>    <!-- 郵便番号 -->
+                                <input id="userPostalcode" type="text" value="{!userInfo.postalcode}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" class="c_text_s" maxlength="255"></input>
+                                <div style="display:{!IF(editMode == 'REF', 'block', 'none')}">{!userInfo.postalcode}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- ダミー -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel ></apex:outputLabel>
+                            </apex:pageBlockSectionItem>
+                            <!-- 都道府県 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_00034}</apex:outputLabel>    <!-- 都道府県 -->
+                                <input id="userState" type="text" value="{!userInfo.state}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" class="c_text_m" maxlength="255"></input>
+                                <div style="display:{!IF(editMode == 'REF', 'block', 'none')}">{!userInfo.state}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- ダミー -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel ></apex:outputLabel>
+                            </apex:pageBlockSectionItem>
+                            <!-- 都市 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10554}</apex:outputLabel>    <!-- 都市 -->
+                                <input id="userCity" type="text" value="{!userInfo.city}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" class="c_text_m" maxlength="255"></input>
+                                <div style="display:{!IF(editMode == 'REF', 'block', 'none')}">{!userInfo.city}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- ダミー -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel ></apex:outputLabel>
+                            </apex:pageBlockSectionItem>
+                            <!-- 番地 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_00036}</apex:outputLabel>    <!-- 番地 -->
+                                <input id="userStreet" type="text" value="{!userInfo.street}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" class="c_text_ll" maxlength="255"></input>
+                                <div style="display:{!IF(editMode == 'REF', 'block', 'none')}">{!userInfo.street}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- ダミー -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel ></apex:outputLabel>
+                            </apex:pageBlockSectionItem>
+                            <!-- 電話番号 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_00037}</apex:outputLabel>    <!-- 電話番号 -->
+                                <input id="userTel" type="text" value="{!userInfo.tel}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" class="c_text_s" maxlength="255"></input>
+                                <div style="display:{!IF(editMode == 'REF', 'block', 'none')}">{!userInfo.tel}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- FAX -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_00038}</apex:outputLabel>
+                                <input id="userFax" type="text" value="{!userInfo.fax}" style="display:{!IF(editMode != 'REF', 'block', 'none')}" class="c_text_s" maxlength="255"></input>
+                            </apex:pageBlockSectionItem>
+
+                            <!-- 作成者 -->
+                            <apex:pageBlockSectionItem rendered="{!IF(editMode != 'INS', 'true', 'false')}">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10015}</apex:outputLabel>    <!-- 作成者 -->
+                                <div>{!userInfo.regName}&nbsp;&nbsp;&nbsp;&nbsp;{!userInfo.regDate}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- 更新者 -->
+                            <apex:pageBlockSectionItem rendered="{!IF(editMode != 'INS', 'true', 'false')}">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10024}</apex:outputLabel>    <!-- 更新者 -->
+                                <div>{!userInfo.upName}&nbsp;&nbsp;&nbsp;&nbsp;{!userInfo.uupDate}</div>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                    </div>
+
+                    <!-----------------------------------
+                        グループ情報参照エリア
+                     ------------------------------------>
+                    <div id="referenceGroup" style="display:{!IF(AND(editMode == 'REF', isGroup == 'true'), 'block', 'none')}; margin-top:-15px;">
+                        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10128}" collapsible="false">
+                            <apex:pageBlockSectionItem >
+                                <p>{!$Label.solxyzcso001__msg_00248}</p>    <!-- このグループはユーザ管理のグループと同期しているため、編集することは出来ません。 -->
+                            </apex:pageBlockSectionItem>
+
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10548}</apex:outputLabel>    <!-- グループ名 -->
+                               <apex:outputLabel >{!grpInfo.groupName}</apex:outputLabel>
+                            </apex:pageBlockSectionItem>
+
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10023}</apex:outputLabel>    <!-- コメント -->
+                                <textarea class="comment" readonly="readonly">{!comment}</textarea>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10555}</apex:outputLabel>    <!-- 選択済みのメンバ -->
+                                <apex:selectList multiselect="true" readonly="true" style="width: 400px;">
+                                    <apex:selectOptions value="{!items}"></apex:selectOptions>
+                                </apex:selectList>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageBlockSection>
+                    </div>
+
+                    <!-----------------------------------
+                        グループ情報編集エリア
+                     ------------------------------------>
+                    <div id="entryGroup" style="display:{!IF((editMode != 'REF' && isGroup == 'true') , 'block', 'none')}; margin-top:-15px;">
+                        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10128}" collapsible="false">
+                            <!-- フリガナ -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10547}</apex:outputLabel>    <!-- フリガナ -->
+                                <input id="groupkana" type="text" value="{!grpInfo.groupKana}" maxlength="255"/>
+                            </apex:pageBlockSectionItem>
+
+                            <!-- グループ名 -->
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10548}</apex:outputLabel>    <!-- グループ名 -->
+                                <span class="c_require" style="border-left: 3px solid #C00; display:{!IF(editMode != 'REF', 'block', 'none')}">
+                                    <input id="groupname" type="text" value="{!grpInfo.groupName}" class="c_text_l" maxlength="255"/>
+                                </span>
+                            </apex:pageBlockSectionItem>
+
+
+                            <!-- 作成者 -->
+                            <apex:pageBlockSectionItem rendered="{!IF(editMode != 'INS', 'true', 'false')}">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10015}</apex:outputLabel>    <!-- 作成者 -->
+                                <div>{!grpInfo.regName}&nbsp;&nbsp;&nbsp;&nbsp;{!grpInfo.regDate}</div>
+                            </apex:pageBlockSectionItem>
+                            <!-- 更新者 -->
+                            <apex:pageBlockSectionItem rendered="{!IF(editMode != 'INS', 'true', 'false')}">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10024}</apex:outputLabel>    <!-- 更新者 -->
+                                <div>{!grpInfo.upName}&nbsp;&nbsp;&nbsp;&nbsp;{!grpInfo.uupDate}</div>
+                            </apex:pageBlockSectionItem>
+
+                        </apex:pageBlockSection>
+
+                        <fieldset><legend>{!$Label.label_10556}</legend>    <!-- メンバの追加と削除 -->
+                        <table>
+                            <tr>
+                                <td>
+                                    <div style="font-weight: bold;">{!$Label.label_10557}</div>    <!-- 選択可能なメンバ -->
+                                    <select id="notAdd" multiple="multiple" size="15" style="min-width: 250px; max-width: 400px;">
+                                        <!--apex:repeat var="item" value="{!addList}">
+                                            <option value="{!item.addressId},{!item.mailAddress}">{!item.name}({!item.mailAddress })</option>
+                                        </apex:repeat-->
+                                        <apex:repeat var="addListJsonList" value="{!addListJsonListList}">
+                                            <apex:repeat var="objAdd" value="{!addListJsonList}">
+                                                <option value="{!objAdd.addressId},{!objAdd.mailAddress}">{!objAdd.name}({!objAdd.mailAddress })</option>
+                                            </apex:repeat>
+                                        </apex:repeat>
+                                    </select>
+                                </td>
+                                <td>
+                                    <p><input type="button" value="{!$Label.label_10020}" class="btn" onclick="move('notAdd', 'added');" /></p>    <!-- 追加 -->
+                                    <p><input type="button" value="{!$Label.label_00072}" class="btn" onclick="move('added', 'notAdd');" /></p>    <!-- 削除 -->
+                                </td>
+                                <td>
+                                    <div style="font-weight: bold;">{!$Label.solxyzcso001__label_10555}</div>    <!-- 選択済みのメンバ -->
+                                    <select id="added" multiple="multiple" size="15" style="min-width: 250px; max-width: 400px;">
+                                        <!-- apex:repeat var="item" value="{!added}">
+                                            <option value="{!item.addressId},{!item.mailAddress}">{!item.name}({!item.mailAddress })</option>
+                                        </apex:repeat-->
+                                        <apex:repeat var="addedJsonList" value="{!addedJsonListList}">
+                                            <apex:repeat var="objAdd" value="{!addedJsonList}">
+                                                <option value="{!objAdd.addressId},{!objAdd.mailAddress}">{!objAdd.name}({!objAdd.mailAddress })</option>
+                                            </apex:repeat>
+                                        </apex:repeat>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                        </fieldset>
+                    </div>
+                </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

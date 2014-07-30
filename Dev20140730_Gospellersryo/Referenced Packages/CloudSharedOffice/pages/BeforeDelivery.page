@@ -1,0 +1,2510 @@
+<apex:page tabStyle="delivery__tab" controller="SOLXYZCSO001.BeforeDeliveryController" showHeader="false" sidebar="false" id="deliveryPage">
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.showErrPage == true,false,true)}">
+<apex:outputPanel rendered="{!IF(authority == false, true, false)}">
+<apex:messages styleClass="errorMsg" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!authority}">
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/document.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<style type="text/css">
+.tree_div{
+    border : 1px solid #ccc;
+    font-size : 96%;
+    padding : 0 0 0 3px;
+    margin: 5px 5px 5px 3px;
+    height : 340px;
+    width : 200px;
+    max-width : 200px;
+    min-width : 200px;
+    overflow : auto;
+    overflow-x : auto;
+    overflow-y : auto;
+    -ms-overflow-x : auto;
+    -ms-overflow-y : auto;
+}
+
+#deliveryMessage {
+    height: 120px;
+    max-height: 120px;
+    max-width: 600px;
+    min-height: 120px;
+    min-width: 500px;
+    width: 600px;
+}
+
+#delivery_tab{
+    margin-top: 0px;
+}
+
+#delivery_tab li{
+    list-style: none;
+    line-height: 10px;
+    float: left;
+    margin-right: 5px;
+    border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+}
+
+#delivery_tab a{
+    display: block;
+    text-decoration: none;
+    padding: 9px 17px;
+    font-weight: bold;
+}
+
+.delivery_tab_active{
+    background-color: #F8F8F8;
+}
+
+.delivery_tab_active a{
+    color: #456;
+}
+.delivery_tab_active a:hover{
+    color: #456 !important;
+}
+
+.delivery_tab_deactive{
+    background-color: #0033ff;
+    filter:alpha(opacity=50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+}
+
+.delivery_tab_deactive a{
+    color: white;
+}
+
+.delivery_tab_deactive a:hover{
+    color: white;
+}
+
+#signature_view{
+    width: 600px;
+    max-width: 600px;
+    min-width: 600px;
+    height: 200px;
+    max-height: 200px;
+    min-height: 200px;
+}
+
+.form-table{
+    /*width: 100%;*/
+}
+
+.form-table th{
+    min-width: 100px;
+    width:20%;
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.form-table-th{
+    font-weight: bold;
+    text-align: right;
+    min-width: 70px;
+    padding-right: 10px;
+}
+
+.tab-div{
+    height: 460px;
+    padding: 0px 10px 10px 10px;
+}
+/*
+.address-div{
+    display: none;
+    z-index: 1000;
+    position: fixed;
+    width: 100%;
+    height: 305px;
+    top: 0px;
+    left: 0px;
+    background-color: white;
+}
+*/
+
+.contents-top-text, .delivery-address-jqgrid-usr-top {
+    padding-top: 0px;
+    margin-left: 3px;
+}
+
+.contents-bottom-text, .delivery-address-jqgrid-usr-bottom {
+    font-size: 11px;
+    margin-top: 6px;
+    margin-left: 3px;
+    color: gray;
+}
+
+#gview_tableMailAddress th {
+    min-width:20px !important;
+}
+
+.ui-jqgrid tr.jqgrow td {
+    height: 42px;
+    padding: 0 1px;
+}
+
+.tree_control {
+    text-align: right;
+    width: 210px;
+}
+
+.ui-widget button {
+    font-family: 'MS UI Gothic','MS PGothic','Hiragino Kaku Gothic Pro','Osaka','Arial','Helvetica',sans-serif !important;
+}
+
+.popBtn {
+    font-family: 'MS UI Gothic','MS PGothic','Hiragino Kaku Gothic Pro','Osaka','Arial','Helvetica',sans-serif !important;
+}
+
+.jqGridIcon {
+    margin-right: 3px;
+}
+
+.ui-jqgrid tr.jqgrow td {
+    white-space: nowrap\9 !important;
+}
+
+.selectNode{
+    color: red !important;
+}
+
+.selectedContentsSpace {
+    font-weight: bold !important;
+}
+
+.folder {
+    position: relative ;
+}
+
+.checkMarkImg {
+    position: absolute !important;
+    width:16px !important;
+    top: -2px !important;
+    left: 0px !important;
+}
+
+.published {
+    display:none;
+}
+
+.space-top-text {
+    padding-top: 0px;
+    margin-left: 3px;
+}
+
+.space-bottom-text {
+    font-size: 11px;
+    margin-top: 6px;
+    margin-left: 3px;
+    color: gray;
+}
+
+</style>
+<script type="text/javascript">
+var deliveryFormSelector = '{!$Component.deliveryPage:deliveryForm}';
+var addressFormSelector = '{!$Component.deliveryPage:addressForm}';
+var fieldFormSelector = '{!$Component.deliveryPage:fieldForm}';
+var addressData;
+var DATA_DELIM = ',';
+var fileArray = new Array();
+var fileIdList = '';
+var fileSizeTotal = 0;
+var fileSizeMax   = 0;
+var selectedIds = [];
+
+var b4d_selectedSpaceMap = {};
+var b4d_preSelectNode;
+var b4d_nowId;
+var b4d_contentsData = {};
+var b4d_srcSpaceIds = {};
+var b4d_selectedSpaces = [];
+var b4d_loadcompleated = false;
+
+/*
+ * 各オブジェクトのリサイズ処理
+ */
+function resize(){
+    var url = location.href;
+    var browserWidth = getBrowserWidth();
+    var browserHeight = getBrowserHeight();
+    if(url.indexOf('BeforeDeliveryFor') > 0){
+        $('#tableMailAddress').setGridWidth($("#deliveryMessage").width() + 120);
+        if (browserWidth < 1000) {
+            $("#fileListTable").setGridWidth(720);
+            $("#fileListTableBtnDiv").width(720);
+        } else {
+            $("#fileListTable").setGridWidth(browserWidth - 300);
+            $("#fileListTableBtnDiv").width(browserWidth - 300);
+        }
+    } else {
+        $('#tableMailAddress').setGridWidth(browserWidth - 185);
+        $("#fileListTable").setGridWidth(browserWidth - 55);
+    }
+}
+
+String.prototype.replaceAll = function(s1,s2) {
+    return this.replace(new RegExp(s1,"gm"),s2);
+}
+
+function find(array, id) {
+    for (var i in array) {
+        if (array[i].id == id) { return array[i]; }
+    }
+    return null;
+}
+
+function remove(array, id) {
+    if (array.length == 0) { return -1; }
+    for (var i = array.length - 1; i >= 0; i--) {
+        if (array[i].id == id) {
+            array.splice(i, 1);
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+function convertParamValue(str){
+    return str.replaceAll(":","%3a");
+}
+
+$.fn.extend({
+    togglePassword : function( config ){
+        option = $.extend({"postfix" : "-text"}, config );
+        sync = function(){
+            var i = this.type.toUpperCase() === "PASSWORD" ?
+                this.id + option.postfix :
+                this.id.replace( option.postfix, "" );
+            $( "#" + i ).val( $(this).val() );
+        };
+        toggle = function(){
+            if( this.checked ){
+                $.data( this, "pswd" ).hide();
+                $.data( this, "text" ).show();
+            } else {
+                $.data( this, "pswd" ).show();
+                $.data( this, "text" ).hide();
+            }
+        };
+        this.each( function(){
+            var id, pswd, text, check, handlers;
+            id = this.getAttribute( "data-for" );
+            pswd = $("#" + id );
+            text = $("#" + id + option.postfix );
+            check = $(this);
+            handlers = { keyup : sync, blur : sync };
+            pswd.bind( handlers );
+            text.bind( handlers );
+            $.data( this, "pswd", pswd );
+            $.data( this, "text", text );
+            $(this).click( toggle );
+            toggle.apply( this );
+        });
+    }
+});
+
+/*
+ * 宛先直接追加
+ */
+function addMailAddressByTextBox(){
+    // 形式チェック
+    if(isMailAddress($("#textAddMailAddress").val())){
+        // 妥当な形式である場合
+        // 仮のIDを生成
+        var id = Math.floor(Math.random()*10000);
+        var datarow = {id:id,name:"",mailAddress:$("#textAddMailAddress").val()};
+        jQuery("#tableMailAddress").jqGrid('addRowData', id,datarow);
+        $("#textAddMailAddress").val("");
+    }else{
+        // 不正な形式である場合
+        alert(getMsg(new Array('{!$Label.label_10440}'), '{!$Label.msg_00191}'));    // 宛先 {0}の形式が不正です。
+    }
+}
+
+/*
+ * 宛先削除
+ */
+function removeMailAddress(){
+    var gr = $("#tableMailAddress").jqGrid('getGridParam','selarrrow');
+    if(gr != null){
+        var length = gr.length;
+        for(var i = 0; i < length ; i++){
+            delete beforDelivery_directAddress[gr[0]];
+            $("#tableMailAddress").jqGrid('delRowData',gr[0]);
+        }
+    }
+    $("#tableMailAddress").resetSelection();
+    selectAddressText();
+}
+
+/*
+ * 送信時処理
+ */
+function validate(){
+
+    var val;
+    var query = Object();
+
+    // 件名
+    val = $.trim($("#deliverySubject").val());
+    if(val.length == 0){
+        // 件名が空
+        alert(getMsg(new Array('{!$Label.label_10106}'), '{!$Label.msg_00196}'));    // 件名 {0}を入力してください。
+        return false;
+    }else if(val.length > 255){
+        // 件名が文字数オーバー
+        alert(getMsg(new Array('{!$Label.label_10106}', 255), '{!$Label.msg_00230}')); // 件名 {0}は{1}文字以下で入力してください。
+        return false;
+    }
+    query["subject"] =val;
+
+    // 宛先
+    var paramAddressList = new Array();
+    var ids = jQuery("#tableMailAddress").jqGrid('getDataIDs');
+    if(ids.length == 0){
+        // メールアドレスが空
+        alert(getMsg(new Array('{!$Label.label_10440}'), '{!$Label.msg_00196}'));    // 宛先 {0}を入力してください。
+        return false;
+    }
+
+    // 空白アドレス指定フラグ
+    var addressExcludeFlag = false;
+    var tableMailAddress = jQuery("#tableMailAddress");
+    for(i in ids) {
+        var to = new Object();
+        var ret = constructObjectFromRowData(tableMailAddress.find(jq(ids[i] + " td")), getColumnModelNameMap(tableMailAddress), true);
+        // 配信先名を付加
+        if(ret.id != undefined && ret.id != ''){
+            ret.mailAddress = $.trim(ret.mailAddress);
+            ret.companyName = $.trim(ret.companyName);
+            ret.name = $.trim(ret.name);
+            ret.firstName = $.trim(ret.firstName);
+            ret.lastName = $.trim(ret.lastName);
+            if(ret.mailAddress == '' && ret.id.indexOf("GROUP") < 0){
+                addressExcludeFlag = true;
+            } else {
+                to['id'] = ret.id;
+                var lastId = ret.id.split(':');
+                var idStart = lastId[lastId.length-1].substr(0, 3);
+                if((idStart == '003')||(idStart == '005')||(idStart == '00Q')){
+                    to['salesforceId'] = lastId[lastId.length-1];
+                }else{
+                    to['salesforceId'] = '';
+                }
+                if(ret.companyName != undefined && ret.companyName != ''){
+                    to['corpname'] = ret.companyName;
+                }
+                if(ret.name != undefined && ret.name != ''){
+                    to['name'] = ret.name;
+                    if(ret.firstName != undefined && ret.firstName != null && ret.firstName != ''){
+                        to['firstname'] = ret.firstName;
+                    } else {
+                        to['firstname'] = '';
+                    }
+                    if(ret.lastName != undefined && ret.lastName != null && ret.lastName != ''){
+                        to['lastname'] = ret.lastName;
+                    } else {
+                        to['lastname'] = '';
+                    }
+                } else {
+                    to['name'] = ret.mailAddress;
+                    to['firstname'] = ret.mailAddress;
+                    to['lastname'] = '';
+                }
+                to['address'] = ret.id.indexOf("MAIL") < 0 && ret.id.indexOf("GROUP") < 0 ? ret.mailAddress : ret.id;
+                paramAddressList.push(to);
+            }
+        }
+    }
+    if(paramAddressList.length == 0){
+        // メールアドレスが空
+        alert(getMsg(new Array('{!$Label.label_10440}'), '{!$Label.msg_00196}'));    // 宛先 {0}を入力してください。
+        return false;
+    }
+    query["to"] = paramAddressList;
+    query["direct"] = JSON.stringify(beforDelivery_directAddress);
+
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    var message = $("#deliveryMessage").val().replace(regexp, "\r\n");
+
+    var limit = 1024;
+    if (message.length > limit) {
+        alert(getMsg(new Array('{!$Label.label_10466}', limit), '{!$Label.msg_00230}'));    // メッセージ {0}は{1}文字以下で入力してください。
+        return false;
+    } else {
+        message = $.trim(message);
+    }
+    // メッセージ
+    query["contents"] = message;
+
+    // 配信コンテンツ
+    var docIdList = jQuery("#fileListTable").jqGrid('getDataIDs');
+    if(docIdList.length <= 0){
+        alert('{!$Label.msg_00231}');    // 配信するコンテンツがありません。
+        return false;
+    }
+
+    // 圧縮ファイルチェック
+    if ($("#compressFile").attr("checked")) {
+        val = $.trim($("#compressFileName").val());
+        if(val.length == 0){
+            alert('{!$Label.msg_00116}');    // 圧縮コンテンツ名が未入力です。
+            return false;
+        }
+
+        if(val.length > 255){
+            alert('{!$Label.msg_00233}');    // 圧縮コンテンツ名は255文字以下で入力して下さい。
+            return false;
+        }
+    }
+
+    // 公開開始日/公開終了日
+    valStart = jQuery.trim($("#inputFromDate").val());
+    valEnd = jQuery.trim($("#inputToDate").val());
+    if(valStart.length == 0){
+        // 公開開始日が空
+        alert(getMsg(new Array('{!$Label.label_10459}'), '{!$Label.msg_00196}'));    // 公開期間 {0}を入力してください。
+        return false;
+    }else if(!isDateFormat(valStart)){
+        //公開開始日エラー
+        alert(getMsg(new Array('{!$Label.label_10470}'), '{!$Label.msg_00204}'));    // 公開開始日 {0}の形式が間違っています。
+        return false;
+    }
+
+    if(valEnd.length == 0){
+        // 公開終了日が空
+        alert(getMsg(new Array('{!$Label.label_10459}'), '{!$Label.msg_00196}'));    // 公開期間 {0}を入力してください。
+        return false;
+    } else if(!isDateFormat(valEnd)){
+        //公開終了日エラー
+        alert(getMsg(new Array('{!$Label.label_10471}'), '{!$Label.msg_00204}'));    // 公開終了日 {0}の形式が間違っています。
+        return false;
+    } else if(isPastDate(valEnd)){
+        // 公開終了日に過去の日付が指定された
+        alert('{!$Label.msg_00205}');    // 公開終了日に過去の日付は指定できません。
+        return false;
+    }
+
+    if(isDateFormat(valStart) && isDateFormat(valEnd) && (!isRightDate(valStart,valEnd))){
+        //公開開始日＞公開終了日は指定できません。
+        alert('{!$Label.msg_00206}');    // 公開開始日＞公開終了日は指定できません。
+        return false;
+    }
+
+    query["start"] = valStart;
+    query["end"] = valEnd;
+
+    // ダウンロード回数
+    var dlNum = jQuery.trim($("#inputDownloadNum").val());
+    if(dlNum.length == 0){
+        alert(getMsg(new Array('{!$Label.label_10468}'), '{!$Label.msg_00196}'));    // ダウンロード回数 {0}を入力してください。
+        return false;
+    }else if(!isNumeric(dlNum)){
+        alert(getMsg(new Array('{!$Label.label_10468}'), '{!$Label.msg_00207}'));    // ダウンロード回数 {0}は数値で入力してください。
+        return false;
+    }else if(dlNum < 1 || dlNum > 10000){
+        alert(getMsg(new Array('{!$Label.label_10468}',"1","10000"), '{!$Label.msg_00208}'));    // ダウンロード回数 {0}は{1}～{2}までの値を入力してください。
+        return false;
+    }else{
+        query["dlNum"] = dlNum;
+    }
+    // パスワード
+    if(jQuery.trim($("input[name=setPassword]:checked").val()) == "true"){
+        // 設定する場合
+        val = jQuery.trim($("#inputPassword").val());
+        if(val.length == 0){
+            // パスワードが空
+            alert(getMsg(new Array('{!$Label.label_10460}'), '{!$Label.msg_00196}'));    // パスワード {0}を入力してください。
+            return false;
+        } else if (val.length > 32){
+            // パスワードの長さが３２以上
+            alert(getMsg(new Array('{!$Label.label_10460}',"32"), '{!$Label.msg_00230}'));    // パスワード {0}は{1}文字以下で入力してください。
+            return false;
+        } else if (val.length < 6){
+            // パスワードの長さが６以下
+            alert(getMsg(new Array('{!$Label.label_10460}',"6"), '{!$Label.msg_00234}'));    // パスワード {0}は{1}文字以上で入力してください。
+            return false;
+        } else {
+            if(!isPassword(val)){
+                // パスワードに範囲外の文字が使われた
+                alert('{!$Label.msg_00235}');    // パスワードの入力文字にエラーがあります。
+                return false;
+            }
+        }
+        query["pw"] = val;
+    }else{
+        // 設定しない場合
+        query["pw"] = "";
+    }
+
+    // 署名情報を追加
+    if($("#signature_list").val() != 'none'){
+        query["signature"] = $("#signature_list").val();
+    }
+
+    // 自身の会社名取得
+    query["myCompanyName"] = '{!JSENCODE($User.CompanyName)}';
+    var confirmMessage = '';
+    if(addressExcludeFlag){
+        confirmMessage = '{!$Label.msg_00236}';    //メールアドレスが指定されていない宛先が存在します。\nこれを除く宛先に対して入力された内容で送信します。\nよろしいですか？
+    } else {
+        confirmMessage = '{!$Label.msg_00237}';    // 入力された内容で送信します。\nよろしいですか？
+    }
+    if(confirm(confirmMessage)){
+        if(fileSizeTotal > fileSizeMax){
+            if (!confirm('{!$Label.msg_00238}')) {    // 配信容量が不足する恐れがあります。\nそれでも配信しますか？
+                return false;
+            }
+        }
+        CsoScript_loadingStart();
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.BeforeDeliveryController.getTo}',
+            '{!type}', JSON.stringify(query['to']), query["contents"],
+            function(data, event){
+                if(event.status==false){
+                    if(event.message == 'Unable to connect to the server.'){
+                        //例外が発生したら、loadingをstopする
+                        CsoScript_loadingStop();
+                        //エラーの概要はfirebugなどで確認できるので、ユーザ向けメッセージを表示する
+                        alert('{!$Label.msg_00330}');
+                        return;
+                    }else if (event.type === 'exception') {
+                        //例外が発生したら、loadingをstopする
+                        CsoScript_loadingStop();
+                        //エラーの概要はfirebugなどで確認できるので、ユーザ向けメッセージを表示する
+                        alert('{!$Label.msg_00136}\n{!$Label.label_11104}');
+                        return;
+                    }else{
+                        //レスポンスがない
+                        //例外が発生したら、loadingをstopする
+                        CsoScript_loadingStop();
+                        //エラーの概要はfirebugなどで確認できるので、ユーザ向けメッセージを表示する
+                        alert('{!$Label.msg_00329}\n{!$Label.label_11104}');
+                        return;
+                    }
+                }
+                var rp = new Object();
+                parseData = JSON.parse($('#decodeWork').html(data).text());
+                query['to'] = parseData.to;
+                rp["req"] = JSON.stringify(query);
+
+                var docs = jQuery("#fileListTable").jqGrid('getDataIDs').join(',');
+                var allDocs =jQuery("#fileListTable").jqGrid('getDataIDs').join(',');
+
+                rp["docs"] = docs;
+                rp["allDocs"] = allDocs;
+
+                if ($("#compressFile").attr("checked")) {
+                    rp["compressFile"] = $("#compressFile").val();
+                    rp["compressFileName"] =$("#compressFileName").val();
+                }
+
+                var deliveryCallback = function(data){
+                    if(data.result){
+                        var fileNames = '';
+                        var fileIds = jQuery("#fileListTable").jqGrid('getDataIDs');
+                        var ecmDeliveryId = data.deliveryId;
+                        for(fileId in fileIds){
+                            fileName = jQuery("#fileListTable").jqGrid('getRowData', fileIds[fileId]).name;
+                            if(fileName != undefined){
+                                fileNames += fileName + '\n';
+                            }
+                        }
+                        // 活動履歴登録
+                        var taskSubject = $.trim($("#deliverySubject").val());
+                        if($("#remainsActivityHistory").attr("checked")){
+                            Visualforce.remoting.Manager.invokeAction(
+                                '{!$RemoteAction.BeforeDeliveryController.insTask3}',
+                                parseData.deliveryId, fileNames,taskSubject,
+                                ecmDeliveryId, "{!sfId}",
+                                function(data, event){
+                                    CsoScript_loadingStop();
+                                    cancelOnClick();
+                                },
+                                {escape: true}
+                            );
+                        } else {
+                            CsoScript_loadingStop();
+                            cancelOnClick();
+                        }
+                    }else{
+                        CsoScript_loadingStop();
+                        alert(data.message);
+                    }
+                };
+
+                var deliveryCallbackError = function(data){
+                    CsoScript_loadingStop();
+                    alert(data);
+                }
+                callSecurePostAsync('/deliverymanagement/SfDeliveryDetailRegister.json', JSON.stringify(rp), deliveryCallback, deliveryCallbackError);
+            },
+            {escape: true}
+        );
+    }
+}
+
+function convertDateFormat(date) {
+    var d = new Date(date || Date.now()),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('/');
+}
+
+function isPastDate(date){
+    var now = new Date();
+
+    var nYear = now.getYear() < 2000 ? 1900 + now.getYear() : now.getYear();
+    var nMonth = now.getMonth() + 1;
+    var nDay = now.getDate();
+
+    if("{!datePickerFormat}"== 'yy/mm/dd'){
+        var iYear = parseInt(date.substr(0, 4), 10);
+        var iMonth = parseInt(date.substr(5, 2), 10);
+        var iDay = parseInt(date.substr(8, 2), 10);
+    }else{
+        var iYear = parseInt(date.substr(6, 4), 10);
+        var iMonth = parseInt(date.substr(0, 2), 10);
+        var iDay = parseInt(date.substr(3, 2), 10);
+    }
+
+    if(nYear > iYear){
+        return true;
+    } else if (nYear < iYear) {
+        return false;
+    }
+
+    if(nMonth > iMonth){
+        return true;
+    } else if (nMonth < iMonth) {
+        return false;
+    }
+
+    if(nDay > iDay){
+        return true;
+    } else if (nDay < iDay) {
+        return false;
+    }
+
+    return false;
+}
+
+function isRightDate(from, to){
+
+    if("{!datePickerFormat}" == "yy/mm/dd"){
+        var fYear = parseInt(from.substr(0, 4), 10);
+        var fMonth = parseInt(from.substr(5, 2), 10);
+        var fDay = parseInt(from.substr(8, 2), 10);
+
+        var tYear = parseInt(to.substr(0, 4), 10);
+        var tMonth = parseInt(to.substr(5, 2), 10);
+        var tDay = parseInt(to.substr(8, 2), 10);
+    }else{
+        var fYear = parseInt(from.substr(6, 4), 10);
+        var fMonth = parseInt(from.substr(0, 2), 10);
+        var fDay = parseInt(from.substr(3, 2), 10);
+
+        var tYear = parseInt(to.substr(6, 4), 10);
+        var tMonth = parseInt(to.substr(0, 2), 10);
+        var tDay = parseInt(to.substr(3, 2), 10);
+    }
+
+    if(fYear > tYear){
+        return false;
+    } else if (fYear < tYear) {
+        return true;
+    }
+
+    if(fMonth > tMonth){
+        return false;
+    } else if (fMonth < tMonth) {
+        return true;
+    }
+
+    if(fDay > tDay){
+        return false;
+    } else if (fDay < tDay) {
+        return true;
+    }
+
+    return true;
+
+}
+
+function isDateFormat(argValue)
+{
+    if (argValue.length != 10 )
+    {
+        // 10桁以外の場合
+        return false;
+    }
+    var ymd = argValue.split("/");
+    if(ymd.length != 3){
+        // 区切りがスラッシュでない場合
+        return false;
+    }
+
+    for(var i = 0; i < ymd.length; i++){
+        var val = ymd[i];
+        if(!isNumeric(val)) return false;
+    }
+
+    if("{!datePickerFormat}" == "yy/mm/dd"){
+        var iYear = parseInt(ymd[0], 10);
+        var iMonth = parseInt(ymd[1], 10);
+        var iDay = parseInt(ymd[2], 10);
+    }else{
+        var iYear = parseInt(ymd[2], 10);
+        var iMonth = parseInt(ymd[0], 10);
+        var iDay = parseInt(ymd[1], 10);
+    }
+
+    var iMaxDayOfMonth = Array(31, 29, 31, 30, 31, 30,
+        31, 31, 30, 31, 30, 31);
+
+    if (iMonth < 1 || iMonth > 12)
+    {
+        return false;
+    }
+    if (iDay < 1 || iDay > iMaxDayOfMonth[iMonth - 1])
+    {
+        return false;
+    }
+    if (iMonth != 2)
+    {
+        return true;
+    }
+    if (iDay < 29)
+    {
+        return true;
+    }
+    if ((iYear % 4) == 0 && (iYear % 100) != 0)
+    {
+        return true;
+    }
+    if ((iYear % 400) == 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+
+/*
+ * 署名一覧再読み込み
+ */
+function reloadSignatureList(){
+    var signatureCallback = function(data){
+        if(!data.result){
+            alert("faild to access...");
+        }
+        // 署名選択肢
+        $(data.signature_list).each(function(){
+            $('#signature_list').append($('<option>').attr({ value: this.code }).text(this.name));
+        });
+        // 初期選択
+        $('#signature_list').val(data.selected);
+
+        // 署名内容取得
+        getSignature();
+    };
+    secureGetAsync('/deliverymanagement/signatureListGet.json', '', signatureCallback);
+}
+/*
+ * 署名内容取得
+ */
+function getSignature(){
+    $("#signature_view").val("");
+    var id = $("#signature_list").val();
+    if(id != 'none' && id != null){
+        var signatureCallback = function(data){
+            if(!data.result){
+                alert("faild to access...");
+                return false;
+            }
+            $("#signature_view").val(data["context"]);
+        };
+        secureGetAsync('/deliverymanagement/signatureGet.json', {signature_id:id}, signatureCallback);
+    }
+}
+
+function createAndAssignColumnModelNameMap(jqgridObj) {
+    var colModel = jqgridObj.getGridParam('colModel');
+    var colModelNameMap = [];
+    for (var i=0; i<colModel.length; ++i) {
+        colModelNameMap[colModel[i].name] = i;
+    }
+    jqgridObj.data('colModelNameMap', colModelNameMap);
+}
+
+function getColumnModelNameMap(jqgridObj) {
+    return jqgridObj.data('colModelNameMap');
+}
+
+function constructObjectFromRowData(cellArray, columnModelNameMap, shouldGetText) {
+    var obj = {};
+    var html, text;
+    if (shouldGetText === true) {
+        for (var name in columnModelNameMap) {
+            text = $(cellArray[columnModelNameMap[name]]).text();
+            if (text != null && text != '\u00a0') {
+                obj[name] = $(cellArray[columnModelNameMap[name]]).text();
+            } else {
+                obj[name] = "";
+            }
+        }
+    } else {
+        for (var name in columnModelNameMap) {
+            html = obj[name] = $(cellArray[columnModelNameMap[name]]).html();
+            if (html != null && (html == "&nbsp;" || html == "&#160;" || (html.length == 1 && html.charCodeAt(0)==160))) {
+                obj[name] = "";
+            }
+        }
+    }
+    return obj;
+}
+
+$(document).ready(function(){
+    $('input[type!="submit"][type!="button"],select').keypress(function(e){
+      if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) { return false; }
+      else{ return true; }
+    });
+
+});
+
+/*
+ * 画面読込処理
+ */
+jQuery.event.add(window, "load", function(){
+    var browserType = getBrowserType();
+    $("#remainsActivityHistory").attr("checked", true);
+
+    $(window).unload(function() {
+        if (top.window.opener && top.window.opener.reloadNow) {
+            top.window.opener.reloadNow();
+        }
+    });
+    if("{!over}" == 1){
+        alert("{!$Label.msg_00239}");    // 配信容量が不足しているため、配信することができません。
+        top.window.close();
+        return;
+    }
+    $("#tableMailAddress").jqGrid({
+        url:'',
+        datatype : "local",
+        jsonReader : { repeatitems : false, id : "id" },
+        colNames:['', '{!$Label.label_00039}', '{!$Label.label_00039}', '', '', '{!$Label.label_10553}', '{!$Label.label_10016}', '{!$Label.label_10527}'],    // 名前 名前 会社名 メールアドレス エントリーの種類
+        colModel:[{name:'id',index:'id', width:60, hidden:true},
+                  {name:'name',index:'name', width:10, hidden:true},
+                  {name:'nameStr',index:'nameStr', width:300},
+                  {name:'firstName',index:'firstName', width:10, hidden:true},
+                  {name:'lastName',index:'lastName', width:10, hidden:true},
+                  {name:'companyName',index:'companyName', width:230, hidden:false},
+                  {name:'mailAddress',index:'mailAddress', width:200, hidden:true},
+                  {name:'assortEntry',index:'assortEntry', width:99, align:"center"}],
+        rowNum:10,
+        autowidth: true,
+        height: 160,
+        rowList:[10,50,100],
+        sortname: 'nameStr',
+        pager: '#tableMailAddressPager',
+        viewrecords: true,
+        shrinkToFit : false,
+        multiselect: true,
+        multiboxonly: true
+    });
+    createAndAssignColumnModelNameMap($("#tableMailAddress"));
+    //------------------//
+    //  配信コンテンツ  //
+    //------------------//
+    $("#fileListTable").jqGrid({
+        url:'',
+        datatype:"local",
+        jsonReader : {repeatitems : false, id : "id"},
+        colNames : ["", "{!$Label.label_10081}","{!$Label.label_10081}","{!$Label.label_10140}","{!$Label.label_10476}", "", ""],
+        colModel : [
+            {name:'id',index:'id', hidden:true},
+            {name:'name',index:'name', width:350, hidden:true},
+            {name:'noaname',index:'name', width:350},
+            {name:'size',index:'size', width:57, align:"right", hidden:true},
+            {name:'path',index:'path', width:400},
+            {name:'byte_size',index:'byte_size', hidden:true},
+            {name:'spaceId', index : 'spaceId', hidden : true}],
+        rowNum:10,
+        height: 350,
+        sortorder:'asc',
+        sortname: 'name',
+        multiselect:true,
+        multiboxonly: true,
+        shrinkToFit : false,
+        loadComplete:function() {updateDeliveryContentsLabel();},
+        onRightClickRow: function() {return false;}
+    });
+    $("#fileListTable").setGridWidth(520);
+    createAndAssignColumnModelNameMap($("#fileListTable"));
+    $("#showPW").togglePassword();
+    $("#inputFromDate").datepicker({dateFormat : "{!datePickerFormat}"});
+    $("#inputToDate").datepicker({dateFormat : "{!datePickerFormat}"});
+    $("input[name='setPassword']:radio").change(function(){
+        if($(this).val() == "true"){
+            $("#inputPassword").removeAttr("disabled");
+            $("#inputPassword-text").removeAttr("disabled");
+        }else{
+            $("#inputPassword").attr("disabled", "disabled");
+            $("#inputPassword-text").attr("disabled", "disabled");
+        }
+    });
+    // 署名一覧の設定
+    reloadSignatureList();
+    $("#deliveryMessage").keyup(function(){ viewCommentLength("deliveryMessage", "remainder", 1024); });
+    $("#remainder").text(getMsg(new Array("1024"), '{!$Label.label_10227}'));    // 残り{0}文字
+    // アドレス帳を初期化
+    $("#addressSelector").dialog({ autoOpen: false, title:'{!$Label.label_10528}', modal: true, resizable: false, width: 720, position: [ 90, 0 ]});
+    $("#directInputView").dialog({ autoOpen: false, title:'{!$Label.label_10530}', modal: true, resizable: false, width: 620, position: [ 120, 30 ]});
+
+    // 差し込み項目モーダルを初期化
+    $("#fieldSelector").dialog({ autoOpen: false, title:'{!$Label.label_10573}', modal: false, resizable: false, width: 400 });
+    //----------------------//
+    //  宛先指定がある場合  //
+    //----------------------//
+    if(typeof view_idList != "undefined"){
+        for(var idx=0; idx<view_idList.length; idx++){
+            // 形式チェック
+            if(isMailAddress(view_addressList[idx]) == false){
+                alert(getMsg(new Array('{!$Label.label_10440}'), '{!$Label.msg_00191}') + "[" + addressList[idx] + "]");    // 宛先 {0}の形式が不正です。
+                continue;
+            }
+            // 妥当な形式である場合
+            var datarow = {
+                id:view_idList[idx],
+                name:view_mailNameList[idx],
+                nameStr:'<div class="contents-top-text">' + view_nameList[idx] + '</div>' + '<div class="contents-bottom-text">' + view_addressList[idx] + '</div>',
+                companyName:view_corpnameList[idx],
+                mailAddress:view_addressList[idx],
+                firstName:view_firstNameList[idx],
+                lastName:view_lastNameList[idx],
+                assortEntry:view_title
+            };
+            jQuery("#tableMailAddress").jqGrid('addRowData', view_idList[idx], datarow);
+        }
+    }
+
+    var beforeMailInfo = '{!beforeMailInfo}';
+    if(beforeMailInfo != null
+      && beforeMailInfo != ''){
+            // 妥当な形式である場合
+            var datarow = {
+                id:'{!beforeMailInfo.Id}',
+                name:'{!beforeMailInfo.Name}',
+                nameStr:'<div class="contents-top-text">{!beforeMailInfo.Name}</div><div class="contents-bottom-text">{!beforeMailInfo.mailAddress}</div>',
+                companyName:'{!beforeMailInfo.companyName}',
+                mailAddress:'{!beforeMailInfo.mailAddress}',
+                firstName:'{!beforeMailInfo.firstName}',
+                lastName:'{!beforeMailInfo.lastName}',
+                assortEntry:'{!beforeMailInfo.assortEntry}'
+            };
+            jQuery("#tableMailAddress").jqGrid('addRowData', 1, datarow);
+    }
+
+    //----------------------------//
+    //  コンテンツ選択ダイアログ  //
+    //----------------------------//
+    $("#contentsSelectModal").dialog({autoOpen: false, bgiframe: true, width: 800, modal: true, resizable: false, closeText: "Close" });
+    $('#contentsSelectModal_ok').unbind().click(function(){
+        saveTmpContents();
+
+        var idList = [];
+        var s = 0;
+        for (_contentsData in b4d_contentsData) {
+            idList[s] = _contentsData;
+            s +=1;
+        }
+
+        fileIdList = JSON.stringify(idList);
+
+        initFileListTable();
+        $("#contentsSelectModal").dialog("close");
+    });
+    $('#contentsSelectModal_cancel').unbind().click(function(){ $("#contentsSelectModal").dialog("close"); });
+
+    $("#addressList").jqGrid({ data : addressData,
+                               datatype : "local",
+                               jsonReader : { repeatitems : false, id : "id" },
+                               colNames : ['', '{!$Label.label_00039}', '{!$Label.label_00039}', '', '', '{!$Label.label_10016}', '{!$Label.label_10553}', getHeader(),''],// 名前 名前 メールアドレス 会社名 （オブジェクト対応のヘッダ名）
+                               colModel:[ {name:'id',index:'id', hidden:true},
+                                          {name:'nameStr',index:'nameStr', width:300},
+                                          {name:'name',index:'name', width:10, hidden:true},
+                                          {name:'firstName',index:'firstName', width:10, hidden:true},
+                                          {name:'lastName',index:'lastName', width:10, hidden:true},
+                                          {name:'mailAddress',index:'address', width:245, hidden:true},
+                                          {name:'companyName',index:'companyName', width:230, hidden:false},
+                                          {name:'multipurpose',index:'multipurpose', width:100},
+                                          {name:'assortEntry',index:'type', width:100, align:"center", hidden:true}],
+                               rowNum:{!cso_userInfo.contentsDeliveryAddressRows},
+                               //height: 180,
+                               height: 180,
+                               rowList:[10,50,100],
+                               sortname: 'nameStr',
+                               pager: '#addressPager',
+                               viewrecords: true,
+                               multiselect: true,
+                               multiboxonly: true,
+                               loadComplete : function(data) {
+                                   var selected = $("#tableMailAddress").jqGrid("getRowData");
+                                   for (var i in selected) {
+                                       var id = selected[i].id;
+                                       if (find(selectedIds, id) == null) {
+                                           selectedIds.push(selected[i]);
+                                       }
+                                   }
+                                   for (var i in selectedIds) {
+                                       var id = selectedIds[i].id;
+                                       //$(this).jqGrid("setSelection", id);
+                                       selectDestAddress();
+                                       address_select(id, true);
+                                   }
+                              },
+                              onSortCol : function(index, iCol, sortOrder) {
+                                  selectedIds = [];
+                              },
+                              onSelectRow : function(rowid, status) {
+                                  address_select(rowid, status);
+                              },
+                              onSelectAll : function (ids, status) {
+                                  for (var i = 0; i < ids.length; i++) {
+                                      address_select(ids[i], status);
+                              }
+                          }
+    });
+    $("#addressList").setGridWidth(695);
+    createAndAssignColumnModelNameMap($("#addressList"));
+    $("#contentsList").jqGrid({
+        datatype: "jsonp",
+        url: _apiUrl + '/contentsmanagement/SpaceContentsListV2Get.json?caller=delivery',
+        jsonReader :{ repeatitems: false, id : "id" },
+        colNames:[ '',
+                   '{!$Label.label_10081}',
+                   '{!$Label.label_10140}',
+                   '{!$Label.label_10804}',    //作成
+                   '{!$Label.label_10805}',    //更新
+                   '{!$Label.label_10014}',    //作成日時
+                   '{!$Label.label_10018}',    //更新日時
+                   "",
+                   "" ],
+        colModel:[ {name:'id',index:'id', hidden:true},
+                   {name:'noaname',index:'name', width:370},
+                   {name:'size',index:'size', align:"right", hidden:true},
+                   {name:'rinfo', index:'rdate', width:100, align:"center", hidden:true},
+                   {name:'uinfo', index:'udate', width:100, align:"center", hidden:true},
+                   {name:'rdate', index:'rdate', width:100, align:"center", hidden:true},
+                   {name:'udate', index:'udate', width:120, align:"center"},
+                   {name : "spaceId", index : "spaceId", hidden : true},
+                   {name : "isSpace", index : "isSpace", hidden : true}
+                 ],
+        rowNum:{!cso_userInfo.documentRows},
+        height: 300,
+        rowList:[10,50,100],
+        sortname: 'name',
+        pager: '#contentsListPager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        autowidth: true,
+        shrinkToFit : false,
+        loadComplete : function(data) {
+            try{
+                changeCurrentTreeColor(data.spaceId);
+                var r = $(this).getGridParam("rowNum");
+                localStorage.setItem("contentsRows", $(this).getGridParam("rowNum"));
+
+                selectGridItems();
+                b4d_loadcompleated = true;
+
+            }catch(e){
+            }
+        },
+        onPaging : function(e){
+            saveTmpContents();
+        },
+        onSortCol : function(index, iCol, sortorder){
+            saveTmpContents();
+        },
+        onSelectRow : function(aRowids, status){
+            saveTmpContents();
+        },
+        onSelectAll : function(rowid, status, e){
+            saveTmpContents();
+        },
+        onRightClickRow: function() {return false;}
+    });
+    $("#contentsList").setGridWidth(540);
+    //  リクエストパラメータで渡されたコンテンツを設定
+    var initialFileIdList = "{!id}";
+    fileIdList = JSON.stringify(initialFileIdList.split(DATA_DELIM));
+
+    var srcUrl = location.href;
+    if(srcUrl.indexOf('BeforeDeliveryFor') > 0){
+        $("#tab_3").css("padding-left" , "100px");
+    }
+    $(window).resize(resize);
+    resize();
+
+    // 差し込みリンクの表示切替
+    if('{!id}' == '' && '{!type}' != ''){
+        $('#insertFieldLink').show();
+        $('#removeAddressSelector').show();
+    } else {
+        $('#directAddressInput').show();
+    }
+
+    $('#compressFileName').val($('#decodeWork').html('{!compressFileDefaultName}').text());
+
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.BeforeDeliveryController.getField}',
+        '{!type}',
+        function(data, event){
+            data = JSON.parse($('#decodeWork').html(data).text());
+            var option = '';
+            $.each(data, function(){
+                option += '<option value="' + this.key + '">' + this.value + '</option>';
+            });
+            $('#searchField').html(option);
+            changeField();
+        },
+        {escape: true}
+    );
+    // 2012/12/13 add start
+    if('{!callMode}' != ''){
+        loadCompleated();
+    } else {
+        chkSlCtlContentCount = 0;
+        window.setTimeout("chkSlCtlContent()", 0);
+    }
+    // 2012/12/13 add end
+
+    selectAddressText();
+
+    if(top.window.opener == null){
+        $(".tab-div").css("height", "465px");
+        $("#fileListTable").setGridHeight(360);
+    }
+
+    if('{!cso_userInfo.locale}' == 'en' &&  browserType == 'IE9' ){
+        $('.ui-th-div-ie').css("line-height","26px");
+    }else{
+        $('.ui-th-div-ie').css("line-height","21px");
+    }
+
+});
+
+// 2012/12/13 add start
+var chkSlCtlContentCount    = 0;        //  チェック回数
+var chkSlCtlContentCountMax = 20;       //  最大チェック回数$('.ui-th-div-ie').css("line-height","21px");
+var chkSlCtlContentWaitTime = 250;      //  実行間隔（ミリ秒）
+function chkSlCtlContent(){
+    if(getBrowserType().toLowerCase().indexOf('ie') < 0){
+        loadCompleated();
+        return;
+    }
+    if((typeof slCtl != "undefined") && (slCtl != null) && (slCtl.Content != null)){
+        loadCompleated();
+        return;
+    }
+    else{
+        if(chkSlCtlContentCount < chkSlCtlContentCountMax){
+            ++chkSlCtlContentCount;
+            window.setTimeout("chkSlCtlContent()", chkSlCtlContentWaitTime);
+        }
+    }
+}
+
+function loadCompleated(){
+    initFileList();
+    $(getId(deliveryFormSelector)).show();
+
+
+    $("#isRegAddress").change(function(){
+        if($(this).attr("checked")){
+            $(".addressNameInputs").addClass("c_require");
+        }else{
+            $(".addressNameInputs").removeClass("c_require");
+        }
+    });
+
+    var strTmp = "{!spaceIds}", _spaceIds = strTmp.split(","), i;
+
+    _spaceIds[_spaceIds.length] = "{!currentSpaceIds}";
+    //ツリーの選択中アイコン設定
+    for(i = 0; i < _spaceIds.length; i++) {
+        b4d_selectedSpaceMap[_spaceIds[i]] = true;
+    }
+}
+// 2012/12/13 add end
+
+function initFileList(){
+    getMaxDelivery();
+    loadSpaceTree();
+}
+
+//==========================//
+//  追加するコンテンツ記憶  //
+//==========================//
+function saveTmpContents() {
+
+    var ids = $("#contentsList").jqGrid("getGridParam","selarrrow");
+    var rows = $("#contentsList").jqGrid("getRowData");
+    var deletedSpaceId = [];
+
+    if (!b4d_loadcompleated) {
+        return;
+    }
+
+    //グリッド選択用変数更新
+    for(var i = 0; i < rows.length; i++){
+        if(ids.contain(rows[i].id)){
+            b4d_contentsData[rows[i].id] = rows[i];
+        }else{
+            delete b4d_contentsData[rows[i].id];
+        }
+    }
+
+    //追加ファイルリストの更新
+    fileIdList = [];
+    var s = 0;
+    for (_contentsData in b4d_contentsData) {
+        fileIdList[s] = _contentsData;
+        s += 1;
+    }
+
+    //ツリーの選択状態
+    if(b4d_nowId != ""){
+        if(ids.length > 0){
+            if(!$("#a_" + b4d_nowId).hasClass("selectedContentsSpace")){
+                $("#a_" + b4d_nowId).addClass("selectedContentsSpace");
+                $("#a_" + b4d_nowId).append("<img src='" + "{!URLFOR($Resource.cso, 'image/apply.png')}" + "' class = 'checkMarkImg' id='x_"+ b4d_nowId +"'>");
+            }
+        }else{
+            $("#a_" + b4d_nowId).removeClass("selectedContentsSpace");
+            $("#x_" + b4d_nowId).remove();
+        }
+    }
+
+}
+
+
+//==========================//
+//  日付計算                //
+//==========================//
+function computeDate(year, month, day, addDays) {
+    var dt = new Date(year, month - 1, day);
+    var baseSec = dt.getTime();
+    var addSec = addDays * 86400000; //日数 * 1日のミリ秒数
+    var targetSec = baseSec + addSec;
+    dt.setTime(targetSec);
+    return dt;
+}
+
+//====================//
+//  最大配信量を取得  //
+//====================//
+function getMaxDelivery(){
+    var callback = function(data){
+        CsoScript_loadingStop();
+        if(data["result"] == false){
+            alert(data["message"]);
+            return;
+        }
+        fileSizeMax = parseInt(data["maxDeliveryByte"]) - parseInt(data["useDeliveryByte"]);
+        initFileListTable();
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync("/setup/DiskDeliveryUsageGet.json", null, callback);
+}
+
+//==========================//
+//  配信コンテンツの初期化  //
+//==========================//
+function initFileListTable(){
+    var includeSubSpace = 0;
+    if($("#includeSubSpace").attr('checked') == true){
+        includeSubSpace = 1;
+    }
+    var params={
+        "ids"  : fileIdList,
+        "sord" : "asc",
+        "sidx" : "name",
+        "page" : 1,
+        "rows" : 1000000,
+        "includeSubSpace" : includeSubSpace,
+        "ignorlocked" : "true",
+        "spaceId" : "spaceId"
+    };
+
+    var callback = function(data){
+        CsoScript_loadingStop();
+        if(data["result"] == false){
+            alert(data["message"]);
+            return;
+        }
+
+        $("#fileListTable").jqGrid("setGridParam", {
+            rowNum:data.rows.length
+        });
+
+        fileSizeTotal = 0;
+        fileArray = new Array();
+        $("#fileListTable").clearGridData();
+        $.each(data.rows, function(n, obj) {
+            var tmp = {
+                id          : obj.id,
+                name        : obj.name,
+                noaname     : obj.noaname,
+                size        : obj.size,
+                path        : obj.path,
+                byte_size   : obj.byte_size,
+                spaceId     : obj.spaceId
+            };
+            fileSizeTotal = fileSizeTotal + parseInt(obj.byte_size);
+            $("#fileListTable").jqGrid("addRowData", fileArray.length + 1, tmp);
+            fileArray.push(obj);
+        });
+        $("#fileListTable").trigger("reloadGrid");
+
+        if(fileSizeTotal > fileSizeMax){
+            alert("{!$Label.msg_00239}");    // 配信容量が不足しているため、配信することができません。
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+        return;
+    };
+
+    CsoScript_loadingStart();
+    callSecurePostAsync("/common/ContentsListGet.json", JSON.stringify(params), callback, callerror);
+}
+
+//====================================//
+//  グリッドアイテムを選択状態にする  //
+//====================================//
+function selectGridItems() {
+
+    for(_contentsData in  b4d_contentsData) {
+        $("#contentsList").setSelection(_contentsData, false);
+    }
+
+    for (var _srcSpaceIds in b4d_srcSpaceIds) {
+        $("#contentsList").setSelection(_srcSpaceIds, false);
+    }
+
+}
+
+//==========================//
+//  編集（配信コンテンツ）  //
+//==========================//
+function contentslist_edit(){
+    $("#contentsList").jqGrid("setGridParam", { url: _apiUrl + '/contentsmanagement/SpaceContentsListV2Get.json?asrt=my&caller=delivery'});
+    $("#contentsList").trigger("reloadGrid");
+
+    $("#contentsSelectModal").dialog("open");
+}
+
+//==============================//
+//  コンテンツ選択画面呼び出し  //
+//==============================//
+function addContents(){
+    var selectedRowData = $("#fileListTable").getRowData();
+
+    //グリッド選択状態更新用に現在配信リストにあるレコードをセット
+    b4d_contentsData = {};
+    for(var i = 0; i < selectedRowData.length; i++){
+        b4d_contentsData[selectedRowData[i].id] = selectedRowData[i];
+    }
+    b4d_selectedSpaceMap = {};
+    for(var i = 0; i < selectedRowData.length; i++){
+        b4d_selectedSpaceMap[selectedRowData[i].spaceId] = true;
+    }
+
+    //ツリーの選択状態を更新
+    b4d_nowId = "";
+    $("#spaceTree img").remove();
+    $(".selectedContentsSpace").removeClass("selectedContentsSpace");
+    for(var o in b4d_selectedSpaceMap){
+        if (o === "") {continue;}
+            $("#a_" + o).addClass("selectedContentsSpace");
+            $("#a_" + o).append("<img src='" + "{!URLFOR($Resource.cso, 'image/apply.png')}" + "' class= 'checkMarkImg' id='x_"+ o +"'>");
+    }
+
+    $("#contentsList").jqGrid("setGridParam", { url: _apiUrl + '/contentsmanagement/SpaceContentsListV2Get.json?asrt=my&caller=delivery'});
+    $("#contentsList").trigger("reloadGrid");
+
+    $("#contentsSelectModal").dialog("open");
+}
+
+//==========================//
+//  削除（配信コンテンツ）  //
+//==========================//
+function contentslist_remove(){
+    $("#sectionHeader ul").remove();
+    var ids = $("#fileListTable").jqGrid("getGridParam", "selarrrow");
+    if(ids != null){
+        var length = ids.length;
+        var id;
+        for(var i = length-1; i >=0 ; i--){
+            id=$("#fileListTable").jqGrid('getRowData', ids[0]).id;
+            $.each(fileArray,function(n,obj){
+                if(obj["id"]==id){
+                    fileArray.splice(n,1);
+                    return false;
+                }
+            });
+            $("#fileListTable").jqGrid('delRowData',ids[0]);
+        }
+        var fileIds = new Array();
+        $.each(fileArray,function(n,obj){
+            ids.push(obj);
+        });
+        fileIdList = JSON.stringify(fileIds);
+
+        rewriteFileList();
+
+        $("#fileListTable").resetSelection();
+    }
+}
+function rewriteFileList(){
+    var ids = $("#fileListTable").jqGrid('getDataIDs');
+    var list = [];
+    if(ids != null){
+        var length = ids.length;
+        if (length == 0) {updateDeliveryContentsLabel();}
+        for(var i=0; i<length; i++){
+            var row = $("#fileListTable").getRowData(ids[i]);
+            list[list.length] = row.id;
+        }
+    }
+    var list_json = JSON.stringify(list);
+    fileIdList = list_json;
+
+    initFileListTable();
+}
+
+//==========================//
+//  スペースツリーの初期化  //
+//==========================//
+function loadSpaceTree(){
+    $("spaceTree").html("");
+
+    var callback =  function(data){
+        if(data["result"] == false){
+            if((data["message"] != null) && (data["message"] != "")){
+                alert(data["message"]);
+            }
+            return;
+        }
+
+        var branches = $("#spaceTree").html(data["tree"]);
+        $("#spaceTree").treeview({
+            animated: "fast",
+            collapsed: true,
+            unique: false,
+            add: branches,
+            url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+            asrt:"DELIVERY",
+            callback: function(elements){
+                setTimeout(function(){
+                    var $ul = elements;
+                    var $li = $ul.children("li");
+                    for(var o in b4d_selectedSpaceMap){
+                        var lookup = false;
+                        $li.each(function() {
+                            if ($(this).attr("id") == o) {
+                                lookup = true;
+                                return false;
+                            }
+                        });
+                        if (lookup) {
+                            if(!$("#a_" + o).hasClass("selectedContentsSpace")){
+                                $("#a_" + o).addClass("selectedContentsSpace");
+                                $("#a_" + o).append("<img src='" + "{!URLFOR($Resource.cso, 'image/apply.png')}" + "' class = 'checkMarkImg' id='x_"+ o +"'>");
+                            }
+                        }
+                    }
+                },100);
+            },
+        });
+    }
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"DELIVERY", 'itemsType' : '1', "returnType":"html"}, callback);
+
+}
+
+
+//============================//
+//  コンテンツ一覧のリロード  //
+//============================//
+function change_delivery_space(asrt, id, obj) {
+    changeCurrentTreeColor(id);
+    saveTmpContents();
+    b4d_nowId = id;
+    $("#contentsList").jqGrid("setGridParam", { url: _apiUrl + '/contentsmanagement/SpaceContentsListV2Get.json?spaceId=' + id + '&asrt=' + asrt + '&caller=delivery'});
+    $("#contentsList").trigger("reloadGrid");
+    b4d_loadcompleated = false;
+
+}
+
+//==============//
+//  キャンセル  //
+//==============//
+function cancelOnClick(){
+    if(top.window.opener == null){
+        //  戻る
+        //top.window.history.back();
+        top.window.location.href = "{!JSENCODE($CurrentPage.parameters.retURL)}";
+    }
+    else{
+        //  windowクローズ
+        top.window.close();
+    }
+}
+
+//=============================//
+//  securePostAsyncの呼び出し  //
+//=============================//
+function callSecurePostAsync(url, param, callback, callerror){
+        // 2012/11/08 mod iOS6対応 start
+        //if(getBrowserType() == 'Chrome'){
+        if(getBrowserType() == 'Chrome' || getBrowserType() == 'Safari' || getBrowserType() == 'Firefox'){
+        // 2012/11/08 mod iOS6対応 end
+            if(typeof(param) == 'string'){
+                param = JSON.parse(param);
+            }
+            xhr2Access(url, param, true, false, callback, callerror);
+            return;
+        }
+        if(top.window.opener == null){
+            securePostAsync(url, param, callback, callerror);
+        }
+        else{
+            try{
+                top.window.opener.securePostAsync(url, param, callback, callerror);
+            }catch(e){
+                securePostAsync(url, param, callback, callerror);
+            }
+        }
+}
+
+//==========================//
+// 選択スペースの文字色変更 //
+//==========================//
+function changeCurrentTreeColor(id){
+    if(!id){
+        return;
+    }
+
+    $(".folder a, .folderShare a").each(function(){
+        var orgid = $(this).attr("id");
+        orgid = orgid.slice(2);
+        if(id == orgid){
+            $(this).css({color:"red"});
+        }else{
+            $(this).css({color:"black"});
+        }
+    });
+}
+
+var address_select = function(rowid, status) {
+    if(!rowid){
+        return;
+    }
+    if (status) {
+        var data = $("#addressList").jqGrid("getRowData", rowid);
+        if (find(selectedIds, rowid) == null) {
+            selectedIds.push(data);
+        }
+    } else {
+        remove(selectedIds, rowid);
+    }
+}
+
+var addMailAddressByAddressBook = function(){
+    for(i in selectedIds) {
+        var dd = selectedIds[i];
+        if(dd.id != undefined){ $("#tableMailAddress").jqGrid('addRowData', dd.id, dd); }
+    }
+    // クリア
+    selectedIds = [];
+}
+
+/*
+ * アドレス帳表示
+ */
+function openAddressSelector(){
+    $('#limitOverPanel').hide();
+    $('#limitOverSFPanel').hide();
+    $('#wordlessPanel').hide();
+
+    $('#listPanel').hide();
+    $('#loadingPanel').show();
+    var searchType = $(getId(addressFormSelector + ':searchType')).val();
+    $(getId(addressFormSelector + ':searchKeyword')).val('');
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.BeforeDeliveryController.getAddressList}',
+        searchType, '',
+        function(data, event){
+            data = JSON.parse($('#decodeWork').html(data).text());
+            // 2013/02/06 add 5303 start
+            if(data.limitover == 'true'){
+                $('#listPanel').hide();
+                $('#loadingPanel').hide();
+                $('#limitOverPanel').show();
+            } else if(data.limitoversf == 'true'){
+                $('#listPanel').hide();
+                $('#loadingPanel').hide();
+                $('#limitOverSFPanel').show();
+            } else if(data.wordless == 'true'){
+                $('#listPanel').hide();
+                $('#loadingPanel').hide();
+                $('#wordlessPanel').show();
+            } else {
+            // 2013/02/06 add 5303 end
+                addressData = data;
+                $('#addressList').setLabel('multipurpose',getHeader());
+                if(isCheckable()){
+                    $('#addressList').setGridParam({multiselect:true}).showCol('cb');
+                    $('#selectAddressApply').attr('disabled', false).removeAttr("style");
+                } else {
+                    $('#addressList').setGridParam({multiselect:true}).hideCol('cb');
+                    $('#selectAddressApply').attr('disabled', true).css({color:"gray"});
+                }
+                $('#addressList').setGridParam({data : addressData});
+                $('#addressList').trigger('reloadGrid');
+                $('#listPanel').show();
+                $('#loadingPanel').hide();
+            }
+        },
+        {escape: true}
+    );
+    $('#addressList').jqGrid('clearGridData');
+    $('#addressSelector').dialog('open');
+
+}
+
+function selectDestAddress() {
+
+    var selectedRowData = $("#tableMailAddress").getRowData();
+
+    //グリッド選択状態更新用に宛先リストにあるレコードをセット
+    selectedAddressData = {};
+    for(var i = 0; i < selectedRowData.length; i++){
+        selectedAddressData[selectedRowData[i].id] = selectedRowData[i];
+    }
+    $("#addressList").resetSelection();
+    for(_addressData in  selectedAddressData) {
+        $("#addressList").setSelection(_addressData, false);
+    }
+
+}
+
+/*
+ * 直接入力
+ */
+function openDirectInputView(){
+    $('#listPanel').hide();
+
+    $('#directInputView').dialog('open');
+
+}
+
+/*
+ * アドレス検索
+ */
+function searchAddress(){
+    var searchType = $(getId(addressFormSelector + ':searchType')).val();
+    var searchKeyword = $(getId(addressFormSelector + ':searchKeyword')).val();
+
+    $('#limitOverPanel').hide();
+    $('#limitOverSFPanel').hide();
+    $('#wordlessPanel').hide();
+    $('#listPanel').hide();
+    $('#loadingPanel').show();
+
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.BeforeDeliveryController.getAddressList}',
+        searchType, searchKeyword,
+        function(data, event){
+            $('#addressList').jqGrid('clearGridData');
+            data = JSON.parse($('#decodeWork').html(data).text());
+            // 2013/02/06 add 5303 start
+            if(data.limitover == 'true'){
+                $('#listPanel').hide();
+                $('#loadingPanel').hide();
+                $('#limitOverPanel').show();
+            } else if(data.limitoversf == 'true'){
+                $('#listPanel').hide();
+                $('#loadingPanel').hide();
+                $('#limitOverSFPanel').show();
+            } else if(data.wordless == 'true'){
+                $('#listPanel').hide();
+                $('#loadingPanel').hide();
+                $('#wordlessPanel').show();
+            } else {
+            // 2013/02/06 add 5303 end
+                addressData = data;
+                $('#addressList').setLabel('multipurpose',getHeader());
+                if(isCheckable()){
+                    $('#addressList').setGridParam({multiselect:true}).showCol('cb');
+                    $('#selectAddressApply').attr('disabled', false);
+                    $('#selectAddressApply').attr('disabled', false).removeAttr("style");
+
+                } else {
+                    $('#addressList').setGridParam({multiselect:true}).hideCol('cb');
+                    $('#selectAddressApply').attr('disabled', true).addClass("disabledClass");
+                    $('#selectAddressApply').attr('disabled', true).css({color:"gray"});
+                }
+                $('#addressList').setGridParam({data : addressData});
+                $('#addressList').trigger('reloadGrid');
+                $('#listPanel').show();
+                $('#loadingPanel').hide();
+            }
+        }
+    );
+}
+
+/**
+ * 選択したオブジェクトのヘッダ名を返す
+ *  10ユーザ：部署
+ *  20取引先：親取引先
+ *  30取引先責任者：役職
+ *  40リード：役職
+ *  60商談：取引先責任者名
+ *  70ECMアドレス：エントリの種類
+ */
+function getHeader(){
+    var multiPurposeTitle;
+    var searchType = $(getId(addressFormSelector + ':searchType')).val();
+
+    switch (searchType){
+        case '10':
+            multiPurposeTitle = '{!$Label.label_10410}';
+            break;
+        case '20':
+            multiPurposeTitle = '{!$Label.label_12001}';
+            break;
+        case '30':
+            multiPurposeTitle = '{!$Label.label_10087}';
+            break;
+        case '40':
+            multiPurposeTitle = '{!$Label.label_10087}';
+            break;
+        case '60':
+            multiPurposeTitle = '{!$Label.label_12002}';
+            break;
+        case '70':
+            multiPurposeTitle = '{!$Label.label_10527}';
+            break;
+    }
+
+    return multiPurposeTitle;
+}
+
+/**
+ * 選択したオブジェクトのヘッダ名を返す
+ *  10ユーザ：部署
+ *  20取引先：親取引先
+ *  30取引先責任者：役職
+ *  40リード：役職
+ *  60商談：取引先責任者名
+ *  70ECMアドレス：エントリの種類
+ */
+function getHeaderOnNameClicked(searchType){
+    var multiPurposeTitle;
+    //var searchType = $(getId(addressFormSelector + ':searchType')).val();
+
+    switch (searchType){
+        case '10':
+            multiPurposeTitle = '{!$Label.label_10410}';
+            break;
+        case '20':
+            multiPurposeTitle = '{!$Label.label_12001}';
+            break;
+        case '30':
+            multiPurposeTitle = '{!$Label.label_10087}';
+            break;
+        case '40':
+            multiPurposeTitle = '{!$Label.label_10087}';
+            break;
+        case '60':
+            multiPurposeTitle = '{!$Label.label_12002}';
+            break;
+        case '70':
+            multiPurposeTitle = '{!$Label.label_10527}';
+            break;
+    }
+
+    return multiPurposeTitle;
+}
+/**
+ * 選択したオブジェクトが選択出来るかを返す
+ *  10ユーザ：可
+ *  20取引先：不可
+ *  30取引先責任者：可
+ *  40リード：可
+ *  60商談：不可
+ *  70ECMアドレス：可
+ */
+function isCheckable(){
+    var result;
+    var searchType = $(getId(addressFormSelector + ':searchType')).val();
+
+    switch (searchType){
+        case '10':
+            result = true;
+            break;
+        case '20':
+            result = false;
+            break;
+        case '30':
+            result = true;
+            break;
+        case '40':
+            result = true;
+            break;
+        case '60':
+            result = false;
+            break;
+        case '70':
+            result = true;
+            break;
+    }
+
+    return result;
+}
+/**
+ * 選択したオブジェクトが選択出来るかを返す
+ *  10ユーザ：可
+ *  20取引先：不可
+ *  30取引先責任者：可
+ *  40リード：可
+ *  60商談：不可
+ *  70ECMアドレス：可
+ */
+function isCheckableOnNameClicked(searchType){
+    var result;
+    //var searchType = $(getId(addressFormSelector + ':searchType')).val();
+
+    switch (searchType){
+        case '10':
+            result = true;
+            break;
+        case '20':
+            result = false;
+            break;
+        case '30':
+            result = true;
+            break;
+        case '40':
+            result = true;
+            break;
+        case '60':
+            result = false;
+            break;
+        case '70':
+            result = true;
+            break;
+    }
+
+    return result;
+}
+
+function onNameClicked(id, searchType){
+//del_start_ogino_20130321 取引先責任者を検索できないようにするため、コメントアウトする
+    //$(getId(addressFormSelector + ':searchType')).val('40');// 表示上の検索タイプは取責固定
+//del_end_ogino_20130321
+    $(getId(addressFormSelector + ':searchKeyword')).val('');//検索条件はクリア
+
+    $('#limitOverPanel').hide();
+    $('#limitOverSFPanel').hide();
+    $('#wordlessPanel').hide();
+    $('#listPanel').hide();
+    $('#loadingPanel').show();
+
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.BeforeDeliveryController.getAddressListOnNameClicked}',
+        searchType, id,
+        function(data, event){
+            $('#addressList').jqGrid('clearGridData');
+            data = JSON.parse($('#decodeWork').html(data).text());
+            // 2013/02/06 add 5303 start
+            if(data.limitover == 'true'){
+                $('#listPanel').hide();
+                $('#loadingPanel').hide();
+                $('#limitOverPanel').show();
+            } else if(data.limitoversf == 'true'){
+                $('#listPanel').hide();
+                $('#loadingPanel').hide();
+                $('#limitOverSFPanel').show();
+            } else if(data.wordless == 'true'){
+                $('#listPanel').hide();
+                $('#loadingPanel').hide();
+                $('#wordlessPanel').show();
+            } else {
+                // 2013/02/06 add 5303 end
+                addressData = data;
+            //mod_start_20130321_ogino ヘッダー名は取引先責任者にする
+                //$('#addressList').setLabel('multipurpose',getHeader());
+                $('#addressList').setLabel('multipurpose',getHeaderOnNameClicked('40'));
+            //mod_end_20130321_ogino
+            //mod_start_20130321_ogino ヘッダーを取引先責任者にする
+                //if(isCheckable()){
+                if(isCheckableOnNameClicked('40')){
+            //mod_end_20130321_ogino
+                    $('#addressList').setGridParam({multiselect:true}).showCol('cb');
+                    $('#selectAddressApply').attr('disabled', false);
+                    $('#selectAddressApply').attr('disabled', false).removeAttr("style");
+
+                } else {
+                    $('#addressList').setGridParam({multiselect:true}).hideCol('cb');
+                    $('#selectAddressApply').attr('disabled', true).css({color:"gray"});
+                }
+                $('#addressList').setGridParam({data : addressData});
+                $('#addressList').trigger('reloadGrid');
+                $('#listPanel').show();
+                $('#loadingPanel').hide();
+            }
+        }
+    );
+}
+
+/**
+ * 差し込み文字作成モーダル表示
+ */
+function openFieldSelector(){
+    $('#fieldSelector').dialog('open');
+}
+
+/**
+ * 差し込み項目変更
+ */
+function changeField(){
+    $('#fieldVal').val('{\!' + $('#searchField').val() + '}');
+}
+
+
+Array.prototype.contain = function(value){
+    for(var i = 0; i < this.length; i++){
+        if(this[i] === value){
+            return true;
+        }
+    }
+    return false;
+};
+
+function jq(myid) {
+    return '#' + myid.replace(/(:|\.)/g,'\\\$1');
+}
+
+function selectAddressApply(){
+    var ctx = $("#addressList");
+
+    var applyAddress = ctx.jqGrid("getGridParam", "selarrrow");
+    var selectedAddress = $("#tableMailAddress").jqGrid("getRowData");
+    var selectedAddressList = new Array();
+    for(var i = 0; i < selectedAddress.length; i++){
+        selectedAddressList.push(selectedAddress[i].id);
+    }
+    for(var i = 0; i < applyAddress.length; i++){
+        if(!selectedAddressList.contain(applyAddress[i])){
+            var data = constructObjectFromRowData(ctx.find(jq(applyAddress[i] + " td")), getColumnModelNameMap(ctx));
+            $("#tableMailAddress").jqGrid('addRowData', data.id, data);
+        }
+    }
+
+    selectAddressText();
+}
+
+function selectAddressText(){
+    var count = $("#tableMailAddress").jqGrid("getRowData").length;
+    if(count == 0){
+        $("#deliveryUserCount").text("{!$Label.msg_01057}");
+    }else{
+        $("#deliveryUserCount").text(getMsg(new Array(count + ""), "{!$Label.msg_01058}"));
+    }
+}
+
+function updateDeliveryContentsLabel(){
+    var ctx = $("#fileListTable");
+
+    var ids = ctx.jqGrid('getDataIDs');
+    var rowData = {};
+    var rowNum;
+    if(ids != null) {
+        rowNum= ids.length;
+    }
+
+    if(rowNum > 0){
+        rowData = $(ctx.find("#" + ids[0] + " td")[getColumnModelNameMap(ctx)["name"]]).text();
+    }
+    if(rowNum== 1){
+        //リンクの文字作成
+       var adjustName = getAdjustName('delivery-contents-link-div', rowData, $('#delivery-contents-link-div').width() - 250);
+       $("#delivery-contents-link").text(adjustName );
+       $("#delivery-contents-link-etc").text("");
+    } else if(rowNum > 1) {
+        //リンクの文字作成1件
+       var adjustName = getAdjustName('delivery-contents-link-div', rowData, $('#delivery-contents-link-div').width() - 250);
+       $("#delivery-contents-link").text(adjustName);
+       $("#delivery-contents-link-etc").text(getMsg(new Array(rowNum -1 + ""), "{!$Label.msg_01060}"));
+    } else if (rowNum == 0){
+       $("#delivery-contents-link").text("{!$Label.msg_00231}");
+    }
+}
+
+function tab(tab){
+    var i = 1;
+    if(tab >= 2){
+        $('#addressDiv').hide();
+        $('#fieldSelector').dialog('close');
+    }
+    $(".delivery_tab").each(function(){
+        if(tab == i){
+            $("#tab_" + i).show();
+            $(this).removeClass("delivery_tab_deactive");
+            $(this).addClass("delivery_tab_active");
+        }else{
+            $("#tab_" + i).hide();
+            $(this).removeClass("delivery_tab_active");
+            $(this).addClass("delivery_tab_deactive");
+        }
+        i++;
+    });
+}
+
+var beforDelivery_directAddress = new Object();
+
+//==============//
+//  宛先追加    //
+//==============//
+function applyDirectAddress(){
+    if($.trim($("#directMail").val()).length == 0){
+        <!-- 未入力 -->
+        alert("{!$Label.msg_01065}");
+    }else if(isMailAddress($("#directMail").val())){
+        <!-- OK -->
+        var id = Math.floor(Math.random() * 10000);
+        var escaper = $('<div/>');
+        var da = {
+            companyName : $.trim($("#directCorpName").val()),
+            firstName : $.trim($("#directFName").val()),
+            lastName : $.trim($("#directLName").val()),
+            mailAddress : $.trim($("#directMail").val()),
+            assortEntry : "{!$Label.label_10530}"
+        };
+        da.firstName = da.firstName == "{!$Label.label_00088}" ? "" : da.firstName;
+        da.lastName = da.lastName == "{!$Label.label_10086}" ? "" : da.lastName;
+        if($("#isRegAddress").attr("checked")){
+            if($.trim($("#directFName").val()).length == 0 || $.trim($("#directLName").val()).length == 0){
+                alert("{!$Label.field_010203}");
+                return;
+            }
+            da.reg = "true";
+        }else{
+            da.reg = "false";
+        }
+        beforDelivery_directAddress[id] = da;
+        var name = $.trim(da.lastName + " " + da.firstName);
+        $div1 = $("<div>").attr("title", $("#directMail").val()).css("position", "relative");
+        $div2 = $("<div>").css({"float" : "left", "width" : "100%"});
+        $div3 = $("<div>").css({"float" : "left"});
+        //$img1 = $("<img>").attr("src", "/image/MyPhoto.png").css({"border": "none", "width": "36px", "height": "36px"}).addClass("jqGridIcon");
+        //$div4 = $("<div>").css({"margin-top" : "3px", "min-height" : "33px !important", "max-height" : "33px!important"});
+        $div5 = $("<div>").addClass("contents-top-text").text(name);
+        $div6 = $("<div>").addClass("contents-bottom-text").text($("#directMail").val());
+        $div7 = $("<div>").css({"position": "absolute", "top": "20px", "right": "20px"});
+
+        //$div3.append($img1);
+        //$div4.append($div5).append($div6);
+        //$div1.append($div3).append($div4).append($div7);
+
+        var datarow = { id : id,
+                        name : escaper.text(name).html(),
+                        //nameStr : $div1[0].outerHTML,
+                        nameStr : $div5[0].outerHTML + $div6[0].outerHTML,
+                        firstName : escaper.text(da.firstName).html(),
+                        lastName : escaper.text(da.lastName).html(),
+                        mailAddress : da.mailAddress,
+                        companyName : escaper.text($("#directCorpName").val()).html(),
+                        assortEntry : "{!$Label.label_10530}"
+                       };
+        jQuery("#tableMailAddress").jqGrid('addRowData',id,datarow);
+        $("#directMail").val("");
+        $("#directCorpName").val("");
+        $("#directFName").val("");
+        $("#directLName").val("");
+        selectAddressText();
+        $("#directInputDialog").dialog("close");
+    }else{
+        <!-- 形式不正 -->
+        alert("{!$Label.msg_010041}");
+    }
+}
+</script>
+
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight"/>
+
+<!-- ヘッダー -->
+<div id="c_head">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/delivery.png')}"/>
+    <div id="c_headTitle">Cloud Shared Office</div>
+    <div id="c_headSubTitle">{!$Label.label_10004}</div>         <!-- 配信 -->
+</div>
+<apex:form style="display:none" id="deliveryForm">
+<apex:pageBlock tabStyle="delivery__tab" title="">
+    <!-- エラー／警告メッセージ表示エリア -->
+    <apex:pageMessages />
+    <!-- ボタン -->
+    <apex:pageBlockButtons location="top">
+        <apex:commandButton value="{!$Label.solxyzcso001__label_00090}" onclick="validate(); return false;" />    <!-- 送信 -->
+        <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" onclick="cancelOnClick(); return false;"/>    <!-- キャンセル -->
+    </apex:pageBlockButtons>
+
+    <!-- ページボディー -->
+    <div id="tab_1" class="tab-div" >
+        <table cellpadding="3" class="form-table">
+            <tr>
+                <!-- 件名 -->
+                <th>{!$Label.label_10106}</th>    <!-- 件名 -->
+                <td class="c_require"><input id="deliverySubject" type="text" name="subject" class="c_text_l" maxlength="255" /></td>
+            </tr>
+            <tr>
+                <!-- メッセージ -->
+                <th align="left">{!$Label.label_10574}</th>    <!-- メッセージ -->
+                <!-- メッセージカウンター -->
+                <td>
+                    <div id="remainder" style="height: 1em; padding-right: 3px; padding-bottom: 3px; width: 610px; white-space: nowrap;text-align:right;" ></div>
+                    <textarea id="deliveryMessage" style="padding: 5px; resize: none;" maxlength="10000" ></textarea>
+                </td>
+            </tr>
+            <tr id="insertFieldLink" style="display:none;">
+                <th></th>
+                <td align="left">
+                    <div id ="inputWordsDiv" style="padding-right: 3px; padding-bottom: 3px; width: 605px; white-space: nowrap;text-align:right;" >
+                    ・<a href="javascript:void(0)" onclick="openFieldSelector()"><b>{!$Label.label_10573}</b></a>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th class="form-table-th">{!$Label.label_10440}</th>
+                <td style="position: relative; max-width:800px;">
+                    <div style="position: absolute; font-size: 20px;" id="deliveryUserCount">{!$Label.msg_01057}</div>
+                    <div id = "addressBtnDiv" style="text-align: right;">
+                        <input type="button" value="{!$Label.label_00072}" class="btn" onclick="removeMailAddress();" />    <!-- 削除 -->
+                        <input type="button" value="{!$Label.label_10530}" class="btn" onclick="openDirectInputView();" />      <!-- 直接入力 -->
+                        <input type="button" value="{!$Label.label_10528}" class="btn" onclick="openAddressSelector();" />    <!-- アドレス帳から宛先選択 アドレス帳 -->
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <table id="tableMailAddress"></table>
+                        <!--
+                        <table id="addressJQGrid" ></table>
+                        <div id="addressJQGridPager" ></div>
+                         -->
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th class="form-table-th">{!$Label.label_10474}</th>
+                <td>
+                    <a href="javascript:tab(3);" style="font-weight: bold; color: black;" id="delivery-contents-link"></a><br/>
+                    <a href="javascript:tab(3);" style="font-weight: bold; color: black;" id="delivery-contents-link-etc"></a>
+                </td>
+            </tr>
+            <tr>
+                <th/>
+                <td>
+                    <label>
+                        <input type="checkbox" name="remainsActivityHistory" id="remainsActivityHistory" />{!$Label.label_13113}
+                    </label>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="delivery-contents-link-div" ></div>
+
+    <div id="tab_2" class="tab-div" style="display: none;">
+        <table class="form-table" cellspacing="10">
+            <tr>
+                <th>{!$Label.label_13294}</th>    <!-- 公開期間 -->
+                <td width="110px" class="c_require" style="border-left: 3px solid #C00;">
+                    <input type="text" id="inputFromDate" name="fromDate" class="c_text_s" value='{!today}'></input>
+                    {!$Label.label_10316}
+                    <input type="text" id="inputToDate" name="toDate" class="c_text_s" value='{!oneweekafter}'></input>
+                </td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_10468}</th>    <!-- ダウンロード回数 -->
+                <td colspan="3" class="c_require" style="border-left: 3px solid #C00;"><input id="inputDownloadNum" name="downloadNum" class="c_text_ss"  value="5" /></td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_10460}</th>    <!-- パスワード -->
+                <td colspan="3">
+                    <input id="setPasswordFalse" value="false" type="radio" name="setPassword" checked="checked" /><label for="setPasswordFalse">{!$Label.label_10534}</label><br />    <!-- なし -->
+                    <input id="setPasswordTrue" value="true" type="radio" name="setPassword" /><label for="setPasswordTrue">{!$Label.label_10535}</label>    <!-- あり -->
+                    <input id="inputPassword" type="password" name="password" disabled="disabled" style="margin-left: 10px;" class="c_text_m"/>
+                    <input id="inputPassword-text" type="text" disabled="disabled" class="c_text_m" style="margin-left: 10px;display: none;" />
+                    <label><input type="checkbox" id="showPW" data-for="inputPassword" style="vertical-align: -2px;"/>{!$Label.label_10536}</label>    <!-- パスワードを表示する -->
+                </td>
+            </tr>
+            <tr>
+            <th>{!$Label.label_10402}</th>    <!-- 署名 -->
+                <td>
+                    <select id="signature_list" onchange="getSignature()" class="c_text_l">
+                        <option value="none"></option>
+                    </select>
+                    <div style="padding-top: 10px;">
+                        <textarea id="signature_view" name="signature_view" style="padding: 5px;" readonly="readonly" ></textarea>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="tab_3" class="tab-div" style="display: none; ">
+        <table width="100%">
+            <tr>
+                <td style="position: relative;">
+                    <div style="position: absolute;">
+                        <input type="checkbox" onclick="if ($(this).attr('checked')) {$('#compressFileName').removeAttr('disabled');} else {$('#compressFileName').attr('disabled','disabled');}" name="compressFile" id="compressFile" value="1"/>{!$Label.label_10532}    <!-- 圧縮 -->
+                        <input type="text" name="compressFileName" id="compressFileName" disabled="disabled"/>.zip
+                    </div>
+                    <div id ="fileListTableBtnDiv" style="text-align: right; padding-bottom: 10px;">
+                        <input type="button" class="btn" value="{!$Label.label_10020}" onclick="addContents()"/>    <!-- コンテンツ選択　#4626追加に変更 -->
+                        <input type="button" class="btn" value="{!$Label.label_00072}" onclick="contentslist_remove()"/>    <!-- 削除 -->
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table id="fileListTable" ></table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="background-color: #7593D7; height:50px; width:100%;">
+        <ul id="delivery_tab">
+        <li id="delivery_tab_1" class="delivery_tab delivery_tab_active"><a href="javascript:tab(1);">{!$Label.label_10128}</a></li>
+        <li id="delivery_tab_2" class="delivery_tab delivery_tab_deactive"><a href="javascript:tab(2);">{!$Label.label_11069}</a></li>
+        <li id="delivery_tab_3" class="delivery_tab delivery_tab_deactive"><a href="javascript:tab(3);">{!$Label.label_10474}</a></li>
+        </ul>
+    </div>
+
+</apex:pageBlock>
+</apex:form>
+
+
+<!-- アドレス帳 -->
+
+<div id="addressSelector" style="display:none" >
+    <apex:form style="margin-bottom:10px; margin-top: 5px;" id="addressForm">
+        {!$Label.solxyzcso001__label_10538}    <!-- 検索対象 -->
+        <apex:selectList value="{!selectType}" size="1" multiselect="false" id="searchType" onchange="searchAddress();">
+            <apex:selectOptions value="{!typeOptions}"/>
+        </apex:selectList>
+        {!$Label.solxyzcso001__label_00069}    <!-- 検索 -->
+        <apex:inputText value="{!selectKeyword}" id="searchKeyword" maxlength="100"/>
+        <input type="button" class="btn popBtn" onclick="searchAddress();" value="{!$Label.solxyzcso001__label_00069}"/>    <!-- 検索 -->
+        <input type="button" value="{!$Label.label_10530}" class="btn popBtn" onclick="$('#addressSelector').dialog('close'); openDirectInputView();" style="float:right;"/>
+    </apex:form>
+    <div id="listPanel" style="display:none;">
+        <table id="addressList"></table>
+        <div id="addressPager"></div>
+    </div>
+    <div id="loadingPanel" style="text-align:center; height: 234px;">
+        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="margin:100px 0 195px 0" alt="loading"/>
+    </div>
+    <!-- 2013/02/06 add 5303 start -->
+    <div id="limitOverPanel" style="text-align:center; height: 234px;display:none;">
+        <p style="padding-top:90px">{!$Label.msg_01073}</p>
+    </div>
+    <!-- 2013/02/06 add 5303 end -->
+    <div id="limitOverSFPanel" style="text-align:center; height: 234px;display:none;">
+        <p style="padding-top:90px">{!$Label.msg_00332}{!$Label.label_13121}{!$Label.msg_00334}</p>
+    </div>
+    <div id="wordlessPanel" style="text-align:center; height: 234px;display:none;">
+        <p style="padding-top:90px">{!$Label.msg_00331}</p>
+    </div>
+    <div style="text-align:center;margin-top: 10px; margin-bottom: 5px;">
+                    <input id="selectAddressApply" type="button" class="btn popBtn" onclick="selectAddressApply();" value="{!$Label.label_11070}"/>    <!-- 宛先に追加 -->
+                    <input type="button" class="btn popBtn" onclick="$('#addressSelector').dialog('close');" value="{!$Label.label_00071}"/>    <!-- 閉じる -->
+    </div>
+</div>
+<!-- 直接入力 -->
+<div id="directInputView" style="display: none;">
+    <div style="padding: 0px 9px 10px 10px;">
+        <form action="" onsubmit="applyDirectAddress(); return false;">
+            <table style="width: 100%; height: 150px;" >
+                <tr>
+                    <td colspan="2">
+                        <div style="text-align: right;">
+                            <input type="button" value="{!$Label.label_10528}" class="btn popBtn" onclick="$('#directInputView').dialog('close'); openAddressSelector();" />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top">
+                        <table cellspacing="7" class="directInputTbl" >
+                            <tr>
+                                <th>{!$Label.label_10553}</th>
+                                <td colspan="2"><input type="text" id="directCorpName" style="width: 200px;" maxlength="255" /></td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_00039}</th>
+                                <td class="addressNameInputs">
+                                    <input type="text" id="directLName" style="width: 150px;" placeholder="{!$Label.label_10086}" maxlength="255" />&nbsp;&nbsp;
+                                </td>
+                                <td class="addressNameInputs">
+                                    <input type="text" id="directFName" style="width: 150px;" placeholder="{!$Label.label_00088}" maxlength="255" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_10016}</th>
+                                <td colspan="2" class="c_require"><input type="text" id="directMail" style="width: 320px;" class="required" maxlength="80" /></td>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <td colspan="2"><label><input type="checkbox" id="isRegAddress" style="vertical-align: -2px;" />{!$Label.label_11088}</label></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <div style="float:right; margin-bottom: 20px;">
+                <input type="button" class="btn popBtn" value="{!$Label.label_00071}" onclick="$('#directInputView').dialog('close');" />
+                <input type="button" class="btn popBtn" onclick="applyDirectAddress();" value="{!$Label.label_11070}" />
+            </div>
+        </form>
+    </div>
+</div>
+<!--<div id="addressSelector22" style="display:none; " class="address-div">-->
+<!---->
+<!--    <div id="loadingPanel" style="text-align:center; z-index:1050;" >-->
+<!--        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="margin:85px 0 95px 0" alt="loading"/>-->
+<!--    </div>-->
+<!---->
+<!--    <apex:form style="margin-bottom:10px; padding-left: 20px; padding-top: 20px;" id="addressForm">-->
+<!--        {!$Label.solxyzcso001__label_10538}     検索対象 -->
+<!--        <apex:selectList value="{!selectType}" size="1" multiselect="false" id="searchType" onchange="searchAddress();">-->
+<!--            <apex:selectOptions value="{!typeOptions}"/>-->
+<!--        </apex:selectList>-->
+<!--        {!$Label.solxyzcso001__label_00069}     検索 -->
+<!--        <apex:inputText value="{!selectKeyword}" id="searchKeyword"/>-->
+<!--        <input type="button" class="btn" onclick="searchAddress();" value="{!$Label.solxyzcso001__label_00069}"/>     検索 -->
+<!--    </apex:form>-->
+<!--    <table>-->
+<!--        <tr>-->
+<!--            <td>-->
+<!--                <div id="listPanel" style="display:none; padding-left: 20px;">-->
+<!--                    <table id="addressList" ></table>-->
+<!--                    <div id="addressPager" ></div>-->
+<!--                </div>-->
+<!--            </td>-->
+<!--            <td valign="bottom">-->
+<!--                <div style="text-align:center;margin-top:10px; padding-left: 10px;">-->
+<!--                    <input type="button" class="btn" onclick="selectAddressApply();" value="{!$Label.label_11070}"/>      宛先に追加 -->
+<!--                    <input type="button" class="btn" onclick="$('#addressSelector').hide();" value="{!$Label.label_00071}"/>      閉じる -->
+<!--                </div>-->
+<!--            </td>-->
+<!--        </tr>-->
+<!--    </table>-->
+<!---->
+<!--    <div style="width: 100%; text-align: center; border-top: solid silver 1px; position: absolute; top: 305px;" id="addressBalloon">-->
+<!--        <div style="height: 25px; width: 20px; overflow: hidden; position: absolute; left: 795px; top: -1px;" id="balloon">-->
+<!--            <div style="border: 10px solid; border-color: silver transparent; position: absolute; border-bottom-width: 0px;"></div>-->
+<!--            <div style="border: 9px solid; border-color: white transparent; left: 1px; position: absolute; border-bottom-width: 0px; z"></div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!-- 差し込み文字作成 -->
+<div id="fieldSelector" style="display:none;">
+    <div>
+        <apex:form id="fieldForm">
+            <p><b>{!$Label.label_10565}</b></p>
+            <select id="searchField" onchange="changeField();"></select>
+            <p><b>{!$Label.label_10566}</b></p>
+            <input type="text" id="fieldVal" size="50" readonly="readonly"/>
+            <p>{!$Label.msg_00251}</p>
+        </apex:form>
+    </div>
+</div>
+
+
+<!-- コンテンツ選択 -->
+<div id="contentsSelectModal" style="display:none" title="{!$Label.label_10531}">    <!-- コンテンツ選択 -->
+    <table>
+        <tr>
+            <td valign="top" style="width:200px;">
+                <div id="spaceTreeArea" class="tree_div">
+                    <ul id="spaceTree"  class="filetree treeview" >
+                    </ul>
+                </div>
+            </td>
+
+            <td valign="top" style="padding-left: 1em; border-left: solid; border-width: 1px;">
+                <div>
+                    <table id="contentsList"></table>
+                    <div   id="contentsListPager"></div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table width="100%">
+                    <tr>
+                        <td align="center" nowrap="nowrap">
+                            <input type="button" class="btn popBtn" id="contentsSelectModal_ok"     value="{!$Label.label_00076}"/>    <!-- 選択 -->
+                            <input type="button" class="btn popBtn" id="contentsSelectModal_cancel" value="{!$Label.solxyzcso001__label_00058}"/>    <!-- キャンセル -->
+                        </td>
+                        <td>&nbsp;</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="decodeWork" style="display:none;"></div>
+</apex:outputPanel>
+</apex:outputPanel>
+
+</apex:page>

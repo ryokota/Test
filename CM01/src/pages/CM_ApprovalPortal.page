@@ -1,0 +1,36 @@
+<apex:page title="承認申請ポータル">
+<apex:sectionHeader title="申請ポータル" />
+<style>
+    .link_style {
+        font-size: 20px;
+    }
+    .description_style {
+        font-size: 16px;
+    }
+table#listtable{
+    border-collapse: collapse;
+}  
+table#listtable td.rew1{
+    /*border-width: 1px 0px 1px 1px; *//* 上1px 右0px 下1px 左1px */
+    border:2px solid #d3d3d3;
+    background-color:#fafafa;
+    width:600px;
+    height:100px;
+    font-size: 14px;
+}
+table#listtable td.rew2{
+    border-width: 1px 1px 1px 0px; /* 上1px 右1px 下1px 左0px */
+    border-color:blue;
+    text-align:center;
+}
+</style>
+<apex:form >
+<table id="listtable" >
+    <tr><td><a class="link_style" href="https://c.cs6.visual.force.com/apex/RFA_VFP11_RFATab?save_new=1&sfdc.override=1" >RFA承認申請</a></td></tr>
+    <tr><td class="rew1">RFA用の承認申請（RFA承認申請画面へ遷移）</td></tr>
+    <tr><td>&nbsp;</td></tr>
+    <tr><td><a class="link_style" href="https://cs6.salesforce.com/a0q?fcf=00BN0000000VBJf" >CM RFA承認申請</a></td></tr>
+    <tr><td class="rew1">CM-RFA承認申請（CM−RFA承認申請画面へ遷移）</td></tr>
+</table>
+</apex:form>
+</apex:page>

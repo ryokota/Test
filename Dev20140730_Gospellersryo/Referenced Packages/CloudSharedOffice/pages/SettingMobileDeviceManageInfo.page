@@ -1,0 +1,267 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingMobileDeviceManageController" tabStyle="setting__tab" >
+<apex:outputPanel id="err" rendered="{!IF(csoUserInfo.proAuth_mobile_devices == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!csoUserInfo.code}&massage={!csoUserInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(csoUserInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(csoUserInfo.proAuth_mobile_devices == 'true' && csoUserInfo.showErrPage == false, true, false)}">
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<script type="text/javascript">
+
+$(function(){
+
+    initGrid();
+
+    $(window).bind('resize', function () {
+        resizeGrid();
+    }).trigger('resize');
+
+    $("#searchDiv").dialog({
+        width : 350,
+        autoOpen : false,
+        resizable: false
+    });
+
+    $("#searchForm").submit(function(e){
+        execSearch();
+        e.preventDefault();
+    });
+
+    $("#inputFromDate").datepicker({dateFormat : "yy/mm/dd"});
+    $("#inputToDate").datepicker({dateFormat : "yy/mm/dd"});
+
+});
+
+function resizeGrid(){
+    $('#listtable').setGridWidth(getBrowserWidth() - 350).setGridHeight(getBrowserHeight() - 330);
+}
+
+function initGrid(){
+    $("#listtable").jqGrid({
+        url : _apiUrl + "/setup/nevada/device/list.json",
+        datatype : "jsonp",
+        jsonReader : {
+            repeatitems : false,
+            id : "id"
+        },
+        colNames : [ "", '{!$Label.field_010057}',
+                                '{!$Label.label_mobilesettings_00011}',
+                                '{!$Label.label_mobilesettings_00012}',
+                                '{!$Label.label_mobilesettings_00013}',
+                                '{!$Label.label_mobilesettings_00014}'],
+        colModel : [ {
+            name : "id",
+            index : "id",
+            hidden : true
+        }, {
+            name : "action",
+            index : "action",
+            width : 90,
+            align : "center",
+            sortable : false
+        }, {
+            name : "device_name_header",
+            index : "device_name_header",
+            width : 250
+        }, {
+        name : "owner_name",
+            index : "owner_name",
+            width : 100
+        }, {
+            name : "registered",
+            index : "registered",
+            width : 130
+        }, {
+            name : "lastLogin",
+            index : "lastLogin",
+            width : 130
+        } ],
+        rowNum : 50,
+        autowidth : true,
+        height : 200,
+        rowList : [ 10, 50, 100 ],
+        sortname : "name",
+        viewrecords : true,
+        multiselect : false,
+        pager : "#listtablepager",
+        loadComplete : function(data) {
+
+        }
+    });
+
+    $("#listtable").jqGrid("navGrid", "#listtablepager", {edit : false, add : false, del : false, refresh : false, search : false});
+
+}
+
+function openSearchDialog() {
+    $("#searchDiv").dialog("open");
+}
+
+function execSearch(){
+    var name = $("#name").val();
+    var owner = $("#owner").val();
+    var osType = $("#os_type").val();
+    var inputFromDate = $("#inputFromDate").val();
+    var inputToDate = $("#inputToDate").val();
+
+    $("#listtable").setGridParam({
+        postData : {
+            deviceName : name,
+            deviceOwner : owner,
+            os_type : osType,
+            inputFromDate : inputFromDate,
+            inputToDate : inputToDate
+        }
+    }).trigger('reloadGrid');
+
+}
+
+function clearCondition(){
+        $("#name").val("");
+        $("#owner").val("");
+        $("#os_type").val("");
+        $("#inputFromDate").val("");
+        $("#inputToDate").val("");
+
+        execSearch();
+}
+
+function rockDevice(id, isLock) {
+
+    var callback = function(){
+        $("#listtable").trigger("reloadGrid");
+    };
+    securePostAsync('/setup/nevada/device/deviceLock.json', {"id": id, "lock": isLock, }, callback);
+
+}
+
+function deleteDevice(id) {
+    if(confirm("{!$Label.msg_mobile_00005}")){
+        var callback = function(){
+            $("#listtable").trigger("reloadGrid");
+        };
+        securePostAsync('/setup/nevada/device/deviceRemove.json', {"id": id}, callback);
+    }
+}
+</script>
+<style type="text/css">
+#listtable td{
+    height: 32px;
+}
+
+.warnIcon{
+    background-image: url("{!URLFOR($Resource.cso, 'image/warn.png')}");
+    height: 24px;
+    width: 24px;
+    background-size:contain;
+    background-repeat: no-repeat;
+}
+</style>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/menu_mobile_device.png')}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_mobilesettings_00001}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_mobilesettings_00005}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <apex:pageBlockButtons location="top">
+                           <apex:commandButton id="btnEdit" value="{!$Label.solxyzcso001__label_00069}"  onclick="openSearchDialog();return false;"/>
+                        </apex:pageBlockButtons>
+                        <div id ="main">
+                            <table id="listtable" ></table>
+                            <div id="listtablepager" ></div>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<div id="searchDiv" class="searchDiv" style="display: none;"    title="{!$Label.solxyzcso001__label_00069}">
+    <form action="#" method="get" id="searchForm">
+    <table id="searchTable" style="padding: 5px;">
+
+            <tr>
+                <th>{!$Label.label_mobilesettings_00011}</th>
+                <td><input id="name" name="name" type="text" /></td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_mobilesettings_00015}</th>
+                <td>
+                    <select id="os_type" name="os_type">
+                        <option value="ALL">{!$Label.label_mobilesettings_00016}</option>
+                        <option value="iOS">iOS</option>
+                        <option value="Android">Android</option>
+                        <option value="UnknownOS">{!$Label.label_mobilesettings_00028}</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_mobilesettings_00012}</th>
+                <td>
+                    <input id="owner" name="owner" type="text" />
+                </td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_mobilesettings_00014}</th>
+                <td>
+                    <input type="text" id="inputFromDate" name="inputFromDate" style="width:7em;" />
+                        {!$Label.label_mobilesettings_00018}
+                    <input type="text" id="inputToDate" name="inputToDate" style="width:7em;" />
+                </td>
+            </tr>
+
+        </table>
+        <p style="width: 100%; text-align: right;">
+            <input type="button" class="btn" value="{!$Label.label_00070}" onclick="clearCondition();" />
+            <input type="submit" class="btn" value="{!$Label.solxyzcso001__label_00069}" />
+        </p>
+    </form>
+</div>
+
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

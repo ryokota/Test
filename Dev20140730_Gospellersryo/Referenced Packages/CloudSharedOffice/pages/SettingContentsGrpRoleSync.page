@@ -1,0 +1,104 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingContentsGrpRoleSyncController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_corp_standard == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_corp_standard == 'true', true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+
+function confirmSync(){
+    var isCancel = confirm("{!$Label.msg_010061}");
+    if (isCancel) return true;
+    return false;
+}
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/company.png')}" alt="{!$Label.solxyzcso001__label_10235}" title="{!$Label.solxyzcso001__label_10235}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10345}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_10845}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageMessages />
+                    <apex:pageBlock >
+                        <apex:pageBlockButtons location="bottom">
+                            <apex:commandButton value="{!$Label.solxyzcso001__field_common_save}" onclick="return confirmSync();" action="{!save}" />
+                        </apex:pageBlockButtons>
+                        <apex:pageblockSection columns="1" >
+                           <apex:pageBlockSectionItem >
+                                <apex:outputPanel >
+                                    <apex:inputCheckbox value="{!grpSyncDto.syncFlag}" />
+                                    <apex:outputLabel value="{!$Label.solxyzcso001__label_10841}"/>
+                                    <br />
+                                    <br />
+                                    <apex:outputLabel escape="false" value="&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                    <apex:outputLabel value="{!$Label.solxyzcso001__label_10024}"/>
+                                    <apex:outputLabel value=""/>
+                                    <apex:outputText rendered="{!grpSyncDto.userName!=null}" value="{!grpSyncDto.userName}"/>
+                                    <apex:outputLabel rendered="{!grpSyncDto.userName==null}" escape="false" value="-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                    <apex:outputLabel value="{!$Label.solxyzcso001__label_10006}"/>
+                                    <apex:outputLabel value=""/>
+                                    <apex:outputText rendered="{!grpSyncDto.RECODEUpdateTimeByUserTimezone!=null}" value="{!grpSyncDto.RECODEUpdateTimeByUserTimezone}"/>
+                                    <apex:outputLabel rendered="{!grpSyncDto.RECODEUpdateTimeByUserTimezone==null}" escape="false" value="-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+
+                                </apex:outputPanel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                                <apex:outputPanel >
+                                    <apex:inputCheckbox value="{!roleSyncDto.syncFlag}" />
+                                    <apex:outputLabel value="{!$Label.solxyzcso001__label_10842}"/>
+                                    <br />
+                                    <br />
+                                    <apex:outputLabel escape="false" value="&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                    <apex:outputLabel value="{!$Label.solxyzcso001__label_10024}"/>
+                                    <apex:outputLabel value=""/>
+                                    <apex:outputText rendered="{!roleSyncDto.userName!=null}" value="{!roleSyncDto.userName}"/>
+                                    <apex:outputLabel rendered="{!roleSyncDto.userName==null}" escape="false" value="-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                    <apex:outputLabel value="{!$Label.solxyzcso001__label_10006}"/>
+                                    <apex:outputLabel value=""/>
+                                    <apex:outputText rendered="{!roleSyncDto.RECODEUpdateTimeByUserTimezone!=null}" value="{!roleSyncDto.RECODEUpdateTimeByUserTimezone}"/>
+                                    <apex:outputLabel rendered="{!roleSyncDto.RECODEUpdateTimeByUserTimezone==null}" escape="false" value="-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                </apex:outputPanel>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

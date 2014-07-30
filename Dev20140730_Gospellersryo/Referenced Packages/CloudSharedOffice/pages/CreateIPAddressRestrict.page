@@ -1,0 +1,279 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.CreateIPAddressRestrictController" tabStyle="setting__tab" id="ipDetailPage">
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_network_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_network_manage == 'true', true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/setting.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<style type="text/css">
+.ip_input{
+    border:0px;
+    width:30px;
+}
+.ip_input_box{
+    margin-left:3px;
+    width:150px;
+    background-color:white;
+    border:1px solid #abadb3;
+}
+</style>
+<script type="text/javascript">
+var accessibleIP_name = "{!JSENCODE(detail_name)}";
+var hiddenSelector = '{!$Component.ipDetailPage.ipDetailForm}';
+
+/*
+ * 読込処理
+ */
+jQuery.event.add(window, "load", function(){
+});
+
+function moveFocus(to_no){
+    //再設定後の文字列で判定する
+    var i = to_no - 1;
+    var txt = $("#U_ipTxt"+i).val().replace(/[^0-9]/g,'');
+
+    if( txt.length == 3){
+        if( txt < 0 || 255 < txt ){
+            alert(getMsg(new Array(txt), '{!$Label.msg_00184}'));
+            $("#U_ipTxt" + i).val("255");
+        }
+        $("#U_ipTxt" + to_no).focus();
+    } else {
+        $("#U_ipTxt" + i).val(txt);
+    }
+}
+
+function IPCopy(){
+    if(($("#U_ipTxt"+5).val().length == 0)&&($("#U_ipTxt"+6).val().length == 0)&&($("#U_ipTxt"+7).val().length == 0)&&($("#U_ipTxt"+8).val().length == 0)){
+        for(var i = 1; i < 5; i++){
+            var txt=$("#U_ipTxt"+eval(i)).val();
+            var tgt=i+4;
+            $("#U_ipTxt"+tgt).val(txt);
+        }
+    }
+}
+
+function validate(){
+    var err = new Array();
+    var styleClass = "error";
+    var u_ips1="";
+    var u_ips2="";
+    var null_err1=0;
+    var null_err2=0;
+
+    //名称チェック
+    var ipName_txt= $("#IpName").val();
+
+    if(ipName_txt==null || ipName_txt==""){
+        alert(getMsg(new Array('{!$Label.solxyzcso001__label_10423}'), '{!$Label.msg_00058}'));
+        return false;
+    } else if(ipName_txt.length >100) {
+        alert(getMsg(new Array('{!$Label.solxyzcso001__label_10423}', 100), '{!$Label.msg_00059}'));
+        return false;
+    }
+
+    //開始IPチェック
+    $("input[name='_U_ipAddresses1']").each(function(){
+        if ((null != this.value) && (this.value != "")) {
+            u_ips1+=this.value+".";
+        } else {
+            null_err1++;
+        }
+    });
+    u_ips1=u_ips1.substring(0,u_ips1.length-1);
+    if("" == u_ips1 ){
+        alert(getMsg(new Array('{!$Label.solxyzcso001__label_10424}'), '{!$Label.msg_00185}'));
+        return false;
+    }else if(!isIp(u_ips1) || null_err1>0){
+        alert(getMsg(new Array('{!$Label.solxyzcso001__label_10424}'), '{!$Label.msg_00186}'));
+        return false;
+    }
+
+    //終了IPチェック
+    $("input[name='_U_ipAddresses2']").each(function(){
+        if ((null != this.value) && (this.value != "")) {
+            u_ips2+=this.value+".";
+        } else {
+            null_err2++;
+        }
+    });
+    u_ips2=u_ips2.substring(0,u_ips2.length-1);
+    if("" == u_ips2){
+        alert(getMsg(new Array('{!$Label.solxyzcso001__label_10425}'), '{!$Label.msg_00185}'));
+        return false;
+    }else if(!isIp(u_ips2) || null_err2>0){
+        alert(getMsg(new Array('{!$Label.solxyzcso001__label_10425}'), '{!$Label.msg_00186}'));
+        return false;
+    }
+
+    //開始IPと終了IPの大小チェック
+    var addr_err=0;
+    if(u_ips1!=u_ips2){
+        if( parseInt($("#U_ipTxt1").val()) == parseInt($("#U_ipTxt5").val()) ){
+            if( parseInt($("#U_ipTxt2").val()) == parseInt($("#U_ipTxt6").val())){
+                if( parseInt($("#U_ipTxt3").val()) == parseInt($("#U_ipTxt7").val())){
+                    if( parseInt($("#U_ipTxt4").val()) > parseInt($("#U_ipTxt8").val())){
+                        addr_err=1;
+                    }
+                } else if( parseInt($("#U_ipTxt3").val()) > parseInt($("#U_ipTxt7").val())){
+                    addr_err=1;
+                }
+            } else if( parseInt($("#U_ipTxt2").val()) > parseInt($("#U_ipTxt6").val())){
+                addr_err=1;
+            }
+        } else if(parseInt($("#U_ipTxt1").val()) > parseInt($("#U_ipTxt5").val()) ){
+            addr_err=1;
+        }
+    }
+    if(addr_err==1){
+        alert(getMsg(new Array('{!$Label.solxyzcso001__label_10424}', '{!$Label.solxyzcso001__label_10425}'), '{!$Label.msg_00187}'));
+        return false;
+    }
+
+    $(getId(hiddenSelector + ':detail_name')).val($('#IpName').val());
+    $(getId(hiddenSelector + ':detail_startip')).val(u_ips1);
+    $(getId(hiddenSelector + ':detail_endip')).val(u_ips2);
+
+	CsoScript_loadingStart();
+
+    return true;
+}
+
+/**
+ * IPアドレスチェック
+ */
+function isIp(ip){
+    var pattern=/^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])$/;
+
+    var flag_ip = pattern.test(ip);
+
+    if(!flag_ip){
+        return false;
+    }else{
+        return true;
+    }
+}
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/IP_restrict_org.png')}" alt="{!$Label.solxyzcso001__label_10297}" title="{!$Label.solxyzcso001__label_10297}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10297}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!subTitle}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form id="ipDetailForm" >
+                <apex:messages />
+                <apex:pageBlock >
+                    <!-- コマンドボタン -->
+                    <apex:pageBlockButtons >
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00075}" action="{!create}" onclick="return validate()" rendered="{!IF(id == '', true, false)}"/>
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00075}" action="{!edit}" onclick="return validate()" rendered="{!IF(id != '', true, false)}"/>
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!cancel}"/>
+                    </apex:pageBlockButtons>
+                    <apex:pageblockSection columns="2" title="{!sectionTitle}" collapsible="false">
+                        <apex:pageBlockSectionItem >
+                            {!$Label.msg_00188}<br />{!$Label.msg_00189}
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem >
+                        </apex:pageBlockSectionItem>
+                        <!-- 名称 -->
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel >{!$Label.solxyzcso001__label_10423}</apex:outputLabel>
+                            <apex:outputLabel >
+                                <div class="c_require" style="height:20px;">
+                                    <input type="text" id="IpName"  name="IpName" class="c_text_ll" value="{!detail_name}" maxlength="100" />
+                                </div>
+                            </apex:outputLabel>
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel ></apex:outputLabel>
+                            <apex:outputLabel ></apex:outputLabel>
+                        </apex:pageBlockSectionItem>
+                        <!-- 開始IP -->
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel >{!$Label.solxyzcso001__label_10424}</apex:outputLabel>
+                            <apex:outputLabel >
+                                <div class="c_require">
+                                    <div class="ip_input_box" id="U_ipDivId1">
+                                        <input class="ip_input" name="_U_ipAddresses1" type="text" size="3" maxlength="3" border="0" id="U_ipTxt1" value="{!detail_startip_1}" onKeyUp="moveFocus('2')" onclick="return false"/>.
+                                        <input class="ip_input" name="_U_ipAddresses1" type="text" size="3" maxlength="3" border="0" id="U_ipTxt2" value="{!detail_startip_2}" onKeyUp="moveFocus('3')" onclick="return false" />.
+                                        <input class="ip_input" name="_U_ipAddresses1" type="text" size="3" maxlength="3" border="0" id="U_ipTxt3" value="{!detail_startip_3}" onKeyUp="moveFocus('4')" onclick="return false" />.
+                                        <input class="ip_input" name="_U_ipAddresses1" type="text" size="3" maxlength="3" border="0" id="U_ipTxt4" value="{!detail_startip_4}" onKeyUp="moveFocus('5')" onclick="return false" />
+                                        <input type="hidden" name="ip_from" id="ip_from" value="{!detail_startip}" />
+                                    </div>
+                                </div>
+                            </apex:outputLabel>
+                        </apex:pageBlockSectionItem>
+                        <!-- 終了IP -->
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel >{!$Label.solxyzcso001__label_10425}</apex:outputLabel>
+                            <apex:outputLabel >
+                                <div class="c_require">
+                                    <div class="ip_input_box" id="U_ipDivId2">
+                                        <input class="ip_input" name="_U_ipAddresses2" type="text" size="3" maxlength="3" border="0" id="U_ipTxt5" value="{!detail_endip_5}" onKeyUp="moveFocus('6')" onclick="return false" onfocus="IPCopy()"/>.
+                                        <input class="ip_input" name="_U_ipAddresses2" type="text" size="3" maxlength="3" border="0" id="U_ipTxt6" value="{!detail_endip_6}" onKeyUp="moveFocus('7')" onclick="return false" onfocus="IPCopy()"/>.
+                                        <input class="ip_input" name="_U_ipAddresses2" type="text" size="3" maxlength="3" border="0" id="U_ipTxt7" value="{!detail_endip_7}" onKeyUp="moveFocus('8')" onclick="return false" onfocus="IPCopy()"/>.
+                                        <input class="ip_input" name="_U_ipAddresses2" type="text" size="3" maxlength="3" border="0" id="U_ipTxt8" value="{!detail_endip_8}" onKeyUp="$(this).val($(this).val().replace(/[^0-9]/g,''))" onclick="return false" onfocus="IPCopy()" />
+                                        <input type="hidden" name="ip_to" id="ip_to" value="{!detail_endip}" />
+                                    </div>
+                                </div>
+                            </apex:outputLabel>
+                        </apex:pageBlockSectionItem>
+                        <!-- 作成者 -->
+                        <apex:pageBlockSectionItem rendered="{!IF(id != '', true, false)}">
+                            <apex:outputLabel >{!$Label.solxyzcso001__label_10015}</apex:outputLabel>
+                            <apex:outputLabel >{!detail_createuser}</apex:outputLabel>
+                        </apex:pageBlockSectionItem>
+                        <!-- 作成日 -->
+                        <apex:pageBlockSectionItem rendered="{!IF(id != '', true, false)}">
+                            <apex:outputLabel >{!$Label.solxyzcso001__label_10005}</apex:outputLabel>
+                            <apex:outputLabel >{!detail_createdate}</apex:outputLabel>
+                        </apex:pageBlockSectionItem>
+                        <!-- 更新者 -->
+                        <apex:pageBlockSectionItem rendered="{!IF(id != '', true, false)}">
+                            <apex:outputLabel >{!$Label.solxyzcso001__label_10024}</apex:outputLabel>
+                            <apex:outputLabel >{!detail_updateuser}</apex:outputLabel>
+                        </apex:pageBlockSectionItem>
+                        <!-- 更新日 -->
+                        <apex:pageBlockSectionItem rendered="{!IF(id != '', true, false)}">
+                            <apex:outputLabel >{!$Label.solxyzcso001__label_10006}</apex:outputLabel>
+                            <apex:outputLabel >{!detail_updatedate}</apex:outputLabel>
+                        </apex:pageBlockSectionItem>
+                    </apex:pageblockSection>
+                </apex:pageBlock>
+                <apex:inputhidden id="id" value="{!id}"/>
+                <apex:inputhidden id="detail_name" value="{!detail_name}"/>
+                <apex:inputhidden id="detail_startip" value="{!detail_startip}"/>
+                <apex:inputhidden id="detail_endip" value="{!detail_endip}"/>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+</apex:page>

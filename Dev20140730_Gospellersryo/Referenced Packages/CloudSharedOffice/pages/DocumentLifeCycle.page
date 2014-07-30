@@ -1,0 +1,427 @@
+<apex:page sidebar="false"  cache="false" >
+<script type="text/javascript">
+var g_documentLifeCycle_spaceId;
+var g_documentLifeCycle_loaded = false;
+
+
+
+function getInitLifeCycle(spaceId){
+    // 処理中
+    CsoScript_loadingStart();
+    g_documentLifeCycle_spaceId = spaceId; //保存時用に格納
+
+    setEventAction(); //イベント発生時の処理登録
+
+    var lifeCycleCallback = function(data){
+        //var orgRules = JSON.parse(data.ruleDetails);
+        // 画面表示項目セット
+        $('#c_headLeftSubTitle').html(data["spaceName"]);
+        setPathList(data["path"]);
+
+        setValue(data);
+
+        CsoScript_loadingStop();
+    };
+    secureGetAsync('/contentsmanagement/VersionSettingGet.json?id=' + spaceId,'', lifeCycleCallback);
+
+}
+
+function setValue(data){
+
+    if(data.enabled){
+        $("#enabled").attr("checked","checked");
+    }else{
+        $("#enabled").removeAttr("checked","checked");
+    }
+
+    if(data.isOrganization == true){
+        $("#alertMsg").show();
+    }else{
+        $("#alertMsg").hide();
+    }
+
+    if (data.enabled) {
+        $("input[name=deleteVersion],input[name=generation],#applyChildren").removeAttr("disabled");
+    } else {
+        $("#deleteVersion_IMMEDIATELY,#generation_UNLIMITED").attr("checked", true);
+        $("input[name=deleteVersion],input[name=generation],#applyChildren,#activeDays,#generations").attr("disabled", "disabled");
+    }
+
+    if(data.deleteVersion == 'IMMEDIATELY'){
+        $("#deleteVersion_IMMEDIATELY").attr("checked","checked");
+        $("#deleteVersion_DAYS_LATER").removeAttr("checked","checked");
+        $("#activeDays").val(0);
+    }else{
+        $("#deleteVersion_IMMEDIATELY").removeAttr("checked","checked");
+        $("#deleteVersion_DAYS_LATER").attr("checked","checked");
+        if(data.enabled){$("#activeDays").removeAttr("disabled","disabled");}
+        $("#activeDays").val(data.activeDays);
+    }
+
+    if(data.generation == 'UNLIMITED'){
+        $("#generation_UNLIMITED").attr("checked","checked");
+        $("#generation_MANAGEMENT").removeAttr("checked","checked");
+        $("#generations").val(0);
+    }else{
+        $("#generation_UNLIMITED").removeAttr("checked","checked");
+        $("#generation_MANAGEMENT").attr("checked","checked");
+        if(data.enabled){$("#generations").removeAttr("disabled","disabled");}
+        $("#generations").val(data.generations);
+    }
+
+    if(data.applyChildren){
+        $("#applyChildren").attr("checked","checked");
+    }else{
+        $("#applyChildren").removeAttr("checked","checked");
+    }
+
+    $("#registerUser").text(data.registerUser);
+    $("#registerDate").text(data.registerDate);
+    if(data.updateUser == null){
+        $("#updateUser").text('-');
+    }else{
+        $("#updateUser").text(data.updateUser);
+    }
+    if(data.updateDate == null){
+        $("#updateDate").text('-');
+    }else{
+        $("#updateDate").text(data.updateDate);
+    }
+
+}
+
+/*
+ * イベント発生時の処理登録
+ */
+function setEventAction(){
+    if(g_documentLifeCycle_loaded == true){return;}
+
+    $("#enabled").change(function(e) {
+        var e = $(this).attr("checked");
+
+        if (e) {
+            $("input[name=deleteVersion],input[name=generation],#applyChildren").removeAttr("disabled");
+        } else {
+            $("#deleteVersion_IMMEDIATELY,#generation_UNLIMITED").attr("checked", true);
+            $("input[name=deleteVersion],input[name=generation],#applyChildren,#activeDays,#generations").attr("disabled", "disabled");
+        }
+    });
+
+    $("input[name=deleteVersion]").change(function(e) {
+        var val = $(this).val();
+        if (val == "IMMEDIATELY") {
+            $("#activeDays").attr("disabled", "disabled")
+        } else {
+            $("#activeDays").removeAttr("disabled");
+        }
+    });
+
+    $("#deleteVersion_IMMEDIATELY").click(function(e) {
+        if (!confirm('{!$Label.msg_01023}')) {
+            $("#deleteVersion_DAYS_LATER").click();
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    $("input[name=generation]").change(function(e) {
+        var val = $(this).val();
+
+        if (val == "UNLIMITED") {
+            $("#generations").attr("disabled", "disabled");
+        } else {
+            $("#generations").removeAttr("disabled");
+        }
+    });
+
+    $("#generation_MANAGEMENT").click(function(e) {
+        if (!confirm('{!$Label.msg_01024}')) {
+            $("#generation_UNLIMITED").click();
+            e.preventDefault();
+            return false;
+        }
+    });
+    g_documentLifeCycle_loaded = true;
+}
+/*
+ * 入力値チェック
+ */
+function validate() {
+
+    var erroor = false;
+
+    if ($("#deleteVersion_DAYS_LATER").attr("checked")) {
+        var val = $("#activeDays").val();
+        if (val == "") {
+            alert('{!$Label.msg_01030}');
+            erroor = true;
+        } else if (!isNumeric(val)) {
+            alert('{!$Label.msg_01026}');
+            erroor = true;
+        } else if (Number(val) > 3650 || Number(val) < 1) {
+            alert('{!$Label.msg_01029}');
+            erroor = true;
+        }
+    }
+
+    if ($("#generation_MANAGEMENT").attr("checked")) {
+        var val = $("#generations").val();
+        if (val == "") {
+            alert('{!$Label.msg_01031}');
+            erroor = true;
+        } else if (!isNumeric(val)) {
+            alert('{!$Label.msg_01027}');
+            erroor = true;
+        } else if (Number(val) > 10000 || Number(val) < 1) {
+            alert('{!$Label.msg_01032}');
+            erroor = true;
+        }
+    }
+
+    if(erroor){
+        return false;
+    }
+
+    return true;
+}
+
+function saveLifeCycle(){
+
+    if(!validate()){
+        return false;
+    }
+
+    var enabled;
+    var deleteVersion;
+    var activeDays = $("#activeDays").val();
+    var generation;
+    var generations = $("#generations").val();
+    var applyChildren;
+
+    if($("#enabled").attr("checked")){
+        enabled = 'true';
+    }else{
+        enabled = 'false';
+    }
+
+    if($("#deleteVersion_IMMEDIATELY").attr("checked")){
+        deleteVersion = $("#deleteVersion_IMMEDIATELY").val();
+    }else{
+        deleteVersion = $("#deleteVersion_DAYS_LATER").val();
+    }
+
+    if($("#generation_UNLIMITED").attr("checked")){
+        generation = $("#generation_UNLIMITED").val();
+    }else{
+        generation = $("#generation_MANAGEMENT").val();
+    }
+
+    if($("#applyChildren").attr("checked")){
+        applyChildren = 'true';
+    }else{
+        applyChildren = 'false';
+    }
+
+    var callback = function(data){
+             if(!data.result){
+                CsoScript_loadingStop();
+                 alert(data.message);
+                 return false;
+             }
+             CsoScript_loadingStop();
+             changeHashToCurrentSpace();
+             $('#listView1').trigger('reloadGrid');
+             reloadTree();
+             displayList();
+         };
+
+     var callerror =  function(data){
+         CsoScript_loadingStop();
+         alert(data);
+     };
+
+     CsoScript_loadingStart();
+
+     // 登録
+     securePostAsync('/contentsmanagement/SpaceVersionSettingEdit.json',
+         {"id":g_documentLifeCycle_spaceId,
+          "enabled":enabled,
+          "deleteVersion":deleteVersion,
+          "activeDays":activeDays,
+          "generation":generation,
+          "generations":generations,
+          "applyChildren":applyChildren
+          },
+         callback, callerror);
+    return true;
+
+}
+</script>
+<style type="text/css">
+
+#tblDtails {
+    width:100%;
+}
+
+.modifyInfo-th-left {
+    text-align: right;
+}
+
+#definitionDetails th{
+    color: #4A4A56;
+    font-weight: bold;
+    text-align: right;
+    white-space: nowrap;
+    font-size: 91%;
+}
+
+#modifyInfo th {
+    color: #4A4A56;
+    font-weight: bold;
+    text-align: right;
+    white-space: nowrap;
+    font-size: 91%;
+}
+
+.veryShortWidth{
+    width: 50px;
+}
+
+.applySpaceTbl{
+    width: 100%;
+}
+
+#registerUser {
+    width:150px;
+}
+.tooltip {
+    background-color: #F7F7F7;
+    border: 1px solid #C0C0C0;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 1px 1px 3px #C0C0C0;
+    /*display: none;*/
+    float: left;
+    height: 40px;
+    margin: 10px;
+    max-width: 1000px;
+    padding: 10px;
+    position: absolute;
+    width: 250px;
+    z-index: 1200;
+}
+</style>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <!-- apex:form -->
+                    <apex:pageMessages />
+                        <table id="tblDtails" >
+                        <tr>
+                            <td style="white-space:nowrap;">
+                                <table id="definitionDetails"  cellspacing="7">
+                                    <tbody>
+                                        <tr>
+                                            <th class="modifyInfo-th-left">{!$Label.label_10450}</th>
+                                            <td>
+                                                <input type="checkbox" id="enabled" name="enabled" style="float:left;" />
+                                                <label id="alertMsg" style="color:red;display:none;">
+                                                    {!$label.msg_01036}
+                                                </label>
+                                            </td>
+                                            <td>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="modifyInfo-th-left">{!$Label.label_11044}<img src="{!URLFOR($Resource.cso, 'image/tooltip.png')}" style="vertical-align: middle;"
+                                                                            onmouseover="showTips(this, new Array('{!$Label.msg_01050}'));"
+                                                                            onmouseout="hideTips();"
+                                                                            onclick="showTips(this, new Array('{!$Label.msg_01050}'));" /></th>
+                                            <td>
+                                                <input type="radio" id="deleteVersion_IMMEDIATELY" name="deleteVersion" disabled="disabled"  value="IMMEDIATELY"  />
+                                                {!$Label.label_11045}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="modifyInfo-th-left"></th>
+                                            <td style="white-space:nowrap;">
+                                                <input type="radio" id="deleteVersion_DAYS_LATER" name="deleteVersion" disabled="disabled"  value="DAYS_LATER" />
+                                                {!$Label.label_11046}
+                                                <input type="text" id="activeDays" name="activeDays" style="text-align:right;" disabled="disabled"  class="veryShortWidth" maxlength="4" value=""/>
+                                                {!$Label.label_11041}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="modifyInfo-th-left">{!$Label.label_11039}</th>
+                                            <td>
+                                                <input type="radio" id="generation_UNLIMITED" name="generation" disabled="disabled"  value="UNLIMITED" />
+                                                {!$Label.label_11047}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="modifyInfo-th-left"></th>
+                                            <td style="white-space:nowrap;">
+                                                <input type="radio" id="generation_MANAGEMENT" name="generation" disabled="disabled"  value="MANAGEMENT" />
+                                                {!$Label.label_11048}
+                                                <input type="text" id="generations" name="generations" style="text-align:right;" disabled="disabled"  class="veryShortWidth" maxlength="4" value=""  />
+                                                {!$Label.label_11042}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="modifyInfo-th-left">{!$Label.label_11049}</th>
+                                            <td>
+                                                <input type="checkbox" id="applyChildren" disabled="disabled" checked="checked" />
+                                                {!$Label.label_11058}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td  style="width:50%  vertical-align:top;">
+                                <table id="modifyInfo" cellspacing="7" >
+                                    <tbody>
+                                        <tr>
+                                            <th class="modifyInfo-th-left">{!$Label.label_10015}</th>
+                                            <td><div id="registerUser"></div></td>
+                                            <th class="modifyInfo-th-right">{!$Label.label_10014}</th>
+                                            <td><div id="registerDate"></div></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="modifyInfo-th-left">{!$Label.label_10024}</th>
+                                            <td><div id="updateUser"></div></td>
+                                            <th class="modifyInfo-th-right">{!$Label.label_10018}</th>
+                                            <td><div id="updateDate"></div></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        </table>
+                <!--/apex:form -->
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="tooltip" class="tooltip"></div>
+<div id="loadingDiv" style="display:none;">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 40%;left: 45%;" />
+</div>
+<!-- <apex:include pageName="CSOSirverlight" />  -->
+
+<script type="text/javascript">
+	ECM.lifeCycle = ECM.lifeCycle || { loaded: $.Deferred() };
+	(function() {
+		$.extend(ECM.lifeCycle, {
+			// intentionally empty
+		});
+		ECM.lifeCycle.loaded.resolve();
+	})();
+</script>
+
+</apex:page>

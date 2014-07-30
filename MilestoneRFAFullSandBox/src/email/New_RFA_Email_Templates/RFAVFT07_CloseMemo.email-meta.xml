@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>false</available>
+    <description>Email template for the base Close Memo communication</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>XX RFAVFT07 Close Memo</name>
+    <style>none</style>
+    <subject>申請取り下げ通知（RFA is Closed） - :</subject>
+    <type>visualforce</type>
+</EmailTemplate>

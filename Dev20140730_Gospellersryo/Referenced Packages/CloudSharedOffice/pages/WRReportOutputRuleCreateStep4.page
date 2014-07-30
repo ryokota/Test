@@ -1,0 +1,238 @@
+<apex:page controller="SOLXYZCSO001.WRReportOutputRuleCreateController" tabStyle="WRRuleTab__tab">
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+<style type="text/css">
+.navi_message{
+    font-size:1.1em;
+    margin:0 0 10px 0;
+}
+.form_table {
+}
+.form_table_label {
+    font-size:0.9em;
+    padding-top:5px;
+    padding-right:15px;
+    width:130px;
+    min-width:130px;
+    text-align:right;
+    font-weight:bold;
+    color:#4a4a56 !important;
+}
+.form_table_label_sub {
+    font-size:0.9em;
+    width:75px;
+    min-width:75px;
+}
+.form_table_label_normal {
+    text-align:right;
+}
+.form_table_radio{
+    width:120px;
+}
+.form_table_data {
+}
+.ios-checkbox-container{
+    width:120px;
+}
+.fieldset_style_containar{
+    border:1px solid silver;
+    background-color:white;
+    padding:8px 8px 8px 8px;
+    display:none;
+}
+.c_require{
+    width:4px;
+    height:23px;
+    float: left;
+}
+.confirm_table{
+    font-size:0.9em;
+    margin:20px 40px 0 40px;
+    width:95%;
+}
+.confirm_table th{
+    width:210px;
+    background-color:#e8eef7;
+}
+.category_1{
+}
+.category_2{
+    padding-left:25px;
+}
+.category_3{
+    padding-left:50px;
+}
+.category_4{
+    padding-left:75px;
+}
+</style>
+<apex:sectionHeader title="{!$Label.solxyzcso001__label_wr_outputrule_00016}" subtitle="{!$Label.solxyzcso001__label_wr_outputrule_00054}" />    <!-- 帳票出力ルール 新規帳票出力ルール（ステップ４/４） -->
+<apex:pageMessages />
+<apex:form >
+<apex:pageBlock >
+    <apex:pageBlockSection title="{!$Label.solxyzcso001__label_wr_outputrule_00055}" collapsible="false"/>    <!-- ステップ４: 設定内容確認・登録 -->
+    <apex:pageBlockButtons dir="RTL">
+        <apex:commandButton action="{!cancel}" value="{!$Label.solxyzcso001__label_wr_outputrule_00024}"/>    <!-- キャンセル -->
+        <apex:commandButton action="{!save}" value="{!$Label.solxyzcso001__label_wr_outputrule_00056}" onclick="CsoScript_loadingStart()"/>    <!-- 保存 -->
+        <apex:commandButton action="{!savenew}" value="{!$Label.solxyzcso001__label_wr_outputrule_00057}" onclick="CsoScript_loadingStart()"/>    <!-- 保存&新規 -->
+        <apex:commandButton action="{!prev4}" value="{!$Label.solxyzcso001__label_wr_outputrule_00036}"/>    <!-- 前へ -->
+    </apex:pageBlockButtons>
+    <div style="padding:40px 60px 0 60px">
+        <div class="navi_message">{!$Label.msg_wr_outputrule_00010}</div>    <!-- ルール名・説明を入力し、設定内容を確認した後、登録してください。 -->
+        <!-- div class="navi_message">{!$Label.msg_wr_outputrule_00011}</div -->    <!-- さらに帳票出力ルールを作成する場合は、[保存＆新規]を、作成しない場合は[保存]をクリックしてください。 -->
+        <table class="form_table" cellspacing="5">
+            <tr>
+                <td class="form_table_label">{!$Label.label_wr_outputrule_00058}</td>    <!-- ルール名 -->
+                <td class="form_table_data">
+                    <img src="{!URLFOR($Resource.iosstyle, 'require.png')}" class="c_require"/>
+                    <apex:inputText size="50" value="{!ruleName}" maxlength="80"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="form_table_label">{!$Label.label_wr_outputrule_00059}</td>    <!-- 説明 -->
+                <td class="form_table_data"><apex:inputTextarea cols="60" rows="6" value="{!explanation}"/></td>
+            </tr>
+        </table>
+        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_wr_outputrule_00060}" collapsible="false"/>    <!-- 設定内容 -->
+        <table border="1" cellspacing="0" cellpadding="5" bordercolor="silver" class="confirm_table">
+            <tr>
+                <th class="category_1">{!$Label.label_wr_outputrule_00061}</th>    <!-- ① 出力指示 -->
+                <td>{!confirmOutputInstruction}</td>
+            </tr>
+            <!-- ユーザ設定向け -->
+            <tr style="display : {!IF(outputInstruction == 'User', 'table-row', 'none')}">
+                <th class="category_2">{!$Label.label_wr_outputrule_00026}</th>    <!-- メンバー -->
+                <td>{!confirmMember}</td>
+            </tr>
+            <tr style="display : {!IF(outputInstruction == 'User', 'table-row', 'none')}">
+                <th class="category_2">{!$Label.label_wr_outputrule_00027}</th>    <!-- ページ -->
+                <td>{!confirmPageType}</td>
+            </tr>
+
+            <!-- システム設定向け -->
+            <tr style="display : {!IF(outputInstruction == 'System', 'table-row', 'none')}">
+                <th class="category_2" colspan="2">{!$Label.label_wr_outputrule_00062}</th>    <!-- 【基本入力項目】 -->
+            </tr>
+            <tr style="display : {!IF(outputInstruction == 'System', 'table-row', 'none')}">
+                <th class="category_3">{!$Label.label_wr_outputrule_00029}</th>    <!-- 頻度 -->
+                <td>
+                    <apex:outputPanel rendered="{!IF(execInterval == 'EveryWeek', true, false)}">
+                        {!confirmExecInterval}　{!confirmExecDayOfWeek}
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!IF((execInterval == 'EveryMonth') && execMonthDayOfMonth != null, true, false)}">
+                        {!confirmExecInterval}　{!execMonthDayOfMonth}{!$Label.solxyzcso001__label_wr_outputrule_00063}    <!-- 日 -->
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!IF((execInterval == 'EveryMonth') && execMonthDayOfMonth == null, true, false)}">
+                        {!confirmExecInterval}　{!confirmExecWeekNumberOfMonth}　{!confirmExecDayOfWeek}
+                    </apex:outputPanel>
+                </td>
+            </tr>
+            <tr style="display : {!IF((outputInstruction == 'System') && execTime != '', 'table-row', 'none')}">
+                <th class="category_3">{!$Label.label_wr_outputrule_00033}</th>    <!-- 開始時刻 -->
+                <td>{!execTime}</td>
+            </tr>
+
+            <!-- 帳票定義 -->
+            <tr>
+                <th class="category_1">{!$Label.label_wr_outputrule_00064}</th>    <!-- ② 帳票定義 -->
+                <td>{!confirmReportDefinition}</td>
+            </tr>
+
+            <!-- レコード検索条件 -->
+            <tr style="display : {!IF(outputInstruction == 'System', 'table-row', 'none')}">
+                <th class="category_2">{!$Label.label_wr_outputrule_00038}</th>    <!-- レコード検索条件 -->
+                <td>{!confirmSearchCondition}</td>
+            </tr>
+
+            <!-- 出力設定 -->
+            <tr style="display:{!IF(fileNameCheck == 'true' || saveSpaceCheck == 'true' || contentTypeCheck == 'true' || (userSelectCheck == 'true' && userInputFields != null) || pdfPasswordCheck == 'true' || notificationCheck == 'true', 'table-row', 'none')}">
+                <th class="category_1" colspan="2">{!$Label.label_wr_outputrule_00065}</th>    <!-- ③ 出力設定 -->
+            </tr>
+
+            <!-- 【基本入力項目】 -->
+            <tr style="display:{!IF(fileNameCheck == 'true' || saveSpaceCheck == 'true' || contentTypeCheck == 'true', 'table-row', 'none')}">
+                <th class="category_2" colspan="2">{!$Label.label_wr_outputrule_00062}</th>    <!-- 【基本入力項目】 -->
+            </tr>
+            <!-- ファイル名 -->
+            <tr style="display:{!IF(fileNameCheck == 'true', 'table-row', 'none')}">
+                <th class="category_3">{!$Label.label_wr_outputrule_00041}</th>    <!-- ファイル名 -->
+                <td>{!fileName}</td>
+            </tr>
+            <!-- 保存先 -->
+            <tr style="display:{!IF(saveSpaceCheck == 'true', 'table-row', 'none')}">
+                <th class="category_3">{!$Label.label_wr_outputrule_00043}</th>    <!-- 保存先 -->
+                <td>
+                    <apex:outputPanel rendered="{!IF(saveMode == 'ecmSpace', true, false)}">
+                        {!$Label.solxyzcso001__label_wr_outputrule_00066} > {!saveSpace}
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!IF(saveMode == 'folder', true, false)}">
+                        {!$Label.solxyzcso001__label_wr_outputrule_00067} > {!saveFolder}
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!IF(saveMode == 'attach', true, false)}">
+                        {!$Label.solxyzcso001__label_wr_outputrule_00068}
+                    </apex:outputPanel>
+                </td>
+            </tr>
+            <!-- CSOコンテンツリストへの追加 -->
+            <tr style="display:{!IF(saveSpaceCheck == 'true' && saveMode == 'ecmSpace' && outputInstruction == 'User' && pageType == 'DetailPage', 'table-row', 'none')}">
+                <th class="category_4">{!$Label.label_wr_outputrule_00069}</th>    <!-- CSOコンテンツリストへの追加 -->
+                <td>
+                    {!IF(contentsListAddFlag == true, $Label.label_wr_outputrule_00070, $Label.label_wr_outputrule_00071)}    <!-- する しない -->
+                </td>
+            </tr>
+            <!-- ファイル形式 -->
+            <tr style="display:{!IF(contentTypeCheck == 'true' && isOutputFileOption, 'table-row', 'none')}">
+                <th class="category_3">{!$Label.label_wr_outputrule_00045}</th>    <!-- ファイル形式 -->
+                <td>{!contentType}</td>
+            </tr>
+            <!-- Excel出力方式 -->
+            <tr style="display:{!IF(excelOutputTypeCheck == 'true', 'table-row', 'none')}">
+                <th class="category_3">{!$Label.label_wf_00448}</th>    <!-- Excel出力形式 -->
+                <td>{!IF(excelOutputType == 'SingleSheet', $Label.label_wf_00449, $Label.label_wf_00450)}</td>
+            </tr>
+
+            <!-- 【追加入力項目】 -->
+            <tr style="display:{!IF(userSelectCheck == 'true' && userInputFields != null || pdfPasswordCheck == 'true', 'table-row', 'none')}">
+                <th class="category_2" colspan="2">{!$Label.label_wr_outputrule_00072}</th>    <!-- 【追加入力項目】 -->
+            </tr>
+            <!-- ユーザー入力 -->
+            <tr style="display:{!IF(userSelectCheck == 'true' && userInputFields != null, 'table-row', 'none')}">
+                <th class="category_3" colspan="2">{!$Label.label_wr_outputrule_00073}</th>    <!-- ユーザ入力 -->
+            </tr>
+            <apex:repeat value="{!userInputFields}" var="userInput" rendered="{!IF(userSelectCheck == 'true', true, false)}">
+            <tr>
+                <th class="category_4">{!userInput.labelName}</th>
+                <td>{!userInput.inputValue}</td>
+            </tr>
+            </apex:repeat>
+            <!-- PDFパスワード -->
+            <tr style="display:{!IF(pdfPasswordCheck == 'true', 'table-row', 'none')}">
+                <th class="category_3" colspan="2">{!$Label.label_wr_outputrule_00048}</th>    <!-- PDFパスワード -->
+            </tr>
+            <tr style="display:{!IF(pdfPasswordCheck == 'true' && needPdfOpenPWInputField == true, 'table-row', 'none')}">
+                <th class="category_4">{!$Label.label_wr_outputrule_00074}</th>    <!-- 文書を開くためのパスワード -->
+                <td>{!pdfOpenPassword}</td>
+            </tr>
+            <tr style="display:{!IF(pdfPasswordCheck == 'true' && needPdfAuthorizePWInputField == true, 'table-row', 'none')}">
+                <th class="category_4">{!$Label.label_wr_outputrule_00075}</th>    <!-- 文書の権限を設定するためのパスワード -->
+                <td>{!pdfAuthorizePassword}</td>
+            </tr>
+            <!-- Chatter通知 -->
+            <tr style="display:{!IF(notificationCheck == 'true', 'table-row', 'none')}">
+                <th class="category_2" colspan="2">{!$Label.label_wr_outputrule_00076}</th>    <!-- 【通知設定】 -->
+            </tr>
+            <tr style="display:{!IF(notificationCheck == 'true', 'table-row', 'none')}">
+                <th class="category_3">{!$Label.label_wr_outputrule_00077}</th>    <!-- 出力レコードのフィードへの投稿 -->
+                <td>{!IF(feedComment == true, $Label.label_wr_outputrule_00078, $Label.label_wr_outputrule_00079)}</td>    <!-- 投稿する 投稿しない -->
+            </tr>
+            <tr style="display:{!IF(notificationCheck == 'true', 'table-row', 'none')}">
+                <th class="category_3">{!$Label.label_wr_outputrule_00080}</th>    <!-- Chatter通知先グループ -->
+                <td>{!confirmChatterGroup}</td>
+            </tr>
+        </table>
+    </div>
+</apex:pageBlock>
+</apex:form>
+</apex:page>

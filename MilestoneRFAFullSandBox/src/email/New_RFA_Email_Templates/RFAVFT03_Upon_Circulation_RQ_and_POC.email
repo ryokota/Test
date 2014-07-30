@@ -1,0 +1,32 @@
+<messaging:emailTemplate subject="回覧通知（Information Only）: {!relatedTo.RFA__r.Name}" recipientType="User" relatedToType="RFAUserRole__c">
+
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = " font-size:14px;">
+                    <p>
+                    このEメールは下記承認申請の回覧が開始されたことをお知らせするものです。<br/>
+                    以下のリンクを使用して承認申請にアクセスしてください。<br/>
+                    This email is to notify you that the following RFA has been sent to {!relatedTo.RFA__r.Stage__c}.<br/>
+                    Use the Link below to access the Request and view status of approvals.</p><br/>
+                    
+                    <c:RFAVFT_C01_EmailTemplateBodyRFAuserRole rfaObj="{!relatedTo}"/><br/>
+                    
+                    <p>
+                    下記リンクをクリックし、承認申請リクエストの文書をご確認ください: <br/>
+                     Click this link to open the RFA Request Document: <br/>
+                    <b><a href="{!$Label.RFA_CL026}/{!relatedTo.RFA__c}">{!relatedTo.RFA__r.Name}</a></b></p>
+
+                    <p>このEメールは、本承認申請の申請者または主要連絡先の方へ送られています。<br/>
+                    You are receiving this email because you are the Requester or Primary Point of Contact(s) of the RFA.  
+                    </p>
+
+                    <p>ご質問がございましたら、 <b><a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a></b> へご連絡ください。<BR/>
+                    If you have any inquiries kindly contact <b><a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a></b>.<br/>                    
+                    <br/>XXRFAVFT03
+                    </p>
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

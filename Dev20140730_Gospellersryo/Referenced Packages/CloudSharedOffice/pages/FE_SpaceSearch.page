@@ -1,0 +1,107 @@
+<apex:page sidebar="false" standardStylesheets="true" cache="false" showHeader="false" >
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/document.css')}" />
+<style type="text/css">
+.moveOutContentsTbl{
+    width: 100%;
+}
+
+.moveOutContentsTbl th{
+    text-align: right;
+    font-weight: bold;
+    padding-right: 10px;
+    width: 60px;
+}
+</style>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.history.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/splitter-152.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/grid.locale-ja.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/fg.menu.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.contextmenu.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/colorado.js')}" />
+<!-- UPD START #12 ツリー展開状態保存 -->
+<!-- <apex:includeScript value="{!URLFOR($Resource.WRCSO, 'js/jquery.treeview.js')}" /> -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__FE_CSO, 'js/jquery.treeview.js')}" />
+<!-- UPD END   #12 ツリー展開状態保存 -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.treeview.cso-async.js')}" />
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/callActiveX.js')}" />
+<script type="text/javascript">
+/*
+ * 読込処理
+ */
+jQuery.event.add(window, "load", function(){
+    init_moveout();
+});
+
+function init_moveout(){
+
+    $("#loadingMoveOutTree").show();
+    $("#moveoutTree").empty();
+
+    var callback =  function(data){
+        var branches = $(data["tree"]).appendTo("#moveoutTree");
+        $("#moveoutTree").treeview({
+                collapsed: true,
+                add: branches,
+                url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+                asrt:"moveout"
+        });
+        $("#loadingMoveOutTree").hide();
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"moveout", 'itemsType' : '1', "itemsIds": "", "returnType":"html"}, callback);
+
+}
+
+function change_moveout_space(node, id){
+
+    var callback =  function(data){
+        var tmp = data.spacePath;
+
+        if(!top.window.opener || top.window.opener.closed){
+            //親ウィンドウが存在しない
+            alert('{!$Label.msg_010093_fe}');
+        }
+
+        //親に値を戻す。
+        top.window.opener.spaceSearchReturn(id,tmp);
+
+        //画面を閉じる。
+        top.window.close();
+    };
+    secureGetAsync('/contentsmanagement/SpacePropertyGet.json', {"editSpaceId":id}, callback);
+
+}
+</script>
+
+<div id="moveDialog">
+    <form id="movContentsForm" action="/ContentsMoveout" method="post" onsubmit="return false;">
+    <div id="docMoveoutHeader" class="doc_moveout_error"></div>
+    <table class="moveOutContentsTbl">
+        <tr>
+            <td colspan="2">
+            <div style="overflow: auto; background-color: white;">
+                <ul id="moveoutTree" class="selectTree filetree">
+                </ul>
+                <span id="loadingMoveOutTree" style="display:none;">
+                    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'image/loading.gif')}" style="position: absolute; top: 50%;left: 47%; " id="moveOutTreeLoadImg" />
+                </span>
+            </div>
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+
+</apex:page>

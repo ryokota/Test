@@ -1,0 +1,40 @@
+<apex:page showHeader="true" Controller="SOLXYZCSO001.AppConfigController">
+
+<script>
+
+  function confirmCancel() {
+      var isCancel = confirm("{!$Label.solxyzcso001__msg_010003}");
+      if (isCancel)
+          return true;
+      return false;
+  }
+
+</script>
+
+<apex:sectionHeader title="Cloud Shared Office" subtitle="{!$Label.solxyzcso001__field_010019}" help="/apex/CSO_HELP"/>
+    <apex:form >
+      <apex:pageBlock title="{!$Label.solxyzcso001__field_010020}" mode="edit">
+      <apex:pageBlockButtons >
+          <apex:commandButton action="{!saveComp}" value="{!$Label.solxyzcso001__field_common_save}"/>
+          <apex:commandButton action="{!cancel}" value="{!$Label.solxyzcso001__field_common_cancel}"
+                              onclick="return confirmCancel()" immediate="true"/>
+      </apex:pageBlockButtons>
+      <apex:pageBlockSection title="" columns="1">
+          <apex:pageBlockSectionItem >
+              <apex:outputLabel value="{!$Label.solxyzcso001__field_010021}"/>
+              <apex:inputfile value="{!LogoInfo.Body}" fileName="{!LogoInfo.Name}" contentType="{!LogoInfo.ContentType}" />
+          </apex:pageBlockSectionItem>
+          <apex:pageBlockSectionItem >
+              <apex:outputLabel value="{!$Label.solxyzcso001__field_010022}"/>
+              <apex:outputLabel >
+            	<img src="/servlet/servlet.FileDownload?file={!CompInfo.LogoId__c}&retURL=/{!CompInfo.LogoId__c}" style="/*visibility:hidden;*/" />
+            </apex:outputLabel>
+          </apex:pageBlockSectionItem>
+      </apex:pageBlockSection>
+    </apex:pageBlock>
+  </apex:form>
+
+<br/><hr/>
+<apex:outputpanel style="width:100%; text-align:center;" layout="block"><apex:outputlabel >{!$Label.solxyzcso001__field_CSO_copyright}</apex:outputlabel></apex:outputpanel>
+
+</apex:page>

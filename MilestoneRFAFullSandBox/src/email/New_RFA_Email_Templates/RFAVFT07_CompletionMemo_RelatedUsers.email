@@ -1,0 +1,18 @@
+<!--  Label: RFA_CL048 = VFT07_Completion_Memo; called by Label -->
+<messaging:emailTemplate subject="最終承認ステータス（Final Approval Status）: {!relatedTo.RFA__r.Name} -【{!relatedTo.RFA__r.RequestTitle__c}】" recipientType="User" relatedToType="RFAUserRole__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = " font-size:14px;">
+                 
+                    <!--<c:RFAVFT_C05_Completion_Memo_Body rfaObj="{!relatedTo}"/><br/>-->
+                    <c:RFAVFT_C05CompletionMemoBodyRelatedUser rfaObj="{!relatedTo}"/><br/>
+
+
+                    
+                    
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

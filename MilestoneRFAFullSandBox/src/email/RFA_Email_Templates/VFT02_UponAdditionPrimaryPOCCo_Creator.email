@@ -1,0 +1,26 @@
+<!-- Email template for notifying POC and CO-Creator when they are added to an RFA
+     Related To : RFAUserRole__c
+ -->
+<messaging:emailTemplate subject="起案通知（Information Only）: {!relatedTo.RFA__r.Name} - {!relatedTo.RFA__r.RequestTitle__c}" recipientType="User" relatedToType="RFAUserRole__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = " font-size:14px;">
+                    <!--<p>あなたは現在 {!relatedTo.RFA__r.LevelStage__c} 段階の以下の承認申請の {!relatedTo.RecordType.Name} として追加されました。<BR/>-->
+                    <p>以下の承認申請リクエスト（RFA）が起案されました。<BR/>
+                    You have been identified as a {!relatedTo.RecordType.Name} of the following RFA that is currently in {!relatedTo.RFA__r.Stage__c}<BR/>
+                    </p>
+                    <c:RFA_C03_EmailTemplateBodyRFAuserRole rfaObj="{!relatedTo}"/>
+                    <BR/>
+                    <p><B>内容を確認する場合には下記リンクをクリックし、承認申請の文書を開いてください:<BR/>
+                    Click this link to open the RFA Request Document:<BR/>   
+                    <a href="{!$label.RFA_CL026}/{!relatedTo.RFA__c}">{!relatedTo.RFA__r.Name}</a></B></p>
+                    <BR/>
+                    <p>ご質問がございましたら、<a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a> へご連絡ください。<BR/>
+                    If you have any inquiries kindly contact <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a>.
+                    </p>
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

@@ -1,0 +1,4 @@
+<apex:page standardController="Student__c" showHeader="true" sidebar="false" title="EditProfile">
+
+    <apex:detail />
+</apex:page>

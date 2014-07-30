@@ -1,0 +1,24 @@
+<messaging:emailTemplate subject="起案通知（Information Only）: {!relatedTo.RFA__r.Name} -【{!relatedTo.RFA__r.RequestTitle__c}】" recipientType="User" relatedToType="RFAUserRole__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = " font-size:14px;">
+                    <p>このEメールは、下記承認申請の参照者の方へお送りしています。<br/>
+                    You are receiving this email because you were identified to receive an informational only copy of the following RFA.</p>
+                    <br/>
+
+                    <c:RFAVFT_C01_EmailTemplateBodyRFAuserRole rfaObj="{!relatedTo}"/><br/>
+                    
+                    <p>内容を確認する場合には下記リンクをクリックし、承認申請リクエストの文書を開いてください:<br/>
+                    Click this link to open the RFA Request Document:<br/>
+                    <b><a href="{!$Label.RFA_CL026}/{!relatedTo.RFA__c}">{!relatedTo.RFA__r.Name}</a></b></p>
+                    <br/>                    
+                    <p>ご質問がございましたら、<b><a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a></b> へご連絡ください。<br/>
+                    If you have any inquiries kindly contact <b><a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a></b>.<br/>
+                    <br/>
+                    </p>
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

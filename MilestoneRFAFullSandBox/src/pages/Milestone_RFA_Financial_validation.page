@@ -1,0 +1,183 @@
+<apex:page standardController="RFA__c" sidebar="false" extensions="RM_VFC_FinancialValidationCtrl">
+<style>
+.borderTable {
+
+    border: solid 1px black;
+    border-color:#ECECEC;
+    border-collapse:collapse;
+    padding: 5px;
+    width : 70%;
+}
+.borderTable th{
+    font-weight: bold;
+    height:20px;
+    width:20px;
+    white-space: normal;
+    border: 1px solid black;
+    background-color: #d60016;
+    color: #FFFFFF;
+}
+.borderTable td{
+    white-space: normal;
+    height:20px;
+    width:20px;
+}
+
+.tdBorder {
+    border: 1px solid black;
+}
+.tdLeftNotBorder {
+    border: 1px solid black;
+    border-left-style:none;
+}
+.tdRightNotBorder {
+    border: 1px solid black;
+    border-right-style:none;
+}
+
+span.dateFormat {display: none;}
+</style>
+
+<apex:includeScript value="{!URLFOR($Resource.jQueryGantt, 'jquery.min.js')}"   />
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+    inputDisable();
+});
+
+function inputEnable(){
+    $j("input[class$=editbtn]").show();
+    $j("input[id$=editButton]").hide();
+    
+    $j("input[type=checkbox]").attr("disabled", false);
+    $j("select[class$=yearlist]").attr("disabled", false);
+    $j("input[type=text]").removeAttr("disabled");
+    $j("input[type=text]").removeClass("disabled");
+    $j("table[class=borderTable]").find("select").removeAttr("disabled");
+}
+
+function inputDisable(){
+    $j("input[class$=editbtn]").hide();
+    $j("input[id$=editButton]").show();
+    
+    $j("input[type=checkbox]").attr("disabled", true);
+    $j("select[class$=yearlist]").attr("disabled", true);
+    $j("input[type=text]").attr("disabled", true);
+    $j("input[type=text]").addClass("disabled");
+    $j("table[class=borderTable]").find("select").attr("disabled","disabled");
+}
+
+</script>
+    <apex:form >
+    	<apex:outputPanel id="main-panel" layout="block">
+	    	<table>
+	    		<tr >
+	    			<td align="center">
+                            <input type="button" id="editButton" class="detailbtn" value="{!$Label.RM_Edit}" onclick="inputEnable()" />
+                            <apex:commandButton id="saveButton" styleClass="editbtn" value="{!$Label.RM_Save}" action="{!saveSynergy}" oncomplete="inputDisable()" reRender="message,listPanel" />
+                            <apex:commandButton id="cancelButton" styleclass="editbtn" value="{!$Label.RM_Cancel}" action="{!editCancel}" immediate="true" oncomplete="inputDisable()" reRender="listPanel" />
+	        		</td>
+	    		</tr>
+	    	</table>
+	    	<apex:outputPanel id="listPanel">
+		        <table>
+		        	<tr>
+		        		<td>
+		        			<apex:selectList styleClass="yearlist" value="{!year}" size="1" multiselect="false" onChange="changeYear();">
+		        				<apex:selectOptions value="{!yearOption}" />
+		        			</apex:selectList>
+		        			<apex:actionFunction name="changeYear" action="{!changeYear}" reRender="listPanel" />
+						</td>
+		        		<td>
+		        			{!$Label.RM_Year}
+		        		</td>
+					</tr>
+				</table>
+		        <H1>Saving※百万（MM)単位表示</H1>
+		        <table class="borderTable" >
+		        	<thead>
+			        	<tr class="year-row">
+			        		<th>Name</th>
+			        		<apex:repeat value="{!headerYear}" var="e" >
+			        			<th><apex:outputText value="{!e}" /></th>
+			        		</apex:repeat>
+			        		<th>Total</th>
+			        	</tr>
+		        	</thead>
+		        	<apex:repeat value="{!savingSynergyHistory.records}" var="r">
+			        	<tr>
+			        		<td><apex:outputText value="{!r.RM_Name__c}"/></td>
+			        		<td><apex:inputField value="{!r.RM_This_Year__c}" /></td>
+			        		<td><apex:inputField value="{!r.RM_Next_Year__c}" /></td>
+			        		<td><apex:inputField value="{!r.RM_The_Year_After_Next__c}" /></td>
+			        		<td><apex:inputField value="{!r.RM_Three_Years_Later__c}" /></td>
+			        		<td><apex:inputField value="{!r.RM_Four_Years_Later__c}" /></td>
+			        		<td><apex:outputField value="{!r.RM_Total__c}" /></td>
+			        	</tr>
+		        	</apex:repeat>
+		        	<tfoot>
+		        		<tr>
+		        			<td>Difference</td>
+		        			<td><apex:outputText value="{!savingSynergyHistory.thisYear}" /></td>
+		        			<td><apex:outputText value="{!savingSynergyHistory.nextYear}" /></td>
+		        			<td><apex:outputText value="{!savingSynergyHistory.afterNext}" /></td>
+		        			<td><apex:outputText value="{!savingSynergyHistory.threeYearLater}" /></td>
+		        			<td><apex:outputText value="{!savingSynergyHistory.fourYearLater}" /></td>
+		        			<td><apex:outputText value="{!savingSynergyHistory.total}" /></td>
+		        		</tr>
+		        	</tfoot>
+		        </table>
+		        <br/><br/>
+		 		<H1>Spending※百万（MM)単位表示</H1>
+		        <table class="borderTable" >
+		        	<thead>
+			        	<tr class="year-row">
+			        		<th>Name</th>
+			        		<apex:repeat value="{!headerYear}" var="e" >
+			        			<th><apex:outputText value="{!e}" /></th>
+			        		</apex:repeat>
+			        		<th>Total</th>
+			        	</tr>
+		        	</thead>
+		        	<apex:repeat value="{!spendingSynergyHistory.records}" var="r">
+			        	<tr>
+			        		<td><apex:outputText value="{!r.RM_Name__c}"/></td>
+			        		<td><apex:inputField value="{!r.RM_This_Year__c}" /></td>
+			        		<td><apex:inputField value="{!r.RM_Next_Year__c}" /></td>
+			        		<td><apex:inputField value="{!r.RM_The_Year_After_Next__c}" /></td>
+			        		<td><apex:inputField value="{!r.RM_Three_Years_Later__c}" /></td>
+			        		<td><apex:inputField value="{!r.RM_Four_Years_Later__c}" /></td>
+			        		<td><apex:outputField value="{!r.RM_Total__c}" /></td>
+			        	</tr>
+		        	</apex:repeat>
+		        	<tfoot>
+		        		<tr>
+		        			<td>Difference</td>
+		        			<td><apex:outputText value="{!spendingSynergyHistory.thisYear}" /></td>
+		        			<td><apex:outputText value="{!spendingSynergyHistory.nextYear}" /></td>
+		        			<td><apex:outputText value="{!spendingSynergyHistory.afterNext}" /></td>
+		        			<td><apex:outputText value="{!spendingSynergyHistory.threeYearLater}" /></td>
+		        			<td><apex:outputText value="{!spendingSynergyHistory.fourYearLater}" /></td>
+		        			<td><apex:outputText value="{!spendingSynergyHistory.total}" /></td>
+		        		</tr>
+		        	</tfoot>
+		        </table>
+		        <table>
+		        	<tr>
+		        		<td>
+			        		Detail Document Attached Y/N
+			        		<apex:inputfield styleClass="editcheck" Value="{!rfa.RM_Detail_Document_Attached_Y_N_3__c}"/>
+			        	</td>
+			        </tr>
+			        <tr>
+			        	<td>
+			        		Payback Period (Years)
+			        		<apex:inputfield Value="{!rfa.RM_PaybackPeriodYears__c}"/>
+		        		</td>
+		        	</tr>
+		        </table>
+	        </apex:outputPanel>
+        </apex:outputPanel>
+	</apex:form>
+</apex:page>

@@ -1,0 +1,749 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingWorkflowController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_workflow_definition == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_workflow_definition == 'true' && userInfo.showErrPage == false, true, false)}">
+
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+
+<script type="text/javascript">
+	var USER_LOCALE = '{!JSENCODE(userInfo.locale)}';
+</script>
+
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:include pageName="SOLXYZCSO001__js_wfSteps"/>
+<script type="text/javascript" src="{!$Label.field_CSO_URL}/js/inputCheck.js" />
+<link type="text/css" rel="stylesheet" href="{!$Label.field_CSO_URL}/css/tooltip.css" />
+<script type="text/javascript" src="{!$Label.field_CSO_URL}/js/tooltip.js" />
+<script type="text/javascript" src="{!$Label.field_CSO_URL}/jsp/rb_js.jsp" />
+<script type="text/javascript">
+var _tmpId = "";
+
+// 選択したカテゴリーID（カテゴリー選択ポップアップを閉じても有効）
+var _categoryID             = null;
+
+// 選択中のカテゴリーID（カテゴリー選択ポップアップ表示中のみ使用すること）
+var _selectingCategoryID    = null;
+// 選択中のカテゴリー名（カテゴリー選択ポップアップ表示中のみ使用すること）
+var _selectingCategoryName  = null;
+// 選択中のカテゴリーのパンくず（カテゴリー選択ポップアップ表示中のみ使用すること）
+var _selectingBreadcrumbs   = null;
+
+// カテゴリー名変更か、カテゴリー追加か
+var _isAdd  = null;
+
+// カテゴリー追加、カテゴリー名変更直後にカテゴリー一覧を更新すると、
+// まだサーバ側で更新処理が終わっておらず、正常にカテゴリー情報を
+// 取得できないことがあります。
+// その為、更新処理を行う直前に_savingCategoryをtrueにしておき、
+// その間は画面のカテゴリー一覧の更新を待機し、更新処理のレスポンスが返ってきた時点で
+// _savingCategoryをfalseに戻し、その後カテゴリー一覧を更新するようにします。
+var _savingCategory = false;
+
+$(function(){
+    displayInit();
+
+    var numberInfoText = "{!$Label.label_10822}"
+                         + "<br />" + "{!$Label.label_10823}"
+                         + "<br />" + "{!$Label.label_10824}"
+                         + "<br />" + "{!$Label.label_10825}"
+                         + "<br />" + "{!$Label.label_10826}"
+                         + "<br /><br />" + "{!$Label.label_10827}"
+                         + "<br /><br />" + "{!$Label.label_10828}";
+    $("#number-info").tooltip({
+        text    : numberInfoText,
+        width   : 450,
+        height  : 220,
+    });
+
+    // モーダルの準備
+    $("#modalCategoryName").dialog({
+        autoOpen  : false,
+        bgiframe  : true,
+        modal     : true,
+        draggable : false,
+        resizable : false,
+        closeText : "Close",
+        width     : 600,
+        height    : 300,
+    });
+    $("#add_category_comment").keyup(function(e){
+        viewCommentLength("add_category_comment", "remainder", 512);
+    });
+    $("#remainder").text(getMsg(new Array("512"), "{!$Label.label_10227}"));
+
+    $("#modalCategory").dialog({
+        autoOpen: false,
+        bgiframe: true,
+        modal: true,
+        draggable: false,
+        resizable: false,
+        closeText: "Close",
+        width: 610,
+        height: 515,
+    });
+
+
+})
+
+function displayInit(){
+    secureGetAsync(
+        '/workflowmanagement/setting/workflowDefinitionRegistInit.json',
+        {
+            id      : getUrlVars()["id"],
+            is_edit : "1",
+            cat_id  : getUrlVars()["catId"],
+        },
+        function(data){
+            if(data.result){
+                _tmpId         = data.tmp_id;
+                _categoryID    = data.cat_id;
+                $("#selected-category").text(data.cat_name);
+                $("#def_name").val(data.def_name);
+                $("#def_no").val(data.def_no);
+                if(data.def_is_valid){
+                    $("#def_is_valid").attr("checked", "checked");
+                }
+                $("#def_span").val(data.def_span);
+                showStep();
+            } else {
+                alert(data.message);
+            }
+        }
+    );
+}
+
+function showStep(){
+    $("#step-list").wfDef({
+        id              : _tmpId,
+        isEdit          : true,
+        apiUrl          : "{!$Label.field_CSO_URL}",
+        cssUrl          : "{!$Label.field_CSO_URL}/css/jquery.wfSteps.css?20121204",
+        addStepButton   : "btnAddStep",
+        delStepButton   : "btnDelStep",
+        delLumpButton   : "btnDelLump",
+        replaceButton   : "btnReplace",
+        submitButton    : "btnOK",
+        submitFunction  : function(){
+            regist();
+        },
+    });
+}
+
+function openCategory(){
+    // 選択中変数を初期化する
+    _selectingCategoryID    = null;
+    _selectingCategoryName  = null;
+    _selectingBreadcrumbs   = null;
+    $("#category-name").val("");
+
+
+    loadCategory();
+
+    // 選択済みのカテゴリーを選択状態にする
+    if(!isEmpty(_categoryID)){
+        onCategoryClicked(_categoryID);
+    }
+
+    // カテゴリーダイアログを開いた時点では、ボタンをいくつか無効にしておく
+    var buttons = $("[id=catAddButton],[id=catModButton]");
+    buttons.attr("disabled", "disabled");
+
+    $("#modalCategory").dialog("open");
+}
+
+function loadCategory(){
+    if(_savingCategory){
+        setTimeout(function(){loadCategory();}, 50);
+        return;
+    }
+
+    secureGetAsync(
+        "/workflowmanagement/setting/workflowCategoryInfo.json",
+        {edit:0},
+        function(data){
+            var branches = $("#categoryList").html(data["tree"]);
+            $("#categoryList").treeview({
+                animated: "fast",
+                unique: false,
+                persist: "cookie",
+                cookieId: "categoryList",
+                add: branches,
+                toggle: function() {
+                }
+            });
+
+            if(_selectingCategoryID != null){
+                onCategoryClicked(_selectingCategoryID);
+            }
+
+            $("[isManager=0]").addClass("cannot-select-category");
+        }
+    );
+}
+
+function onCategoryClicked(catId){
+    var cat = $("#categoryList").find("#" + catId);
+
+    if(cat.attr("isManager") == "0"){
+        return;
+    }
+
+    // 見た目
+    $(".selected-category").removeClass("selected-category");
+    $("#" + catId).addClass("selected-category");
+
+    // 選択したカテゴリーのIDと名前を保存しておく
+    _selectingCategoryID    = catId;
+    _selectingCategoryName  = cat.text();
+
+    // パンくずを設定しておく
+    _selectingBreadcrumbs   = getSelectingBreadcrumbs(catId);
+    _selectingBreadcrumbs   += "&nbsp;&nbsp;&nbsp;";
+
+    // 選択中のカテゴリー名を変更する
+    $("#category-name").val(_selectingCategoryName);
+
+    // ボタン有効化/無効化
+    var addButton   = $("#catAddButton");
+    var modButton   = $("#catModButton");
+    var okButton    = $("#catOkButton");
+    if(cat.attr("top") == "top"){
+        // トップを選択した場合
+        addButton.attr("disabled", "");
+        modButton.attr("disabled", "disabled");
+        okButton.attr("disabled", "");
+    }else{
+        // トップ以外を選択した場合
+        if(cat.attr("isManager") == "0"){
+            // カテゴリーの管理者でない場合
+            addButton.attr("disabled", "disabled");
+            modButton.attr("disabled", "disabled");
+            okButton.attr("disabled", "disabled");
+        }else{
+            // カテゴリーの管理者である場合
+            addButton.attr("disabled", "");
+            modButton.attr("disabled", "");
+            okButton.attr("disabled", "");
+        }
+    }
+}
+
+function getSelectingBreadcrumbs(catId){
+    var breadcrumbs = $("#" + catId).html();
+
+    if($("#" + catId).attr("parentId")){
+        var parentcrumbs = getSelectingBreadcrumbs($("#" + catId).attr("parentId"));
+        breadcrumbs = parentcrumbs + "&nbsp;&nbsp;&gt;&nbsp;&nbsp;" + breadcrumbs;
+    }
+
+    return breadcrumbs;
+}
+
+function onSelCatAddCatClicked(){
+    _isAdd = true;
+    $("#ui-dialog-title-modalCategoryName").html("{!$Label.label_10680}");
+    $("#users_area").show();
+    $("#add_name").val("");
+    $("#add_category_comment").val("");
+    $("#add_category_comment").trigger("keyup");
+    $("#inherit_manager").attr("checked", "checked");
+    $("#inherit_users").attr("checked", "checked");
+    $("#modalCategoryName").dialog("open");
+}
+
+function onSelCatModCatClicked(){
+    _isAdd = false;
+    $("#ui-dialog-title-modalCategoryName").html("{!$Label.label_10798}");
+    $("#users_area").hide();
+    $("#add_name").val(_selectingCategoryName);
+    secureGetAsync(
+        "/workflowmanagement/setting/workflowCategoryCommentGet.json",
+        {
+            cat_id      : _selectingCategoryID,
+        },
+        function(data){
+            if(data["alert"]!=null){
+                alert(data["alert"]);
+            }else{
+                $("#add_category_comment").val(data["comment"]);
+                $("#add_category_comment").trigger("keyup");
+                $("#modalCategoryName").dialog("open");
+            }
+        }
+    );
+}
+
+function onSelCatOkClicked(){
+    _categoryID = _selectingCategoryID;
+    $("#selected-category").html(_selectingBreadcrumbs);
+    $("#modalCategory").dialog("close");
+}
+
+function onSelCatCancelClicked(){
+    $("#modalCategory").dialog("close");
+}
+
+function onModCatCancelClicked(){
+    $("#modalCategoryName").dialog("close");
+}
+
+function onModCatOkClicked(){
+    modifyCategory();
+}
+
+function modifyCategory(mode){
+    _savingCategory = true;
+
+    var styleClass = "error";
+
+    $("." + styleClass).removeClass(styleClass);
+    var err = [];
+
+    var name = $("#add_name").val();
+    if(name.length < 1){
+        err.push(getMsg(new Array("{!$Label.label_10681}"), "{!$Label.msg_00196}"));
+    }else if(name.length > 30){
+        err.push(getMsg(new Array("{!$Label.label_10681}", 30), "{!$Label.msg_00230}"));
+    }
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    var comment = $("#add_category_comment").val().replace(regexp, "\r\n");
+    if(comment.length > 512){
+        err.push("{!$Label.msg_00007}");
+    } else {
+    	comment = $.trim(comment);
+    }
+
+    if(err.length > 0){
+        alert(err.join("\n"));
+        return;
+    }
+
+    var mode = "";
+    if(_isAdd){
+        mode = "add";
+    }else{
+        mode = "mod";
+    }
+
+	CsoScript_loadingStart();
+
+    secureGetAsync(
+        "/workflowmanagement/setting/workflowCategoryModify.json",
+        {
+            cat_id          : _selectingCategoryID,
+            mode            : mode,
+            name            : $("#add_name").val(),
+            comment         : comment,
+            inherit_manager : $("#inherit_manager").attr("checked"),
+            inherit_users   : $("#inherit_users").attr("checked"),
+        },
+        function(data){
+            _savingCategory = false;
+            if(data["alert"]!=null){
+                alert(data["alert"]);
+            }else{
+                $("#modalCategoryName").dialog("close");
+                loadCategory();
+            }
+            CsoScript_loadingStop();
+        }
+    );
+}
+
+function regist(){
+    if(!validate()){
+        return;
+    }
+
+    secureGetAsync(
+        "/workflowmanagement/setting/workflowDefinitionRegist.json",
+        {
+            tmp_id   : _tmpId,
+            cat_id   : _categoryID,
+            name     : $("#def_name").val(),
+            no       : $("#def_no").val(),
+            is_valid : $("#def_is_valid").attr("checked"),
+            span     : $("#def_span").val(),
+        },
+        function(data){
+            if(data["alert"]!=null){
+                alert(data["alert"]);
+            }else{
+                if(getUrlVars()["id"] == ""){
+                    window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionList))}';
+                }else{
+                    if(getUrlVars()["ref"] == "info"){
+                        window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionInfo))}?id=' + getUrlVars()["id"];
+                    }else{
+                        window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionList))}';
+                    }
+                }
+            }
+        }
+    );
+}
+
+function validate(){
+    var styleClass = "error";
+
+    $("." + styleClass).removeClass(styleClass);
+    var err = [];
+
+    if(isEmpty(_categoryID)){
+        $("#select-category-button").addClass(styleClass);
+        err.push(getMsg(new Array("{!$Label.label_10678}"), "{!$Label.msg_00195}"));
+    }
+    if($("#def_name").val() == ""){
+        $("#def_name").addClass(styleClass);
+        err.push(getMsg(new Array("{!$Label.label_10685}"), "{!$Label.msg_00196}"));
+    }
+    if($("#def_no").val() == ""){
+        $("#def_no").addClass(styleClass);
+        err.push(getMsg(new Array("{!$Label.label_10709}"), "{!$Label.msg_00196}"));
+    }else if(!$("#def_no").val().match(/^[0-9a-zA-Z\-_{}]+$/)){
+        $("#def_no").addClass(styleClass);
+        err.push("{!$Label.msg_00321}");
+    }
+
+    if($("#def_span").val() == ""){
+        $("#def_span").addClass(styleClass);
+        err.push(getMsg(new Array("{!$Label.label_10835}"), "{!$Label.msg_00196}"));
+    }else if(!isNumeric($("#def_span").val())){
+        $("#def_span").addClass(styleClass);
+        err.push(getMsg(new Array("{!$Label.label_10835}", "1", "365"), "{!$Label.msg_00320}"));
+    }else if(Number($("#def_span").val()) > 365 || Number($("#def_span").val()) < 1){
+        $("#def_span").addClass(styleClass);
+        err.push(getMsg(new Array("{!$Label.label_10835}", "1", "365"), "{!$Label.msg_00320}"));
+    }
+
+    if(!$("#step-list").checkLastApprover()){
+        err.push("{!$Label.label_10806}");
+    }
+
+    if (err.length == 0) {
+        return true;
+    } else {
+        alert(err.join("\n"));
+        return false;
+    }
+}
+
+function onCancelClicked(){
+    if(getUrlVars()["id"] == ""){
+        window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionList))}';
+    }else{
+        if(getUrlVars()["ref"] == "info"){
+            window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionInfo))}?id=' + getUrlVars()["id"];
+        }else{
+            window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionList))}';
+        }
+    }
+}
+
+function getUrlVars(){
+    var vars = [], hash;
+    var hashes = window.location.href.slice(location.href.lastIndexOf('?') + 1).split('&');
+    for(var i = 0; i <hashes.length; i++){
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+</script>
+
+<style type="text/css">
+.btn:disabled {
+    color: #BBB;
+}
+.definition {
+    margin: 10px 10px 10px 0;
+}
+.definition th {
+    text-align: right;
+    font-weight: bold;
+    height: 30px;
+    width: 100px;
+    padding: 0 15px 0 0;
+}
+.step-list {
+    margin-left: 120px;
+}
+.input-name {
+    width: 350px;
+}
+.input-no {
+    width: 180px;
+}
+.input-span {
+    width: 50px;
+}
+.categorylist-box {
+    height: 350px;
+    border: solid 1px #CCC;
+    overflow: auto;
+}
+.categorylist-button-box-left {
+    float: left;
+    margin: 12px 5px 12px 0;
+}
+.categorylist-button-box-right {
+    float: right;
+    margin: 12px 5px 12px 0;
+}
+.category-name-label {
+    font-weight: bold;
+}
+.category-name {
+    width: 440px;
+    margin: 15px 0 15px 10px;
+}
+.categorylist-box a {
+    text-decoration: underline;
+}
+.categorylist-box .cannot-select-category {
+    color: #BBB;
+    cursor: default;
+}
+.categorylist-box .selected-category {
+    color: #F00;
+}
+.categoryNameModalTable th {
+    padding: 10px;
+    text-align: right;
+    font-weight: bold;
+    width:100px;
+    min-width: 100px;
+}
+.categoryNameModalTable td {
+    overflow: hidden;
+    width : 430px;
+    min-width: 430px;
+}
+#remainder {
+    padding-bottom: 0.3em;
+    text-align:right;
+    width:95%
+    white-space: nowrap;
+}
+.input-area {
+}
+.users-area {
+    float: left;
+    margin: 0 0 0 50px;
+}
+.name-label {
+    font-weight: bold;
+    margin: 0 5px 0 0;
+}
+.name-txt {
+    width: 210px;
+}
+.name-button-box {
+    float: right;
+    margin: 10px 10px 0 0;
+}
+.modal {
+    display: none;
+}
+.number-info {
+    vertical-align: middle;
+}
+.ui-tabs .ui-tabs-nav {
+    padding: 0 0 7px 0;
+}
+#steps .step-user-div {
+    padding-left: 5px;
+}
+#steps .step-user-add-plus {
+    left: 28px;
+}
+#stepAddUserModal .tab-inner {
+    margin-top: 4px;
+}
+#stepAddUserModal .superior2 {
+    float: left;
+    margin: 20px 0 20px 20px;
+}
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/flow_defined.png')}" alt="{!$Label.solxyzcso001__label_10647}" title="{!$Label.solxyzcso001__label_10647}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10673}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10647}</h2>
+            </td>
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <apex:pageBlockButtons >
+                            <input type="button" class="btn" id="btnOK" value="{!$Label.label_00075}" onclick="return false;"/>
+                            <input type="button" class="btn" id="btnCancel" value="{!$Label.label_00058}" onclick="onCancelClicked();return false;" />
+                        </apex:pageBlockButtons>
+                        <div id ="editMain">
+                            <apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}"  collapsible="false"/>
+                            <div id="detailDiv">
+                                <table class="definition">
+                                    <tr>
+                                        <th>{!$Label.label_00083}</th>
+                                        <td>
+                                            <input id="def_is_valid" type="checkbox" class="input-is-valid" style="margin-left: 2px;" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_10678}</th>
+                                        <td>
+                                            <div class="c_require">
+                                                <span id="selected-category" />
+                                                <input id="select-category-button" type="button" class="btn" value="{!$Label.label_00076}" onclick="openCategory();" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_10685}</th>
+                                        <td>
+                                            <div class="c_require">
+                                                <input id="def_name" class="input-name" maxLength="100" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_10709}</th>
+                                        <td>
+                                            <div class="c_require">
+                                                <input id="def_no" class="input-no" maxLength="100" />
+                                                <img id="number-info" src="{!$Label.field_CSO_URL}/image/tooltip.png" class="number-info" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_10175}</th>
+                                        <td>
+                                            <div class="c_require">
+                                                <input id="def_span" class="input-span" maxLength="3" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_10731}</th>
+                                        <td>
+                                            <input type="button" id="btnAddStep" class="btn" value="{!$Label.label_10772}" onclick="return false;" />
+                                            <input type="button" id="btnDelStep" class="btn" value="{!$Label.label_10773}" onclick="return false;" />
+                                            <input type="button" id="btnDelLump" class="btn" value="{!$Label.label_10836}" onclick="return false;" />
+                                            <input type="button" id="btnReplace" class="btn" value="{!$Label.label_10774}" onclick="return false;" />
+                                            <div id="replace-function-area" style="display: inline-block; position: relative; z-index: 116;"></div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div id="step-list" class="step-list"></div>
+
+                                <div id="modalCategory" class="modal" title="{!$Label.label_10777}">
+                                    <span class="category-name-label">
+                                        {!$Label.label_10678}
+                                    </span>
+                                    <input type="text" id="category-name" class="category-name" readonly="readonly" />
+                                    <div class="categorylist-box">
+                                        <div id="categoryList"></div>
+                                    </div>
+                                    <div class="categorylist-button-box-left">
+                                        <input type="button" class="btn" id="catAddButton" value="{!$Label.label_10778}" onclick="onSelCatAddCatClicked();" />
+                                        <input type="button" class="btn" id="catModButton" value="{!$Label.label_10833}" onclick="onSelCatModCatClicked();" />
+                                    </div>
+                                    <div class="categorylist-button-box-right">
+                                        <input type="button" class="btn" id="catOkButton" value="{!$Label.label_00059}" onclick="onSelCatOkClicked();" />
+                                        <input type="button" class="btn" id="catCancelButton" value="{!$Label.label_00058}" onclick="onSelCatCancelClicked();" />
+                                    </div>
+                                </div>
+                                <div id="modalCategoryName" class="modal" title="{!$Label.label_10680}">
+                                    <div class="input-area">
+                                        <table class="categoryNameModalTable">
+                                            <tr>
+                                                <th class="name-label">{!$Label.label_10681}</th>
+                                                <td class="c_require">
+                                                    <input id="add_name" name="add_name" type="text" class="required middleWidth name-txt" maxLength="30" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="name-label" nowrap="nowrap">{!$Label.label_10012}</th>
+                                                <td>
+                                                    <div id="remainder"></div>
+                                                    <div>
+                                                        <textarea name="add_category_comment" id="add_category_comment" style="height: 130px; width:98%; resize: none;"></textarea>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <div id="users_area" class="users-area">
+                                                        <div>
+                                                            <label>
+                                                                <input type="checkbox" id="inherit_manager" />
+                                                                <span>{!$Label.label_10817}</span>
+                                                            </label>
+                                                        </div>
+                                                        <div>
+                                                            <label>
+                                                                <input type="checkbox" id="inherit_users" />
+                                                                <span>{!$Label.label_10816}</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="name-button-box">
+                                                        <input type="button" class="btn" value="{!$Label.label_00059}" onclick="onModCatOkClicked();" />
+                                                        <input type="button" class="btn" value="{!$Label.label_00058}" onclick="onModCatCancelClicked();" />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

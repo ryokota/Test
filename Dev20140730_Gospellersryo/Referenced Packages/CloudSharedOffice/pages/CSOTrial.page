@@ -1,0 +1,132 @@
+<apex:page tabStyle="setting__tab" controller="SOLXYZCSO001.CSOTrialController" action="{!init}" sidebar="false">
+<apex:form >
+    <apex:sectionHeader subtitle="{!$Label.solxyzcso001__label_10246}" title="{!$Label.solxyzcso001__label_00002}"/>
+    <apex:pagemessages />
+    {!$Label.solxyzcso001__label_10247}
+    <apex:pageBlock mode="edit">
+
+        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10248}">
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_10088}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                   <apex:inputText value="{!company}"/>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_00032}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                    <apex:selectList value="{!selection}" size="1" style="width:120px;">
+                        <apex:selectOptions value="{!countrys}"/>
+                    </apex:selectList>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_00033}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                   <apex:inputText value="{!zip}"/>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_00034}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                   <apex:inputText value="{!state}"/>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_00035}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                   <apex:inputText value="{!city}"/>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_00036}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                   <apex:inputText value="{!street}"/>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_00037}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                   <apex:inputText value="{!phone}"/>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_00038}</apex:outputLabel>
+               <apex:inputText value="{!fax}"/>
+           </apex:pageBlockSectionItem>
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_13123}</apex:outputLabel>
+               <apex:outputLabel >{!organizationID}</apex:outputLabel>
+           </apex:pageBlockSectionItem>
+        </apex:pageblockSection>
+        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10250}">
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_10086}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                   <apex:inputText value="{!LastName}"/>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_00088}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                   <apex:inputText value="{!FirstName}"/>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_10410}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                   <apex:inputText value="{!post}"/>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_10016}</apex:outputLabel>
+               <apex:outputLabel >{!email}</apex:outputLabel>
+           </apex:pageBlockSectionItem>
+
+        </apex:pageblockSection>
+        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10091}">
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_10411}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                   <apex:inputtextarea value="{!requirements}" cols="73" rows="5" />
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_10413}</apex:outputLabel>
+                <apex:outputPanel styleClass="requiredInput" layout="block">
+                    <apex:selectList value="{!IntroductionTimeSelection}" size="1" style="width:120px;">
+                        <apex:selectOptions value="{!IntroductionTimes}"/>
+                    </apex:selectList>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+           <!-- apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.label_10414}</apex:outputLabel>
+               <apex:inputText value="{!introductionTimeEtc }" />
+           </apex:pageBlockSectionItem -->
+
+
+        </apex:pageblockSection>
+    </apex:pageBlock>
+
+    <apex:pageBlock mode="maindetail" dir="CTL">
+        <apex:pageBlockButtons location="bottom">
+            <apex:commandButton value="{!$Label.solxyzcso001__label_10254}" action="{!save}"/>
+        </apex:pageBlockButtons>
+
+        <apex:inputCheckbox dir="RTL" value="{!OK}"/>
+        {!$Label.solxyzcso001__label_10255}<br/>
+        <apex:outputLink target="kiyaku" style="text-align:center" value="{!$Label.solxyzcso001__label_privacy_url}">{!$Label.solxyzcso001__label_10256}</apex:outputLink>
+    </apex:pageBlock>
+</apex:form>
+</apex:page>

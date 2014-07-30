@@ -1,0 +1,228 @@
+<apex:page cache="false" sidebar="false" controller="SOLXYZCSO001.SpacePortalController">
+<script type="text/javascript">
+function getInitDisclose(spaceId){
+    $("#discloseSpaceId").val(spaceId);
+
+    $("#listViewArea, #otherDiv, #showIconContainer, #innerHeadButtons, #refIcon, #fullPathDisplay").hide();
+    hideCsoContextMenu();
+    $("[name=discloseModeRadio][value=0]").attr("checked", "checked");
+
+    var param = {
+        spaceid: spaceId
+    }
+
+    var callback =  function(data, status){
+        if(data["alert"]!=null){
+            CsoScript_loadingStop();
+            alert(data["alert"]);
+        }else{
+
+            var discloseDisableFlag = false;
+
+            if (data.enable) {
+                $("#discloseEnableCheck").attr("checked", "checked");
+            } else {
+                $("#discloseEnableCheck").attr("checked", "");
+            }
+            if(data.w_workflow != null){
+                alert(data.w_workflow);
+                discloseDisableFlag = true;
+            }
+            if(data.w_delivery != null){
+                alert(data.w_delivery);
+                discloseDisableFlag = true;
+            }
+            if(discloseDisableFlag){
+                $("#discloseEnableCheck, [name=discloseModeRadio], #discloseStartDate, #discloseEndDate, #disclose_save").attr(
+                        "disabled", "disabled"
+                );
+            } else {
+                $("#discloseEnableCheck, [name=discloseModeRadio], #discloseStartDate, #discloseEndDate, #disclose_save").attr(
+                        "disabled", ""
+                );
+            }
+            discloseEnableChecked();
+
+            if (data.mode == "PERIOD") {
+                $("[name=discloseModeRadio][value=0]").attr("checked", "checked");
+            } else if (data.mode == "UNLIMITED_DISCLOSE") {
+                $("[name=discloseModeRadio][value=1]").attr("checked", "checked");
+            } else if (data.mode == "UNLIMITED_CLOSE") {
+                $("[name=discloseModeRadio][value=2]").attr("checked", "checked");
+            }
+            discloseModeSelected();
+
+            $("#discloseStartDate").val(data.start_date);
+            $("#discloseEndDate").val(data.end_date);
+
+            $("#discloseStartDate, #discloseEndDate").datepicker({dateFormat : "{!datePickerFormat}"});
+            $("#discloseDiv, #discloseButtonArea").show();
+
+            $("#discloseTimeZoneText").text(data.timezone_text);
+        }
+        CsoScript_loadingStop();
+    };
+
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("WatermarkDetailApi:" + data);
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync('/contentsmanagement/discloseSettingsInfo.json?spaceid=' + spaceId, '', callback, callerror);
+}
+
+function discloseEnableChecked() {
+    if ($("#discloseEnableCheck").attr("checked")) {
+        $("[name=discloseModeRadio], discloseStartDate, #discloseEndDate").attr("disabled", "");
+    } else {
+        $("[name=discloseModeRadio], discloseStartDate, #discloseEndDate").attr("disabled", "disabled");
+    }
+    discloseModeSelected();
+}
+
+function discloseModeSelected() {
+    if ($("#discloseEnableCheck").attr("checked") && $("[name=discloseModeRadio]:checked").val() == 0) {
+        $("#discloseStartDate, #discloseEndDate").attr("disabled", "");
+    } else {
+        $("#discloseStartDate, #discloseEndDate").attr("disabled", "disabled");
+    }
+}
+
+function saveDisclose(){
+
+    if (!discloseValidation()) {
+        return;
+    }
+
+    var spaceId = $("#discloseSpaceId").val();
+    var enable = $("#discloseEnableCheck").attr("checked") ? 1 : 0;
+    var mode = $("[name=discloseModeRadio]:checked").val();
+    var startDate = $("#discloseStartDate").val();
+    var endDate = $("#discloseEndDate").val();
+
+    var param = {
+        spaceid    : spaceId,
+        enable     : enable,
+        mode       : mode,
+        start_date : startDate,
+        end_date   : endDate
+    }
+
+    var callback =  function(data, status){
+        if(!data.result){
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+
+        CsoScript_loadingStop();
+        $(".btn").removeAttr("disabled");
+	changeHashToCurrentSpace();
+        $('#listView1').trigger('reloadGrid');
+        reloadTree();
+        displayList();
+    };
+
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("discloseSettingsUpdate:" + data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync('/disclose/discloseSettingsUpdate.json', param, callback, callerror);
+}
+
+function discloseValidation(){
+    var discValidFlag = false;
+
+    if ($("#discloseEnableCheck").attr("checked")
+            && $("[name=discloseModeRadio]:checked").val() == 0
+            && $("#discloseStartDate").val() == ""
+            && $("#discloseEndDate").val() == "") {
+        alert("{!$Label.msg_01128}");
+        discValidFlag = true;
+    } else if ($("#discloseStartDate").val() != "" && $("#discloseEndDate").val() != ""
+		&& $("#discloseStartDate").datepicker("getDate") > $("#discloseEndDate").datepicker("getDate")) {
+		alert("{!$Label.msg_01129}");
+        discValidFlag = true;
+	}
+
+    if (discValidFlag) {
+        return false;
+    } else {
+        $("#sectionHeader").hide();
+        return true;
+    }
+}
+
+function discloseCancel(){
+    $("#discloseDiv, #discloseButtonArea").hide();
+    $("#listViewArea, #showIconContainer, #innerHeadButtons, #refIcon").show();
+}
+</script>
+
+<style type="text/css">
+.disclose-table {
+    margin: 10px 0 0 30px;
+}
+.disclose-table th {
+    text-align: right;
+    font-weight: bold;
+    height: 40px;
+    padding: 0 10px 0 0;
+}
+.disclose-table td label {
+    margin: 0 10px 0 0;
+}
+.disclose-explanation {
+    margin: 35px 0 0 30px;
+}
+</style>
+
+<input type="hidden" id="discloseSpaceId" />
+<div id ="editMain">
+    <div id="detailDiv">
+        <table class="disclose-table">
+            <tr>
+                <th>{!$Label.label_00083}</th>
+                <td><input type="checkbox" id="discloseEnableCheck" onclick="discloseEnableChecked();" /></td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_13125}</th>
+                <td>
+                    <label>
+                        <input type="radio" name="discloseModeRadio" value="0" onchange="discloseModeSelected();" />
+                        {!$Label.label_13126}
+                    </label>
+                    <label>
+                        <input type="radio" name="discloseModeRadio" value="1" onchange="discloseModeSelected();" />
+                        {!$Label.label_13127}
+                    </label>
+                    <label>
+                        <input type="radio" name="discloseModeRadio" value="2" onchange="discloseModeSelected();" />
+                        {!$Label.label_13128}
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_13129}</th>
+                <td>
+                    <input type="text" id="discloseStartDate" class="shortWidth" />
+                    ～
+                    <input type="text" id="discloseEndDate" class="shortWidth" />
+                </td>
+            </tr>
+           <tr>
+				<th style="height: 18px;"></th>
+				<td><span id="discloseTimeZoneText"></span></td>
+		   </tr>
+        </table>
+        <div class="disclose-explanation">
+            {!$Label.label_13132}<br />
+            {!$Label.label_13133}<br />
+            {!$Label.label_13160}
+        </div>
+    </div>
+</div>
+</apex:page>

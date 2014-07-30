@@ -1,0 +1,11 @@
+<apex:component >
+    <apex:attribute name="detailList" description="RFA Request Details data list" type="CM_RequestDetails__c[]" required="true" />
+    <apex:attribute name="componentTitle" description="RFA Request Details Title" type="String" required="true" />
+    <apex:componentBody >
+    <apex:repeat value="{!detailList}" var="d" >
+    <apex:pageBlockSection title="{!d.CM_RecordType_Name__c}" >
+        <apex:outputField value="{!d.CM_Input__c}" />
+    </apex:pageBlockSection>
+    </apex:repeat>
+    </apex:componentBody>
+</apex:component>

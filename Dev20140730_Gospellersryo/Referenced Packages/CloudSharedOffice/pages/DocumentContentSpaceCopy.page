@@ -1,0 +1,282 @@
+<apex:page sidebar="false" showHeader="false" cache="false" controller="SOLXYZCSO001.SpacePortalController">
+
+<script type="text/javascript">
+var versionList = new Array();
+var includeSpaceCopy = false;
+function init_copy(){
+    $("#loadingSpaceCopyTree").show();
+    $("#spacecopyTree").empty();
+    $("#loadingDiv").hide();
+
+    $("#selectSpaceCopyId").val("");
+    $("#selectSpaceCopyName").val("");
+    $("#versionSelect").empty();
+
+    if(!includeSpaceCopy){
+        $('.spaceCopyOption').css({'display':'none'});
+    } else {
+        $('.spaceCopyOption').css("display", "table-row");
+    }
+
+    if(g_spacecopy.spacecopyIds.length > 1){
+        $("#versionTitle").hide();
+        $("#versionSelect").attr("style","display:none");
+        $("#versionTitle").attr("style","display:none");
+    } else {
+        $("#versionSelect").attr("style","width:20%");
+        $("#versionTitle").attr("style","");
+        $("#versionSelect").attr("style","display:none");
+        $("#versionTitle").attr("style","display:none");
+
+        var copyIds = '[';
+        for(var iIds = 0; iIds < g_spacecopy.spacecopyIds.length; iIds++){
+            if (iIds > 0) {
+                copyIds = copyIds + ',';
+            }
+            copyIds = copyIds + '{ "fileid": "' + g_spacecopy.spacecopyIds[iIds] + '", "filename": "" }';
+        }
+        copyIds = copyIds + ']';
+
+        var initCallback = function(copyinitback){
+            CsoScript_loadingStop();
+            if(copyinitback["versionList"]){
+                versionList=copyinitback["versionList"].split(",");
+                $("#versionSelect").empty();
+                var str="";
+                $.each(versionList,function(n,obj){
+                    if(n!=0){
+                        str+="<option value='"+obj+"'>"+obj+"</option>";
+                    }else{
+                        str+="<option value='"+obj+"' selected=selected>"+obj+"</option>";
+                    }
+                });
+                $("#versionSelect").append(str);
+                $("#versionSelect").show();
+                $("#versionTitle").show();
+            }
+        };
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+        CsoScript_loadingStart();
+        securePostAsync('/contentsmanagement/SpaceContentsCopyInit.json', { "file" : copyIds}, initCallback, callerror);
+    }
+    var callback =  function(data){
+        var branches = $(data["tree"]).appendTo("#spacecopyTree");
+        $("#spacecopyTree").treeview({
+            collapsed: true,
+            add: branches,
+            url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+            asrt:"copy"
+        });
+        $("#loadingSpaceCopyTree").hide();
+        synchronizedSpaceTreeCp();  
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"copy", 'itemsType' : '1', "itemsIds": "", "returnType":"html"}, callback);
+}
+function change_copy_space(node, id){
+    if(g_spacecopy.preSelectNode){
+        $(g_spacecopy.preSelectNode).removeClass("selectNode");
+    }
+    $("#selectSpaceCopyName").val($(node).text());
+    $("#selectSpaceCopyId").val(id);
+    $(node).addClass("selectNode");
+    g_spacecopy.preSelectNode = node;
+    return false;
+}
+
+function executeCopy(){
+    if( $("#selectSpaceCopyId").val().length <= 0){
+        alert("{!$Label.msg_00087}");
+        return;
+    }
+
+    if (!confirm('{!$Label.msg_00090}')) {
+        return;
+    }
+
+    $("#copy_OkBtn").attr({"disabled":"disabled"});
+    $("#copy_CancelBtn").attr({"disabled":"disabled"});
+
+    copyDialogDivClose();
+
+    var serverUrl = window.location.protocol + "//" + window.location.host
+
+    var copyIds = '';
+    for(var iIds = 0; iIds < g_spacecopy.spacecopyIds.length; iIds++){
+        if (iIds > 0) {
+            copyIds = copyIds + ',';
+        }
+        copyIds = copyIds + g_spacecopy.spacecopyIds[iIds];
+    }
+
+    var versionString = "";
+    if ($("#versionSelect").val() == null) {
+        versionString = ',"version": null"';
+    } else {
+        versionString = ',"version": "' + $("#versionSelect").val() + '"';
+    }
+
+    var callback = function(checkbackCopy){
+        CsoScript_loadingStop();
+        if(!checkbackCopy["result"]){
+            alert(checkbackCopy.message);
+        }
+
+        copyDialogDivClose();
+        reloadNow();
+        reloadTree();
+
+        $("#copy_OkBtn").removeAttr("disabled");
+        $("#copy_CancelBtn").removeAttr("disabled");
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+        $("#copy_OkBtn").attr({"disabled":"disabled"});
+        $("#copy_CancelBtn").attr({"disabled":"disabled"});
+    };
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SpaceContentsCopy.json', {"idlist": copyIds, "spaceId": "", "recieveId": $("#selectSpaceCopyId").val(), "url":serverUrl, "overwriteRole": $("#spacecopyOverwriteRole").attr("checked"), "overwriteSpaceSetting": $("#spacecopyOverwriteSpaceSetting").attr("checked")}, callback, callerror);
+//    securePostAsync('/contentsmanagement/SpaceContentsCopy.json', {"idlist": copyIds, "spaceId": "", "recieveId": $("#selectSpaceCopyId").val(), "url":serverUrl}, callback, callerror);
+
+}
+/*
+ * copyDialogを閉じる。 */
+function copyDialogDivClose(){
+    $("#copyDialog").dialog("close");
+}
+
+
+function synchronizedSpaceTreeCp(){
+    var $ids = $('#fullPathDisplay').children("a");
+    if($ids.length == 0){
+                $ids = $('#spacePath div div h3').children("a");
+    }
+    if($ids.length == 0){
+        return;
+    }
+    var spaceid = 0;
+    $ids.each(function(){
+        spaceid = $(this).attr("id");
+        var expanded = expandSpaceTreeCp(spaceid);
+        if(!expanded){
+            return false;
+        }
+    });
+    
+     if($ids.length == 1){
+        expandSpaceTreeCp(spaceid);
+    }
+    
+    setTimeout(function(){
+        var obj = $("#spacecopyTree li").filter("#" + spaceid);
+        var top = obj.offset().top;
+        var treeArea = $("#spacecopyTreeContainer");
+        var areaTop = treeArea.offset().top;
+        var scrollTop = treeArea.scrollTop();
+        if(scrollTop == 0){
+            $("#spacecopyTreeContainer").scrollTop(top - areaTop - 150);
+        }
+        else{
+            $("#spacecopyTreeContainer").scrollTop(top - areaTop - 150 + scrollTop);
+        }
+    }, 500);
+}
+
+function expandSpaceTreeCp(spaceid){
+    // Redmine 8607
+    var $li = $("#spacecopyTree #" + spaceid);
+    if($li.length == 0){
+        return false;
+    }
+    if($li.hasClass("collapsable")){
+        return true;
+    }
+
+    if($li.hasClass("hasChildren")){
+        // read children
+        var asrt = "copy";
+        var $div = $li.find("div:first");
+            var callback =  function(data){
+                if (!data.result) return;
+
+                var $ul = $li.find("ul:first");
+                $ul.empty();
+                $.each(data.children, function(i, child){
+                    $ul.append(child.toString());
+                });
+                $li.removeClass("hasChildren");
+                $li.treeview({
+                    url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+                    add: $ul,
+                    asrt: asrt,
+                    itemsType: 2,
+                    animated:  "fast",
+                });
+
+                setTimeout(function(){
+                    synchronizedSpaceTreeCp();
+                }, 10);
+            };
+
+        secureGetAsync("/contentsmanagement/SpaceTreeChildrenApi.json",{ "parent": spaceid, "asrt": asrt, "itemsType": 2, "returnType":"html"}, callback);
+
+        return false;
+    }else{
+        // open children
+        var $div = $li.find("div:first");
+        if($div.hasClass("hitarea")){
+            $div.click();
+        }
+        return true;
+    }
+}
+</script>
+<div id="copyDialog" style="display:none;">
+    <table class="spaceCopyContentsTbl">
+        <tr>
+            <td align="left" colspan="2">{!$Label.msg_00087}<br />{!$Label.msg_00086}</td>
+        </tr>
+        <tr align="right">
+            <td>
+                <span id="versionTitle">{!$Label.label_10038}</span>
+                <select id="versionSelect" style="width:20%">
+                    <option value="      "></option>
+                </select>
+                {!$Label.label_10229}
+                <input type="text" disabled="disabled" id="selectSpaceCopyName" style="width:59%; border: none; background-color: #EEEEEE;"/>
+                <input type="hidden" id="selectSpaceCopyId" name="recieveId" />
+            </td>
+        </tr>
+        <tr class="spaceCopyOption" align="left">
+            <td><input type="checkbox" id="spacecopyOverwriteRole" name="overwriteRole" checked="checked" />{!$Label.label_13162}</td>
+        </tr>
+        <tr class="spaceCopyOption" align="left">
+            <td><input type="checkbox" id="spacecopyOverwriteSpaceSetting" name="overwriteSpaceSetting" />{!$Label.label_13163}</td>
+        </tr>
+        <tr>
+            <!-- コピー先ツリーエリア -->
+            <td colspan="2">
+                <div id="spacecopyTreeContainer" style="width: 570px;max-width:570px; height: 300px; overflow: auto; border: 1px solid #999999; background-color: white;">
+                    <ul id="spacecopyTree" class="selectTree filetree"></ul>
+                    <span id="loadingSpaceCopyTree" style="display:none;">
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 50%;left: 47%;" id="spaceCopyTreeLoadImg" />
+                    </span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+        <td colspan="2" style="text-align: center;">
+            <input type="button" class="btn" value="{!$Label.label_00075}" id="copy_OkBtn" onclick="executeCopy();" />
+            <input type="button" class="btn" value="{!$Label.label_00058}" id="copy_CancelBtn" onclick="copyDialogDivClose();"/>
+        </td>
+        </tr>
+    </table>
+</div>
+<div id="loadingDiv" style="display:none;">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 40%;left: 45%;" />
+</div>
+
+</apex:page>

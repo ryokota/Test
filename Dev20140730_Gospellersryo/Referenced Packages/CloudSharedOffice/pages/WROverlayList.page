@@ -1,0 +1,181 @@
+<apex:page showHeader="false" cache="false" sidebar="false" >
+<style type="text/css">
+#contentsloading{
+    width:100%;
+    text-align:center;
+}
+#spacePath{
+    padding-right:3px;
+}
+#spacePath div div{
+    overflow:hidden;
+    white-space: nowrap;
+}
+#spacePath div div a{
+    color : #fff;
+    text-decoration:none;
+}
+#spacePath div div .path-bold{
+    font-weight: bold;
+    color: #FFA07A;
+}
+.contextMenuImg{
+    width:17px;
+    height:17px;
+}
+#fullPathDisplay{
+    float;position:absolute;
+    width:720px;
+    padding:10px;
+    left:132;
+    top:250;
+    border:solid 1px #A6C9E2;
+    display:block;
+    z-index:990;
+    background-color:#EAF4FD;
+    padding:5px;
+    display:none;
+    -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    -ms-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    -o-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+#fullPathDisplay a{
+    color:#000000;
+}
+#fullPathDisplay a.path-bold{
+    color:red;
+}
+#contextMenuHeader {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+</style>
+<script type="text/javascript">
+
+/** オーバレイコンテンツの削除 */
+function contentDelete(){
+
+    //削除実施
+    deleteOverlays();
+
+}
+
+/** オーバレイコンテンツの登録 */
+function registContent(){
+    win = window.open('{!$Page.AddOverlay}?dir='+displaySpaceID , 'addOverlayWindow', 'width=800, height=580, menubar=no, toolbar=no, scrollbars=yes');
+}
+
+/** スペースの作成 */
+function createSpace(){
+
+    registOverlayFloder();
+
+}
+
+
+//---------------------------------------------
+// グリッド内クリックイベント
+//---------------------------------------------
+
+/**
+ * コンテンツを選択
+ */
+function openOverlayInfo(id){
+
+    var ids = $("#listView1").getRowData(id);
+
+    var _id = ids["ovlId"];
+    var _name = ids["name"];
+    var _updateDate = ids["update_date"];
+    var _updateUser = ids["update_uname"];
+    var _version = ids["version"];
+    var _comment = ids["comment"];
+
+    var _dir = displaySpaceID;
+
+    $("#disp_ovlId").val(_id);
+    $("#disp_name").val(_name );
+    $("#disp_version").val(_version );
+    $("#disp_comment").val(_comment );
+    $("#disp_upDate").val(_updateDate );
+    $("#disp_upUser").val(_updateUser );
+
+    //子ウィンドウで表示する。
+    win = window.open('{!$Page.OverlayInfo}?id='+id+
+        "&name="+_name+
+        "&update_date="+_updateDate+
+        "&update_user="+_updateUser+
+        "&version="+_version+
+        "&comment="+_comment+
+        "&dir="+_dir
+
+        , 'overlayInfoWindow', 'width=800, height=580, menubar=no, toolbar=no, scrollbars=yes');
+
+}
+
+
+</script>
+
+<div class="c_command_l" id="listViewCommand">
+    <ul class="c_command_pipe">
+        <!--削除-->
+        <!--
+        <li class="item">
+
+            <button class="c_commandButton" style="width:70px;" onclick="contentDelete();">
+                <apex:image url="{!URLFOR($Resource.WRCSO, 'image/001_49.gif')}" alt="remove" styleClass="c_commandButton_l_img" />&nbsp;削除
+            </button>
+        </li>
+        -->
+        <li class="item">
+            <button class="c_commandButton" style="width:150px;" onclick="registContent(); return false;">
+                 {!$Label.label_wf_00004}
+            </button>
+        </li>
+
+        <li class="item">
+            <button class="c_commandButton" style="width:100px;" onclick="createSpace(); return false;">
+                {!$Label.label_wf_00005}
+            </button>
+        </li>
+        <li class="last">
+            <!-- 更新ボタン -->
+            <button class="c_commandButton" id="refreshButton" style="width:30px;" onclick="$('#listView1').trigger('reloadGrid');return false;">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'image/custom_sync.png')}" alt="reload" styleClass="c_reload"/>
+            </button>
+        </li>
+    </ul>
+</div>
+    <!-- ブレッドクラム挿入位置 -->
+    <div id="spacePath" style="">
+        <apex:pageBlockSection title="  " collapsible="true"/>
+    </div>
+    <div id ="fullPathDisplay"/>
+    <div id="listViewArea" class="innerContentsDiv">
+        <table id="listView1" cellspacing="0" cellpadding="0" >
+            <tr><td></td><td></td></tr>
+        </table>
+    <div id="listView1Pager"></div>
+</div>
+
+<span id="tmpPathArea" style="display:none;white-space:nowrap"></span>
+
+<!-- リストコンテキストメニュー -->
+<div id="contextMenulist" class="movable" style="width: 240px; top:90px; left:550px; z-index:1050;">
+    <div class="contextMenuHeader movable_controller" id="contextMenuHeader"></div>
+    <div id="contextMenuEdit">    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'image/property.png')}" styleClass="contextMenuImg"/>{!$Label.solxyzcso001__label_wf_00136}</div>
+    <div id="contextMenuDownload"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__FE_CSO, 'image/001_51.gif')}" styleClass="contextMenuImg" />{!$Label.solxyzcso001__label_wf_00137}</div>
+    <div id="contextMenuDelete"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__FE_CSO, 'image/001_49.gif')}" styleClass="contextMenuImg"/>{!$Label.label_wf_00003}</div>
+</div>
+<div><span id="titleTemp" style="display:none;"></span></div>
+<div id="contextMenuEmpty"></div>
+<input id="asrt" type="hidden" value="" />
+
+
+
+
+</apex:page>

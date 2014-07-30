@@ -1,0 +1,382 @@
+<apex:page sidebar="false" cache="false" controller="SOLXYZCSO001.SpacePortalController">
+
+<style type="text/css">
+.searcOptionSelect{
+    border-radius: 3px 3px 0px 0px;
+    -webkit-border-radius: 3px 3px 0px 0px;
+    -moz-border-radius: 3px 3px 0px 0px;
+    border-bottom: none;
+}
+</style>
+
+<script type="text/javascript">
+
+// Show/Hide Elements
+function switchSearchType(type) {
+    if(type == 1){
+        $(".innerSearchOption").hide();
+        $("#keywords").attr("placeholder", "{!$Label.label_ft_search_00002}");
+        $("#trashOption").show();
+        if (!({!cso_userInfo.proAuth_archive_space_manage})) {
+            $("#archiveOption").hide();
+        } else {
+            $("#archiveOption").show();
+        }
+    }else{
+        $(".innerSearchOption").show();
+        $("#keywords").attr("placeholder", "{!$Label.label_ft_search_00001}");
+        $("#trashOption").hide();
+        $("#archiveOption").hide();
+    }
+}
+
+$(document).ready(function() {
+    // initialize
+    switchSearchType(0);
+    $("#keywords").attr("placeholder", "{!$Label.label_ft_search_00002}");
+    $(".innerSearchOption").hide();
+    $("#trashOption").show();
+    clearSearchKeyword();
+
+    // Check if Full Text Search is enabled for current user
+    if (!({!cso_userInfo.functions_fulltext_search})) {
+        $("#searchType_div").hide();
+    }
+
+    // Check if Archive Option is enabled for current user
+    if (!({!cso_userInfo.proAuth_archive_space_manage})) {
+        $("#archiveOption").hide();
+    } else {
+        $("#archiveOption").show();
+    }
+
+	// Check if User can search in Collabo
+	if(!{!cso_userInfo.proAuth_collabo_space_standard}){
+        $('#collaboOption').hide();
+    }
+
+	// Check if User can search in Company
+	if(!{!cso_userInfo.proAuth_company_space_standard}){
+        $('#companyOption').hide();
+    }
+
+    $("#searchTypeBtn").click(function(e){
+        if($("#dropdownDiv").is(":hidden")){
+            $(this).addClass("searcOptionSelect");
+            $("#dropdownDiv").show();
+            return false;
+        }else{
+            closeSearchOptionMenu(this);
+        }
+    });
+
+    $("input[name=searchType]:radio").change(function(e){
+        switchSearchType($(this).val());
+    });
+
+    $("input[name=searchRange]:radio").change(function(e){
+        if($(this).val() == 1){
+            $(".searchRange").removeAttr("disabled");
+        }else{
+            $(".searchRange").attr("disabled", "disabled");
+        }
+    });
+
+    $("input[name=st-ALL]:checkbox").change(function(e){
+        if($(this).attr("checked")){
+            $(".searchRange").attr("checked", "checked");
+        }else{
+            $(".searchRange").removeAttr("checked");
+        }
+    });
+
+    $(".searchRange").change(function(e){
+        if($(this).attr("name") != "st-ALL" && !$(this).attr("checked")){
+            $("input[name=st-ALL]:checkbox").removeAttr("checked");
+        }
+    });
+
+    //  Apply alternative placeholder if not supported
+    if (!placeholderIsSupported()) {
+        applyPlaceholder("keywords", $("#keywords").attr("placeholder"));
+        $("input[name=searchType]:radio").change(function(e){
+            $("#altPlaceholder_keywords").text($("#keywords").attr("placeholder"));
+            switchSearchType($(this).val());
+        });
+        $("#keywords").blur();
+
+        $(".searchOptionLabels").click(function(){
+            $(this).children().click();
+        });
+    }
+
+    $("#keywords").bind("keyup blur paste cut", function(){checkShowClearBtn()});
+    setTimeout(function(){$(document).bind("click", "dropdownDiv", hideSearchOption);}, 100);
+});
+
+function hideSearchOption(e){
+
+    if($("#dropdownDiv").is(":hidden")){
+        return;
+    }
+    if ($("#dropdownDiv").css("display")!="none" && $("#dropdownDiv")[0]!=e.target && $("#dropdownDiv").has($(e.target)).length === 0) {
+        $("#dropdownDiv").hide();
+    }
+}
+//  Placeholder support checker
+function placeholderIsSupported() {
+    var test = document.createElement('input');
+    return ('placeholder' in test);
+}
+//  apply placeholder
+function applyPlaceholder(id, placeholder) {
+    // placeholder
+    $("<span id='altPlaceholder_"+id+"' style='margin-top:4px; margin-left:4px; color: silver; position: absolute; visibility: hidden;'>"+ placeholder +"</span>").insertBefore("#"+id);
+    // transfer focus to the text input
+    $("#altPlaceholder_"+id).click(function () {
+        $("#"+id).focus();
+    });
+    //  hide alternative placeholder
+    $("#"+id).focus(function () {
+        $("#altPlaceholder_"+id).css("visibility","hidden");
+    });
+    //  show alternative placeholder
+    $("#"+id).blur(function () {
+        if ($("#"+id).val() === "") {
+            $("#altPlaceholder_"+id).css("visibility","visible");
+        }
+    });
+}
+
+function clearSearchKeyword(){
+    $("#keywords").val('');
+    $("#searchClear").css("visibility","hidden");
+}
+
+function backToSpace(){
+    location.href = '#' + space_portal_ref_space_id + ':' + spName;
+    init(space_portal_ref_space_id , spName);
+}
+
+function checkShowClearBtn(){
+    if ($("#keywords").val()=="") {
+        $("#searchClear").css("visibility","hidden");
+    } else {
+        $("#searchClear").css("visibility","visible");
+    }
+}
+
+function closeSearchOptionMenu(e){
+    $(e).removeClass("searcOptionSelect");
+    $("#dropdownDiv").hide();
+}
+
+function getSearchParameter(){
+    var type = 1;
+    if({!cso_userInfo.functions_fulltext_search}){
+        type = $('input[name="searchType"]:checked').val();
+    }
+    var params = {
+        "type"          : type,
+        "range"         : $('input[name="searchRange"]:checked').val(),
+        "latest"        : $("#searchLatestVersion").attr("checked"),
+    };
+
+    if($('input[name="searchRange"]:checked').val() == 1){
+        $(".searchRange").each(function(e){
+            params[$(this).attr("name")] = $(this).attr("checked");
+        });
+    }
+
+    if (type == 0) {
+        params["st-TRASH"] = false;
+        params["st-ARCHIVE"] = false;
+    } else {
+        if (!({!cso_userInfo.proAuth_archive_space_manage})) {
+            params["st-ARCHIVE"] = false;
+        } else {
+            params["st-ARCHIVE"] = $("#checkButton_st-ARCHIVE").attr("checked");
+        }
+    }
+
+    return params;
+}
+
+function searchFieldFocus(){
+    if(!$("#dropdownDiv").is(":hidden")){
+        $('#searchTypeBtn').click();
+    }
+}
+
+</script>
+
+<!-- ヘッダー -->
+<table width="100%">
+    <tr>
+        <td id="c_headLeft" nowrap="nowrap" style="height:43px;min-height:43;max-height:43px;">
+            <div id="folder_image">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/folder.png')}" alt="{!$Label.solxyzcso001__label_10121}" title="{!$Label.solxyzcso001__label_10121}"/>
+            </div>
+            <div id="tag_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/tag_title.png')}" alt="{!$Label.solxyzcso001__label_00057}" title="{!$Label.solxyzcso001__label_00057}"/>
+            </div>
+            <div id="edit_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/online_edit.png')}" alt="{!$Label.solxyzcso001__label_10180}" title="{!$Label.solxyzcso001__label_10180}"/>
+            </div>
+            <div id="spaceManage_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/001_57.gif')}" alt="{!$Label.solxyzcso001__label_10035}" title="{!$Label.solxyzcso001__label_10035}"/>
+            </div>
+            <div id="spaceRule_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/space-rule.png?20120427')}" alt="{!$Label.solxyzcso001__label_10453}" title="{!$Label.solxyzcso001__label_10453}"/>
+            </div>
+            <div id="spaceHistory_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/space-history.png')}" alt="{!$Label.solxyzcso001__label_10452}" title="{!$Label.solxyzcso001__label_10452}"/>
+            </div>
+            <div id="secureSpace_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/secure_folder_2.png')}" alt="{!$Label.solxyzcso001__label_ecm_security_space}" title="{!$Label.solxyzcso001__label_ecm_security_space}"/>
+            </div>
+            <div id="lifeCycle_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/Version_manager2.png')}" alt="{!$Label.solxyzcso001__label_11031}" title="{!$Label.solxyzcso001__label_11031}"/>
+            </div>
+            <div id="lifeCycleZwei_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/LifeCycle.png')}" alt="{!$Label.solxyzcso001__label_13020}" title="{!$Label.solxyzcso001__label_13020}"/>
+            </div>
+            <div id="disclose_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/disclose_icon_blue.png')}" alt="{!$Label.solxyzcso001__label_13124}" title="{!$Label.solxyzcso001__label_13124}"/>
+            </div>
+            <div id="watermark_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/watermark.png')}" alt="{!$Label.solxyzcso001__label_10588}" title="{!$Label.solxyzcso001__label_10588}"/>
+            </div>
+            <div id="pdfSecurity_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/pdf_security.png')}" alt="{!$Label.solxyzcso001__label_10620}" title="{!$Label.solxyzcso001__label_10620}"/>
+            </div>
+            <h1 id="c_headLeftTitle" style="display:block;"></h1>
+            <!--h2 id="c_headLeftSubTitle" style="display:block;font-size:16px; font-weight:bold;margin-top:10px;overflow:hidden;width:130px;min-width:130px;">  </h2 -->
+            <div id="c_headLeftSubTitle" style="display:block;font-size:16px; font-weight:bold;margin-top:10px;overflow:hidden;width:160px;min-width:160px;max-width:70%;white-space:nowrap; text-overflow: ellipsis;">  </div>
+        </td>
+        <td width="80px" style="vertical-align:top;min-width:80px;max-width:80px;">
+            <div id="infoChatter" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/chatter_icon.png')}" alt="Chatter" title="{!$Label.solxyzcso001__label_10368}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoShare" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/sp_group.png')}" alt="Share" title="{!$Label.solxyzcso001__label_10369}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoSpaceRule" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/space-rule.png?20120427')}" alt="SpaceRule" title="{!$Label.solxyzcso001__label_10370}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoPassword" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/pwd_zip_icon.png')}" alt="CompressPassword" title="{!$Label.solxyzcso001__msg_01011}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoLifecycle" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/Version_manager2.png')}" alt="LifeCycle" title="{!$Label.solxyzcso001__msg_01014}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoLifecycleZwei" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/LifeCycle_32-32.png')}" alt="LifeCycleZwei" title="{!$Label.solxyzcso001__label_13026}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoDiscloseBlue" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/disclose_icon_blue32.png')}" alt="Disclose" title="{!$Label.solxyzcso001__label_13135}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoDiscloseRed" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/disclose_icon_red32.png')}" alt="Disclose" title="{!$Label.solxyzcso001__label_13135}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoWatermark" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/watermark.png')}" alt="Watermark" title="{!$Label.solxyzcso001__label_10591}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoPdfSecurity" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/pdf_security.png')}" alt="PdfSecurity" title="{!$Label.solxyzcso001__label_10645}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="gallery_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/alert_space_sidemenu_20120420.png')}" alt="Gallery" title="{!$Label.solxyzcso001__field_010304}"/>
+            </div>
+            <div id="infoDigimark" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/digimark_icon.png')}" alt="Digimark" title="{!$Label.solxyzcso001__label_13100}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+        </td>
+
+        <!-- 操作ボックス -->
+        <td id="c_headRight" style="width:500px;">
+            <div id="c_headSearchBox">
+                <form name="searchform" id="searchform" method="get" action="#" onsubmit="searchMain($('#keywords').val(), true); return false;" style="margin-bottom:3px;display:inline;">
+                    <input name="keywords" id="keywords" value="" type="text" onfocus="searchFieldFocus();" style="margin-top:2px"/>
+                    <a href='javascript:void(0);' id="searchClear" onclick="clearSearchKeyword(); backToSpace();" class='searchClearButton' style="background-image: url({!URLFOR($Resource.cso, 'image/text-close.png')}); height:16px; width:16px; margin-left:-24px; margin-top:5px; position: absolute; visibility: hidden;">&nbsp;</a>
+                    <button type="button" id="searchTypeBtn" onclick="return false;" class="btn c_commandButton" >
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/arrow_down.png')}" styleClass="c_commandButton_r_img"/>
+                    </button>
+                    <input type="submit" class="btn" value="{!$Label.label_00069}"/>
+                      <!-- TODO: Search menu options -->
+
+                    <div id="dropdownDiv" align="left" style="border: solid 1px silver; padding-left: 10px; padding-right: 10px; background-color: white; display:none; position: absolute; top: 50px; width: 270px; z-index: 1; color: black; padding-top:0px; padding-bottom:0px;" >
+                        <apex:form id="searchOptions">
+
+                            <div id="searchType_div" style="padding-top:10px;">
+                            <apex:outputLabel style="searchOptionLabels">
+                                <input type="radio" name="searchType" value="1" checked="checked"  id="radioButton_normalSearch"/> <!-- Normal search -->
+                                {!$Label.label_ft_search_00002}
+                            </apex:outputLabel>
+                            <apex:outputLabel style="searchOptionLabels">
+                                <input type="radio" name="searchType" value="0" id="radioButton_fullText"/> <!-- Full Text -->
+                                {!$Label.label_ft_search_00001}
+                            </apex:outputLabel><br/>
+                            <hr/>
+                            </div>
+                            <apex:outputLabel style="searchOptionLabels">
+                                <input type="radio" name="searchRange" value="0" checked="checked" id="radioButton_searchSub"/> <!-- Search sub -->
+                                {!$Label.label_ft_search_00003}
+                            </apex:outputLabel><br/>
+                            <apex:outputLabel style="searchOptionLabels">
+                                <input type="radio" name="searchRange" value="1" id="radioButton_searchNetwork"/> <!-- Search network -->
+                                {!$Label.label_ft_search_00004}
+                            </apex:outputLabel>
+                            <div style="margin: 10px 0px 0px 20px; padding-bottom:10px;">
+                                <apex:outputLabel style="searchOptionLabels">
+                                    <input type="checkbox" class="searchRange" disabled="disabled" name="st-ALL"  id="checkButton_st-ALL"/>
+                                    {!$Label.label_ft_search_00000}
+                                </apex:outputLabel><br/>
+                                <apex:outputLabel style="searchOptionLabels">
+                                    <input type="checkbox" class="searchRange" disabled="disabled" name="st-MY"  id="checkButton_st-MY"/>
+                                    {!$Label.label_00051}
+                                </apex:outputLabel><br/>
+                                <div id="collaboOption">
+                                <apex:outputLabel style="searchOptionLabels">
+                                    <input type="checkbox" class="searchRange" disabled="disabled" name="st-COLLABO" value="2"  id="checkButton_st-COLLABO"/>
+                                    {!$Label.label_00052}
+                                </apex:outputLabel><br/>
+                                </div>
+                                <div id="companyOption">
+                                <apex:outputLabel style="searchOptionLabels">
+                                    <input type="checkbox" class="searchRange" disabled="disabled" name="st-COMPANY" value="3"  id="checkButton_st-COMPANY"/>
+                                    {!$Label.label_00053}
+                                </apex:outputLabel><br/>
+                                </div>
+                                <div id="archiveOption">
+                                <apex:outputLabel style="searchOptionLabels">
+                                    <input type="checkbox" class="searchRange" disabled="disabled" name="st-ARCHIVE" value="5"  id="checkButton_st-ARCHIVE"/>
+                                    {!$Label.label_00055}
+                                </apex:outputLabel><br/>
+                                </div>
+                                <div id="trashOption" style="margin-left: 20px">
+                                <apex:outputLabel style="searchOptionLabels">
+                                    <input type="checkbox" class="searchRange" disabled="disabled" name="st-TRASH" value="4"  id="checkButton_st-TRASH"/>
+                                    {!$Label.label_ft_search_00007}
+                                </apex:outputLabel><br/>
+                                </div>
+                            </div>
+
+                            <div class="innerSearchOption" style="padding-bottom:10px;">
+                                <hr/>
+                                <apex:outputLabel style="searchOptionLabels">
+                                <input type="checkbox" id="searchLatestVersion" checked="checked"/>
+                                {!$Label.label_ft_search_00005}
+                                </apex:outputLabel><br/>
+                            </div>
+                        </apex:form>
+                    </div>
+
+                <!-- Search menu options -->
+                </form>
+            </div>
+            <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+        </td>
+    </tr>
+</table>
+</apex:page>

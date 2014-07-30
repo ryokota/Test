@@ -1,0 +1,5777 @@
+<apex:page sidebar="false" cache="false" controller="SOLXYZCSO001.SpacePortalController" tabStyle="ContentTab__tab" action="{!init}">
+<apex:iframe src="{!$Page.SOLXYZCSO001__CSO_Error}?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid != null && cso_userInfo.showErrPage == false,true,false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/lifecycle.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/contextMenu.css?20130227')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/document.css?20121120')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__superbox, '/superbox/css/style.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ecm-contents.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/WebTextReference.css')}" />
+<!-- カスタマーポータルユーザでIE8,9で画面を開くとcssが適用されない為、外部ファイル化してインクルードする -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/SpaceRuleEdit.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/WebText.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.history.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/fg.menu.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.csoBalloon.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/onclickMenue_plus-min.js')}" />
+<script type="text/javascript" src="{!$Label.field_CSO_DVURL}/js/document-viewer.js?v100"></script>
+<!--[if lte IE 8]>
+<script type="text/javascript" src="{!$Label.field_CSO_URL}/js/jquery.backgroundSize.js"></script>
+<![endif]-->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.customfields.css')}" />
+<apex:include pageName="SOLXYZCSO001__CustomFieldsPlugin"/>
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<!-- CSOコンテキストメニュー -->
+<apex:include pageName="SOLXYZCSO001__CsoContextMenu"/>
+
+
+<script type="text/javascript">
+var ECM = {};
+ECM.spacePortal = {
+    spaceIdLoaded: $.Deferred(),
+    gridLoaded: $.Deferred()
+};
+</script>
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.csopreview.css')}" />
+<apex:include pageName="SOLXYZCSO001__CSOPreviewPlugin"/>
+
+<style type="text/css">
+    #favoriteListDiv{
+        height: 100%;
+    }
+
+    #favoriteListDiv ul{
+        margin-left: 10px;
+        padding: 0 !important;
+    }
+
+    #favoriteListDiv a{
+        text-decoration: none;
+        color: black;
+        padding-right: 5px;
+    }
+
+    #favoriteListDiv a:hover{
+        text-decoration: underline;
+    }
+
+    #favoriteListDiv li{
+        list-style: none;
+    }
+
+    #favoriteMainArea{
+        vertical-align: top;
+        text-align: left;
+        border-top: solid 1px silver;
+        padding-top: 15px;
+        padding-right: 30px;
+        padding-bottom: 5px;
+        padding-left: 30px;
+        overflow-y: auto;
+        border-top: solid 1px silver;
+    }
+
+    .favoriteSearchText {
+        border: 1px solid silver;
+        padding:5px;
+        width: 200px;
+    }
+
+    .favoriteSearch {
+        float:right;
+        margin-right:5px;
+    }
+
+    .fav-subSection{
+        border-bottom: solid 1px silver;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    .favoriteTitle {
+        float:left;
+        font-size: 20px;
+        margin-right:5px;
+    }
+    .preview-on-top {
+        z-index: 2000;
+    }
+    .overflow-auto-impt {
+        overflow: auto !important;
+    }
+</style>
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left">
+                <apex:include pageName="SOLXYZCSO001__DocumentTree"/>
+                <apex:outputLabel rendered="true"></apex:outputLabel>
+            </td>
+            <!-- right header container -->
+            <td id="c_head">
+                <apex:include pageName="SOLXYZCSO001__DocumentHeader"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right">
+                <apex:pageBlock >
+                    <apex:include pageName="SOLXYZCSO001__DocumentContent"/>
+                </apex:pageBlock>
+            </td>
+        </tr>
+
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<form id="deliveryForm" method="post" target="deliveryWindow" action="{!$Page.beforeDelivery}">
+    <input type="hidden" id="id" name="id" value=""/>
+    <input type="hidden" id="ecmSessionId" name="ecmSessionId" value=""/>
+    <input type="hidden" id="spaceId" name="spaceId" value=""/>
+</form>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+<script type="text/javascript">
+
+// ページ内変数定義
+var jumpFlag=false;
+var searchFlag=false;
+var win = null;
+var security = false; //セキュアスペースフラグ
+var isRootExist = false;
+var initialized = false;
+var mSpaceIdentifier = 0;
+String.prototype.replaceAll = function(s1,s2) {
+    return this.replace(new RegExp(s1,"gm"),s2);
+}
+var openFlag = false;
+var selectFlag = 1;
+var tagType = 1;
+var tagName = '';
+var sideRoot = new Array();
+var space_portal_ref_space_id;
+var spaceIdFromUrl;
+
+var userId = '{!$User.Id}';
+
+var selectedDocIds = ""; //初期表示で選択状態にするドキュメントID。カンマ区切りで列挙。通常は未設定。2012.10.24追加
+var selectedDocList = []; //初期表示で選択状態にするドキュメントIDのList。通常は未設定。2012.10.24追加
+
+// サムネイルポーリング用
+var _thumbCount = 0;
+var _thumbMap = new Object();
+var _docids = new Array();
+
+var firstTimeArrival = true;
+var firstTimeOpen = true;
+
+// init()で取得したasrtを保持
+var _initAsrt = "";
+var gridReloadFlag = false;
+
+var searchPathIds = [];
+
+$("#listView1").bind("reloadGrid", function() {
+    gridReloadFlag = true;
+});
+
+//check if space has pdf file
+var hasPdfFile = false;
+function resizeGrid(){
+    var browserWidth = getBrowserWidth();
+    var browserHeight = getBrowserHeight();
+
+    $("#listView1").setGridHeight(browserHeight - 287);
+
+    if((browserWidth - 340) < 713){
+        $("#listView1").setGridWidth(713);
+    } else {
+        if(getBrowserType() != 'IE8'){
+            $("#listView1").setGridWidth(browserWidth - 340);
+        } else {
+            $("#listView1").setGridWidth(browserWidth - 324);
+        }
+    }
+}
+
+/*
+ * 画面リサイズ時の各要素のサイズをリサイズ
+ */
+function resizeBodySize(){
+    var browserWidth = getBrowserWidth();
+    var browserHeight = getBrowserHeight();
+
+    $("#listView1").setGridHeight(browserHeight - 287);
+    $("#spaceUserManager_inv_space_user_list").setGridHeight(browserHeight - 287);
+    $("#ruleFrowDiv").height(browserHeight - 375);
+    $("#galleryDiv").height(browserHeight - 247);
+    $("#spaceHistoryTable").setGridHeight(browserHeight - 287);
+
+    if(browserWidth < 1117){
+        $("#galleryDiv").width(777);
+    } else {
+        if(getBrowserType() != 'IE8'){
+            $("#galleryDiv").width(browserWidth - 340);
+        } else {
+            $("#galleryDiv").width(browserWidth - 324);
+        }
+    }
+
+    if((browserWidth - 340) < 713){
+        $("#listView1").setGridWidth(713);
+        $("#listViewArea").width(717);
+        $("#spaceUserManager_inv_space_user_list").setGridWidth(713);
+        $("#ruleFrowDiv").width(browserWidth - 460);
+        $("#spaceHistoryTable").setGridWidth(713);
+
+    } else {
+        if(getBrowserType() != 'IE8'){
+            $("#listView1").setGridWidth(browserWidth - 340);
+            $("#listViewArea").width(browserWidth - 338);
+            $("#spaceUserManager_inv_space_user_list").setGridWidth(browserWidth - 340);
+            $("#ruleFrowDiv").width(browserWidth - 480);
+            $("#spaceHistoryTable").setGridWidth(browserWidth - 340);
+        } else {
+            $("#listView1").setGridWidth(browserWidth - 324);
+            $("#listViewArea").width(browserWidth - 322);
+            $("#spaceUserManager_inv_space_user_list").setGridWidth(browserWidth - 324);
+            $("#ruleFrowDiv").width(browserWidth - 464);
+            $("#spaceHistoryTable").setGridWidth(browserWidth - 324);
+        }
+    }
+    $("#editouter").height(browserHeight - 240);
+    $("#editouter").width(browserWidth - 340);
+    $("#viewouter").height(browserHeight - 240);
+    $("#viewouter").width(browserWidth - 340);
+    var asrt = getAsrt();
+    if(asrt == 'tag'){
+        $("#tree_div").height(browserHeight - 210);
+    }else{
+        $("#tree_div").height(browserHeight - 175);
+    }
+    $(".editor_div").height(browserHeight - 215 + 17);
+    $("#tree_div > lu > li").height(browserHeight - 115 + 16);
+
+    $('#c_headLeftSubTitle').width($('#c_headLeftTitle').width() - 40);
+    var rp = $("#infoSpaceRule").position();
+    var sp = $("#infoShare").position();
+    if(rp != null) {
+        $("#spaceRuleFloatDiv").css({
+         top: rp.top + 125,
+         left: rp.left + 150
+        });
+    }
+    $("#invUserFloatDiv").css({
+        top: sp.top + 125,
+        left: sp.left + 150
+    });
+}
+
+/*
+ *
+ */
+function tagMenuSelected(){
+    mSpaceIdentifier = 6;
+}
+
+/*
+ * URLにパラメータを設定する
+ */
+function setURL(url){
+    location.href = url;
+    initialized = true;
+}
+
+function getUrlSpaceId(){
+    return location.href.substring(location.href.indexOf("#")+1).split(":")[0];
+}
+
+function download(url){
+    $("#fileDownFrame").attr("src", url);
+}
+
+function getSetSecurityStatus(securityStatus){
+    var flgSecurityStatus;
+
+    var setSecurityStatus = function(){
+        var corpSecurityLicense = {!cso_userInfo.corpSecurityLicense};
+        var personSecurityLicense ={!cso_userInfo.securityLicense};
+
+        if(corpSecurityLicense){                        //組織ライセンス
+            if(securityStatus == 1){                //ノンコピーステータス
+                flgSecurityStatus = 1;
+            }else if(securityStatus == 2){
+                flgSecurityStatus = 2;
+            }else{
+                flgSecurityStatus = 3;
+            }
+        }else{
+            flgSecurityStatus = 0;
+        }
+    }
+    setSecurityStatus();
+
+    return flgSecurityStatus;
+}
+
+/*
+ *
+ */
+function reloadNow(){
+    if ($("#galleryDiv").css("display") != "block") {
+        // フラグリセット
+        actionFromGallery = false;
+        actionFromGalleryFinished = false;
+    }
+    if(!jumpFlag){
+        reloadTag();
+    } else {
+        if($("#galleryDiv").css('display') == 'block') {
+            $('#listView1').data('skipInitGallery', true);
+            $("#listView1").trigger("reloadGrid");
+            initGallery();//ギャラリーをリロード
+        } else {
+            var url = location.href;
+            var strs = url.replace(/^.*#/, '').split(":");
+            if(strs.length == 2){
+                if(strs[strs.length - 1] == "search"){ search(null); }
+                else{ reload(strs[0], strs[1]); }
+            }else if(strs.length == 1){
+                $('#listView1').trigger('reloadGrid');
+            }
+        }
+    }
+}
+function ShowSpacePathFloatMenu(obj, url) {
+    var x = $(obj).offset().left + 10;
+    var y = $(obj).offset().top + $(obj).height() - 5;
+    if(!initFloatMenuDiv("spacePathFloatMenuDiv", x, y, "spacePathLoading", "spacePathFloatMenuDiv1", 160, 53)) return;
+
+    //-- 移動のclickイベント追加 --%>
+    $("#spacePathFloatAnchor1").unbind();
+    $("#spacePathFloatAnchor1").click(function() {
+        //  メニュー用CsoBalloonを非表示
+        $("#spacePathFloatMenuDiv").csoBalloonHide();
+        changeSpace(url);
+    });
+
+    //-- URL生成 --%>
+    var spaceId = "";
+    var parts = url.split("#");
+    if(parts.length == 2){
+        parts = parts[1].split(":");
+        if(parts.length == 2){
+            spaceId = parts[0];
+        }
+    }
+
+    //-- URL取得のclickイベント追加 --%>
+    $("#spacePathFloatAnchor2").unbind();
+    $("#spacePathFloatAnchor2").click(function() {
+        var serverUrl = window.location.protocol + "//" + window.location.host;
+
+        var params = { 'id' : spaceId,
+                       'url': serverUrl
+                      };
+
+        var callback = function(data){
+                    var spaceURL = "";
+                    if(data.url){
+                        spaceURL = data.url;
+                    }
+                    //  メニュー用CsoBalloonを非表示
+                    $("#spacePathFloatMenuDiv").csoBalloonHide();
+                    //  URL用CsoBalloonを表示
+                    var w = 380;
+                    var h = 90;
+                    var x = document.body.scrollLeft + $("#tree_div").width() / 2 + ( document.body.clientWidth - w ) / 2;
+                    var y = document.body.scrollTop + ( document.body.clientHeight - h ) / 2;
+                    $("#spacePathFloatDiv1").empty();
+                    $("#spacePathFloatDiv").csoBalloon({
+                        width : w,
+                        height : h,
+                        posX : x,
+                        posY : y,
+                        show : false,
+                        udlr : -1,
+                        align : 0
+                    });
+                    $("#spacePathFloatLoading").hide();
+                    $("#spacePathTable").show();
+                    $("#spacePathFloatDiv").csoBalloonLoadHtml();
+                    $("#spacePathFloatUrl").val(spaceURL);
+                    $("#spacePathFloatUrl").select();
+                    $("#spacePathFloatDiv").parent().css("background-color", "#fcfdfd");
+
+        };
+
+        secureGetAsync('/contentsmanagement/GetSpacePathApi.json?id=' + spaceId + '&url=' + serverUrl, '', callback);
+//        if(!initFloatDiv("digimarkFloatDiv", $(this).position(), "digimarkViewLoading", "digimarkOperationView", 270, 300)) return;
+    });
+
+    //-- Balloon表示 --%>
+    $("#spacePathFloatMenuDiv").csoBalloonLoadHtml();
+    $("#spacePathFloatMenuDiv").parent().css("padding", "0px");
+    $("#spacePathFloatMenuDiv").parent().css("padding-top", "10px");
+    $("#spacePathFloatMenuDiv").parent().css("padding-bottom", "5px");
+    
+	if ($(obj).hasClass("path-bold")) {
+		$("#spacePathFloatAnchor1").remove();
+		$("#spacePathFloatMenuDiv").parent().css("height", "28px");
+	}
+}
+</script>
+<script type="text/javascript">
+/*
+ * グリッド初期化
+ */
+function init(spaceId, asrt){
+    location.hash = spaceId + ":" + asrt;
+
+    var params = {
+        type        : "CONTENT",
+        listInnerId : spaceId,
+        asrt        : asrt
+    };
+
+    var callback = function(data) {
+        $("#listView1").jqGrid("GridUnload");
+        if (data.isDefault) {
+            $("#dispMode").val("DEFAULT");
+        } else {
+            $("#dispMode").val("CUSTOM");
+        }
+        createList(spaceId, asrt, data);
+
+        $("#showColumns option").remove();
+        $("#hideColumns option").remove();
+
+        var opt;
+        $.each(data.showColumns, function(index, columns){
+            opt = $("<option>").val(columns.key).text(columns.name);
+            $("#showColumns").append(opt);
+        });
+        $.each(data.hideColumns, function(index, columns){
+            opt = $("<option>").val(columns.key).text(columns.name);
+            $("#hideColumns").append(opt);
+        });
+
+        createAndAssignColumnModelNameMap($("#listView1"));
+    };
+
+    secureGetAsync("/contentsmanagement/list/SettingGet.json", params, callback);
+}
+
+var defaultRowNum = null;
+
+function createList(spaceId, asrt, data) {
+    var url;
+    var datatype;
+    if (asrt == "tag") {
+        url = null;
+        datatype = "local";
+    } else {
+        url = _apiUrl + '/contentsmanagement/spaceContentsListV2Get.json';
+        datatype = "jsonp";
+    }
+
+    var postData = {
+            spaceId : spaceId,
+            asrt    : asrt,
+            ssidx   : data.secondSort,
+            ssord   : data.secondSortDirection
+    };
+    if (asrt == "search") {
+        var searchparams = getSearchParameter();
+        postData.searchstr          = $.trim($("#keywords").val());
+        postData.asrt               = "search";
+        postData.searchtype         = (searchparams["type"]=="0" ? "FULLTEXT" : "NORMAL");
+        postData.subspaceonly       = (searchparams["range"]=="0");
+        postData.latestonly         = searchparams["latest"];
+        postData.spaceAll           = searchparams["st-ALL"];
+        postData.spaceMy            = searchparams["st-MY"];
+        postData.spaceCollaboration = searchparams["st-COLLABO"];
+        postData.spaceCompany       = searchparams["st-COMPANY"];
+        postData.spaceGarbage       = searchparams["st-TRASH"];
+        postData.spaceArchive       = searchparams["st-ARCHIVE"];
+        postData.spaceId= spaceId;
+    }
+    
+    if (defaultRowNum == null && data.isDefault) {
+        defaultRowNum = data.rowNum;
+    }
+
+    $("#listView1").jqGrid({
+        url: url,
+        postData: postData,
+        spaceId: spaceId,
+        asrt: asrt,
+        fsidx: data.firstSort,
+        fsord: data.firstSortDirection,
+        datatype: datatype,
+        jsonReader: {
+            repeatitems : false,
+            id          : "rowId"
+        },
+        colNames: data.colNames,
+        colModel: data.colModels,
+        rowNum: (data.isDefault ? defaultRowNum : data.rowNum),
+        height: getBrowserHeight() - 287,
+        width: getBrowserWidth() - 340,
+        rowList: [10,50,100],
+        sortname: data.firstSort,
+        sortorder: data.firstSortDirection ? "asc" : "desc",
+        pager: '#listView1Pager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        shrinkToFit: true,
+        onPaging : function(data) {
+            var dispMode = $("#dispMode option:selected").val();
+            if(data == "records"){
+                if (dispMode == "DEFAULT") {
+                    defaultRowNum = $("#listView1").getGridParam("rowNum");
+                } else if (dispMode == "CUSTOM"
+                    && (asrt == "my" || asrt == "collaboration" || asrt == "company")){
+                var params = {
+                    listInnerId     : spaceId,
+                    type            : "CONTENT",
+                    rowNum          : $("#listView1").getGridParam("rowNum"),
+                    updateItem      : data
+                };
+                var callback = function(data) {
+                    onCancelClicked();
+                };
+
+                securePostAsync("/contentsmanagement/list/SettingUpdate.json", params, callback);
+            }
+            }
+        },
+        loadComplete : function(data) {
+            listComplete(data);
+        },
+        beforeRequest : function() {
+            if ($("#listView1").data('skipInitGallery') === true) {
+                // One-shot
+                $("#listView1").data('skipInitGallery', false);
+                $("#listView1").data('_internalSkipInitGallery', true);
+            }
+            if (ECM.spacePortal.gridLoaded.isResolved() || ECM.spacePortal.gridLoaded.isRejected()) {
+                ECM.spacePortal.gridLoaded = $.Deferred();
+            }
+        },
+        gridComplete : function(){ hideCsoContextMenu(); resizeGrid(); ECM.spacePortal.gridLoaded.resolve(); downloadReloading = false;},
+        onSortCol: function(colName, colIdx, order){
+            hideCsoContextMenu();
+
+            if ($(this).getGridParam("fsidx") != colName) {
+                $(this).setGridParam({
+                    fsidx       : colName,
+                    fsord       : order == "asc",
+                    postData    : {
+                        spaceId     : $(this).getGridParam("spaceId"),
+                        asrt        : $(this).getGridParam("asrt"),
+                        ssidx       : $(this).getGridParam("fsidx"),
+                        ssord       : $(this).getGridParam("fsord")
+                    }
+                });
+            } else {
+                $(this).setGridParam({
+                    fsord       : $(this).getGridParam("sortorder") == "asc"
+                });
+            }
+            
+            var dispMode = $("#dispMode option:selected").val();
+            if ((asrt == "my" || asrt == "collaboration" || asrt == "company")
+                    && dispMode == "CUSTOM") {
+                var params = {
+                    listInnerId     : spaceId,
+                    type            : "CONTENT",
+                    firstSort       : colName,
+                    firstSortDir    : order,
+                    updateItem      : "sort"
+                };
+                var callback = function(data) {
+                    onCancelClicked();
+                };
+
+                securePostAsync("/contentsmanagement/list/SettingUpdate.json", params, callback);
+            }
+        },
+        onSelectAll : function(ids, status){
+            var securityStatus = '{!cso_userInfo.bncStatus}';
+            var flgSecurityStatus = getSetSecurityStatus(securityStatus);
+            switchCsoContextMenu(flgSecurityStatus);
+            contextMenuEnable();
+            var list = getSelectedList();
+            if (list.length > 0) {
+                updateCsocontextMenuHeader(list[0].simpleName,list.length);
+            }
+        },
+        onCellSelect:function(rowid, icol, cellcontent){
+            if((getBrowserType() == 'Firefox')&&favoriteActFlg){
+                $("#listView1").resetSelection();
+            }else{
+                var securityStatus = '{!cso_userInfo.bncStatus}';
+                var flgSecurityStatus = getSetSecurityStatus(securityStatus);
+                switchCsoContextMenu(flgSecurityStatus);
+                contextMenuEnable();
+                var list = getSelectedList();
+                if (list.length > 0) {
+                    updateCsocontextMenuHeader(list[0].simpleName,list.length);
+                }
+            }
+        }
+    });
+}
+
+function listComplete(data) {
+    downloadReloading = false;
+    try{
+                hasPdfFile = data.hasPdfFile;
+        // 閲覧権限が無い場合、マイスペースでリロードする
+        if(data.spaceAuth != null){
+            if(!data.spaceAuth && firstTimeArrival && data.asrt != 'search'){
+                // alert('{!$Label.msg_chatter_00001}');
+                firstTimeArrival = false;
+                onChangeSpace('my');
+                init('', 'my');
+                return;
+            }
+        }
+
+        // spaceIdを正として、spName情報が間違っていた場合はリロード
+        // 現時点ではゴミ箱とタグはF5対応しない
+        if((data.spaceType != null)&&(data.spaceType != "")&&(data.spaceType != undefined)){
+            if(spName != data.spaceType){
+                if(data.asrt != 'garbage' && data.asrt != 'search'){
+                    spName = data.spaceType;
+                    onChangeSpace(data.spaceType);
+                    init(data.spaceId, data.spaceType);
+                }
+            }
+        }
+
+        // セッション干渉が発生した場合に画面リロード処理する
+        if(!data.spaceName){
+            firstTimeArrival = true;
+            onChangeSpace('my');
+            init('', 'my');
+            location.reload();
+            return;
+        }
+
+        // セキュリティスペースの場合専用アイコンを表示する
+        if(data.security == true){
+            $('#folder_image').hide();
+            $('#secureSpace_image').show();
+        } else if(data.security != undefined) {
+            $('#secureSpace_image').hide();
+        }
+
+        // sessionのrefSpaceIdに相当するIDを保持する
+        space_portal_ref_space_id = data.spaceId;
+        ECM.spacePortal.spaceIdLoaded.resolve();
+
+        if (data.asrt == "my" || data.asrt == "collaboration" || data.asrt == "company") {
+            showDisplaySetting();
+        } else {
+            hideDisplaySetting();
+        }
+
+        if (data.asrt != 'archive') {
+            $(this).jqGrid('hideCol', 'archiveSpace');
+        } else {
+            $(this).jqGrid('showCol', 'archiveSpace');
+        }
+
+        if(data.asrt == 'garbage' || data.asrt == 'search'){
+            $('#settingBtn').hide();
+        } else {
+            $('#settingBtn').show();
+        }
+
+        if(!header_update_lock){
+            $('#c_headLeftSubTitle').html(data["spaceName"]);
+            $('#c_headLeftSubTitle').attr('title', data["spaceName"]);
+        }
+
+        _initAsrt = data.asrt;
+        if (_initAsrt == "search") {
+        	searchPathIds = [];
+        	for (var i=0; i<data.rows.length; i++) {
+        		var item = JSON.parse(data.rows[i].simplepath);
+        		var pathIds = [];
+        		for (var j=0; j<item.length; j++) {
+        			if (item[j].id != data.rows[i].id)
+        				pathIds.push(item[j].id);
+        		}
+        		searchPathIds.push(pathIds);
+        	}
+       	}
+        setPathList(data["path"]);
+
+        security = data['security'];
+        isChatter = {!IsChatter};
+
+        if(data['addContents'] || data['createContents']){
+            if(!data['addContents']){
+                $('#uploadButton').css({'display':'none'});
+            } else {
+                $('#uploadButton').css({'display':'block'});
+            }
+
+            security = data['security'];
+            if(!data['createContents'] || security){
+                $('.contentsCreate').css({'display':'none'});
+            } else {
+                $('.contentsCreate').css({'display':'block'});
+            }
+        }else{
+            $('#uploadButton').css({'display':'none'});
+            $('.contentsCreate').css({'display':'none'});
+        }
+
+        if(data['addSpace']){
+            $('.spaceAction').css({'display':'block'});
+        }else{
+            $('.spaceAction').css({'display':'none'});
+        }
+        if(data.invSpace || data.spaceRule || data.property || data.spaceHistory || data.chatter || data.authGallery){
+            // if(data["invSpace"] || data["useWorkflow"]){
+            if (data['invSpace']) {
+                $('.invSpaceUser').css({'display':'block'});
+                $('.chevronSpaceInvManage').show();
+            } else {
+                $('.invSpaceUser').css({'display':'none'});
+                $('.chevronSpaceInvManage').hide();
+            }
+
+            if (data.spaceRule) {
+                $(".chevronSpaceRule").show();
+            } else {
+                $(".chevronSpaceRule").hide();
+            }
+
+            if (data.property) {
+                $(".chevronSpaceProperty").show();
+            } else {
+                $(".chevronSpaceProperty").hide();
+            }
+
+            if (data.spaceHistory) {
+                $(".chevronSpaceHistory").show();
+            } else {
+                $(".chevronSpaceHistory").hide();
+            }
+
+            if (isChatter && data.editChatter ) {
+                $(".chevronChatterSetting").show();
+            } else {
+                $(".chevronChatterSetting").hide();
+            }
+
+            if (data.authGallery) {
+                $(".chevronGallery").show();
+            } else {
+                $(".chevronGallery").hide();
+            }
+        }else{
+            $('.invSpaceUser').css({'display':'none'});
+            $('.startWorkflow').css({'display':'none'});
+            $("#settingBtn").hide();
+        }
+
+        // 作成コマンドが全て非表示の場合にはプルダウンボタンを非表示にする
+        if($('.contentsCreate').css('display') == 'none' && $(".spaceAction").css('display') == 'none'){
+            $('#createSpaceButton').css({'display':'none'});
+        } else {
+            $('#createSpaceButton').css({'display':'block'});
+        }
+
+        if(data["spaceRule"]){
+            $(".chevronSpaceRule").show();
+        }else{
+            $(".chevronSpaceRule").hide();
+        }
+        if (data.spaceHistory) {
+            $(".chevronSpaceHistory").show();
+        } else {
+            $(".chevronSpaceHistory").hide();
+        }
+        if(isChatter && data.editChatter){
+            $(".chevronChatterSetting").show();
+        }else{
+            $(".chevronChatterSetting").hide();
+        }
+        if (data.authVersionSetting) {
+            $(".chevronLifeCycle").show();
+        } else {
+            $(".chevronLifeCycle").hide();
+        }
+        if (data.authLifecycle) {
+            $(".chevronLifeCycleZwei").show();
+        } else {
+            $(".chevronLifeCycleZwei").hide();
+        }
+        if (data.authDisclose) {
+            $(".chevronDisclose").show();
+        } else {
+            $(".chevronDisclose").hide();
+        }
+        if (data.authWatermark) {
+            $(".chevronWatermark").show();
+        } else {
+            $(".chevronWatermark").hide();
+        }
+        if (data.authPdfSecurity) {
+            $(".chevronPdfSecurity").show();
+        } else {
+            $(".chevronPdfSecurity").hide();
+        }
+
+        isRootExist = data['isRootExist'];
+        $('#spaceSercurity').val(security);
+
+        if(security) {
+            $("#createActionTop").css({'display':'none'});
+        } else {
+            $("#createActionTop").css({'display':'block'});
+        }
+
+        $("#fullPathDisplay").hide();
+        //changeCurrentTreeColor(space_portal_ref_space_id);
+
+        $(".spaceHistoryButton").hide();
+        if(gridReloadFlag != true){
+            switchCsoContextMenu(security);
+        }else{
+            gridReloadFlag = false;
+        }
+
+        if(!header_update_lock){
+            // ASRT名を設定する
+            setAsrtName(data.asrt);
+            enableMenuButton();
+
+            if(data["chatter"]){
+                $("#infoChatter").show();
+            }else{
+                $("#infoChatter").hide();
+            }
+            if(data["inv"]){
+                $("#infoShare").show();
+            }else{
+                $("#infoShare").hide();
+            }
+            if(data["spacerule"]){
+                $("#infoSpaceRule").show();
+            }else{
+                $("#infoSpaceRule").hide();
+            }
+            if (data.password) {
+                $("#infoPassword").show();
+            } else {
+                $("#infoPassword").hide();
+            }
+            if (data.versionSetting) {
+                $("#infoLifecycle").show();
+            } else {
+                $("#infoLifecycle").hide();
+            }
+            if (data.lifecycle && data.lifecycle.enabled) {
+                $("#infoLifecycleZwei").show();
+            } else {
+                $("#infoLifecycleZwei").hide();
+            }
+            if (data.disclose && data.disclose.enable) {
+                if(data.disclose.status == "DISCLOSED"){
+                    $("#infoDiscloseRed").hide();
+                    $("#infoDiscloseBlue").show();
+                } else {
+                    $("#infoDiscloseBlue").hide();
+                    $("#infoDiscloseRed").show();
+                }
+            } else {
+                $("#infoDiscloseBlue").hide();
+                $("#infoDiscloseRed").hide();
+            }
+            if (data.watermark && data.watermark.enabled) {
+                $("#infoWatermark").show();
+            } else {
+                $("#infoWatermark").hide();
+            }
+            if (data.pdfSecurity && data.pdfSecurity.enabled) {
+                $("#infoPdfSecurity").show();
+            } else {
+                $("#infoPdfSecurity").hide();
+            }
+            if (data.digimark && data.digimark.enable) {
+                $("#infoDigimark").show();
+            } else {
+                $("#infoDigimark").hide();
+            }
+        }
+
+        //2012.10.24追加 --Start-- 初期表示時に指定されたコンテンツを選択状態にする
+        // ※ 通常は指定なし。関連コンテンツ一覧からのジャンプなど一部の機能から遷移した場合
+/*
+//        for (i in selectedDocList) {
+        for(var i=0; i<selectedDocList.length; i++){
+            var initId = selectedDocList[i];
+            var ids = $("#listView1").getDataIDs();
+//            for (j in ids) {
+            for(var j=0; j<ids.length; j++){
+                var rowData = $("#listView1").getRowData(ids[j]);
+                if (initId == rowData.id) {
+                    $("#listView1").setSelection(ids[j]);
+                    break;
+                }
+            }
+        }
+*/
+        if(selectedDocList.length != 0){
+            var setContentsSelection = setInterval(function() {
+                if($("#listView1").jqGrid('getGridParam','selarrrow').length == 0){
+                    for(var i=0; i<selectedDocList.length; i++){
+                        var initId = selectedDocList[i];
+                        var ids = $("#listView1").getDataIDs();
+                        for(var j=0; j<ids.length; j++){
+                            var rowData = $("#listView1").getRowData(ids[j]);
+                            if (initId == rowData.id) {
+                                $("#listView1").setSelection(ids[j]);
+                                break;
+                            }
+                        }
+                    }
+                }else{
+                    if((getBrowserType() == 'Firefox')&&favoriteActFlg){
+                        $("#listView1").resetSelection();
+                    }else{
+                        var securityStatus = '{!cso_userInfo.bncStatus}';
+                        var flgSecurityStatus = getSetSecurityStatus(securityStatus);
+                        switchCsoContextMenu(flgSecurityStatus);
+                        contextMenuEnable();
+                        var list = getSelectedList();
+                        if (list.length > 0) {
+                            updateCsocontextMenuHeader(list[0].simpleName,list.length);
+                        }
+                    }
+                    clearInterval(setContentsSelection);
+                    //初期化
+                    selectedDocList=[];
+                }
+            }, 200);
+        }
+
+        //2012.10.24追加 -- End -- 初期表示時に指定されたコンテンツを選択状態にする
+
+        // Webテキストライフサイクル表示制御
+        $("#webTextLifecyclePart").hide();
+            if(data.lifecycle){
+                if(!data.lifecycle.enabled){
+                    $("#webTextLifecyclePart").show();
+                } else if (data.lifecycle.settable_per_contents){
+                    $("#webTextLifecyclePart").show();
+                }
+            }
+
+            setTimeout(function(){
+                synchronizedSpaceTree();
+                changeCurrentTreeColor(space_portal_ref_space_id);
+            }, 10);
+            $("img[src='/image/favorite-on.png']").attr("src", "{!URLFOR($Resource.cso, '/image/favorite-on.png')}");
+            $("img[src='/image/favorite-off.png']").attr("src", "{!URLFOR($Resource.cso, '/image/favorite-off.png')}");
+
+            // サムネイル取得
+            _thumbCount = 0;
+            _thumbMap = new Object();
+            _docids = new Array();
+
+            if(data.refresh){
+                $(".jqGridIcon").each(function(){
+                var cssBgImg = $(this).css("background-image");
+
+                if(cssBgImg != "none"){
+                    var imgUrl = cssBgImg.substring(cssBgImg.indexOf("http"), cssBgImg.lastIndexOf(")"));
+                    var __docid = imgUrl.split("?")[1].split("&")[2].split("=")[1];
+                    $(this).attr("id", "THUMB_" + __docid);
+                    _docids.push(__docid);
+                    _thumbMap[__docid] = imgUrl;
+                }
+            });
+
+            var param = {
+                docids: _docids.join(',')
+            }
+
+            var callback =  function (data) {
+            var idLength = 0;
+            var infoMap = new Object();
+            var tempDocIds = _docids.concat();
+
+            // return値のMapを作成
+            for(var ii in data.info){
+                infoMap[ii] = data.info[ii];
+                idLength++;
+            }
+
+            // returnの分だけ繰り返し回して、_thumbMapと_docidsを更新
+            for(var i=0; i<idLength; i++){
+                var nowId = tempDocIds[i];
+                if(infoMap[nowId]){
+                    delete _thumbMap[nowId];
+
+                    // _docids削除処理
+                    for(var iii = 0; iii < idLength; iii++){
+                        if(_docids[iii] == nowId){
+                            _docids.splice(iii,1);
+                            break;
+                        }
+                    }
+                }
+            }
+            if(_docids.length > 0){
+                paulingThumbnailImage();
+            }
+        }
+        secureGetAsync('/contentsmanagement/thumbInfo.json', param, callback);
+    }
+
+    }catch(e){
+    }
+
+    resizeBodySize();
+
+    if($("#galleryDiv").css('display') == 'block' && $("#listView1").data('_internalSkipInitGallery') !== true) {
+        initGallery();//グリッドと連動してギャラリーをリロードする
+        $("#listView1").data('_internalSkipInitGallery', false);
+    }
+
+    if ({!cso_userInfo.functions_favorite}) {
+        $(".fullTextDetail").each(function(){
+            if(isIE()){
+                if(isIE8()){
+                    if($(this).parent()[0].nodeName == "A"){
+                        $(this).parent().parent().parent().parent().append($(this));
+                    }
+                } else if(isIE9()){
+                    if($(this).parent()[0].nodeName == "A"){
+                        $(this).parent().parent().append($(this));
+                    }
+                } else if(isIE10()){
+                    if($(this).children()[0].nodeName == "A"){
+                        $(this).html($(this).children("a").html());
+                    }
+                }
+            } else{
+                if($(this).children()[0].nodeName == "A"){
+                    $(this).html($(this).children("a").html());
+                }
+            }
+        });
+    }
+
+    // Initialize Drag & Drop Upload
+    $("#bodyTable").trigger("initDragDrop");
+}
+
+function createAndAssignColumnModelNameMap(jqgridObj) {
+    var colModel = jqgridObj.getGridParam('colModel');
+    var colModelNameMap = [];
+    for (var i=0; i<colModel.length; ++i) {
+        colModelNameMap[colModel[i].name] = i;
+    }
+    jqgridObj.data('colModelNameMap', colModelNameMap);
+}
+
+function getColumnModelNameMap(jqgridObj) {
+    return jqgridObj.data('colModelNameMap');
+}
+
+function constructObjectFromRowData(cellArray, columnModelNameMap, format) {
+    var obj = {};
+    if (format === 'text') {
+        for (var name in columnModelNameMap) {
+            obj[name] = $(cellArray[columnModelNameMap[name]]).text();
+        }
+    } else {
+        for (var name in columnModelNameMap) {
+            obj[name] = $(cellArray[columnModelNameMap[name]]).html();
+        }
+    }
+    return obj;
+}
+
+function paulingThumbnailImage(){
+
+    var param = {
+        docids: _docids.join(',')
+    }
+
+    var callback =  function (data) {
+        var idLength = 0;
+        var infoMap = new Object();
+        var tempDocIds = _docids.concat();
+
+        // return値のMapを作成
+        for(var ii in data.info){
+            infoMap[ii] = data.info[ii];
+            idLength++;
+        }
+
+        // returnの分だけ繰り返し回して、サムネイル及び_thumbMapと_docidsを更新
+        for(var i=0; i<idLength; i++){
+            var nowId = tempDocIds[i];
+            if(infoMap[nowId]){
+
+                $("#THUMB_" + nowId).css({
+                    "background-image"    : "url('" + _thumbMap[nowId] + "')",
+                });
+
+                delete _thumbMap[nowId];
+
+                // _docids削除処理
+                for(var iii = 0; iii < idLength; iii++){
+                    if(_docids[iii] == nowId){
+                        _docids.splice(iii,1);
+                        break;
+                    }
+                }
+            }
+        }
+        if(_docids.length > 0){
+            setTimeout('paulingThumbnailImage()', 8000);
+        }
+    }
+
+    secureGetAsync('/contentsmanagement/thumbInfo.json', param, callback);
+}
+
+/*
+ * ASRT名を設定する
+ */
+function setAsrtName(asrt){
+    if(asrt == "my"){
+        $('#c_headLeftTitle').text('{!$Label.label_00051}');    //マイスペース
+        $('#createNewLabel').html('{!$Label.label_00051}');
+        mSpaceIdentifier = 1;
+    } else if(asrt == "company"){
+        $('#c_headLeftTitle').text('{!$Label.label_00053}');    //カンパニースペース
+        $('#createNewLabel').html('{!$Label.label_00053}');
+        mSpaceIdentifier = 2;
+    } else if(asrt == "garbage"){
+        $('#c_headLeftTitle').text('{!$Label.label_00056}');    //ゴミ箱
+        $('#createNewLabel').html('{!$Label.label_00056}');
+        mSpaceIdentifier = 3;
+    } else if(asrt == "archive"){
+        $('#c_headLeftTitle').text('{!$Label.label_00055}');    //アーカイブ
+        $('#createNewLabel').html('{!$Label.label_00055}');
+        mSpaceIdentifier = 4;
+    } else if(asrt == "collaboration"){
+        $('#c_headLeftTitle').text('{!$Label.label_00052}');    //コラボスペース
+        $('#createNewLabel').html('{!$Label.label_00052}');
+        mSpaceIdentifier = 5;
+    } else if(asrt == "tag"){
+        $('#c_headLeftTitle').text('{!$Label.label_00057}');    //タグ
+        $('#createNewLabel').html('{!$Label.label_00057}');
+        mSpaceIdentifier = 6;
+    } else if(asrt == "search"){
+        $('#c_headLeftTitle').text('{!$Label.label_00069}');    //検索
+        mSpaceIdentifier = 7;
+    } else {
+        //$('#c_headLeftTitle').text('');
+    }
+}
+
+/*
+ * asrtを取得する
+ */
+function getAsrt(){
+    var cAsrt = "";
+    if(mSpaceIdentifier == 1){
+        cAsrt = "my";
+    } else if(mSpaceIdentifier == 2){
+        cAsrt = "company";
+    } else if(mSpaceIdentifier == 3){
+        cAsrt = "garbage";
+    } else if(mSpaceIdentifier == 4){
+        cAsrt = "archive";
+    } else if(mSpaceIdentifier == 5){
+        cAsrt = "collaboration";
+    } else if(mSpaceIdentifier == 6){
+        cAsrt = "tag";
+    } else if(mSpaceIdentifier == 7){
+        cAsrt = "search";
+    }
+    return cAsrt;
+}
+
+/*
+ * ブレッドクラム作成・設定
+ */
+function setPathList(path){
+
+    switch (_initAsrt) {
+    case "my":
+    case "collaboration":
+    case "company":
+    //-- メニューを表示するように置換
+    path = path.split('onclick="changeSpace(').join('onclick="ShowSpacePathFloatMenu(this, ');
+        break;
+    }
+
+
+    var pathSpaceWidth,tmpPathAreaWidth;
+    var work;
+    var pathCut = false;
+    var cnt = 0;
+
+    $("#fullPathDisplay").html(path);
+
+    pathSpaceWidth =  $("#gbox_listView1").width() - 200;
+
+    $("#tmpPathArea").html(path);
+    work = path;
+    tmpPathAreaWidth = $("#tmpPathArea").width() - 0;
+
+    //do untill the path is fit in.
+    while (pathSpaceWidth < tmpPathAreaWidth) {
+        //remove the first path.
+        var pathElement = $("#tmpPathArea a:first");
+
+        if (pathElement.length == 0) {
+            // Sadly for space rule, <span> tags are returned and not <a>
+            pathElement = $("#tmpPathArea span:first");
+        }
+        pathElement.remove();
+        work=$("#tmpPathArea").html();
+        if(pathCut == true){
+            // 不要なブレッドクラムセパレーターを削除
+            work = work.substring(6, work.length);
+        }
+
+        $("#tmpPathArea").html(work);
+        tmpPathAreaWidth = $("#tmpPathArea").width();
+        pathCut = true;
+        if(cnt >= 100){
+            break;
+        }
+        cnt += 1;
+    }
+
+    if(pathCut == true){
+        $('#spacePath div div img').show();
+        $('#spacePath div div img').attr('class', 'showListButton');
+    }else{
+        $('#spacePath div div img').css('display', 'none');
+    }
+
+    $("#spacePath div div h3").html(work);
+}
+
+/*
+ * グリッドリロード
+ */
+function reload(spaceId, asrt){
+    $("#listViewArea").show();
+
+    init(spaceId, asrt);
+
+    if((asrt == "my" && mSpaceIdentifier != 1) ||
+        (asrt == "collaboration" && mSpaceIdentifier != 5) ||
+        (asrt == "company" && mSpaceIdentifier != 2)){
+        reloadTree();
+    }
+
+    changeCurrentTreeColor();
+}
+
+function simpleReload(){
+    $("#listView1").setGridParam().trigger("reloadGrid");
+}
+
+/*
+ * 現在設定されているURLでリロード
+ */
+function reloadGrid() {
+    setTimeout(function() { $("#listView1").trigger("reloadGrid"); }, 1500);
+    setTimeout(function() { hideCsoContextMenu(); }, 1500);
+}
+
+function search(str){
+    closeDisplaySettingsDialog();
+    searchMain(str, false);
+}
+
+/*
+ * ファイル検索処理
+ */
+function searchMain(str, showAlert){
+
+    $("#listView1").setGridParam({page:1});
+    searchFieldFocus();
+
+    if(str){$("#keywords").val(str);}
+    var searchstr = $.trim($("#keywords").val());
+
+    if (searchstr == "") {
+        if(showAlert == true){
+            alert(getMsg(new Array("1"),  '{!$Label.msg_00055}')); //検索文字列は{0}文字以上で入力してください。
+        }
+        return false;
+    }
+    if ($('input[name="searchRange"]:checked').val() == 1) {
+        var checkedSearchRange = 0;
+        $(".searchRange").each(function(){
+            if (this.checked == true){
+                checkedSearchRange++;
+            }
+        });
+
+        if (checkedSearchRange == 0) {
+            if(showAlert == true){
+                alert(getMsg(new Array("1"),  '{!$Label.label_ft_search_00006}'));
+            }
+            return false;
+        }
+    }
+
+    var limit = 32;
+    if (searchstr.length > limit) {
+        if(showAlert == true){
+            alert(getMsg(new Array(limit + ""), '{!$Label.msg_00056}'));
+        }
+        return false;
+    }
+
+    // 2014/03/11 Dela Cerna, Mark Vincent commented for ticket # 9528
+    /*if (searchstr.match(/[\\\*\+\.\?\{\}\(\)\[\]\^\$\-\|\&]/)) {
+        if(showAlert == true){
+            alert(getMsg(new Array("\\ * + . ? { } ( ) [ ] ^ $ - | &"), '{!$Label.msg_00057}'));    //検索文字列に以下の文字は使用できません。\n\n {0}
+        }
+        return false;
+    }*/
+    var searchparams = getSearchParameter();
+    $("#otherDiv").hide();
+    $("#listViewArea").show();
+    $("#EditorDiv").hide();
+    $("#innerBottomMenu").show();
+    $("#innerHeadTop").show();
+    $("#spacePathDiv").show();
+
+    var url="";
+    if(jumpFlag){
+        init(space_portal_ref_space_id, "search");
+        return;
+    }
+    
+    $("#title").empty();
+    searchFlag=true;
+    $("#listView1").setGridParam({
+        page : 1,
+        url : _apiUrl + '/contentsmanagement/tagSpaceContentsListV2Get.json',
+        postData : {
+            tagName : searchstr,
+            search : true,
+        }
+    });
+
+    if ($("#listView1").getGridParam()){delete $("#listView1").getGridParam().postData.useCache;}
+
+    $("#listView1").trigger("reloadGrid");
+    if (str != null)
+        location.href = "#" + searchstr + ":search";
+
+    // コンテンツ一覧を表示する
+        if(jumpFlag){
+            displayList();
+        }else{
+            displayTagList();
+        }
+    $("#settingBtn").hide();
+    mSpaceIdentifier =7;
+}
+
+function isIE8(){
+    if(!isIE()){
+        return false;
+    }
+    return navigator.appVersion.toLowerCase().indexOf("msie 8.") >= 0 ? true : false;
+}
+
+function isIE9(){
+    if(!isIE()){
+        return false;
+    }
+    return navigator.appVersion.toLowerCase().indexOf("msie 9.") >= 0 ? true : false;
+}
+
+function isIE10(){
+    if(!isIE()){
+        return false;
+    }
+    return navigator.appVersion.toLowerCase().indexOf("msie 10.") >= 0 ? true : false;
+}
+
+/*
+ * グリッドから選択された行の情報を取得
+ */
+function getSelectedList() {
+
+    var list = new Array();
+    var ids = new Array();
+
+    if ($("#galleryDiv").css("display") == "block") {
+        if ($("#superbox-docid").val() != undefined) {
+            ids.push($("#superbox-docid").val());
+    
+            var obj = { 'id' : ids[0],
+                        'asrt' : getAsrt(),
+                        'spaceId' : space_portal_ref_space_id,
+                        'simpleName' : $('#superbox-docName').text()
+                      };
+            list.push(obj);
+        }
+    } else {
+        ids = $("#listView1").jqGrid('getGridParam','selarrrow');
+        for (var i in ids) {
+            var ret = constructObjectFromRowData(jQuery("#listView1").find("#" + ids[i] + " td"), getColumnModelNameMap(jQuery("#listView1")), 'text');
+/*
+            var obj = { 'id' : ret.id,
+                        'asrt' : ret.asrt,
+                        'spaceId' : ret.spaceId,
+                        'simpleName' : ret.simpleName
+                      };
+*/
+            var obj;
+
+            if(ids[i] != ret.id){
+                var seRowData = $('#listView1').jqGrid('getRowData', ids[i]);
+                obj = { 'id' : seRowData.id,
+                            'asrt' : seRowData.asrt,
+                            'spaceId' : seRowData.spaceId,
+                            'simpleName' : seRowData.simpleName
+                          };
+            }else{
+                obj = { 'id' : ret.id,
+                            'asrt' : ret.asrt,
+                            'spaceId' : ret.spaceId,
+                            'simpleName' : ret.simpleName
+                          };
+            }
+            list.push(obj);
+        }
+    }
+
+    return list;
+}
+
+/*
+ * シンボリック作成用変数初期化処理
+ */
+var g_symbolicLink;
+function g_init_symbolicLink(){
+    g_symbolicLink = {};
+    g_symbolicLink.preSelectNode = '';
+    g_symbolicLink.symbolicLinkIds = new Array();
+    g_symbolicLink.symbolicLinkSpaceId = '';
+}
+
+/*
+ * シンボリック作成
+ */
+function createSymboliclink(){
+    if("true" ==  $("#contextMenuSymboliclink").attr("disabled")){return;}
+    var ids = new Array();
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+        ids.push($("#superbox-docid").val());
+    } else {
+        actionFromGalleryFinished = false;
+        ids = getSelectedRowIdList();
+    }
+
+    var contentsIds = new Array();
+    for(var i in ids) {
+        contentsIds.push(ids[i]);
+    }
+
+    hideCsoContextMenu();
+
+    if(0 < contentsIds.length){
+        // シンボリック作成用変数を初期化する
+        g_init_symbolicLink();
+        g_symbolicLink.symbolicLinkIds = contentsIds;
+        init_symbolicLink();
+
+        $("#linkToDialog").dialog({modal:true, width:600, title:"{!$Label.label_symbolic_00001}"});    //リンクコンテンツ作成
+
+    } else {
+        var result = new Object();
+        result["message"] = getMsg(new Array('{!$Label.label_symbolic_00003}'), '{!$Label.msg_00036}');    //リンク，{0}するコンテンツが選択されていません。
+        alert(result["message"]);
+    }
+
+    return false;
+}
+</script>
+<script type="text/javascript">
+/*
+ * ロック解除
+ */
+var editUnlock = function() {
+    var id = $("#fileId").val();
+    if (id) {
+        // エディターからの遷移切替の場合、ロックを解除する
+        if($('#EditorDiv').attr('display') == 'none' || $('#editorCommand').attr('display') == 'none'){
+            return true;
+        } else {
+            return true;
+        }
+    } else {
+        return true;
+    }
+}
+
+/*
+ * 圧縮名入力チェック
+ */
+function checkZipName(){
+    if($("#compressfilename_").val().length == 0){
+        $("#compressfilename_").val("{!$Label.label_10063}");    //無題
+    }
+}
+
+/*----------------------------------------------
+ * コンテキストメニュー
+ *--------------------------------------------*/
+/*
+ * スペースコンテンツ移動用変数初期化処理
+ */
+var g_moveout;
+function g_init_moveout(){
+    g_moveout = {};
+    g_moveout.preSelectNode = '';
+    g_moveout.moveoutIds = new Array();
+    g_moveout.moveoutSpaceId = '';
+    includeSpace = false;
+}
+
+/*
+ * スペース・コンテンツ移動
+ */
+function contents_moveout(){
+    if ("true" ==  $("#contextMenuMoveout").attr("disabled")) {return;}
+    closeDisplaySettingsDialog();
+    hideCsoContextMenu();
+
+    //    コンテンツの移動用項目を初期化する
+    g_init_moveout();
+
+    var ids = new Array();
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+        ids.push($("#superbox-docid").val());
+    } else {
+        actionFromGalleryFinished = false;
+        ids = getSelectedRowIdList();
+    }
+    if (ids.length == 0) {
+        alert(getMsg(new Array('{!$Label.label_10047}'), '{!$Label.msg_00036}'));    //移動，{0}するコンテンツが選択されていません。
+        return;
+    }
+    for(var moveContentsCount=0; moveContentsCount<ids.length; moveContentsCount++){
+        if(ids[moveContentsCount].indexOf("SPACE_") != '-1'){
+            includeSpace = true;
+        }
+    }
+
+    //  コンテンツを移動する
+    g_moveout.moveoutIds= ids;
+    init_moveout('contentsMove');
+    $("#moveDialog").dialog({modal:true, width:600, title:"{!$Label.label_10047}"});    //コンテンツの移動
+}
+/*
+ * スペースコンテンツ移動用変数初期化処理
+ */
+var g_spacecopy;
+function g_init_spacecopy(){
+    g_spacecopy = {};
+    g_spacecopy.preSelectNode = '';
+    g_spacecopy.spacecopyIds = new Array();
+    g_spacecopy.spacecopySpaceId = '';
+    includeSpaceCopy = false;
+}
+
+/*
+ * スペース・コンテンツコピー
+ */
+function contents_copy(){
+
+    //    コンテンツのコピー項目を初期化する
+    g_init_spacecopy();
+
+    if ("true" ==  $("#contextMenuCopy").attr("disabled")) {return;}
+    closeDisplaySettingsDialog();
+    hideCsoContextMenu();
+
+    var ids = new Array();
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+        ids.push($("#superbox-docid").val());
+    } else {
+        actionFromGalleryFinished = false;
+        ids = getSelectedRowIdList();
+    }
+    if (ids.length == 0) {
+        alert(getMsg(new Array(JSMsg["field.020226"]), JSMsg["msg.022027"]));
+        return;
+    }
+    for(var copyContentsCount=0; copyContentsCount<ids.length; copyContentsCount++){
+        if(ids[copyContentsCount].indexOf("SPACE_") != '-1'){
+            includeSpaceCopy = true;
+        }
+    }
+
+    //  コンテンツをコピーする
+    g_spacecopy.spacecopyIds= ids;
+    init_copy();
+    $("#copyDialog").dialog({modal:true, width:600, title : '{!$Label.label_10228}'});    //コピー
+}
+
+/*
+ * コンテンツダウンロード
+ */
+var downloadIdList;
+function periodReplacer(str, before, after){
+  var reg = new RegExp(before.replace(/./g, "\\."), "g");
+  return str.replace(reg, after);
+}
+
+function contents_info_download(param){
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '{!$Page.DownloadPopupWindow}';
+        url = url + '?downloadType=ContentsInfo';
+        url = url + '&fileId='  + fileId;
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+    var ver = param.ver.replace(/\./g,', ');
+    if(ver){
+      ver = "["+ver+"]";
+    }
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SingleContentsDownloadApi.json', JSON.stringify({"fileId" : param.fileId, "refSpaceId" : param.refSpaceId, "ver" : ver}), callback, callerror);
+}
+
+function contents_download(){
+    if("true" ==  $("#contextMenuDownload").attr("disabled")){return;}
+    hideCsoContextMenu();
+
+    var contentsList = new Array();
+    var ids = new Array();
+    var idList = new Array();
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+        ids.push($("#superbox-docid").val());
+        var vers = $('#superbox-releaseVersionString').text().split('.');
+        var verInts = new Array();
+        for(i in vers){
+            verInts.push(parseInt(vers[i]));
+        }
+        contentsList.push("startContentsDownload('" + ids[0] + "', '" + JSON.stringify(verInts) + "', '" + space_portal_ref_space_id + "')");
+        idList.push(ids[0]);
+    } else {
+        actionFromGalleryFinished = false;
+        ids = $("#listView1").jqGrid('getGridParam','selarrrow');
+        for(i in ids) {
+        var ret = $("#listView1").jqGrid('getRowData',ids[i]);
+            if(ret.id.match(/^SPACE/)){
+                alert('{!$Label.msg_00011}');    //スペースはダウンロードできません。
+                return false;
+            }
+            contentsList.push(ret.dl);
+            idList.push(ret.id);
+        }
+    }
+
+    if (idList.length >= 1) {
+        //ダウンロードする前に、NonCopyの稼働状況を確認し、NonCopyへダウンロード通知
+        var docId = idList[0];
+        var retArr = new Array();
+
+        // iPad,iPhone対応
+        if(((isIpad() || isIphone())) && idList.length == 1){
+            var url = '{!$Page.DownloadPopupWindow}';
+            url = url + '?downloadType=single';
+            url = url + '&fileId='  + docId;
+            url = url + '&spaceId=' + space_portal_ref_space_id;
+            url = url + '&function=' + encodeURIComponent(contentsList[0]);
+            window.open(url, '');
+            reloadGrid();
+            return;
+        }
+
+        var callbackDLCheck = function(msg){
+            var isDL = msg.result;
+            if(isDL == "false"){
+                alert('{!$Label.msg_symbolic_00011}');
+                err = true;
+                return;
+            }
+
+            // チェックコールバック
+            var callback = function(msg){
+                retArr = msg;
+                var isSpaceSercurity = retArr["spaceSercurity"];
+                var noncopyStatus = '{!cso_userInfo.bncStatus}';
+                var policyVersion = '{!cso_userInfo.policyVersion}';
+                if (idList.length == 1) {
+                    eval(contentsList[0]);
+                } else {
+                    for(var i in idList){
+                        var rowData = $("#listView1").jqGrid('getRowData',ids[i]);
+                        if(rowData["dispVersion"] && rowData["dispVersion"] != rowData["releaseVersion"]){
+                            alert("{!$Label.label_ft_search_00008}");
+                            return;
+                        }
+                    }
+                    $('#compressfilename_').val('{!$Label.label_10063}');
+                    $('#filenamedialog_cancel').attr('value', '{!$Label.label_00058}');    //キャンセル
+                    $('#filenamedialog_cancel').unbind().click(function(){
+                                  $('#filenamedialog').dialog('destroy');
+                              });
+                    $('#filenamedialog_ok').attr('value', '{!$Label.label_00075}');    //保存
+                    downloadIdList = idList.toString();
+                    $('#filenamedialog_ok').unbind().click(function(){
+                                    $('#filenamedialog').dialog('destroy');
+                                    var fileName=$('#compressfilename_').val();
+                                    if(!isSpaceAndContentsName(fileName)){
+                                        alert('{!$Label.msg_00053}');    //圧縮コンテンツ名に「\\ / * < > : \\" ? |」は使用できません。"
+                                        return false;
+                                    }
+                                    fileName = encodeURI(fileName);
+                                    fileName = coloradoEncode(fileName);
+                                    $('#compressingDialog').dialog('open');
+                                    $('#filenamedialog').dialog('destroy');
+
+                                    // iPad,iPhone対応
+                                    if(isIpad() || isIphone()){
+                                        MultipleDownloadFileIdList = downloadIdList;
+                                        MultipleDownloadFileName   = fileName;
+                                        var url = '{!$Page.DownloadPopupWindow}';
+                                        url = url + '?downloadType=multiple';
+                                        window.open(url, '');
+                                        reloadGrid();
+                                        return;
+                                    }
+
+                                    // ダウンロード前圧縮
+                                    var callback = function(data){
+                                        if(data == null){
+                                            CsoScript_loadingStop();
+                                            alert('{!$Label.msg_00323}');
+                                            return;
+                                        }
+                                        if(eval(data.result) == true){
+                                            // タイマーで待ち合わせ
+                                            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+                                        }else{
+                                            CsoScript_loadingStop();
+                                            var errMsg = '{!$Label.msg_00323}';
+                                            if((data.message != null) && (data.message != "")){
+                                                errMsg = data.message;
+                                            }
+                                            alert(errMsg);
+                                        }
+                                    };
+                                    var callerror =  function(data){
+                                        CsoScript_loadingStop();
+                                        var errMsg = '{!$Label.msg_00323}';
+                                        if((data instanceof Array) == false){
+                                            errMsg = data;
+                                        }
+                                        alert(errMsg);
+                                    };
+                                    CsoScript_loadingStart();
+                                    securePostAsync('/contentsmanagement/MultipleContentsDownloadApi.json', {fileId : downloadIdList, "fileName" : fileName}, callback, callerror);
+                    });
+                    $('#filenamedialog').dialog({modal : true});
+                }
+             };
+
+            // Init呼び出し
+            secureGetAsync('/contentsmanagement/contentsDownloadInit.json', 'doc_id=' + docId, callback);
+        }
+        secureGetAsync('/contentsmanagement/symbolicLinkDLCheck.json', {"contentsId" : docId, "spaceId" :  space_portal_ref_space_id, "type" : 0}, callbackDLCheck);
+
+
+    } else {
+        alert(getMsg(new Array('{!$Label.label_10010}'), '{!$Label.msg_00036}'));    //ダウンロード，{0}するコンテンツが選択されていません。
+    }
+    return false;
+}
+
+function startContentsDownload(fileId, version, refSpaceId){
+    var ids = new Array();
+    ids = $("#listView1").jqGrid('getGridParam','selarrrow');
+        for(i in ids) {
+        var ret = $("#listView1").jqGrid('getRowData',ids[i]);
+            if(ret.id.match(/^SPACE/)){
+                alert('{!$Label.msg_00011}');    //スペースはダウンロードできません。
+                return false;
+            }
+        }
+    var vers = ret.dispVersion.split('.');
+    var verInts = new Array();
+    for(i in vers){
+        verInts.push(parseInt(vers[i]));
+    }
+
+    if(vers.length > 0){
+        if(vers[i] != ""){
+            version = "["+verInts.toString()+"]";
+        }
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+            reloadGrid();
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+
+    downloadReloading  = true;
+    downloadReloadWait = false;
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SingleContentsDownloadApi.json', {"fileId" : fileId, "ver" : version , "refSpaceId" : refSpaceId}, callback, callerror);
+}
+var downloadReloading  = false;     //  ダウンロード時のjqGridのリロード中フラグ（true：リロード中）
+var downloadReloadWait = false;     //  リロード待ちフラグ（true：リロード待ち）
+function downloadExec(url){
+    //--------------------------------------------------------------------------]
+    //  2013-01-31
+    //
+    //  jqGridのリロード時にダウンロード処理を行うと
+    //  ダウンロード処理で「java.io.IOException: Broken pipe」
+    //  が発生し、jqGridがリロードの途中で止まってしまう事があるので
+    //  jqGridのリロードが終わってからダウンロード要求を行うように修正。
+    //--------------------------------------------------------------------------
+    if(downloadReloading == true){
+        if(downloadReloadWait == false){
+             CsoScript_loadingStart();
+             downloadReloadWait = true;
+        }
+        setTimeout( function(){ downloadExec(url); }, 1000);
+        return;
+    }
+
+    CsoScript_loadingStop();
+    downloadMain(url);
+}
+function downloadMain(url){
+    var t = getBrowserType().toLowerCase();
+    if (t.indexOf("chrome") >= 0) {
+        download(url);
+    } else {
+        location.href = url;
+    }
+}
+var MultipleDownloadFileIdList;
+var MultipleDownloadFileName;
+
+/*
+ * チェックアウトキャンセル処理
+ */
+function contextMenuCheckoutCancel(){
+    if("true" ==  $('#contextMenuCheckoutCancel').attr('disabled')){return;}
+    hideCsoContextMenu();
+    var ids = new Array();
+
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+        ids.push($("#superbox-docid").val());
+    } else {
+        actionFromGalleryFinished = false;
+        ids = getSelectedRowIdList();
+    }
+    if(ids.length == 0){
+        alert('{!$Label.msg_00013}');    //アイテムが選択されていません。
+        return;
+    }
+
+    var cancelIds = new Array();
+
+    for(var i = 0; i < ids.length; i++){
+        var ret = $('#listView1').jqGrid('getRowData', ids[i]);
+        if(ids[i].match(/^SPACE/)) continue;
+        cancelIds.push(ids[i]);
+    }
+
+    if(cancelIds.length == 0){
+        alert('{!$Label.msg_00018}');    //選択したアイテムに、チェックアウトしているものがありません。
+        return;
+    }else{
+        if(confirm('{!$Label.msg_00019}')){    //選択したアイテムのチェックアウトを取り消します。\nよろしいですか？\n\nチェックアウトしていないものやスペースは無視されます。
+
+            var callback = function(data){
+                CsoScript_loadingStop();
+                setTimeout('reloadNow()', 1000);
+            };
+            var callerror =  function(data){
+                CsoScript_loadingStop();
+                alert(data);
+            };
+            CsoScript_loadingStart();
+            securePostAsync('/contentsmanagement/contentsCheckOut.json', {'fileId' : JSON.stringify(cancelIds), 'type' : 'cancel'}, callback, callerror);
+        }
+    }
+}
+
+/*
+ * コンテンツチェックアウト処理
+ */
+function contextMenuCheckout(){
+    if("true" ==  $("#contextMenuCheckout").attr("disabled")){return;}
+    hideCsoContextMenu();
+    var ids = new Array();
+
+    var dl;
+    var simpleName;
+
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+        ids.push($("#superbox-docid").val());
+        var vers = $('#superbox-releaseVersionString').text().split('.');
+        var verInts = new Array();
+        for(i in vers){
+            verInts.push(parseInt(vers[i]));
+        }
+        dl = "startContentsDownload('" + ids[0] + "', '" + JSON.stringify(verInts) + "', '" + space_portal_ref_space_id + "')";
+        simpleName = $('#superbox-caption').text();
+    } else {
+        actionFromGalleryFinished = false;
+        ids = getSelectedRowIdList();
+        if(ids.length > 1){
+            alert('{!$Label.msg_00015}');    //2つ以上のチェックアウトは出来ません。
+            return;
+        }else if(ids.length == 0){
+            alert('{!$Label.msg_00013}');    //アイテムが選択されていません。
+            return;
+
+        }else{
+            var ret = $("#listView1").jqGrid('getRowData',ids[0]);
+            if((ret.dl == undefined)||(ret.dl == undefined)){
+                var ftsIds = $("#listView1").jqGrid('getGridParam','selarrrow');
+                ret =  $("#listView1").jqGrid('getRowData', ftsIds[0]);
+            }
+            dl = ret.dl;
+            simpleName = ret.simpleName;
+        }
+    }
+
+    var _edited = false;
+    var checkback = function(msg){
+        if(msg['locked'] == 'true'){ _edited = true; }
+
+        if(_edited){
+            alert('{!$Label.msg_00098}');    //コンテンツは他端末よりオンライン編集中です。
+            CsoScript_loadingStop();
+            return;
+        }
+
+        var id = ids[0];
+        if(id.match(/^SPACE/)){
+            alert('{!$Label.msg_00017}');    //スペースをチェックアウトすることは出来ません。
+            CsoScript_loadingStop();
+            return;
+        }else{
+
+            // iPad,iPhone対応
+            if(isIpad() || isIphone()){
+                $('#checkoutConfirmDialog_msg').text(getMsg(new Array(simpleName), '{!$Label.msg_00042}'));
+                $('#checkoutConfirmDialog_cancel').attr('value', '{!$Label.field_common_cancel}');    //キャンセル
+                $('#checkoutConfirmDialog_cancel').unbind().click(function(){
+                    $('#checkoutConfirmDialog').dialog('destroy');
+                });
+                $('#checkoutConfirmDialog_ok').attr('value', '{!$Label.field_common_ok}');    //保存
+                $('#checkoutConfirmDialog_ok').unbind().click(function(){
+                    var url = '{!$Page.DownloadPopupWindow}';
+                    url = url + '?downloadType=checkout';
+                    url = url + '&fileId='  + id;
+                    window.open(url, '');
+                    reloadGrid();
+                    $('#checkoutConfirmDialog').dialog('destroy');
+                    return;
+                });
+                $('#checkoutConfirmDialog').dialog({modal : true, minHeight: 55});
+                return;
+            }
+
+            if(confirm(getMsg(new Array(simpleName), '{!$Label.msg_00042}'))){    //コンテンツ「{0}」をチェックアウトします。\nよろしいですか？
+                var noncopyStatus = '{!cso_userInfo.bncStatus}';
+                var policyVersion = '{!cso_userInfo.policyVersion}';
+
+                var noncopyStatus_yes = 1;
+
+                var callback = function(checkoutData){
+                    CsoScript_loadingStop();
+                    if(checkoutData["result"]){
+                        if(!jumpFlag){
+                            eval(dl);
+//                          $("#fileDownFrame").attr("src", _apiUrl + dl);
+                        }else{
+                            eval(checkoutData.result);
+//                          $("#fileDownFrame").attr("src", _apiUrl + checkoutData.result);
+                        }
+                    }else{
+                        alert(checkoutData["message"]);
+                    }
+                };
+                var callerror =  function(data){
+                    CsoScript_loadingStop();
+                    alert(data);
+                };
+                CsoScript_loadingStart();
+                securePostAsync('/contentsmanagement/contentsCheckOut.json', {'fileId' : id, 'type' : 'out'}, callback, callerror);
+            }
+        }
+    };
+
+    // オンライン編集中であるか確認
+    secureGetAsync('/contentsmanagement/onlineContentsEditCheck.json', 'file_id=' + ids[0], checkback);
+
+    return false;
+}
+
+/*
+ * コンテンツアーカイブ処理
+ */
+function contents_archive() {
+    if("true" ==  $("#contextMenuArchive").attr("disabled")){return;}
+    hideCsoContextMenu();
+    if(confirm("{!$Label.msg_00045}")){    //アーカイブします。よろしいですか？
+        if ($('#compress').attr('checked') && $('#compressfilename').val() == '') {
+            alert(getMsg(new Array('System.Label.label_10053'), '{!$Label.msg_00058}'));    //圧縮コンテンツ名，{0}に値が入力されていません
+            return false;
+        }
+
+        var contentsIds = JSON.stringify(getSelectedList());
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+        CsoScript_loadingStart();
+        securePostAsync('/contentsmanagement/spaceContentsMoveCheck.json', {'delete' : 'false', 'ids' : contentsIds}, spaceContentsMoveCheck_archive_callback, callerror);
+
+    }
+}
+function spaceContentsMoveCheck_archive_callback(checkback) {
+    var msg = null;
+    if (!checkback.result) { var msg = '{!$Label.msg_00029}'; }    //削除できないコンテンツがありますが、アーカイブしますか？
+
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+    }else{
+        actionFromGalleryFinished = false;
+    }
+
+    if (msg == null || confirm(msg)) {
+        var compress = $('#compress').attr('checked');
+        var compressfilename = $('#compressfilename').val();
+        var contentsIds = JSON.stringify(getSelectedList());
+        if(0 < contentsIds.length){
+            var postdata = {
+                'ids' : contentsIds,
+                'compress' : compress,
+                'compressfilename' : compressfilename,
+                'tagOperation' : 'tag'
+            };
+
+            var callback = function(archiveback){
+                CsoScript_loadingStop();
+                if (!archiveback.result) {
+                    alert(archiveback.message);
+                }
+
+                reloadNow();
+                reloadTree();
+            };
+            var callerror =  function(data){
+                CsoScript_loadingStop();
+                alert(data);
+            };
+            securePostAsync('/contentsmanagement/spaceContentsArchive.json', postdata, callback, callerror);
+
+        }
+    }
+    else{
+        CsoScript_loadingStop();
+    }
+}
+
+/*
+ * ゴミ箱から消去処理
+ */
+function contextMenuRemove() {
+    if("true" ==  $("#contextMenuRemove").attr("disabled")){return;}
+    hideCsoContextMenu();
+    if(confirm("{!$Label.msg_00050}")){    //消去します。よろしいですか？
+        var list = getSelectedList();
+        if (list.length > 0) {
+            // 消去処理
+            var callback = function(clearback){
+                CsoScript_loadingStop();
+                if(clearback.result == null){
+                    clearback.result = true;
+                }
+                if(clearback.result){
+                    $('#generaldialog').dialog('destroy');
+                    reloadNow();
+                    reloadTree();
+                } else {
+                    alert(clearback.message);
+                }
+            };
+            var callerror =  function(data){
+                CsoScript_loadingStop();
+                alert(data);
+            };
+            CsoScript_loadingStart();
+            securePostAsync('/contentsmanagement/spaceContentsClear.json', { 'ids' : JSON.stringify(list) }, callback, callerror);
+        }
+    }
+}
+
+/*
+ * ゴミ箱からの復旧処理
+ */
+function contextMenuRecovery() {
+    if("true" ==  $("#contextMenuRecovery").attr("disabled")){return;}
+    hideCsoContextMenu();
+    if(confirm("{!$Label.msg_00051}") == false){    //復旧します。よろしいですか？
+        return;
+    }
+
+    var ids = getSelectedList();
+    var itemsType = 0;
+    for (var i in ids) {
+        var map = ids[i];
+        if (map.id.indexOf("SPACE") == 0) {
+            itemsType |= 2;
+            continue;
+        } else if (map.id.indexOf("DOC") == 0) {
+            itemsType |= 1;
+            continue;
+        }
+    }
+    if (ids.length <= 0) {
+        return;
+    }
+
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+    };
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/spaceContentsRestoreInit.json', {param : JSON.stringify(ids), type : 'recover'}, spaceContentsRestoreInit_recovery_callback, callerror);
+}
+function spaceContentsRestoreInit_recovery_callback(existence) {
+    var ids = getSelectedList();
+    if (existence.result == false) {
+        CsoScript_loadingStop();
+        return;
+    }
+
+    var callback = function(restoreData){
+        CsoScript_loadingStop();
+        if(restoreData.result){
+            reloadNow();
+            reloadTree();
+        } else {
+            alert(restoreData.message);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+    };
+    securePostAsync('/contentsmanagement/spaceContentsRestore.json', { 'ids' : JSON.stringify(ids) }, callback, callerror);
+}
+
+var preSelectNode;
+/*
+ * アーカイブからの復旧処理
+ */
+function contextMenuSalvage() {
+    if("true" ==  $("#contextMenuSalvage").attr("disabled")){return;}
+    hideCsoContextMenu();
+    var ids = getSelectedList();
+    var itemsType = 0;
+    for (var i in ids) {
+        var map = ids[i];
+        if (map.id.indexOf("SPACE") == 0) {
+            itemsType |= 2;
+            continue;
+        } else if (map.id.indexOf("DOC") == 0) {
+            itemsType |= 1;
+            continue;
+        }
+    }
+
+    var itemIds = new Array();
+    for (var i in ids) {
+        itemIds.push(ids[i].id);
+    }
+    $('#salvageTree').html('');
+    $("#loadingSalvageTree").show();
+    $("#selectSalvageName").val("");
+    $("#selectSalvageId").val("");
+    $('#salvagedialog').dialog({ width : 600, height : 450 });
+    $('#salvagedialog_cancel').attr('value', '{!$Label.label_00058}');    //キャンセル
+    $('#salvagedialog_cancel').unbind().click(function(){
+                                         $('#salvagedialog').dialog('destroy');
+                                     });
+    $('#salvagedialog_ok').attr('value', '{!$Label.label_00075}');    //保存
+    $('#salvagedialog_ok').unbind().click(function(e) {
+                                         var callback = function(salvageBack){
+                                             CsoScript_loadingStop();
+                                             if (salvageBack.result) {
+                                                 reloadNow();
+                                                 reloadTree();
+                                             } else {
+                                                 alert(salvageBack.message);
+                                             }
+                                             $('#salvagedialog').dialog('destroy');
+                                         };
+                                         var callerror =  function(data){
+                                             CsoScript_loadingStop();
+                                             alert(data);
+                                         };
+                                         CsoScript_loadingStart();
+                                         securePostAsync('/contentsmanagement/spaceContentsSalvage.json', {'salvageArchiveFileIds' : JSON.stringify(ids), newid : $('#selectSalvageId').val()}, callback, callerror);
+                                     });
+
+    var salvageTreeBack = function(tree, status){
+        var branches = $(tree["tree"]).appendTo("#salvageTree");
+        $("#salvageTree").treeview({
+            collapsed: true,
+            add: branches,
+            url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+            asrt:"salvage"
+        });
+        $("#loadingSalvageTree").hide();
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {'asrt' : 'salvage', 'itemsType' : itemsType, 'itemsIds' : itemIds.toString(), "returnType":"html"}, salvageTreeBack);
+}
+
+/*
+ * 復旧先選択処理（アーカイブ・ゴミ箱共通）
+ */
+function change_salvage_space(node, id){
+    if(preSelectNode){
+        $(preSelectNode).removeClass("selectNode");
+    }
+    $("#selectSalvageName").val($(node).text());
+    $("#selectSalvageId").val(id);
+    $(node).addClass("selectNode");
+    preSelectNode = node;
+    return false;
+}
+
+/*
+ * 配信処理
+ */
+function contents_delivery(){
+    if ("true" ==  $("#contextMenuDelivery").attr("disabled")) {return;}
+    hideCsoContextMenu();
+    var ids = new Array();
+    var idList = new Array();
+    $("#docIds").empty();
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+        ids.push($("#superbox-docid").val());
+        // TODO チェックアウトされているかどうかの値がコンテンツ詳細情報に含まれるようになった場合、elseと同様のバリデーションを掛ける
+        $("#docIds").append($('<option>').attr({ value: ids[0], selected: "selected" }).text(ids[0]));
+    idList.push(ids[0]);
+    } else {
+        actionFromGalleryFinished = false;
+        ids = $("#listView1").jqGrid('getGridParam','selarrrow');
+        for (var i = 0; i < ids.length; i++) {
+            var ret = $("#listView1").jqGrid('getRowData',ids[i]);
+            $("#docIds").append($('<option>').attr({ value: ids[i], selected: "selected" }).text(ids[i]));
+            if(ret.ckou){
+                alert("{!$Label.msg_00031}");    //チェックアウトされているコンテンツが含まれていますので、配信できません。
+                return;
+            }
+        idList.push(ret.id);
+        }
+    }
+    if (0 < idList.length) {
+        window.open('about:blank', 'deliveryWindow', 'width=848, height=673, menubar=no, toolbar=no, scrollbars=yes');
+        $('#id').attr('value', idList.toString());
+        $('#ecmSessionId').attr('value', __ecmSessionId);
+        $('#spaceId').attr('value', space_portal_ref_space_id);
+        $("#deliveryForm").submit();
+    } else {
+        alert(getMsg(new Array('{!$Label.label_10004}'), '{!$Label.msg_00036}'));    //配信，{0}するコンテンツが選択されていません。
+    }
+}
+
+function contextMenuPlay() {
+    if("true" ==  $("#contextMenuPlay").attr("disabled")) {
+        return;
+    }
+    hideCsoContextMenu();
+
+
+    var ids = getSelectedRowIdList();
+
+    if (ids.length > 0) {
+        var id = ids[0];
+        var ret = $("#listView1").jqGrid('getRowData',ids[0]);
+        var fileId = ret.id
+        var spaceId = ret.spaceId;
+        var type = ret.type;
+
+        var callbackDLCheck = function(msg){
+            if(!msg.result){
+                alert('{!$Label.msg_symbolic_00012}');
+                return;
+            }
+        }
+        secureGetAsync('/contentsmanagement/symbolicLinkDLCheck.json', {"contentsId" : id, "spaceId" : space_portal_ref_space_id, "type" : 0}, callbackDLCheck);
+
+        window.open('{!$Page.DocumentMoviePlayer}?fileId=' + id + '&type=' + type + '&spaceId=' + spaceId + '&ecmSessionId=' + __ecmSessionId + '&security=' + security + '&mode=1', '_blank');
+
+//      $.get("/file/replay.json", {id : id}, function(data) {
+//          // 一時ファイルを削除 TODO : 実際に削除するのは再生停止ボタン押下時にする
+// //           $.post("/file/deleteVideo.json", {id : id, path : data.filename}, function(r) {
+// //           });
+//      }, "json");
+    }
+    setTimeout( function () {$("#listView1").trigger("reloadGrid");reloadTree();},500);
+}
+
+/*
+ * Webテキスト（コンテキストメニュー）
+ */
+function context_onlineEdit(arg, encoding){
+    if("true" ==  $('#contextMenuOnlineEdit').attr('disabled')){return;}
+    hideCsoContextMenu();
+    var contentsList = new Array();
+    var ids = jQuery("#listView1").jqGrid('getGridParam', 'selarrrow');
+    for(i in ids) {
+        var ret = $("#listView1").jqGrid('getRowData',ids[i]);
+        if(ret.id.match(/^SPACE/)){
+            alert('{!$Label.msg_00100}');    //スペースはオンライン編集できません。
+            return;
+        }
+        contentsList.push(ret);
+    }
+    
+    if(!encoding){
+        encoding = "SJIS";
+    }
+    
+    if(1 < contentsList.length){
+        alert(getMsg(new Array('{!$Label.label_10011}', '{!$Label.label_10245}'), '{!$Label.msg_00008}'));    //コンテンツ，オンライン編集，複数の{0}を{1}することはできません。
+    }else if(contentsList.length == 1 || arg != undefined){
+        var ret = contentsList[0];
+        location.hash = '';
+        
+        if(!ret){
+            ret = {id : arg, spaceId : ""};
+        }
+        
+        var requestFileId = "";
+        if(arg !== undefined){
+            requestFileId = arg;
+        }else{
+            requestFileId = ret.id;
+        }
+        
+        if(jumpFlag) {
+            location.href = "#/ContentsOnlineEdit?fileId=" + requestFileId + "&spaceId=" + ret.spaceId + "&encode=" + encoding;
+        }else{
+            location.href = "#/ContentsOnlineEdit?fileId=" + requestFileId + "&spaceId=" + ret.spaceId + "&time=" + (new Date()).getTime() + "&encode=" + encoding;
+        }
+    }else{
+        if(arguments.length == 2){
+            location.hash = '';
+            location.href = "#/ContentsOnlineEdit?fileId=" + arguments[0] + "&spaceId=" + favConSpace;
+        }else{
+            alert(getMsg(new Array('{!$Label.label_10245}'), '{!$Label.msg_00036}'));    //オンライン編集，{0}するコンテンツが選択されていません。
+        }
+    }
+}
+
+function showFileviewer(param){
+    if(navigator.appVersion.toLowerCase().indexOf("msie 9.") >= 0 ? true : false){
+        if(hasPdfFile){
+            window.open("{!$Page.ContentsFileviewer}?fileId="+ param.fileId +"&spaceId="+ param.spaceId +"&version="+ param.version +"&sort="+ param.sort +"&order="+ param.order +"&search="+ param.search +"&favorite=false", "fileviewerWindow",'menubar=no, toolbar=no, scrollbars=yes, resizable=yes');
+        }else{
+            $("#preview-area").loadPreview(param.fileId, param.spaceId, param.version, param.sort, param.order, param.search);
+        }
+    }else{
+         $("#preview-area").loadPreview(param.fileId, param.spaceId, param.version, param.sort, param.order, param.search);
+   }
+}
+
+/*
+ * Webテキスト参照（コンテキストメニュー）
+ */
+function context_onlineReference(arg, version){
+    if("true" ==  $("#contextMenuOnlineReference").attr("disabled")){return;}
+
+    hideCsoContextMenu();
+
+    var contentsList = new Array();
+    var ids = jQuery("#listView1").jqGrid('getGridParam', 'selarrrow');
+    for(i in ids) {
+        var ret = $("#listView1").jqGrid('getRowData',ids[i]);
+        if(ret.id.match(/^SPACE/)){
+            alert('{!$Label.msg_00100}');    //スペースはオンライン編集できません。
+            return;
+        }
+        contentsList.push(ret);
+    }
+
+    if(contentsList.length == 1 || arg !== undefined){
+        var ret = arg !== undefined ? $("#listView1").jqGrid('getRowData',arg) : contentsList[0];
+        var searchstr = "";
+        if(ret.id == undefined){
+            ret = $("#listView1").jqGrid('getRowData',arg+version);
+            ret.spaceId = null;
+        }
+        if(ret.asrt == "garbage" || ret.asrt == "archive"){
+            contentsInfo(ret.id, ret.asrt);
+            return;
+        }
+        if(getSearchParameter().type == 0){
+            searchstr = $.trim($("#keywords").val());
+        }
+        var url = location.href;
+        var strs = url.replace(/^.*#/, '').split(":");
+        if(strs.length == 2){
+            if(strs[strs.length - 1] == "search"){
+                ret.spaceId = null;
+            }
+        }
+        var requestFileId = "";
+        var searchstr = $.trim($("#keywords").val());
+        var argSearch = "";
+        if(searchstr) {
+            argSearch = "&keyword=" + searchstr;
+        }
+
+        var argVersion = "";
+        if ((ret.dispVersion==undefined || ret.dispVersion==null || ret.dispVersion=='') && (version!=null && version!=undefined && version!='')) {
+            ret.dispVersion = version;
+        }
+
+        if(ret.dispVersion) {
+            argVersion = "&version=" + ret.dispVersion;
+        }
+
+        if(arg !== undefined){
+            requestFileId = arg;
+        }else{
+            requestFileId = ret.id;
+        }
+
+        if(ret.dispVersion != ret.releaseVersion){
+            $("#preview-area").editLink(false);
+        }
+        var param = {fileId : ret.id,
+                     spaceId : ret.spaceId,
+                     version : ret.dispVersion,
+                     sort : $("#listView1").getGridParam("sortname"),
+                     order: $("#listView1").getGridParam("sortorder"),
+                     search : searchstr};
+
+        showFileviewer(param);
+    }else if(1 < contentsList.length){
+        alert('複数のコンテンツを参照することはできません。');
+    }else{
+        alert('{!$Label.msg_00036}');
+    }
+}
+
+/*
+ * プロパティ
+ */
+function contextMenuEdit(isContextMenu){
+    closeDisplaySettingsDialog();
+    hideCsoContextMenu();
+    if (!isContextMenu) {
+        spaceEdit_initialize(getUrlSpaceId());
+        return;
+    }
+
+    var ids = new Array();
+    var rowId = "";
+    var type = "";
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+        ids.push($("#superbox-docid").val());
+        rowId = ids[0];
+        type = "alive";
+    } else {
+        actionFromGalleryFinished = false;
+        ids = getSelectedRowIdList();
+        if (ids.length > 1) {
+            alert('{!$Label.msg_00012}');    //2つ以上の編集は出来ません。
+            return;
+        } else if (ids.length == 0) {
+            alert('{!$Label.msg_00013}');    //アイテムが選択されていません。
+            return;
+        }
+        var row = $("#listView1").jqGrid('getRowData',ids[0]);
+        if((row.id == undefined)||(row.type == undefined)){
+            var ftsIds = $("#listView1").jqGrid('getGridParam','selarrrow');
+            row =  $("#listView1").jqGrid('getRowData', ftsIds[0]);
+        }
+        rowId = row.id;
+        type = row.type;
+    }
+
+    if (ids[0].match(/^SPACE/)) {
+        spaceEdit_initialize(ids[0]);
+    } else {
+        contentsInfo2(rowId, getUrlSpaceId(), type);
+    }
+}
+
+/*
+ * コンテンツ情報参照
+ */
+function contentsInfo(id, type){
+    contentsInfoWin = window.open('{!$Page.DocumentContentsInfo}?fileId=' + id + '&type=' + type + '&asrt=' + getAsrt() + '&ecmSessionId=' + __ecmSessionId + '&security=' + security, 'contentsinfo', 'width=800, height=660, menubar=no, toolbar=no, scrollbars=yes');
+}
+
+/*
+ * コンテンツ情報参照
+ */
+function contentsInfo2(id, spaceId, type){
+    contentsInfoWin = window.open('{!$Page.DocumentContentsInfo}?fileId=' + id + '&type=' + type + '&asrt=' + getAsrt() + '&ecmSessionId=' + __ecmSessionId + '&spaceId=' + spaceId, 'contentsinfo', 'width=800, height=660, menubar=no, toolbar=no, scrollbars=yes');
+}
+
+/*
+ * コンテンツ削除処理
+ */
+function contextMenuDelete() {
+    if("true" ==  $("#contextMenuDelete").attr("disabled")){return;}
+    closeDisplaySettingsDialog();
+    hideCsoContextMenu();
+    var ids = getSelectedList();
+
+    // 削除処理前チェック
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+    };
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/spaceContentsMoveCheck.json', {'delete' : 'true', 'ids' : JSON.stringify(ids)}, spaceContentsMoveCheck_callback, callerror);
+}
+function spaceContentsMoveCheck_callback(checkback) {
+    CsoScript_loadingStop();
+    var msg;
+    if (!checkback.result) { msg = '{!$Label.msg_00027}'; }    //削除できないコンテンツがありますが、削除しますか？
+    else { msg = '{!$Label.msg_00049}'; }    //削除します。よろしいですか？
+    // 確認メッセージ表示
+    if(confirm(msg) == false){
+        setTimeout(function(){
+                        synchronizedSpaceTree();
+                        changeCurrentTreeColor();
+                    }, 100);
+        return;
+    }
+
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+    }else{
+        actionFromGalleryFinished = false;
+    }
+
+    var ids = getSelectedList();
+    if (ids.length <= 0) {
+        setTimeout(function(){
+                        synchronizedSpaceTree();
+                        changeCurrentTreeColor();
+                    }, 100);
+        return;
+    }
+
+    var params = { 'ids' : JSON.stringify(ids) };
+    if (jumpFlag){ params.tagOperation = 'tag'; }
+
+    // 削除処理
+    var callback = function(delback){
+        CsoScript_loadingStop();
+        if(delback["result"]){
+            // Salesforce chatterフラグが有効か？
+            if('{!$User.CSOChatter__c}' == 'true'){
+                // 「コメントを入力してChatterで通知する」場合
+                if (true == delback["chatter_comment"]) {
+                    displayChatterComment(delback["chatter_files"], delback["space"], delback["operation"], delback["groupid"]);
+                }
+                // 「Chatterで自動通知する」場合
+                if (true == delback["chatter_direct"]) {
+                    sendChatterComment(delback["chatter_files"], delback["space"], delback["operation"], delback["groupid"]);
+                }
+            }
+            reloadNow();
+            reloadTree();
+        }
+        else{
+            reloadNow();
+            reloadTree();
+            alert(delback["message"]);
+        }
+        setTimeout(function(){
+                        synchronizedSpaceTree();
+                        changeCurrentTreeColor();
+                    }, 100);
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+    };
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/spaceContentsDelete.json', params, callback, callerror);
+}
+
+/*
+ * スペースユーザ管理
+ */
+function contextMenuEditSpace(isContextMenu){
+
+    hideCsoContextMenu();
+    $("#fullPathDisplay").hide();
+    var ids = getSelectedRowIdList();
+
+    if(isContextMenu){
+        if(ids.length > 1){
+            alert('{!$Label.msg_00012}');    //2つ以上の編集は出来ません。
+            return;
+        }else if(ids.length == 0){
+            alert('{!$Label.msg_00013}');    //アイテムが選択されていません。
+            return;
+        }
+    }else{
+        invSpaceUser(space_portal_ref_space_id);
+        return;
+    }
+
+//    $('#c_headLeftSubTitle').html(jQuery("#listView1").getRowData(ids).simpleName);
+
+    var id = $("#listView1").jqGrid('getRowData',ids[0]).id;
+    if(!id.match(/^SPACE/)){
+        alert('{!$Label.msg_00014}');    //スペース以外に対してユーザの管理をすることは出来ません。
+        return;
+    }else{
+        invSpaceUser(id);
+    }
+}
+
+/*
+ * スペースユーザ管理（history呼出）
+ */
+function invSpaceUser(id){
+    location.hash = '';
+    location.href = "#/SpaceUserManager" + (id ? "?spaceId=" + id : "");
+}
+
+/*
+ * スペースユーザ管理（招待者一覧呼出）
+ */
+function invSpaceUser2(url){
+    var id = null;
+    if(url.indexOf('?spaceId=') > 0){
+        id = url.substring(url.indexOf('?spaceId=') + 9, url.length);
+    }
+    // 招待者リロード
+    spaceUserManager_invUserListReload(id);
+    // 招待エリア表示
+    displayInvitatied();
+}
+
+/*
+ * ワークフロー申請
+ */
+function startWorkflow(selected){
+
+    if("true" ==  $("#contextMenuWorkflow").attr("disabled")){return;}
+    hideCsoContextMenu();
+
+    window.open('{!$Page.WorkflowApply}?callType=popup&ecmSessionId=' + __ecmSessionId, 'WorkflowApply', 'width=900, height=700, menubar=no, toolbar=no, scrollbars=yes');
+}
+function getSelectDocIds(){
+    //  選択したファイルの一覧を取得
+    var ids = getSelectedRowIdList();
+    var idList = "";
+    for (var i in ids) {
+        if(idList != ""){
+            idList = idList + ",";
+        }
+        idList = idList + ids[i];
+    }
+    return idList;
+}
+
+/*
+ * チェックイン処理
+ */
+function contextMenuCheckin(){
+    if('true' ==  $('#contextMenuCheckin').attr('disabled')){return;}
+    hideCsoContextMenu();
+
+    var ids = new Array();
+    var simpleName;
+
+    if ($("#galleryDiv").css("display") == "block") {
+        actionFromGalleryFinished = true;
+        ids.push($("#superbox-docid").val());
+        simpleName = $('#superbox-docName').text();
+    } else {
+        actionFromGalleryFinished = false;
+        ids = getSelectedRowIdList();
+        var ret = $("#listView1").jqGrid('getRowData',ids[0]);
+        if((ret.dl == undefined)||(ret.simpleName == undefined)){
+            var ftsIds = $("#listView1").jqGrid('getGridParam','selarrrow');
+            ret =  $("#listView1").jqGrid('getRowData', ftsIds[0]);
+        }
+        simpleName = ret.simpleName;
+    }
+
+    if(ids.length > 1){
+        alert('{!$Label.msg_00020}');    //2つ以上同時にチェックインすることは出来ません。
+        return;
+    }else if(ids.length == 0){
+        alert('{!$Label.msg_00013}');    //アイテムが選択されていません。
+        return;
+    }
+
+    var ret = constructObjectFromRowData(jQuery("#listView1").find("#" + ids[0] + " td"), getColumnModelNameMap(jQuery("#listView1")), 'text');
+
+    var id = ids[0];
+    if(id.match(/^SPACE/)){
+        alert('{!$Label.msg_00022}');    //スペースにチェックインすることは出来ません。
+        return;
+    } else {
+        win = window.open('{!$Page.DocumentContentsCheckin}?id=' + id + '&name=' + encodeURIComponent(simpleName), '', 'width=750, height=580, menubar=no, toolbar=no, scrollbars=yes');
+    }
+}
+
+/*
+ * バージョン管理設定呼び出し
+ */
+function contextMenuLifeCycle(isContextMenu){
+
+    hideCsoContextMenu();
+    $("#fullPathDisplay").hide();
+    var ids = getSelectedRowIdList();
+
+    if(isContextMenu){
+        if(ids.length > 1){
+            alert('{!$Label.msg_00012}');    //2つ以上の編集は出来ません。
+            return;
+        }else if(ids.length == 0){
+            alert('{!$Label.msg_00013}');    //アイテムが選択されていません。
+            return;
+        }
+    }else{
+        invSpaceUser(null);
+        return;
+    }
+
+//    $('#c_headLeftSubTitle').html(jQuery("#listView1").getRowData(ids).simpleName);
+
+    var id = $("#listView1").jqGrid('getRowData',ids[0]).id;
+    if(!id.match(/^SPACE/)){
+        alert('{!$Label.msg_00014}');    //スペース以外に対してユーザの管理をすることは出来ません。
+        return;
+    }else{
+        invSpaceUser(id);
+    }
+}
+
+/*
+ * コンテンツ公開
+ */
+function publishContents() {
+    if("true" ==  $("#contextMenuPublishContents").attr("disabled")){return;}
+    hideCsoContextMenu();
+
+    var selRowList = getSelectedRowIdList();
+    if(selRowList.length == 0){
+        alert(getMsg(new Array('{!$Label.label_11095}'), '{!$Label.msg_00036}'));    //公開，{0}するコンテンツが選択されていません。
+        return;
+    }
+
+    if(confirm("{!$Label.msg_01067}")){
+        var idList = [];
+
+        for(i in selRowList){
+            var ret = $("#listView1").jqGrid('getRowData', selRowList[i]);
+            if(!ret.id.match(/^SPACE/)){
+                alert('{!$Label.msg_01068}');    //スペース以外は指定できません。
+                return false;
+            }
+            idList.push(ret.id);
+        }
+//      var _spaceId = idList[0];
+        var _spaceId = idList.join(",")
+
+        var callback = function(result){
+            if(result.result){
+                // グリッドのリロード処理
+                $("#listView1").trigger("reloadGrid");
+            }else{
+                alert(result.message);
+            }
+        };
+
+        // 呼び出し
+        secureGetAsync('/contentsmanagement/SpaceOpen.json', 'spaceId=' + _spaceId + "&open=true" , callback);
+
+    }
+    return false;
+}
+
+/*
+ * コンテンツ公開取り消し
+ */
+function unPublishContents() {
+    if("true" ==  $("#contextMenuUnPublishContents").attr("disabled")){return;}
+    hideCsoContextMenu();
+
+    var selRowList = getSelectedRowIdList();
+    if(selRowList.length == 0){
+        alert(getMsg(new Array('{!$Label.label_11096}'), '{!$Label.msg_00036}'));    //非公開に，{0}するコンテンツが選択されていません。
+        return;
+    }
+
+    if(confirm("{!$Label.msg_01069}")){
+        var idList = [];
+
+        for(i in selRowList){
+            var ret = $("#listView1").jqGrid('getRowData', selRowList[i]);
+            idList.push(ret.id);
+        }
+//      var _spaceId = idList[0];
+        var _spaceId = idList.join(",")
+
+        var callback = function(result){
+            if(result.result){
+                // グリッドのリロード処理
+                $("#listView1").trigger("reloadGrid");
+            }else{
+                alert(result.message);
+            }
+        };
+        // 呼び出し
+        secureGetAsync('/contentsmanagement/SpaceOpen.json', 'spaceId=' + _spaceId + "&open=false" , callback);
+
+    }
+    return false;
+}
+
+// Gridの選択行のIDのリストを返す
+function getSelectedRowIdList() {
+    var idList = new Array();
+    var ids = jQuery("#listView1").jqGrid('getGridParam','selarrrow');
+    for(var i in ids) {
+        var ret = $("#listView1").jqGrid('getRowData',ids[i]);
+        idList.push(ret.id);
+    }
+    return idList;
+}
+
+/*
+ * 公開用URL取得
+ */
+function showContentsURL(contentsURL) {
+    hideCsoContextMenu();
+    $("#listView1").resetSelection();
+
+    //URLをセット
+    $("#contentsUrlText").val(contentsURL);
+
+    $('#contentsURL_dialog').dialog('open');
+
+}
+
+/*
+ * コンテキストメニュー表示切替
+ */
+function act(data) {
+    var ids;
+    if (!data) {
+        ids = $("#listView1").jqGrid('getGridParam', 'selarrrow');
+        if (!ids || ids.length == 0) {
+            return {};
+        }
+    }
+    var download = true;
+    var replay = true;
+    var delivery = true;
+    var editonline = true;
+    var referenceonline=true;
+    var viewdocument=true;
+    var move = true;
+    var copy = true;
+    var edit = true;
+    var del = true;
+    var manage = true;
+    var checkout = true;
+    var cancelcheckout = true;
+    var checkin = true;
+    var archive = true;
+    var salvage = true;
+    var remove = true;
+    var recover = true;
+    var workflow = true;
+    var hasSpace = false;
+    var securityStasus = {!cso_userInfo.bncStatus};
+    var rule = false;
+    var spaceHistory = false;
+    var lifecycle = false;
+    var lifecycleZwei = false;
+    var disclose = false;
+    var watermark = false;
+    var pdfSecurity = false;
+    var publish = true;
+    var unPublish = true;
+    var symbolicLink = true;
+    if (!data && ids.length > 1) {
+        for (var i in ids) {
+            var ret = $("#listView1").jqGrid('getRowData', ids[i]);
+            if (ret.cmDownload == 'false') { download = false; }
+            if (ret.cmDelivery == 'false') { delivery = false; }
+            if (ret.cmMove == 'false') { move = false; }
+            if (ret.cmCopy == 'false') { copy = false; }
+            if (ret.cmDelete == 'false') { del = false; }
+            if (ret.cmArchive == 'false') { archive = false; }
+            if (ret.cmSalvage == 'false') { salvage = false; }
+            if (ret.cmRemove == 'false') { remove = false; }
+            if (ret.cmRecover == 'false') { recover = false; }
+            if (ret.cmWorkflow == 'false') { workflow = false; }
+            if(ret.isSpace == 'true'){ hasSpace = true; }
+            if (ret.cmPublish == 'false'){publish = false;}
+            if (ret.cmUnPublish == 'false'){unPublish = false;}
+            if (ret.symbolicLink == 'false') { symbolicLink = false; }
+        }
+
+        editonline = false;
+        referenceonline= false;
+        viewdocument= false;
+        edit = false;
+        manage = false;
+        checkout = false;
+        cancelcheckout = false;
+        checkin = false;
+        spaceHistory = false;
+        replay = false;
+        lifecycle = false;
+        lifecycleZwei = false;
+        disclose = false;
+        watermark = false;
+        pdfSecurity = false;
+    } else if (data) {
+        var ret = data;
+        download        = ret.cmDownload;
+        replay          = ret.cmReplay;
+        delivery        = ret.cmDelivery;
+        editonline      = ret.cmEditonline;
+        referenceonline = ret.cmReferenceonline;
+        viewdocument = ret.cmViewDocument;
+        move            = ret.cmMove;
+        copy            = ret.cmCopy;
+        edit            = ret.cmEditAttr;
+        del             = ret.cmDelete;
+        manage          = ret.cmManage;
+        checkout        = ret.cmCheckout;
+        cancelcheckout  = ret.cmCancelcheckout;
+        checkin         = ret.cmCheckin;
+        archive         = ret.cmArchive;
+        salvage         = ret.cmSalvage;
+        remove          = ret.cmRemove;
+        recover         = ret.cmRecover;
+        workflow        = ret.cmWorkflow;
+        hasSpace        = ret.isSpace;
+        rule            = ret.rule;
+        spaceHistory    = ret.cmSpaceHistory;
+        lifecycle       = ret.cmVersionSetting;
+        lifecycleZwei   = ret.cmLifecycle;
+//        takeoutApp      = ret.cmTakeoutApp;
+        disclose        = ret.cmDisclose;
+        watermark       = ret.cmWatermark;
+        pdfSecurity     = ret.cmPdfSecurity;
+        symbolicLink    = ret.symbolicLink;
+//        publish = ret.cmPublish == 'true'; // TODO 必要？
+//        unPublish = ret.cmUnPublish == 'true'; // TODO 必要？
+//        directPrint     = ret.directPrint;
+    } else {
+        var ret = $("#listView1").jqGrid('getRowData', ids[0]);
+        download = ret.cmDownload == 'true';
+        replay = ret.cmReplay == "true";
+        delivery = ret.cmDelivery == 'true';
+        editonline = ret.cmEditonline == 'true';
+        referenceonline= ret.cmReferenceonline == 'true';
+        viewdocument= ret.cmViewDocument == 'true';
+        move = ret.cmMove == 'true';
+        copy = ret.cmCopy == 'true';
+        edit = ret.cmEditAttr == 'true';
+        del = ret.cmDelete == 'true';
+        manage = ret.cmManage == 'true';
+        checkout = ret.cmCheckout == 'true';
+        cancelcheckout = ret.cmCancelcheckout == 'true';
+        checkin = ret.cmCheckin == 'true';
+        archive = ret.cmArchive == 'true';
+        salvage = ret.cmSalvage == 'true';
+        remove = ret.cmRemove == 'true';
+        recover = ret.cmRecover == 'true';
+        workflow = ret.cmWorkflow == 'true';
+        hasSpace = ret.isSpace == 'true';
+        rule = ret.rule == 'true';
+        spaceHistory = ret.cmSpaceHistory == "true";
+        lifecycle = ret.cmVersionSetting == 'true'; // バージョン管理(元cmLifecycle)
+        lifecycleZwei = ret.cmLifecycle == 'true';
+        disclose = ret.cmDisclose == 'true';
+        watermark = ret.cmWatermark == 'true';
+        pdfSecurity = ret.cmPdfSecurity == 'true';
+        publish = ret.cmPublish == 'true';
+        unPublish = ret.cmUnPublish == 'true';
+        symbolicLink = ret.symbolicLink == 'true';
+    }
+
+    var p = {
+        'download' : download,
+        "replay" : replay,
+        'delivery' : delivery,
+        'editonline' : editonline,
+        'referenceonline' : referenceonline,
+        'viewdocument' : viewdocument,
+        'move' : move,
+        'copy' : copy,
+        'edit' : edit,
+        'del' : del,
+        'manage' : manage,
+        'checkout' : checkout,
+        'cancelcheckout' : cancelcheckout,
+        'checkin' : checkin,
+        'archive' : archive,
+        'salvage' : salvage,
+        'remove' : remove,
+        'recover' : recover,
+        'workflow' : workflow,
+        'hasSpace' : hasSpace,
+        'securityStasus' : securityStasus,
+        'rule' : rule,
+        "spaceHistory" : spaceHistory,
+        "lifecycle" : lifecycle,
+        "lifecycleZwei" : lifecycleZwei,
+        "disclose" : disclose,
+        "watermark" : watermark,
+        "pdfSecurity" : pdfSecurity,
+        "publish" : publish,
+        "unPublish" : unPublish,
+        "symbolicLink" : symbolicLink
+    };
+
+    var act = false;
+    for (var i in p) {
+        if (p[i] == true) {
+            if (i == 'hasSpace') { continue; }
+            act = true;
+            break;
+        }
+    }
+    p['act'] = act;
+    return p;
+}
+/*----------------------------------------------
+ * 表示切替
+ ---------------------------------------------*/
+/**
+ * ローディングGIF表示切替
+ */
+function displayLoading(){
+    $('#tree').empty();
+    $('#tagNameTreeDiv').empty();
+    $('#spaceTree').empty();
+    $('#tagDiv').hide();
+    $('#loadingGif').show();
+}
+/**
+ * スペースツリー表示切替
+ */
+function displaySpaceTree(){
+    $('#tagDiv').hide();
+    $('#loadingGif').hide();
+    $('#spaceTree').show();
+}
+/**
+ * タグツリー表示切替
+ */
+function displayTagTree(){
+    $('#spaceTree').empty();
+    $('#loadingGif').hide();
+    $('#tagDiv').show();
+}
+/**
+ * コンテンツローディング表示
+ */
+function displayContentsLoading(){
+    //  ヘッダの高さを取得
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // 招待者一覧・コマンドボタン非表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    // コンテンツ一覧・コマンドボタン表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // バージョン管理設定・コマンドボタン非表示
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycleCommand').hide();
+    // ライフサイクル設定・コマンドボタン非表示
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZweiCommand').hide();
+    // コンテンツ公開設定・コマンドボタン非表示
+    $('#discloseDiv').hide();
+    $('#discloseCommand').hide();
+    // PDF透かし設定・コマンドボタン非表示
+    $('#watermarkDiv').hide();
+    $('#watermarkCommand').hide();
+    // PDFセキュリティ設定・コマンドボタン非表示
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurityCommand').hide();
+
+    // コンテンツローディング表示
+    $('#contentsloading').show();
+
+}
+/**
+ * コンテンツ一覧表示
+ */
+function displayList(){
+    header_update_lock = false;
+
+    //  ヘッダの高さを取得
+
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // 招待者一覧・コマンドボタン非表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // タイトル部変更
+    $('#folder_image').show();
+    $('#secureSpace_image').hide();
+    $('#tag_image').hide();
+    $('#edit_image').hide();
+    $('#spaceManage_image').hide();
+    
+    // コンテンツ一覧・コマンドボタン表示
+    $('#listViewArea').show();
+    $('#listViewCommand').show();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    SpaceHistory_closeSearchDialog();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定非表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    // ギャラリー非表示
+    $('#galleryCommand').hide();
+    $('#galleryDiv').hide();
+    $('#gallery_image').hide();
+
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+
+/**
+ * タグ一覧表示
+ */
+function displayTagList(){
+
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // 招待者一覧・コマンドボタン非表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // タイトル部変更
+    $('#folder_image').hide();
+    $('#tag_image').show();
+    $('#edit_image').hide();
+    $('#spaceManage_image').hide();
+    // コンテンツ一覧・コマンドボタン表示
+    $('#listViewArea').show();
+    $('#listViewCommand').show();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    SpaceHistory_closeSearchDialog();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定非表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    // ギャラリー非表示
+    $('#galleryCommand').hide();
+    $('#galleryDiv').hide();
+    $('#gallery_image').hide();
+
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+/**
+ * 招待者一覧表示
+ */
+function displayInvitatied(){
+
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // 招待者一覧・コマンドボタン表示
+    $('#invitatiedDiv').show();
+    $('#invitatiedCommand').show();
+    $("#settingBtn").hide();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // タイトル画像の差し替え
+    $('#folder_image').hide();
+    $('#spaceManage_image').show();
+    $('#c_headLeftTitle').html('{!$Label.label_10559}');
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    SpaceHistory_closeSearchDialog();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定非表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    // ギャラリー非表示
+    $('#galleryCommand').hide();
+    $('#galleryDiv').hide();
+    $('#gallery_image').hide();
+    //
+    $("#infoChatter").hide();
+    $("#infoShare").hide();
+    $("#infoSpaceRule").hide();
+    $("#infoPassword").hide();
+    $("#infoLifecycle").hide();
+    $("#infoLifecycleZwei").hide();
+    $("#infoDiscloseBlue").hide();
+    $("#infoDiscloseRed").hide();
+    $("#infoWatermark").hide();
+    $("#infoPdfSecurity").hide();
+    $("#infoDigimark").hide();
+    
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+/**
+ * Webテキスト表示
+ */
+function displayEditor(){
+
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // 招待者一覧・コマンドボタン非表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // タイトル部変更
+    $('#folder_image').hide();
+    $('#tag_image').hide();
+    $('#edit_image').show();
+    $('#c_headLeftTitle').html('{!$Label.label_10180}');    //Webテキストの編集
+    // Webテキスト・コマンドボタン表示
+    $('#EditorDiv').show();
+    $('#editorCommand').show();
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    SpaceHistory_closeSearchDialog();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定非表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    // ギャラリー非表示
+    $('#galleryCommand').hide();
+    $('#galleryDiv').hide();
+    $('#gallery_image').hide();
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+
+/**
+ * スペースルール表示
+ */
+function displaySpaceRule(){
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // 招待者一覧・コマンドボタン表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    $("#settingBtn").hide();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // タイトル画像の差し替え
+    $('#folder_image').hide();
+    $('#spaceManage_image').hide();
+    $('#c_headLeftTitle').html('{!$Label.label_10453}');
+    // スペースルール表示
+    $('#spaceRuleCommand').show();
+    $('#spaceRuleDiv').show();
+    $('#spaceRule_image').show();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    SpaceHistory_closeSearchDialog();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定非表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    // ギャラリー非表示
+    $('#galleryCommand').hide();
+    $('#galleryDiv').hide();
+    $('#gallery_image').hide();
+    //
+    $("#infoChatter").hide();
+    $("#infoShare").hide();
+    $("#infoSpaceRule").hide();
+    $("#infoPassword").hide();
+    $("#infoLifecycle").hide();
+    $("#infoLifecycleZwei").hide();
+    $("#infoDiscloseBlue").hide();
+    $("#infoDiscloseRed").hide();
+    $("#infoWatermark").hide();
+    $("#infoPdfSecurity").hide();
+    $("#infoDigimark").hide();
+    
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+
+
+/**
+ * Webテキスト参照 2013/05 王帝
+ */
+function displaytext(){
+
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').show();
+    $('#ReferCommand').show();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // 招待者一覧・コマンドボタン非表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // タイトル部変更
+    $('#folder_image').hide();
+    $('#tag_image').show();
+    $('#edit_image').hide();
+    $('#c_headLeftTitle').html('{!$Label.label_WebTextRefer_00001}');    //Webテキストの参照
+    // Webテキスト・コマンドボタン表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    SpaceHistory_closeSearchDialog();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定非表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+
+
+
+/**
+ * Webテキスト参照 --編集 20130612 王帝
+ */
+
+ function onlineEditById(spaceId, fileId){
+
+        if(webtextloader==false){
+             location.hash= "#/ContentsOnlineEdit?fileId=" + fileId + "&spaceId=" + spaceId;
+
+        }else{
+            location.hash= "#/ContentsOnlineEdit?fileId=" + fileId + "&spaceId=" + spaceId;
+            onlineEdit_load('/ContentsOnlineEdit?fileId='+ fileId + "&spaceId=" + spaceId);
+            webtextloader=false;
+        }
+}
+
+
+/**
+ * スペースヒストリー表示
+ */
+function displaySpaceHistory(){
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // 招待者一覧・コマンドボタン表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    $("#settingBtn").hide();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // タイトル画像の差し替え
+    $('#folder_image').hide();
+    $('#spaceManage_image').hide();
+    $('#c_headLeftTitle').html('{!$Label.label_10452}');
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー表示
+    $('#spaceHistoryCommand').show();
+    $('#spaceHistoryDiv').show();
+    $('#spaceHistory_image').show();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定非表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    // ギャラリー非表示
+    $('#galleryCommand').hide();
+    $('#galleryDiv').hide();
+    $('#gallery_image').hide();
+    //
+    $("#infoChatter").hide();
+    $("#infoShare").hide();
+    $("#infoSpaceRule").hide();
+    $("#infoPassword").hide();
+    $("#infoLifecycle").hide();
+    $("#infoLifecycleZwei").hide();
+    $("#infoDiscloseBlue").hide();
+    $("#infoDiscloseRed").hide();
+    $("#infoWatermark").hide();
+    $("#infoPdfSecurity").hide();
+	$("#infoDigimark").hide();
+	
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+
+
+/**
+ * バージョン管理設定表示
+ */
+function displayLifeCycle(){
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // 招待者一覧・コマンドボタン表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    $("#settingBtn").hide();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // タイトル画像の差し替え
+    $('#folder_image').hide();
+    $('#spaceManage_image').hide();
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    // バージョン管理設定非表示
+    $('#c_headLeftTitle').html('{!$Label.label_11032}');
+    $('#lifeCycleCommand').show();
+    $('#lifeCycleDiv').show();
+    $('#lifeCycle_image').show();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定非表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    // ギャラリー非表示
+    $('#galleryCommand').hide();
+    $('#galleryDiv').hide();
+    $('#gallery_image').hide();
+    //
+    $("#infoChatter").hide();
+    $("#infoShare").hide();
+    $("#infoSpaceRule").hide();
+    $("#infoPassword").hide();
+    $("#infoLifecycle").hide();
+    $("#infoLifecycleZwei").hide();
+    $("#infoDiscloseBlue").hide();
+    $("#infoDiscloseRed").hide();
+    $("#infoWatermark").hide();
+    $("#infoPdfSecurity").hide();
+    $("#infoDigimark").hide();
+
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+
+/**
+ * PDF透かし設定表示
+ */
+function displayWatermark(){
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // 招待者一覧・コマンドボタン表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    $("#settingBtn").hide();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // タイトル画像の差し替え
+    $('#folder_image').hide();
+    $('#spaceManage_image').hide();
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定表示
+    $('#c_headLeftTitle').html('{!$Label.label_10588}');
+    $('#watermarkCommand').show();
+    $('#watermarkDiv').show();
+    $('#watermark_image').show();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    // ギャラリー非表示
+    $('#galleryCommand').hide();
+    $('#galleryDiv').hide();
+    $('#gallery_image').hide();
+    //
+    $("#infoChatter").hide();
+    $("#infoShare").hide();
+    $("#infoSpaceRule").hide();
+    $("#infoPassword").hide();
+    $("#infoLifecycle").hide();
+    $("#infoLifecycleZwei").hide();
+    $("#infoDiscloseBlue").hide();
+    $("#infoDiscloseRed").hide();
+    $("#infoWatermark").hide();
+    $("#infoPdfSecurity").hide();
+    $("#infoDigimark").hide();
+
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+
+/**
+ * PDFセキュリティ設定表示
+ */
+function displayPdfSecurity(){
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // 招待者一覧・コマンドボタン表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    $("#settingBtn").hide();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // タイトル画像の差し替え
+    $('#folder_image').hide();
+    $('#spaceManage_image').hide();
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#c_headLeftTitle').html('{!$Label.label_10620}');
+    $('#pdfSecurityCommand').show();
+    $('#pdfSecurityDiv').show();
+    $('#pdfSecurity_image').show();
+    //
+    $("#infoChatter").hide();
+    $("#infoShare").hide();
+    $("#infoSpaceRule").hide();
+    $("#infoPassword").hide();
+    $("#infoLifecycle").hide();
+    $("#infoLifecycleZwei").hide();
+    $("#infoDiscloseBlue").hide();
+    $("#infoDiscloseRed").hide();
+    $("#infoWatermark").hide();
+    $("#infoPdfSecurity").hide();
+    $("#infoDigimark").hide();
+
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+/**
+ * ライフサイクル設定表示
+ */
+function displayLifeCycleZwei(){
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // 招待者一覧・コマンドボタン表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    $("#settingBtn").hide();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // タイトル画像の差し替え
+    $('#folder_image').hide();
+    $('#spaceManage_image').hide();
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定表示
+    $('#c_headLeftTitle').html('{!$Label.label_13017}');
+    $('#lifeCycleZweiCommand').show();
+    $('#lifeCycleZweiDiv').show();
+    $('#lifeCycleZwei_image').show();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定非表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    //
+    $("#infoChatter").hide();
+    $("#infoShare").hide();
+    $("#infoSpaceRule").hide();
+    $("#infoPassword").hide();
+    $("#infoLifecycle").hide();
+    $("#infoLifecycleZwei").hide();
+    $("#infoDiscloseBlue").hide();
+    $("#infoDiscloseRed").hide();
+    $("#infoWatermark").hide();
+    $("#infoPdfSecurity").hide();
+    $("#infoDigimark").hide();
+
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+/**
+ * コンテンツ公開設定表示
+ */
+function displayDisclose(){
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // 招待者一覧・コマンドボタン表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    $("#settingBtn").hide();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // タイトル画像の差し替え
+    $('#folder_image').hide();
+    $('#spaceManage_image').hide();
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定表示
+    $('#c_headLeftTitle').html('{!$Label.label_13124}');
+    $('#discloseCommand').show();
+    $('#discloseDiv').show();
+    $('#disclose_image').show();
+    // PDF透かし設定非表示
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    //
+    $("#infoChatter").hide();
+    $("#infoShare").hide();
+    $("#infoSpaceRule").hide();
+    $("#infoPassword").hide();
+    $("#infoLifecycle").hide();
+    $("#infoLifecycleZwei").hide();
+    $("#infoDiscloseBlue").hide();
+    $("#infoDiscloseRed").hide();
+    $("#infoWatermark").hide();
+    $("#infoPdfSecurity").hide();
+    $("#infoDigimark").hide();
+
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+/**
+ * Chatterコメント表示
+ * <変更_121018> ChatterURL投稿機能 (メソッド全体 山東変更) [Chatter投稿用のURLを作成して引数に追加]
+ */
+function displayChatterComment(files, space, operation, groupid){
+    if((files == null) || (space == null) || (operation == null) || (groupid == null)){
+        return;
+    }
+    var tempUrl = "";
+    if(location.hash != ''){
+        tempUrl = encodeURIComponent('{!salesforceBaseUrl}/apex/SpacePortalDoor?spaceLink=' + space_portal_ref_space_id + ':' + getAsrt());
+    }
+
+    var url = '{!$Page.ChatterComment}?readTemplate=true&files=' + files + '&space=' + space + '&operation=' + operation + '&groupid=' + groupid + '&ecmSessionId=' + __ecmSessionId + '&contentsUrl=' + tempUrl;
+    window.open(url,'','width=700, height=530, menubar=no, toolbar=no, scrollbars=yes');
+}
+/**
+ * Chatterコメントの自動送信
+ * <変更_121018> ChatterURL投稿機能 (メソッド全体 山東変更) [Chatter投稿用のURLを作成して引数に追加]
+ */
+function sendChatterComment(files, space, operation, groupid){
+    if((files == null) || (space == null) || (operation == null) || (groupid == null)){
+        return;
+    }
+    var tempUrl = "";
+    if(location.hash != ''){
+        tempUrl = '{!salesforceBaseUrl}/apex/SpacePortalDoor?spaceLink=' + space_portal_ref_space_id + ':' + getAsrt();
+    }
+
+    chatterComment_direct(files, space, operation, groupid, tempUrl);
+}
+
+/**
+ * ギャラリー表示
+ */
+function displayGallery(){
+    hideDisplaySetting();
+    // Webテキスト参照・コマンドボタン非表示
+    $('#ReferenceDiv').hide();
+    $('#ReferCommand').hide();
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // コンテンツ一覧・コマンドボタン非表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // 招待者一覧・コマンドボタン表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    $("#settingBtn").hide();
+    // 編集中フラグを無効にする
+    $('#editor').attr('isDirty', false);
+    // タイトル画像の差し替え
+    $('#folder_image').hide();
+    $('#spaceManage_image').hide();
+    // スペースルール非表示
+    $('#spaceRuleCommand').hide();
+    $('#spaceRuleDiv').hide();
+    $('#spaceRule_image').hide();
+    // スペースヒストリー非表示
+    $('#spaceHistoryCommand').hide();
+    $('#spaceHistoryDiv').hide();
+    $('#spaceHistory_image').hide();
+    // バージョン管理設定非表示
+    $('#lifeCycleCommand').hide();
+    $('#lifeCycleDiv').hide();
+    $('#lifeCycle_image').hide();
+    // ライフサイクル設定非表示
+    $('#lifeCycleZweiCommand').hide();
+    $('#lifeCycleZweiDiv').hide();
+    $('#lifeCycleZwei_image').hide();
+    // コンテンツ公開設定非表示
+    $('#discloseCommand').hide();
+    $('#discloseDiv').hide();
+    $('#disclose_image').hide();
+    // PDF透かし設定表示
+    //$('#c_headLeftTitle').html('{!$Label.label_10588}');
+    $('#watermarkCommand').hide();
+    $('#watermarkDiv').hide();
+    $('#watermark_image').hide();
+    // PDFセキュリティ設定非表示
+    $('#pdfSecurityCommand').hide();
+    $('#pdfSecurityDiv').hide();
+    $('#pdfSecurity_image').hide();
+    // ギャラリー非表示
+    $('#galleryCommand').hide();
+    $('#galleryDiv').hide();
+    $('#gallery_image').hide();
+    //
+    $("#infoChatter").hide();
+    $("#infoShare").hide();
+    $("#infoSpaceRule").hide();
+    $("#infoPassword").hide();
+    $("#infoLifecycle").hide();
+    $("#infoLifecycleZwei").hide();
+    $("#infoDiscloseBlue").hide();
+    $("#infoDiscloseRed").hide();
+    $("#infoWatermark").hide();
+    $("#infoPdfSecurity").hide();
+    $("#infoDigimark").hide();
+
+    $('#galleryCommand').show();
+    $('#galleryDiv').show();
+    $('#gallary_image').show();
+
+    // オブジェクトリサイズ
+    resizeBodySize();
+}
+
+/*----------------------------------------------
+ * コマンドボタン
+ *--------------------------------------------*/
+/*
+ * ギャラリー
+ */
+function cancelGallery(){
+    switch (getAsrt()) {
+        case "my":
+        case "collaboration":
+        case "company":
+            showDisplaySetting();
+    }
+    onceCallCancelGallery = true;
+    hideCsoContextMenu();
+    $("#contextMenulist").attr('style', 'width: 240px; top:90px; left:550px; z-index:1050;');
+
+    $('#listView1').trigger('reloadGrid');
+    reloadTree();
+    displayList();
+}
+
+function initGallery(){
+    var spaceId = ''
+
+    // #7570 - IE10でレイアウト崩れ (2013/09/11 - Nat)
+    if(navigator.appVersion.indexOf("MSIE") != -1) {
+        $(window).resize(function() {
+            $('#c_right').height($('#tree_div').height());
+        });
+        $(window).resize();
+    }
+
+    if($.cookie('cso_ecm_cm_hash_' + userId)){
+        var strs = $.cookie('cso_ecm_cm_hash_' + userId).split(":");
+        if(strs[strs.length - 1] == 'search'){
+            spaceId = '';
+        } else {
+            spaceId = strs[0];
+        }
+    }
+
+    var callback = function(data){
+        var files = data["files"];
+        var contents = '<div id="superbox" class="superbox" oncontextmenu="return false;">';
+
+        var array = [];
+        $.each(files, function(key, value) {
+            array.push(value);
+        });
+        array.sort(function(a, b) {
+            if (a.name.substring(0,a.name.lastIndexOf(".")).toLowerCase() == b.name.substring(0,b.name.lastIndexOf(".")).toLowerCase())
+                return 0;
+            if (a.name.substring(0,a.name.lastIndexOf(".")).toLowerCase() > b.name.substring(0,b.name.lastIndexOf(".")).toLowerCase())
+                return 1;
+            return -1;
+        });
+
+        $.each(array, function(i, item) {
+            contents += '<div class="superbox-list"><div style="width: 128px; height: 128px; background-size: contain; background-repeat: no-repeat; background-image: url(' + item.thumb_128x128 + ');" data-img="' + item.thumb_512x512 + '" alt="' + item.name + '" class="superbox-img" info-name="' + item.name + '" info-id="' + item.id + '" info-filesize="' + item.filesize + '" info-imagesize="' + item.imagesize + '">';
+            contents += '</div><cite>' + item.name + '</cite></div><!---->';
+        });
+
+        contents += '<div class="superbox-float"></div></div>' ;
+
+        $("#galleryDiv").html(contents).SuperBox();
+        displayGallery();
+
+        hideCsoContextMenu();
+        $("#fullPathDisplay").hide();
+
+        setGalleryCMAuth(spaceId);
+    };
+
+    secureGetAsync('/contentsmanagement/SpaceContentsThumbList.json', {space_id: spaceId}, callback);
+
+    return;
+}
+
+var _galleryCMAuth = new Object();
+function setGalleryCMAuth(spaceId) {
+    var postdata = {
+         space_id : spaceId,
+         asrt : getAsrt()
+    };
+
+    var callback = function(data){
+         if (data.result) {
+             _galleryCMAuth = data.auth;
+         }
+    };
+    securePostAsync('/contentsmanagement/ContextMenuAuthGet.json', postdata, callback);
+}
+
+/*
+ * アップロード
+ */
+function contentsRegWinOpen(){
+    hideCsoContextMenu();
+    win = window.open('{!$Page.AddContent}?spaceId=' + space_portal_ref_space_id + '&asrt=' + getAsrt(), 'contentsRegWin', 'width=750, height=700, menubar=no, toolbar=no, scrollbars=yes');
+}
+
+/*
+ * 作成ボタンプルダウン処理
+ */
+function clickmenubutton(obj) {
+    var posX = obj.offset().left;
+    var posY = obj.offset().top;
+    $(".positionHelper").css("left", posX).css('top', posY);
+    hideCsoContextMenu();
+    $("#dropdownDiv").hide();
+    closeDisplaySettingsDialog();
+}
+
+/*
+ * Webテキスト作成
+ */
+function contentsOnlineEditWinOpen() {
+    hideDisplaySetting();
+    hideCsoContextMenu();
+    $("#fullPathDisplay").hide();
+    location.hash = '';
+    location.href = "#/ContentsOnlineEdit";
+}
+
+/*
+ * スペース登録
+ */
+function registSpace(){
+    closeDisplaySettingsDialog();
+    init_space_create();
+}
+
+function changeHashToCurrentSpace() {
+    window.location.hash = space_portal_ref_space_id + ":" + getAsrt();
+}
+
+function enableMenuButton() {
+    $("#sidebarDivOverlay").remove();
+    $('#listViewCommand').css("visibility","visible");
+}
+
+function disableMenuButton(isCommandHidden) {
+    location.hash = "";
+    if (isCommandHidden) {
+    	$("#listViewCommand").css("visibility","hidden");
+   	}
+    $("#createNewLabel").html("{!$Label.label_10152}");
+    $("#createNewContainer").append('<div id="sidebarDivOverlay" style="position:absolute; top:15px; left:32px; width:210px; height:37px; z-index:2500; opacity:0.3; filter:alpha(opacity = 30); background:white;"></div>');
+}
+
+/*----------------------------------------------
+ * 読込処理
+ * 初回時: historyinit -> onChangeSpaceProcess -> init
+ * 遷移時: historyinit
+ ---------------------------------------------*/
+var history_call_count = 0;
+var header_update_lock = false;
+var webtextloader=false;
+var spName = "my";
+jQuery.event.add(window, "load", function(){
+// <追加_121018> URL直アクセス有効化変更 (以下2L 山東追加) [遷移先用変数を追加(初期値はコンテンツ管理タブを押した際のもの)]
+    var spaceId = "";
+    selectedDocIds = ""; //初期表示で選択状態にするドキュメントID。カンマ区切りで列挙。通常は未設定。2012.10.24追加
+    selectedDocList = []; //初期表示で選択状態にするドキュメントIDのList。通常は未設定。2012.10.24追加
+
+    $('#spacePath div div img').hide();
+    $.history.init(function(hash){
+        $('#invUserSearchDialog').dialog('close');
+        if(win != null && !win.closed){
+            if(confirm('{!$Label.msg_00046}')){    //アップロード中にスペースを移動すると、アップロードが中断してしまいます。\nそれでも移動しますか？
+                win.close();
+                win = null;
+            }else{
+                return;
+            }
+        }
+
+        if(hash != '') {
+            var strs = hash.split(':');
+            if(strs.length == 2 || strs.length == 3){
+                displayList();
+                if(strs[strs.length - 1] == 'search'){
+                    search($.trim($("#keywords").val()));
+                } else {
+                    spaceId = strs[0];
+                    spName = strs[1];
+                    reload(spaceId, spName);
+                    //コンテンツ管理で最後に開いたスペースを記憶するように
+                    $.cookie('cso_ecm_cm_hash_' + userId, hash, { expires: 7 });
+                }
+                //コンテンツ管理で最後に開いたスペースを記憶するように
+                $.cookie('cso_ecm_cm_hash_' + userId, hash, { expires: 7 });
+                if(strs.length == 3 && strs[2].indexOf('doc_id')==0){
+                    //初期選択ありの場合。関連コンテンツ一覧からのジャンプ等
+                    var idstr=strs[2].split('=');
+                    selectedDocIds = idstr[1];
+                    selectedDocList = selectedDocIds.split(',');
+                }
+            } else if(strs.length == 1){
+                history_call_count++;
+                if(history_call_count == 2){
+                    history_call_count = 0;
+                        return;
+                }
+                if(strs[0].indexOf('/ContentsOnlineEdit') == 0){
+                    // Webテキスト表示
+                    webtextloader=true;
+                    var callback = function(data){
+                        if(data.result){
+                            header_update_lock = true;
+                            CsoScript_loadingStart();
+                            ECM.webText = ECM.webText || { loaded: $.Deferred() };
+                            ECM.webText.loaded.then(function() {
+                                CsoScript_loadingStop();
+                                onlineEdit_load(strs[0]);
+                            });
+                        } else {
+                            alert('{!$Label.msg_00162}');
+                        }
+                    };
+
+                    secureGetAsync('/file/checkOnlineEditable.json', {param:strs[0]}, callback);
+
+                } else if (strs[0].indexOf('/SpaceUserManager') == 0){
+                    // スペースユーザ管理表示
+                    hideDisplaySetting();
+                    header_update_lock = true;
+                    if(strs[0].indexOf('spaceId') > 0){
+                        setTimeout(function(){
+                            synchronizedSpaceTree();
+                            changeCurrentTreeColor();
+                        }, 10);
+                    }
+
+                    CsoScript_loadingStart();
+                    ECM.spaceUserManager = ECM.spaceUserManager || { loaded: $.Deferred() };
+                    ECM.spaceUserManager.loaded.then(function() {
+                        ECM.spaceUserManager.initialized.then(function() {
+                            CsoScript_loadingStop();
+                            invSpaceUser2(strs[0]);
+                        });
+                    });
+                }else if(strs[0].indexOf("/SpaceRuleEdit") == 0){
+                    // スペースルール表示
+                    hideDisplaySetting();
+                    header_update_lock = true;
+                    setTimeout(function(){
+                        synchronizedSpaceTree();
+                        changeCurrentTreeColor();
+                    }, 10);
+
+                    CsoScript_loadingStart();
+                    ECM.spaceRule = ECM.spaceRule || { loaded: $.Deferred() };
+                    ECM.spaceRule.loaded.then(function() {
+                        CsoScript_loadingStop();
+                        showSpaceRule(strs[0]);
+                    });
+                } else if (strs[0].indexOf("/SpaceHistory") == 0) {
+                    // スペースヒストリー表示
+                    hideDisplaySetting();
+                    header_update_lock = true;
+                    setTimeout(function(){
+                        synchronizedSpaceTree();
+                        changeCurrentTreeColor();
+                    }, 10);
+                    showSpaceHistory(strs[0]);
+                }else if (strs[0].indexOf("/DocumentLifeCycle") == 0) {
+                    if (strs[0].indexOf("/DocumentLifeCycleZwei") == 0) {
+                        // ライフサイクル設定表示
+                        hideDisplaySetting();
+                        header_update_lock = true;
+                        setTimeout(function(){
+                            synchronizedSpaceTree();
+                            changeCurrentTreeColor();
+                        }, 10);
+            CsoScript_loadingStart();
+            ECM.lifeCycleZwei = ECM.lifeCycleZwei || { loaded: $.Deferred() };
+            ECM.lifeCycleZwei.loaded.then(function() {
+                CsoScript_loadingStop();
+                showLifeCycleZwei(strs[0]);
+            });
+                    } else {
+                        // バージョン管理設定表示
+                        hideDisplaySetting();
+                        header_update_lock = true;
+                        setTimeout(function(){
+                            synchronizedSpaceTree();
+                            changeCurrentTreeColor();
+                        }, 10);
+            CsoScript_loadingStart();
+            ECM.lifeCycle = ECM.lifeCycle || { loaded: $.Deferred() };
+            ECM.lifeCycle.loaded.then(function() {
+                CsoScript_loadingStop();
+                showLifeCycle(strs[0]);
+            });
+                    }
+                } else if (strs[0].indexOf("/DocumentDisclose") == 0) {
+                    // コンテンツ公開設定表示
+                    hideDisplaySetting();
+                    header_update_lock = true;
+                    setTimeout(function(){
+                        synchronizedSpaceTree();
+                        changeCurrentTreeColor();
+                    }, 10);
+                    showDisclose(strs[0]);
+                }else if (strs[0].indexOf("/DocumentWatermark") == 0) {
+                    // PDF透かし設定表示
+                    hideDisplaySetting();
+                    header_update_lock = true;
+                    setTimeout(function(){
+                        synchronizedSpaceTree();
+                        changeCurrentTreeColor();
+                    }, 10);
+
+                    CsoScript_loadingStart();
+                    ECM.pdfWatermark = ECM.pdfWatermark || { loaded: $.Deferred() };
+                    ECM.pdfWatermark.loaded.then(function() {
+                        CsoScript_loadingStop();
+                        showWatermark(strs[0]);
+                    });
+                }else if (strs[0].indexOf("/DocumentPdfSecurity") == 0) {
+                    // PDFセキュリティ設定表示
+                    hideDisplaySetting();
+                    header_update_lock = true;
+                    setTimeout(function(){
+                        synchronizedSpaceTree();
+                        changeCurrentTreeColor();
+                    }, 10);
+                    CsoScript_loadingStart();
+                    ECM.pdfSecurity = ECM.pdfSecurity || { loaded: $.Deferred() };
+                    ECM.pdfSecurity.loaded.then(function() {
+                        CsoScript_loadingStop();
+                        showPdfSecurity(strs[0]);
+                    });
+                }else if(strs[0].indexOf("/ContentsOnlineReference") == 0){
+                    //Webテキスト参照  2013/05/14 王追加
+                    header_update_lock = true;
+                    var originalHash = window.location.hash;
+                    CsoScript_loadingStart();
+                    ECM.webTextReference = ECM.webTextReference || { loaded: $.Deferred() };
+                    ECM.webTextReference.loaded.then(function() {
+                        CsoScript_loadingStop();
+                        window.location.hash = originalHash;
+                        onlineView_load(strs[0]);
+                    });
+                }
+            }
+        }
+        hideFgMenu();
+    });
+    $("#listViewArea").click(function(){$("#fullPathDisplay").hide();});
+    $("#listView1").click(function(){$("#fullPathDisplay").hide();});
+
+    $("#createSpaceButton").menu({ content: $("#createActionMenu").html(), showSpeed: 400 });
+    $("#settingBtn").menu({ content: $("#spaceSettingMenu").html(), width:205, showSpeed: 400});
+
+    $("#compressingDialog").dialog({ autoOpen : false, title : '{!$Label.label_10026}', modal : true });    //情報
+
+    $("#listView1").mouseup(function(e){ hideContextMenu(); });
+
+    $("#listView1").bind("contextmenu", function(){});
+
+    grdContextMenuInit();
+
+    $("#createSpaceButton").trigger("click");
+    $("#createSpaceButton").trigger("click");
+
+    $("#settingBtn").trigger("click");
+    $("#settingBtn").trigger("click");
+
+    //コンテンツ管理で最後に開いたスペースを記憶するように
+    if($.cookie('cso_ecm_cm_hash_' + userId)){
+        var strs = $.cookie('cso_ecm_cm_hash_' + userId).split(":");
+        // 最後に開いた画面が検索画面だった場合、マイスペーストップに遷移する
+        if(strs[1] == 'search'){
+            spaceId = '';
+            spName = 'my';
+        } else {
+            spaceId = strs[0];
+            spName = strs[1];
+        }
+    }
+
+    // ツリー初期表示
+// ブラウザの戻るボタン対応のため、タブから飛んできた場合は従来どおり二度読み込む。Chatter等直接URLを指定した場合は読み込みは一度。
+// <変更_121018> URL直アクセス有効化変更 (以下7L 山東変更)  [直指定とデフォルトの切替(読込の有無) Redmine4223]
+//    onChangeSpace('my');
+//    alert('onChangeSpace spName = ['+ spName +'] onChangeSpace spaceId = ['+ spaceId +']');
+    if(spaceId == "" && spName == "my"){
+        onChangeSpace("my");
+    }else{
+        onChangeSpaceProcess(spName, true);
+    }
+
+    // リスト初期表示
+// <変更_121018> URL直アクセス有効化変更 (以下2L 山東変更) [遷移先用変数に初期値を設定したため、分岐は必要なし]
+//    init('', 'my');
+    init(spaceId, spName);
+    // 各DOMのサイズ最適化
+    $(window).resize(resizeBodySize);
+    resizeBodySize();
+
+    // フルブレッドクラム表示切替処理追加
+    $('#spacePath div div img').click(function(){
+        if($(this).attr('class') == 'hideListButton'){
+            $(this).attr('class', 'showListButton');
+            $('#fullPathDisplay').hide();
+        } else {
+            $(this).attr('class', 'hideListButton');
+            $('#fullPathDisplay').width($('#spacePath').width() - 13);
+            $('#fullPathDisplay').show();
+        }
+    });
+
+    ECM.spaceUserManager = ECM.spaceUserManager || { loaded: $.Deferred() };
+    ECM.spaceUserManager.loaded.then(function() {
+        // 招待者一覧初期化
+        spaceUserManager_initialize(spaceId);
+    });
+
+    ECM.webText = ECM.webText || { loaded: $.Deferred() };
+    ECM.webText.loaded.then(function() {
+        // オンラインエディター初期化
+        onlineEdit_initialize();
+    });
+
+    // 招待者設定アイコン処理
+    $("#infoShare").click(function(e){
+        if(!initFloatDiv("invUserFloatDiv", $(this).position(), "invUserViewLoding", "invUserViewTbl", null, 370)) return;
+
+        var callback = function(data){
+            var invUsers = data["inv_users"];
+
+            for(var i = 0; i < invUsers.length; i++){
+                $tr1 = $("<tr/>");
+                $tr2 = $("<tr/>");
+                $td_role = $("<td class='role' />");
+                $td_name = $("<td class='name' />");
+                $td_role.text(invUsers[i]["role_name"]);
+                $td_name.text(invUsers[i]["name"]);
+
+                $tr1.append($td_role);
+                $tr2.append($td_name);
+
+                $("#invUserViewTbl").append($tr1).append($tr2);
+            }
+
+            $(".invUserViewLoding").hide();
+            $("#invUserViewTbl").fadeIn("slow");
+        };
+
+        secureGetAsync('/contentsmanagement/invitedGuestListGetForDialog.json', '', callback);
+    });
+
+    // Chatter設定アイコン処理
+    $("#infoChatter").click(function(e){
+        if(!initFloatDiv("spaceChatterBindFloatDiv", $(this).position(), "spaceChatterBindViewLoding", "spaceChatterBindViewDiv2", 250, 80)) return;
+
+        var callback = function(data){
+            $("#spaceChatterBindViewDiv2").html(data["msg"]);
+            $(".spaceChatterBindViewLoding").hide();
+            $("#spaceChatterBindViewDiv2").fadeIn("slow");
+        };
+
+        secureGetAsync('/contentsmanagement/sfChatterCoordinationInfoGet.json', '', callback);
+    });
+
+    var action = new Array("UPLOAD_NEW", "UPLOAD_VERUP", "WEB_TEXT_NEW", "WEB_TEXT_VERUP", "CHECKIN", "MOVE_OR_COPY_IN");
+
+    $("#srapceRuleTriggerActionSel").change(function(){
+        for(var i = 0; i < action.length; i++){
+            if(i == ($(this).val() - 0)){
+                $("#spaceRuleViewDiv2 #" + action[i]).show();
+            }else{
+                $("#spaceRuleViewDiv2 #" + action[i]).hide();
+            }
+        }
+    });
+
+    $("#infoSpaceRule").click(function(e){
+
+        if(!initFloatDiv("spaceRuleFloatDiv", $(this).position(), "spaceRuleViewLoding", "spaceRuleViewDiv2", 270, 100)) return;
+
+        var ruleBack = function(data){
+            var orgRule = data.ruleSettings;
+            var orgMenuStr = {"UPLOAD_NEW": "{!$Label.label_10141}",   "UPLOAD_VERUP": "{!$Label.label_10387}", "WEB_TEXT_NEW": "{!$Label.label_10054}", "WEB_TEXT_VERUP": "{!$Label.label_10388}", "WEB_TEXT_OVERWRITE": "{!$Label.label_10389}", "CHECKIN": "{!$Label.label_10027}", "MOVE_OR_COPY_IN": "{!$Label.label_10390}", "WF_VERUP": "{!$Label.label_10391}"};
+
+            for(var i = 0; i < action.length; i++){
+                $actionDiv = $("<div />").addClass("name").text(orgMenuStr[action[i]]);
+                $iconDiv = $("<div />").css({"padding": "10px 0px 10px 20px", "display": "none"}).attr("id", action[i]);
+
+                if(orgRule[action[i]].length == 0){
+                    // アクションがない場合
+                    $iconDiv.css({"font-size": "11px", "color": "#696969"}).html("{!$Label.msg_00141}");
+                }else{
+                    for(var j = 0; j < orgRule[action[i]].length; j++){
+                        $img = $("<img />").addClass("srIcon");
+                        switch(orgRule[action[i]][j]){
+                        case 0:
+                            $img.attr("title", "{!$Label.label_10392}").attr("src", "{!URLFOR($Resource.cso, '/image/sr-mail.png')}");
+                            break;
+                        case 1:
+                            $img.attr("title", "{!$Label.label_10047}").attr("src", "{!URLFOR($Resource.cso, '/image/sr-move.png')}");
+                            break;
+                        case 2:
+                            $img.attr("title", "{!$Label.label_10393}").attr("src", "{!URLFOR($Resource.cso, '/image/sr-wf.png')}");
+                            break;
+                        case 3:
+                            $img.attr("title", "{!$Label.label_10394}").attr("src", "{!URLFOR($Resource.cso, '/image/sr-pdf.png?20120427')}");
+                            break;
+                        }
+
+                        $iconDiv.append($img);
+                    }
+                }
+
+                $("#spaceRuleViewDiv2").append($iconDiv);
+            }
+            $("#spaceRuleViewDiv2 #" + action[0]).show();
+            $("#srapceRuleTriggerActionSel").val(0);
+            $("#spaceRuleViewLoding").hide();
+            $("#spaceRuleViewDiv2").fadeIn("slow");
+        };
+
+        secureGetAsync('/contentsmanagement/SpaceRuleSettingGet.json', '', ruleBack);
+    });
+
+
+    // パスワード付き圧縮アイコン
+    $("#infoPassword").click(function(e) {
+        if(!initFloatDiv("passwordFloatDiv", $(this).position(), "passwordViewLoading", "passwordOperationView", 270, 100)) return;
+
+        var callback = function(data){
+            $("#passwordViewDiv2").show();
+            $("#passwordOperationView").html(data.operation).show();
+            $("#passwordViewLoading").hide();
+        };
+
+        secureGetAsync('/contentsmanagement/CompressPasswordSetting.json', '', callback);
+
+    });
+
+    // バージョン管理設定
+    $("#infoLifecycle").click(function(e) {
+        if(!initFloatDiv("lifeCycleFloatDiv", $(this).position(), "lifeCycleViewLoading", "lifeCycleOperationView", 270, 300)) return;
+
+        var callback = function(data){
+
+            $("#lifecycleDiv2").show();
+            $("#lifecycleDiv").show();
+            $("#lifecycleViewLoading").hide();
+
+            var setting = data.isOrganization ? '{!$Label.msg_01037}' : '{!$Label.msg_01038}';
+            $("#lifecycleSetting").text(setting);
+
+            var deleteVersion = data.deleteVersion == "IMMEDIATELY" ?
+                    '{!$Label.label_11045}' :
+                        getMsg([data.activeDays.toString()], '{!$Label.msg_01049}');
+            $("#deleteVersion").text(deleteVersion);
+
+            var generation = data.generation == "UNLIMITED" ?
+                    '{!$Label.label_11047}':
+                        getMsg([data.generations.toString()], '{!$Label.msg_01039}');
+
+            $("#generation").text(generation);
+            $("#lifeCycleViewLoading").hide();
+
+        };
+
+        secureGetAsync('/contentsmanagement/VersionSettingGet.json', '', callback);
+
+    });
+    // ライフサイクル設定
+    $("#infoLifecycleZwei").click(function(e) {
+        if(!initFloatDiv("lifecycleZweiFloatDiv", $(this).position(), "lifeCycleZweiViewLoading", "lifeCycleZweiOperationView", 270, 350)) return;
+
+        var callback = function (data) {
+            $("#lifecycleZweiDiv,#lifecycleZweiDiv2").show();
+            $("#lifecycleZweiLoading").hide();
+
+            $("#lifecycleZweiViewConditions option").remove();
+
+            var filters = data.filters;
+
+            var k = {};
+            var index = 0;
+            for (var key in filters) {
+                var filter = filters[key];
+                $("#lifecycleZweiViewConditions").append($("<option>").val(index).text(filter.name));
+                k[index] = filter;
+                index++;
+            }
+
+            $("#lifecycleZweiViewConditions").change(function(e) {
+                for (var key in k) {
+                    var val = $(this).val();
+
+                    if (key != parseInt(val)) {
+                        continue;
+                    }
+                    var filter = k[key];
+                    $("#lifecycleZweiViewDetail").empty();
+                    $("#lifecycleZweiViewDetail").text(filter.conditionTextShort);
+                    if(filter.conditionText != filter.conditionTextShort){
+                        var span = "<span style='word-wrap: break-word;word-break: break-all;'>" + filter.conditionText + "</span>";
+                        $("#lifecycleZweiViewDetail").prepend(span);
+                    }
+                    $("#lifecycleZweiViewActions div").remove();
+
+                    var actionText = [];
+                    for (var key in filter.actions) {
+                        var obj = filter.actions[key];
+                        actionText.push(obj.filterActionText);
+//                          $("#lifecycleViewActions").append($("<div>").html(obj.filterActionText + "<br /><br />"));
+                    }
+                    var text = actionText.join("<div style='margin:5px;text-align:center;vertical-align:middle;'><img src='{!URLFOR($Resource.cso, 'image/blueArrow_big_D.png')}' style='width:16px;height:16px;' /></div>");
+                    $("#lifecycleZweiViewActions").append($("<div>").html(text));
+                }
+                $("#lifecycleZweiFloatDiv").css("height", $("#lifecycleZweiTitleDiv").height() + $("#lifecycleZweiViewDiv").height() + 50);
+            }).trigger("change");
+
+            $("#lifecycleZweiFloatDiv").csoBalloonLoadHtml();
+        }
+
+        secureGetAsync('/contentsmanagement/lifecycleSettingGet.json', '', callback);
+
+    });
+
+    // コンテンツ公開設定
+    $("#infoDiscloseBlue, #infoDiscloseRed").click(function(e){
+        if(!initFloatDiv("discloseFloatDiv", $(this).position(), "discloseViewLoading", "discloseOperationView", 270, 60)) return;
+
+        var callback = function (data) {
+            if (data.mode == "PERIOD") {
+                $("#discloseFloatInfo").text(data.start_date + "{!$Label.label_10316}" + data.end_date);
+            } else if (data.mode == "UNLIMITED_DISCLOSE") {
+                $("#discloseFloatInfo").text("{!$Label.label_13127}");
+            } else if (data.mode == "UNLIMITED_CLOSE") {
+                $("#discloseFloatInfo").text("{!$Label.label_13128}");
+            }
+            $("#discloseLoading").hide();
+            $("#discloseFloatDiv").csoBalloonLoadHtml();
+        }
+
+        secureGetAsync('/contentsmanagement/discloseSettingsInfo.json?spaceid=' + space_portal_ref_space_id, '', callback);
+    });
+
+    // PDF透かし設定
+    $("#infoWatermark").click(function(e) {
+        if(!initFloatDiv("watermarkFloatDiv", $(this).position(), "watermarkViewLoading", "watermarkOperationView", 270, 100)) return;
+
+        var callback = function(data){
+
+            $("#watermarkDiv2").show();
+            $("#watermarkViewLoading").hide();
+
+            var setting = data.isOrganization ? '{!$Label.msg_01037}' : '{!$Label.msg_01038}';
+            $("#watermarkSetting").text(setting);
+
+            var space = data.timingSpace ? '{!$Label.label_11013}' : '';
+            var delivery = data.timingDelivery ? '{!$Label.label_11014}' : '';
+            var lineControll = '';
+
+            if(space && delivery){
+                lineControll = '<br>';
+            }
+
+            $("#watermarkTiming").html(space + lineControll + delivery);
+            $("#watermarkViewLoading").hide();
+
+        };
+
+        secureGetAsync('/contentsmanagement/watermarkSettingApi.json', '', callback);
+
+    });
+
+    ECM.pdfWatermark = ECM.pdfWatermark || { loaded: $.Deferred() };
+    ECM.pdfWatermark.loaded.then(function() {
+        // PDF透かし画面初期設定
+        WatermarkInit();
+    });
+
+    // 不可視透かし設定
+    $("#infoDigimark").click(function(e) {
+
+        if(!initFloatDiv("digimarkFloatDiv", $(this).position(), "digimarkViewLoading", "digimarkOperationView", 270, 300)) return;
+
+        var callback = function(data){
+            $("#digimarkDiv2").show();
+            $("#digimarkViewLoading").hide();
+
+            var setting = data.isOrganization ? '{!$Label.msg_01037}' : '{!$Label.msg_01038}';
+            $("#digimarkSetting").text(setting);
+
+            var space = data.timingSpace ? '{!$Label.label_11013}' : '';
+            var delivery = data.timingDelivery ? '{!$Label.label_11014}' : '';
+            var lineControll = '';
+
+            if(space && delivery){
+                lineControll = '<br>';
+            }
+
+            $("#digimarkTiming").html(space + lineControll + delivery);
+            $("#digimarkViewLoading").hide();
+
+        };
+
+        secureGetAsync('/contentsmanagement/digimarkSettingApi.json', spaceId, callback);
+
+    });
+
+    $("#infoPdfSecurity").click(function(e) {
+        if(!initFloatDiv("pdfSecurityFloatDiv", $(this).position(), "pdfSecurityViewLoading", "pdfSecuritykOperationDiv", 400, 200)) return;
+
+        var callback = function(data){
+
+            $("#pdfSecurityDiv2").show();
+            $("#pdfSecurityViewLoading").hide();
+
+            var setting = data.isOrganization ? '{!$Label.msg_01037}' : '{!$Label.msg_01038}';
+            $("#pdfSecuritySetting").text(setting);
+
+            //  タイミング
+            var space    = data.timingSpace    ? '{!$Label.label_11013}' : '';
+            var delivery = data.timingDelivery ? '{!$Label.label_11014}' : '';
+            var lineControll = '';
+            if(space && delivery){
+                lineControll = '<br>';
+            }
+            $("#pdfSecurityTiming").html(space + lineControll + delivery);
+            //  セキュリティレベル
+            var level = '{!$Label.label_10625}';
+            if(data.level == 1){
+                level = '{!$Label.label_10626}';
+            }
+            $("#pdfSecurityLevel").text(level);
+            //  パスワード
+            if(data.pwType == 0){
+                $('#pdfSecurityPassword').attr('checked', '');
+            } else {
+                $('#pdfSecurityPassword').attr('checked', 'checked');
+            }
+            //  マスターパスワード
+            if(data.masterPwType == 0){
+                $('#pdfSecurityMasterPassword').attr('checked', '');
+            } else {
+                $('#pdfSecurityMasterPassword').attr('checked', 'checked');
+            }
+            var disallowance ="";
+            //  文書アセンブリ
+            //if(eval(data.assembly) == false){
+            //    disallowance = '{!$Label.label_10632}';
+            //}
+            //  フォームフィールドの入力
+            if(eval(data.fieldInput) == false){
+                if(disallowance.length > 0) disallowance = disallowance + ', ';
+                disallowance = disallowance + '{!$Label.label_10636}';
+            }
+            //  注釈
+            if(eval(data.explanatoryNote) == false){
+                if(disallowance.length > 0) disallowance = disallowance + ', ';
+                disallowance = disallowance + '{!$Label.label_10637}';
+            }
+            //  文書の変更
+            if(eval(data.contentsEdit) == false){
+                if(disallowance.length > 0) disallowance = disallowance + ', ';
+                disallowance = disallowance + '{!$Label.label_10638}';
+            }
+            //  内容のコピー
+            if(eval(data.contentsCopy) == false){
+                if(disallowance.length > 0) disallowance = disallowance + ', ';
+                disallowance = disallowance + '{!$Label.label_10635}';
+            }
+            //  アクセシビリティ
+            if(eval(data.accessibility) == false){
+                if(disallowance.length > 0) disallowance = disallowance + ', ';
+                disallowance = disallowance + '{!$Label.label_10639}';
+            }
+            //  印刷
+            if(eval(data.print) == false){
+                if(disallowance.length > 0) disallowance = disallowance + ', ';
+                disallowance = disallowance + '{!$Label.label_10640}';
+            }
+            $("#pdfSecurityDisallowance").text(disallowance);
+        };
+
+        secureGetAsync('/contentsmanagement/PdfSecuritySettingApi.json', '', callback);
+    });
+
+    ECM.pdfSecurity = ECM.pdfSecurity || { loaded: $.Deferred() };
+    ECM.pdfSecurity.loaded.then(function() {
+        // PDFセキュリティ画面初期設定
+        PdfSecurityInit();
+    });
+
+    //公開用ダイアログ初期化
+    $("#contentsURL_dialog").dialog({ autoOpen: false, title:'{!$Label.label_11091}', modal: true, resizable: false, width: 520 });
+
+    $(window).bind('unload', function(e) {
+        return contentsInfoClose();
+    });
+
+    $(window).keydown(function(e) {
+        var code = parseInt(e.keyCode);
+        // F5キー
+        if (code == 116) {
+            if(location.href.indexOf("/ContentsOnlineEdit") >= 0){
+                if ($('#editor').attr("isDirty")) {
+                    if ("true" == $('#editor').attr("isDirty")) {
+                        if(!confirm("{!$Label.msg_00099}")){
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                }
+                if($("#fileId").length > 0 && $("#fileId").val() != ""){
+                    location.href = "#/ContentsOnlineEdit?fileId=" + $("#fileId").val();
+                }
+            }else{
+                e.preventDefault();
+                changeSpace("{!$Page.SpacePortal}#" + space_portal_ref_space_id + ":my");
+            }
+        }
+    });
+    initMobableElement();
+
+    $("#modalDisplaySettingsDialog").dialog({
+        width       : 560,
+        height      : 340,
+        autoOpen    : false,
+        resizable   : false,
+        title       : "{!$Label.label_13235}"
+    });
+    
+    //show file preview with navigator
+    var options = {
+        showNavigator : true,
+        loadComplete : function(){
+            //$("#preview-area").editLink(true);
+        },
+        resource : {
+            zoomWidthFit        : '{!$Label.label_fileviewer_zoomWidthFit}',
+            zoomHeightFit       : '{!$Label.label_fileviewer_zoomHeightFit}',
+            downloadMsg         : '{!$Label.label_fileviewer_downloadMsg}',
+            download            : '{!$Label.label_fileviewer_download}',
+            search_s            : '{!$Label.label_fileviewer_searchS}',
+            search_e            : '{!$Label.label_fileviewer_searchE}',
+            no_hit              : '{!$Label.label_fileviewer_noHit}',
+            password_1          : '{!$Label.label_fileviewer_password1}',
+            password_2          : '{!$Label.label_fileviewer_password2}',
+            dialog_info         : "INFO",
+        },
+    };
+    $("#preview-area").csopreview(options);
+});
+
+function hideDisplaySetting() {
+    closeDisplaySettingsDialog();
+    $("#customColumnsSetting").hide();
+}
+
+function showDisplaySetting() {
+    $("#customColumnsSetting").show();
+}
+
+function openDisplaySettingsDialog() {
+    if ($("#modalDisplaySettingsDialog").dialog("isOpen")) {
+        closeDisplaySettingsDialog();
+    } else {
+        hideCsoContextMenu();
+        $("#modalDisplaySettingsDialog").dialog("open");
+    }
+}
+
+function closeDisplaySettingsDialog() {
+    $("#modalDisplaySettingsDialog").dialog("close");
+}
+
+function onCancelClicked() {
+    closeDisplaySettingsDialog();
+}
+
+function selectColumns(dstId, srcId) {
+    $("#" + srcId + " option:selected").each(function() {
+        var val = $(this).val();
+        var text = $(this).text();
+        $("#" + dstId).append($("<option>").val(val).text(text));
+        $(this).remove();
+    });
+}
+
+function clickSaveButton(){
+    if ($("#showColumns option").length == 0) {
+        alert("{!$Label.label_13247}");
+        return;
+    } else if ($("#showColumns option").length == $("#showColumns option[value^=CUSTOM_FIELDS_]").length) {
+        alert("{!$Label.label_13269}");
+        return;
+    }
+
+    var spaceId = "";
+    var asrt = "";
+    if($.cookie("cso_ecm_cm_hash_" + userId)){
+        var strs = $.cookie("cso_ecm_cm_hash_" + userId).split(":");
+            spaceId = strs[0];
+            asrt = strs[1];
+    }
+
+    var showCols = new Array();
+    $("#showColumns option").each(function(){
+        showCols.push($(this).val());
+    });
+
+    var params = {
+        listInnerId : spaceId,
+        type        : "CONTENT",
+        dispCols    : showCols.join(","),
+        rowNum      : $("#listView1").getGridParam("rowNum"),
+        inUse       : true
+    };
+    var callback = function(data) {
+        onCancelClicked();
+        init(spaceId, asrt);
+    };
+
+    securePostAsync("/contentsmanagement/list/SettingUpdate.json", params, callback);
+}
+
+function onDispModeChange(){
+    var spaceId = "";
+    var asrt = "";
+
+    if($.cookie("cso_ecm_cm_hash_" + userId)){
+        var strs = $.cookie("cso_ecm_cm_hash_" + userId).split(":");
+            spaceId = strs[0];
+            asrt = strs[1];
+    }
+
+    var dispMode = $("#dispMode").val();
+    var params = {
+        listInnerId     : spaceId,
+        type            : "CONTENT",
+        rowNum          : $("#listView1").getGridParam("rowNum"),
+        modeUpdate      : true,
+        inUse           : dispMode == "CUSTOM" ? true : false
+    };
+    var callback = function(data) {
+        onCancelClicked();
+        init(spaceId, asrt);
+    };
+
+    securePostAsync("/contentsmanagement/list/SettingUpdate.json", params, callback);
+}
+
+function clickUpButton() {
+    var selectedCol = $("#showColumns").find("option:selected");
+    if (selectedCol.length != 1) {
+        return;
+    }
+    selectedCol.prev().before(selectedCol);
+}
+
+function clickDownButton() {
+    var selectedCol = $("#showColumns").find("option:selected");
+    if (selectedCol.length != 1) {
+        return;
+    }
+    selectedCol.next().after(selectedCol);
+}
+
+function contentsInfoClose(){
+    if(window.contentsInfoWin)contentsInfoWin.close();
+}
+
+function hideFgMenu(){
+    $("#fullPathDisplay").hide();
+    $(".fg-menu-container").hide();
+}
+
+function initFloatDiv(pd, p,ldid, mdid, w, h){
+    if($("#" + pd).is(':visible')) return false;
+    $(".si").each(function(){
+        $(this).hide();
+    });
+
+    $("#" + pd).show();
+
+    $("#" + mdid).hide();
+    $("#" + mdid).empty();
+
+    $("." + ldid).show();
+
+    var cssMap = {
+            top: p.top + 125,
+            left: p.left + 150
+    };
+    if(w){cssMap["width"] = w;}
+    if(h){cssMap["height"] = h;};
+    $("#" + pd).css(cssMap);
+
+    return true;
+}
+/*
+ * スペースルール呼び出し(history)
+ */
+function spaceRule(isContextMenu){
+    hideCsoContextMenu();
+    location.hash = '';
+    if(isContextMenu){
+        spaceIdFromUrl = jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0];
+        location.href = "#/SpaceRuleEdit?spaceId=" + spaceIdFromUrl;
+    }else{
+        spaceIdFromUrl = space_portal_ref_space_id;
+        location.href = "#/SpaceRuleEdit";
+    }
+}
+
+function initFloatMenuDiv(pd, x, y,ldid, mdid, w, h){
+    $("#" + mdid).empty();
+
+    $("#" + pd).csoBalloon({
+        width : w,
+        height : h,
+        posX : x,
+        posY : y,
+        show : false,
+        udlr : 0,
+        align : 0,
+        balloonYamaWidth:8,
+        balloonYamaHeight:8,
+        zIndex:1000
+    });
+
+    return true;
+}
+/*
+ * スペースルール呼び出し
+ */
+function showSpaceRule(url){
+    // メニュー非表示
+    hideCsoContextMenu();
+    $("#fullPathDisplay").hide();
+    var obj = new Object();
+    if(url.indexOf("spaceId") >= 0 && $("#listView1").jqGrid('getGridParam','selarrrow') && $("#listView1").jqGrid('getRowData', $("#listView1").jqGrid('getGridParam','selarrrow')[0]).simpleName){
+        obj["spaceName"] = $("#listView1").jqGrid('getRowData', $("#listView1").jqGrid('getGridParam','selarrrow')[0]).simpleName;
+    }
+
+    // スペースルール表示
+    displaySpaceRule();
+    // スペースルール初期表示
+    if(url.indexOf("spaceId") >= 0){
+        getInitSpaceRule(jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0]);
+    } else {
+    ECM.spacePortal.spaceIdLoaded.then(function() {
+        getInitSpaceRule(space_portal_ref_space_id);
+    });
+    }
+}
+
+function spaceHistory(isContextMenu) {
+    hideCsoContextMenu();
+    var id = "";
+    if (isContextMenu) {
+        id  = $("#listView1").jqGrid('getGridParam','selarrrow')[0];
+    } else {
+        var url = location.href;
+        var a = url.replace(/^.*#/, '').split(":");
+        if (a.length == 2) {
+            id = a[0];
+        }
+    }
+    location.hash = '';
+    if (id != "") {
+        location.href = "#/SpaceHistory?spaceId=" + id;
+    }
+    else{
+        location.href = "#/SpaceHistory";
+    }
+}
+
+function showSpaceHistory(url) {
+    // メニュー非表示
+    hideCsoContextMenu();
+    $("#fullPathDisplay").hide();
+
+    // スペースヒストリー表示
+    displaySpaceHistory();
+    // スペースヒストリー初期化
+    if(url.indexOf("spaceId") >= 0){
+        //  spaceIdを取得
+        var spaceId = space_portal_ref_space_id;
+        var urlParts = url.split("spaceId=");
+        if(urlParts.length == 2){
+            urlParts = urlParts[1].split("#");
+            urlParts = urlParts[0].split("&");
+            spaceId = urlParts[0];
+        }
+        SpaceHistory_initialize(spaceId);
+    } else {
+    ECM.spacePortal.spaceIdLoaded.then(function() {
+        SpaceHistory_initialize(space_portal_ref_space_id);
+    });
+    }
+
+}
+
+/*
+ * バージョン管理設定呼び出し
+ */
+function callLifeCycle(isContextMenu){
+    hideCsoContextMenu();
+    location.hash = '';
+    if(isContextMenu){
+        location.href = "#/DocumentLifeCycle?spaceId=" + jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0];
+    }else{
+        location.href = "#/DocumentLifeCycle";
+    }
+}
+
+/*
+ * バージョン管理設定呼び出し
+ */
+function showLifeCycle(url){
+    // メニュー非表示
+    hideCsoContextMenu();
+    $("#fullPathDisplay").hide();
+
+    // スペースルール初期表示
+    if(url.indexOf("spaceId") >= 0){
+        getInitLifeCycle(jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0]);
+    displayLifeCycle();
+    } else {
+    ECM.spacePortal.spaceIdLoaded.then(function() {
+        getInitLifeCycle(space_portal_ref_space_id);
+        displayLifeCycle();
+    });
+    }
+}
+
+/*
+ * ライフサイクル設定呼び出し
+ */
+function lifeCycleZwei(isContextMenu){
+    hideCsoContextMenu();
+    location.hash = '';
+    if(isContextMenu){
+        location.href = "#/DocumentLifeCycleZwei?spaceId=" + jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0];
+    }else{
+        location.href = "#/DocumentLifeCycleZwei";
+    }
+}
+
+/*
+ * ライフサイクル設定呼び出し
+ */
+function showLifeCycleZwei(url){
+    // メニュー非表示
+    hideCsoContextMenu();
+    $("#fullPathDisplay").hide();
+
+    // スペースルール初期表示
+    if(url.indexOf("spaceId") >= 0){
+        getInitLifeCycleZwei(jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0]);
+    displayLifeCycleZwei();
+    } else {
+    ECM.spacePortal.spaceIdLoaded.then(function() {
+        getInitLifeCycleZwei(space_portal_ref_space_id);
+        displayLifeCycleZwei();
+    });
+    }
+}
+
+/*
+ * コンテンツ公開設定呼び出し
+ */
+function disclose(isContextMenu){
+    hideCsoContextMenu();
+    location.hash = '';
+    if(isContextMenu){
+        location.href = "#/DocumentDisclose?spaceId=" + jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0];
+    }else{
+        location.href = "#/DocumentDisclose";
+    }
+}
+
+/*
+ * コンテンツ公開設定呼び出し
+ */
+function showDisclose(url){
+    // メニュー非表示
+    hideCsoContextMenu();
+    $("#fullPathDisplay").hide();
+
+    // スペースルール初期表示
+    if(url.indexOf("spaceId") >= 0){
+        getInitDisclose(jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0]);
+    displayDisclose();
+    } else {
+    ECM.spacePortal.spaceIdLoaded.then(function() {
+        getInitDisclose(space_portal_ref_space_id);
+        displayDisclose();
+    });
+    }
+}
+
+/*
+ * PDF透かし設定呼び出し
+ */
+function watermark(isContextMenu){
+    hideCsoContextMenu();
+    location.hash = '';
+    
+    //Add id to ul element in pdf watermark tabs
+    $("#preview_config_container").find("ul").attr("id", "config_panel_container");
+    if(isContextMenu){
+        location.href = "#/DocumentWatermark?spaceId=" + jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0];
+    }else{
+        location.href = "#/DocumentWatermark";
+    }
+}
+
+/*
+ * PDF透かし設定呼び出し
+ */
+function showWatermark(url){
+    // メニュー非表示
+    hideCsoContextMenu();
+    $("#fullPathDisplay").hide();
+
+    // PDF透かし初期表示
+    if(url.indexOf("spaceId") >= 0){
+        getInitWatermark(jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0]);
+    // PDF透かし設定表示
+    displayWatermark();
+    } else {
+    ECM.spacePortal.spaceIdLoaded.then(function() {
+        getInitWatermark(space_portal_ref_space_id);
+        displayWatermark();
+    });
+    }
+}
+
+/*
+ * PDFセキュリティ設定呼び出し
+ */
+function pdfSecurity(isContextMenu){
+    hideCsoContextMenu();
+    location.hash = '';
+    if(isContextMenu){
+        location.href = "#/DocumentPdfSecurity?spaceId=" + jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0];
+    }else{
+        location.href = "#/DocumentPdfSecurity";
+    }
+}
+
+/*
+ * PDFセキュリティ設定呼び出し
+ */
+function showPdfSecurity(url){
+    // メニュー非表示
+    hideCsoContextMenu();
+    $("#fullPathDisplay").hide();
+
+    // PDFセキュリティ初期表示
+    if(url.indexOf("spaceId") >= 0){
+        getInitPdfSecurity(jQuery("#listView1").jqGrid('getGridParam','selarrrow')[0]);
+    // PDF透かし設定表示
+    displayPdfSecurity();
+    } else {
+    ECM.spacePortal.spaceIdLoaded.then(function() {
+        getInitPdfSecurity(space_portal_ref_space_id);
+        displayPdfSecurity();
+    });
+    }
+}
+
+function initBalloon(pd, p,ldid, mdid, w, h){
+    $("#" + mdid).empty();
+    $("#" + pd).csoBalloon({
+        width : w,
+        height : h,
+        posX : p.left + 10,
+        posY : p.top - 10,
+        //bgColor : "#F5F5F5",
+        show : false,
+        udlr : 1,
+        align : 2,
+        loadingGif : "{!URLFOR($Resource.cso, 'image/loading2.gif')}",
+    });
+
+    return true;
+}
+
+function showCheckoutFloat(obj, id){
+    if(!initBalloon("checkoutUserFloatDiv", obj.offset(), "checkoutUserViewLoding", "checkoutUserViewTbl", 240, 80)) return;
+    $("#checkoutUserViewTbl tr").remove();
+    $("#checkoutUserViewTbl").empty();
+
+    var callback = function(data){
+        var users = data["users"];
+
+        for(var i = 0; i < users.length; i++){
+            $tr1 = $("<tr/>");
+            $tr2 = $("<tr/>");
+            $td_name = $("<td class='lockuser' />");
+            $td_section = $("<td class='section' />");
+            $td_img = $("<td />").attr("rowspan", "2");
+            $img = $("<img style='width: 45px;'/>");
+
+            $img.attr("src", users[i]["photo_url"]);
+            $td_img.append($img);
+            $td_name.text(users[i]["name"]);
+            $td_section.text(users[i]["section"]);
+
+            $tr1.append($td_img).append($td_section);
+            $tr2.append($td_name);
+
+            $("#checkoutUserViewTbl").append($tr1).append($tr2);
+        }
+
+        //$("#checkoutUserViewLoding").hide();
+        //$("#checkoutUserViewTbl").fadeIn("slow");
+        $("#checkoutUserViewTbl").show();
+
+        $("#checkoutUserFloatDiv").csoBalloonLoadHtml();
+    };
+
+    secureGetAsync('/contentsmanagement/lockUserListGetForDialog.json', { fileId : id }, callback);
+}
+
+function showWorkflowFloat(obj, id){
+    if(!initBalloon("workflowUserFloatDiv", obj.offset(), "workflowUserViewLoding", "workflowUserViewTbl", 240, 80)) return;
+    $("#workflowUserViewTbl tr").remove();
+    $("#workflowUserViewTbl").empty();
+
+    var callback = function(data){
+        var users = data["users"];
+
+        for(var i = 0; i < users.length; i++){
+            $tr1 = $("<tr/>");
+            $tr2 = $("<tr/>");
+            $td_name = $("<td class='lockuser' />");
+            $td_section = $("<td class='section' />");
+            $td_img = $("<td />").attr("rowspan", "2");
+            $img = $("<img style='width: 45px;'/>");
+
+            $img.attr("src", users[i]["photo_url"]);
+            $td_img.append($img);
+            $td_name.text(users[i]["name"]);
+            $td_section.text(users[i]["section"]);
+
+            $tr1.append($td_img).append($td_section);
+            $tr2.append($td_name);
+
+            $("#workflowUserViewTbl").append($tr1).append($tr2);
+
+        }
+
+        //$("#workflowUserViewLoding").hide();
+        //$("#workflowUserViewTbl").fadeIn("slow");
+        $("#workflowUserViewTbl").show();
+
+        $("#workflowUserFloatDiv").csoBalloonLoadHtml();
+    };
+
+    secureGetAsync('/contentsmanagement/lockUserListGetForDialog.json', { fileId : id }, callback);
+}
+
+function openUploadInfo(){
+    $("#uploadInfoDiv").show();
+    setTimeout("closeUploadInfo()", 3000);
+}
+
+function closeUploadInfo(){
+    $("#uploadInfoDiv").fadeOut("slow");
+}
+
+function settingChatter(){
+    chatter_initialize();
+}
+
+function resizeForGallery(){
+    var w = $(window).width() - $("#tree_div").width();
+    //var h = getBrowserHeight() - 154;
+    if (getBrowserType().indexOf("IE") > -1){
+        w -= 1;
+    }
+    $("#galleryDiv").height('100%');
+
+    if ($("#superbox-show").width() != null && $("#galleryDiv").width() > 676) {
+        //$("#superbox-show").width($("#galleryDiv").width() - 25);
+        $("#superbox-info").width($("#galleryDiv").width() - 572);
+    }
+}
+
+</script>
+<apex:include pageName="SOLXYZCSO001__DocumentLifeCycleZweiScript"/>
+<script>
+/**superbox*/
+;(function($) {
+    $.fn.SuperBox = function(options) {
+        var leftSide = $("<div class=\"superbox-leftside\">");
+        var superboxCaption = $('<div id=\"superbox-caption\" class="superbox-caption"></div>');
+        var superboximg = $("<div id=\"superbox-current-img\" class=\"superbox-current-img\">");
+        leftSide.append(superboxCaption).append(superboximg);
+        leftSide.css('padding','25px');
+
+        var rightSide = $("<div class=\"superbox-rightside\">");
+        rightSide.css('padding','25px 0 0 10px');
+        var contextButton = $('<div class="superbox-button-box"><button class="superbox-button">{!$Label.solxyzcso001__label_common_00029}</div></div>');
+        var sideInfo = $("<table id=\"superbox-info\" class=\"superbox-info\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">")
+                .append($("<tr>").append($("<th>").text("{!$Label.solxyzcso001__field_010032}")).append($("<td id=\"superbox-filesize\">")))
+                .append($("<tr>").append($("<th>").text("{!$Label.solxyzcso001__label_wf_00446}")).append($("<td id=\"superbox-picturesize\">")))
+                .append($("<tr>").append($("<th>").text("{!$Label.solxyzcso001__label_10012}")).append($("<td id=\"superbox-explanation\" class=\"superbox-explanation\">")))
+                .append($("<tr>").append($("<th>").text("{!$Label.solxyzcso001__label_00057}")).append($("<td id=\"superbox-tagNames\">")))
+                .append($("<tr>").append($("<th>").text("{!$Label.solxyzcso001__label_10038}")).append($("<td id=\"superbox-releaseVersionString\">")))
+                .append($("<tr>").append($("<th>").text("{!$Label.solxyzcso001__label_10015}")).append($("<td id=\"superbox-regUserName\">")))
+                .append($("<tr>").append($("<th>").text("{!$Label.solxyzcso001__label_10014}")).append($("<td id=\"superbox-regDate\">")))
+                .append($("<tr>").append($("<th>").text("{!$Label.solxyzcso001__label_10024}")).append($("<td id=\"superbox-upUserName\">")))
+                .append($("<tr>").append($("<th>").text("{!$Label.solxyzcso001__label_10018}")).append($("<td id=\"superbox-upDate\">")));
+        rightSide.append(contextButton).append(sideInfo);
+
+        var chilidDiv1 = $('<div class="superbox-chilid1"></div>');
+        var hiddenDocId = $("<input id=\"superbox-docid\" type=\"hidden\" />");
+        chilidDiv1.append(hiddenDocId).append(leftSide).append(rightSide);
+
+        var superbox = $("<div id=\"superbox-show\"class=\"superbox-show\">");
+        superbox.css('padding',0);
+        var superboxclose = $("<div class=\"superbox-close\">");
+        superbox.append(chilidDiv1).append(superboxclose);
+
+        var infoId = '';
+
+        $('.superbox-list').click(function() {
+            hideCsoContextMenu();
+            isContextShow = false;
+
+            if ($(this).next().hasClass("superbox-show")) {
+                superbox.toggle();
+            } else {
+                superbox.insertAfter(this).css('display', 'block');
+                resizeForGallery();
+            }
+
+            if($("#superbox-current-img").css("opacity") == 0) {
+                $("#superbox-current-img").animate({opacity: 1});
+            }
+
+            var currentimg = $(this).find('.superbox-img');
+            infoId = currentimg.attr('info-id');
+            infoImagesize = currentimg.attr('info-imagesize');
+            infoFilesize = currentimg.attr('info-filesize');
+
+            $("#superbox-current-img").css("background-image", "url(" + currentimg.data("img") + ")");
+            $("#superbox-caption").text(currentimg.attr("info-name"));
+            $("#superbox-filesize").text(infoFilesize != "" ? infoFilesize : "-");
+            $("#superbox-picturesize").text(infoImagesize != "" ? infoImagesize : "-");
+
+            var spaceId = ''
+            if($.cookie('cso_ecm_cm_hash_' + userId)){
+                var strs = $.cookie('cso_ecm_cm_hash_' + userId).split(":");
+                if(strs[1] == 'search'){
+                    spaceId = '';
+                } else {
+                    spaceId = strs[0];
+                }
+            }
+                        $('.superbox-rightside').hide();
+
+            secureGetAsync("/contentsmanagement/ContentsPropertyGet.json", {
+                    "spaceId" : spaceId,
+                    "fileId" : infoId,
+                    "type" : 0,//TODO プロパティ確認
+                    "security" : false//TODO プロパティ確認
+                },
+                function(res){
+                    if(res.result == true){
+                        var model = res.model;
+                        $('#superbox-docid').val(res.fileId);
+                        $('#superbox-docName').text(model.docName);
+                        $('#superbox-explanation').text(model.explanation != "" ? model.explanation : "-");
+                        $('#superbox-tagNames').text(model.tagNames != "" ? model.tagNames : "-");
+                        $('#superbox-releaseVersionString').text(model.releaseVersionString != "" ? model.releaseVersionString : "-");
+                        $('#superbox-regUserName').text(model.regUserName != "" ? model.regUserName : "-");
+                        $('#superbox-regDate').text(model.regDate != "" ? model.regDate : "-");
+                        $('#superbox-upUserName').text(model.upUserName != "" ? model.upUserName : "-");
+                        $('#superbox-upDate').text(model.upDate != "" ? model.upDate : "-");
+                        $('#superbox-info > tbody > tr > td').css("color", "#B2B2B2");
+                        $('#superbox-info').css("width", "160");
+                        $('.superbox-rightside').show();
+                    } else {
+                        alert(res);
+                    }
+                }
+            );
+            resizeBodySize();
+            $("#galleryDiv").scrollTop(($("#superbox-show").offset().top - 250));
+        });
+
+        $("#superbox").delegate('.superbox-button','click', function() {
+        // 2014/02/18 delacerna #8802 【ギャラリー表示】メニューボタンを２回押さないとメニューが出ない。
+            actionFromGalleryFinished = false;
+            if($("#contextMenulist").css("display") == "block"){
+                actionFromGallery = false;
+                hideCsoContextMenu();
+                $("#contextMenulist").attr('style', 'width: 240px; top:90px; left:550px; z-index:1050;');
+
+                isContextShow = false;
+            } else {
+                actionFromGallery = true;
+                var isLoadingShown = false;
+                if (!ECM.spacePortal.gridLoaded.isResolved() && !ECM.spacePortal.gridLoaded.isRejected()) {
+                    CsoScript_loadingStart();
+                    isLoadingShown = true;
+                }
+                ECM.spacePortal.gridLoaded.then(function() {
+                    if (isLoadingShown) {
+                        CsoScript_loadingStop();
+                    }
+                $("#listView1").jqGrid('resetSelection');
+
+                var overLeft = ($(".superbox-button").offset().left + 20 + $("#contextMenulist").width() + 5 - $(window).width());
+                if(overLeft <= 0){
+                    overLeft = 0;
+                }
+                $("#contextMenulist").css({
+                    "left" : $(".superbox-button").offset().left + 20 - overLeft,
+                    "top" : superbox.position().top + $(".superbox-button").position().top + 24,
+                });
+
+                var currentimg = $(this).find('.superbox-img');
+                $("#listView1").jqGrid('setSelection', infoId);
+
+                var securityStatus = '0';
+                var flgSecurityStatus = getSetSecurityStatus(securityStatus);
+                switchCsoContextMenu(flgSecurityStatus, true);
+                contextMenuEnable(_galleryCMAuth[$("#superbox-docid").val()]);
+                var list = getSelectedList();
+                if (list.length > 0) {
+                    updateCsocontextMenuHeader('' ,list.length);
+                }
+
+                 isContextShow = true;
+                });
+            }
+        });
+
+        $("#superbox").delegate('.superbox-close','click', function() {
+            hideCsoContextMenu();
+            $("#contextMenulist").attr('style', 'width: 240px; top:90px; left:550px; z-index:1050;');
+
+            $("#superbox-current-img").animate({opacity: 0}, 200, function() {
+                $("#superbox-show").slideUp();
+            });
+        });
+
+        return this;
+
+    };
+})(jQuery);
+// ギャラリー表示からメニューを表示した場合のフラグ
+var actionFromGallery = false;
+// ギャラリー表示メニューから動作を行った場合のフラグ
+var actionFromGalleryFinished = false;
+// 戻るボタンを押した場合のフラグ
+var backButtonFromGallery = false;
+// cancelGalleryをコールしたかどうかのフラグ
+var onceCallCancelGallery = false;
+</script>
+
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == false,true,false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+
+<apex:include pageName="SOLXYZCSO001__SpacePortalPlupload" rendered="{!pluploadFlag}" />
+<div id="preview-area" style="display: none;"></div>
+</apex:page>

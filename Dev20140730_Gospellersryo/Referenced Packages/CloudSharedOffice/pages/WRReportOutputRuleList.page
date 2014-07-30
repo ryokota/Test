@@ -1,0 +1,381 @@
+<apex:page controller="SOLXYZCSO001.WRReportOutputRuleListController" action="{!init}" tabStyle="WRRuleTab__tab">
+<apex:outputPanel rendered="{!IF(isReportOutputRuleTenant, false, true)}">
+    {!$Label.solxyzcso001__msg_wr_outputrule_00044}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_WR_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true && isReportOutputRuleTenant == true ,true,false)}"/>
+<apex:outputPanel rendered="{!IF(isReportOutputRuleTenant && cso_userInfo.showErrPage == false, true, false)}">
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<style type="text/css">
+.sub_require{
+    width:4px;
+    height:23px;
+    float: left;
+}
+.form_table_label {
+    padding-top:5px;
+    padding-right:5px;
+    width:100px;
+    text-align:right;
+    font-weight:bold;
+    color:#4a4a56 !important;
+    white-space: nowrap;
+}
+.commandbox{
+    padding-bottom:5px;
+}
+.ui-jqgrid tr.jqgrow td{
+    padding-top:3px;
+}
+</style>
+<script type="text/javascript">
+var now_select_row_id;
+var now_select_row_name;
+/*
+ * 読込処理
+ */
+$(document).ready(function(){
+    var def = $.cookie('wr_outputrule_def');
+    $('option[value*="' + def + '"]').attr('selected', 'selected');
+    displayLoad();
+    $(window).resize(resizeHandler);
+    $("#listview").jqGrid({
+        datatype  :"local",
+        jsonReader:{ repeatitems : false, id : "id" },
+        colNames  :['', '{!$Label.solxyzcso001__label_wr_outputrule_00001}', '{!$Label.solxyzcso001__label_wr_outputrule_00002}', '{!$Label.solxyzcso001__label_wr_outputrule_00003}', '{!$Label.solxyzcso001__label_wr_outputrule_00004}', '{!$Label.solxyzcso001__label_wr_outputrule_00005}', '', '{!$Label.solxyzcso001__label_wr_outputrule_00006}', '{!$Label.solxyzcso001__label_wr_outputrule_00007}', '{!$Label.solxyzcso001__label_wr_outputrule_00008}', '{!$Label.solxyzcso001__label_wr_outputrule_00009}'],    // '', 'アクション', '有効', '優先順位', '帳票出力ルール名', '出力指示', '', '作成者', '作成日', '更新者', '更新日'
+        colModel  :[{name:'id', index:'id', hidden:true},
+                    {name:'action', index:'action', width:180, sortable:false, resizable:false, align:'center'},
+                    {name:'valid', index:'valid', width:45, sortable:false, resizable:false, align:'center'},
+                    {name:'priority', index:'priority', width:85, align:'right', sortable:false},
+                    {name:'rulename', index:'rulename', width:220, sortable:false},
+                    {name:'instruction', index:'instruction', width:90, sortable:false},
+                    {name:'instructionHidden', index:'instructionHidden', hidden:true, sortable:false},
+                    {name:'reguser', index:'reguser', width:100, sortable:false},
+                    {name:'regdate', index:'regdate', width:130, sortable:false},
+                    {name:'upduser', index:'upduser', width:100, sortable:false},
+                    {name:'upddate', index:'upddate', width:130, sortable:false}],
+        autowidth: true,
+        height: getBrowserHeight() - 280,
+        width: getBrowserWidth() - 85,
+//        sortname: "priority",
+        viewrecords: true,
+        sortorder: "asc",
+        shrinkToFit : true,
+        rowNum: 1000,
+        onSelectRow : function(rowid, status) {
+            now_select_row_id = rowid;
+        },
+        loadComplete : function(data) {
+            $("#listview").setSelection(now_select_row_id);
+            displayLoadComplete();
+        }
+    });
+
+    resizeHandler();
+
+    reloadList();
+});
+/*
+ * 一覧更新処理
+ */
+function reloadList(){
+    $.cookie('wr_outputrule_def', $('.reportDefinition').val());
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.WRReportOutputRuleListController.getOutputReportRuleList}',
+        $('.reportDefinition').val(),
+        function(data, event){
+            var listData = JSON.parse($('#decodeWork').html(data).text());
+            var ruleList = new Array();
+            $.each(listData, function(n, o) {
+                var rule = new Object();
+                rule['id'] = o.id;
+                rule['action'] = '<a href="javascript:void(0);" onclick="onEdit(\'' + o.id + '\')">{!$Label.solxyzcso001__label_wr_outputrule_00010}</a> ｜ ' + // 編集
+                                '<a href="javascript:void(0);" onclick="onDelete(\'' + o.id + '\',\'' + o.rulename + '\')">{!$Label.solxyzcso001__label_wr_outputrule_00011}</a> ｜ ';    //削除
+                if(o.valid == true){
+                    rule['action'] += '<a href="javascript:void(0);" onclick="switchValid(\'' + o.id + '\',\'' + o.rulename + '\', false)">{!$Label.solxyzcso001__label_wr_outputrule_00012}</a>';    // 無効化
+                    rule['valid'] = '<input type="checkbox" checked="checked" disabled="disabled"/>';
+                } else {
+                    rule['action'] += '<a href="javascript:void(0);" onclick="switchValid(\'' + o.id + '\',\'' + o.rulename + '\', true)">{!$Label.solxyzcso001__label_wr_outputrule_00013}</a>';    //有効化
+                    rule['valid'] = '<input type="checkbox" disabled="disabled"/>';
+                }
+                if(o.instruction == 'System'){
+                    rule['priority'] = '-';
+                } else {
+                    rule['priority'] = o.priority;
+                }
+                rule['rulename'] = o.rulename;
+                if(o.instruction == 'System'){
+                    rule['instruction'] = '{!$Label.solxyzcso001__label_wr_outputrule_00014}';    //システム
+                    rule['instructionHidden'] = 'System';
+                } else {
+                    rule['instruction'] = '{!$Label.solxyzcso001__label_wr_outputrule_00015}';    //ユーザ
+                    rule['instructionHidden'] = 'User';
+                }
+                rule['reguser'] = o.reguser;
+                rule['regdate'] = o.regdate;
+                rule['upduser'] = o.upduser;
+                rule['upddate'] = o.upddate;
+                ruleList.push(rule);
+            });
+
+            $('#listview').setGridParam({data : ruleList});
+            $('#listview').trigger('reloadGrid');
+        }
+    );
+    $('#listview').jqGrid('clearGridData');
+}
+/*
+ * 帳票定義変更処理
+ */
+function changeDefinition(){
+    displayLoad();
+    reloadList();
+}
+
+/**
+ * エラーメッセージを作成する
+ */
+function createMessageHtml(messageArray){
+
+    var messageHtml = '';
+    messageHtml = '<div id=\"messageDiv\" class=\"messageText\">';
+    messageHtml += '<span id=\"messageSpan\" style=\"color:#cc0000\">';
+    messageHtml += '<h4>{!$Label.solxyzcso001__label_10716}</h4>';
+    messageHtml += '</span>';
+    messageHtml += '<span>';
+    messageHtml += '<ul style="padding-left:10px;padding-top:0px;margin:0px">';
+
+    for(var i=0;i<messageArray.length;i++){
+
+        messageHtml += '<li style="padding-top:5px">';
+        messageHtml += messageArray[i];
+        messageHtml += '</li>';
+    }
+
+    messageHtml += '</span>';
+    messageHtml += '<br />';
+    messageHtml += '</div>';
+
+    return messageHtml;
+}
+
+/*
+ * 「上へ」処理
+ */
+function upPriority(){
+    if(now_select_row_id == '' || now_select_row_id == undefined){
+        alert('{!$Label.solxyzcso001__msg_wr_outputrule_00001}');    //帳票出力ルールが選択されていません
+        return;
+    }
+    var rowdata = $('#listview').getRowData(now_select_row_id);
+    if(rowdata.instructionHidden == 'System'){
+        alert('{!$Label.solxyzcso001__msg_wr_outputrule_00002}');    //出力指示がシステムの優先度を変更することはできません。
+        return;
+    }
+    displayLoad();
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.WRReportOutputRuleListController.saveUpPriorityEvidence}',
+        rowdata.rulename, $('.reportDefinition').val(), now_select_row_id,
+        function(result, event){
+            if(!result){
+                //証跡登録に失敗
+                var errMessageArray = [];
+                errMessageArray.push('{!$Label.solxyzcso001__label_wr_evidence_00001}');
+                var messageHtml = createMessageHtml(errMessageArray);
+                $('#jsPageMessagesCell').html(messageHtml);
+                $('#jsPageMessages').show();
+            }
+        }
+    );
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.WRReportOutputRuleListController.upPriorityOutputReportRule}',
+        $('.reportDefinition').val(), now_select_row_id,
+        function(data, event){
+            reloadList();
+        }
+    );
+    $('#listview').jqGrid('clearGridData');
+}
+/*
+ * 「下へ」処理
+ */
+function downPriority(){
+    if(now_select_row_id == '' || now_select_row_id == undefined){
+        alert('{!$Label.solxyzcso001__msg_wr_outputrule_00001}');    //帳票出力ルールが選択されていません
+        return;
+    }
+    var rowdata = $('#listview').getRowData(now_select_row_id);
+    if(rowdata.instructionHidden == 'System'){
+        alert('{!$Label.solxyzcso001__msg_wr_outputrule_00002}');    // 出力指示がシステムの優先度を変更することはできません。
+        return;
+    }
+    displayLoad();
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.WRReportOutputRuleListController.saveDownPriorityEvidence}',
+        rowdata.rulename, $('.reportDefinition').val(), now_select_row_id,
+        function(result, event){
+            if(!result){
+                //証跡登録に失敗
+                var errMessageArray = [];
+                errMessageArray.push('{!$Label.solxyzcso001__label_wr_evidence_00001}');
+                var messageHtml = createMessageHtml(errMessageArray);
+                $('#jsPageMessagesCell').html(messageHtml);
+                $('#jsPageMessages').show();
+            }
+        }
+    );
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.WRReportOutputRuleListController.downPriorityOutputReportRule}',
+        $('.reportDefinition').val(), now_select_row_id,
+        function(data, event){
+            reloadList();
+        }
+    );
+    $('#listview').jqGrid('clearGridData');
+}
+/*
+ * 編集処理
+ */
+function onEdit(id){
+    top.window.location.href = '/apex/WRReportOutputRuleEdit?outputReportRuleId=' + id + '&isc=false';
+}
+/*
+ * 削除処理
+ */
+function onDelete(id, rulename){
+    if(confirm('{!$Label.solxyzcso001__msg_wr_outputrule_00003}')){    //帳票出力ルールを削除しますか？
+        displayLoad();
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.WRReportOutputRuleListController.deleteOutputReportRule}',
+            $('.reportDefinition').val(), id,
+            function(data, event){
+                reloadList();
+            }
+        );
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.WRReportOutputRuleListController.saveDelEvidence}',
+            rulename,
+            function(result, event){
+                if(!result){
+                    //証跡登録に失敗
+                    var errMessageArray = [];
+                    errMessageArray.push('{!$Label.solxyzcso001__label_wr_evidence_00001}');
+                    var messageHtml = createMessageHtml(errMessageArray);
+                    $('#jsPageMessagesCell').html(messageHtml);
+                    $('#jsPageMessages').show();
+                }
+            }
+        );
+        
+        $('#listview').jqGrid('clearGridData');
+    }
+}
+/*
+ * 有効状態切替
+ */
+function switchValid(id, rulename, status){
+    if(confirm('{!$Label.solxyzcso001__msg_wr_outputrule_00004}')){    //帳票出力ルールの有効状態を切り替えますか？
+        displayLoad();
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.WRReportOutputRuleListController.switchValidOutputReportRule}',
+            id, status,
+            function(data, event){
+                reloadList();
+            }
+        );
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.WRReportOutputRuleListController.saveSwitchEvidence}',
+            rulename, status,
+            function(result, event){
+                if(!result){
+                    //証跡登録に失敗
+                    var errMessageArray = [];
+                    errMessageArray.push('{!$Label.solxyzcso001__label_wr_evidence_00001}');
+                    var messageHtml = createMessageHtml(errMessageArray);
+                    $('#jsPageMessagesCell').html(messageHtml);
+                    $('#jsPageMessages').show();
+                }
+            }
+        );
+        $('#listview').jqGrid('clearGridData');
+    }
+}
+/*
+ * オブジェクトリサイズハンドラー
+ */
+function resizeHandler(){
+    var browserWidth = getBrowserWidth();
+    var browserHeight = getBrowserHeight();
+    if((browserWidth - 85) < 940){
+        $("#listview").setGridWidth(940);
+    } else {
+        if(getBrowserType() != 'IE8'){
+            $("#listview").setGridWidth(browserWidth - 310);
+        } else {
+            $("#listview").setGridWidth(browserWidth - 293);
+        }
+    }
+    $('#listview').setGridHeight(browserHeight - 280);
+    $('#loading').css({'height' : browserHeight - 407, 'padding-top':((browserHeight - 270) / 2)});
+}
+/*
+ * 読込状態
+ */
+function displayLoad(){
+    $('#listviewpanel').hide();
+    $('#loading').show();
+}
+/*
+ * 読込状態解除
+ */
+function displayLoadComplete(){
+    $('#loading').hide();
+    $('#listviewpanel').show();
+}
+</script>
+<apex:sectionHeader title="{!$Label.solxyzcso001__label_wr_outputrule_00016}" subtitle="{!$Label.solxyzcso001__label_wr_outputrule_00017}" />    <!-- 帳票出力ルール 帳票出力ルール一覧  -->
+<apex:form >
+    <table>
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00018}</td>    <!-- 帳票定義 -->
+            <td>
+                <img src="{!URLFOR($Resource.iosstyle, 'require.png')}" class="sub_require"/>
+                <apex:selectList value="{!reportDefinition}" styleClass="reportDefinition" size="1" onchange="changeDefinition()">
+                    <apex:selectOptions value="{!reportDefinitionOptions}"/>
+                </apex:selectList>
+            </td>
+        </tr>
+    </table>
+    <apex:pageBlock >
+        <div class="commandbox">
+            <input type="button" value="{!$Label.label_wr_outputrule_00019}" class="btn" onclick="upPriority()"/>    <!-- 上へ -->
+            <input type="button" value="{!$Label.label_wr_outputrule_00020}" class="btn" onclick="downPriority()"/>    <!-- 下へ -->
+            <input type="button" value="{!$Label.label_wr_outputrule_00021}" class="btn" onclick="top.window.location.href='{!$Page.WRReportOutputRuleCreateStep1}';"/>    <!-- 新規帳票出力ルール -->
+        </div>
+        <div id="listviewpanel" style="display:none">
+            <table id="listview"></table>
+        </div>
+        <div id="loading" style="display:none;text-align:center">
+            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" alt="loading"/>
+        </div>
+    </apex:pageBlock>
+</apex:form>
+<div style="display:none" id="decodeWork"/>
+</apex:outputPanel>
+</apex:page>

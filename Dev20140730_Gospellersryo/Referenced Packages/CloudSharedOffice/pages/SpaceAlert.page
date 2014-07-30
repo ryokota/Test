@@ -1,0 +1,1068 @@
+<apex:page cache="false" sidebar="false" controller="SOLXYZCSO001.SpaceAlertController" tabStyle="setting__tab">
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_corp_alert == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_corp_alert == 'true' && userInfo.showErrPage == false, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<style type="text/css">
+.innerTable {
+    margin-top: 0px;
+}
+
+.innerTable th {
+    font-weight: bolder;
+    text-align: right;
+    padding: 1px;
+}
+
+.innerTable td {
+    border: none !important;
+    padding: 1px !important;
+}
+
+.separatorDiv{
+    width: 100%;
+}
+
+.separatorDiv div{
+//  color: white;
+//  padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+.chkIcon{
+    height: 20px;
+    width: 20px;
+    border: none;
+    vertical-align: middle;
+}
+
+.historyTbl {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.historyTbl th{
+    font-weight: bold;
+    width: 100px;
+    text-align: center;
+}
+
+.historyTbl *{
+//  color: blue;
+    white-space: nowrap;
+}
+
+.diskInfo {
+    border: 1px #E3E3E3 solid;
+    border-collapse: collapse;
+    border-spacing: 0;
+    word-break:break-all;
+    width:390px;
+}
+
+.diskInfo th {
+    padding: 5px;
+    border: #E3E3E3 solid;
+    border-width: 0 0 1px 1px;
+    background: #F5F5F5;
+    font-weight: bold;
+    line-height: 120%;
+    text-align: center !important;
+    width:130px;
+    min-width:130px;
+}
+
+.diskInfo td {
+    border: 1px #E3E3E3 solid;
+    border-width: 0 0 1px 1px;
+    text-align: center;
+    width:130px;
+    min-width:130px;
+}
+.imgSize {
+    width:13px;
+    height:13px;
+
+}
+
+.ui-tab {
+	min-height: 350px;
+}
+
+.ui-tabs {
+    background : none;
+    border:none;
+}
+
+.ui-tabs .ui-tabs-nav {
+    background: none;
+    border:none;
+}
+
+.ui-tabs .ui-tabs-panel {
+    background : none;
+    border:2px solid #11579c;
+    hight:100%
+}
+
+.ui-widget-header .ui-state-default {
+    background : none;
+    border: 2px solid #DFEFFC;
+
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+    background: #11579c;
+    border: 1px solid #11579c;
+
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a{
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.ui-corner-all {
+    border-radius: 5px 5px 5px 5px;
+}
+</style>
+
+
+
+
+
+<script type="text/javascript">
+
+    //========//
+    //  定数  //
+    //========//
+    var myDiskType     = "0";
+    var coraboDiskType = "1";
+    var archDiskType   = "2";
+    var comDiskType    = "3";
+
+    $(window).bind('resize', windowResize).trigger('resize');
+
+    function windowResize(){
+        var mainWidth  = getBrowserWidth() - 340;       // 幅    ブラウザの幅   - 340px
+        var mainHeight = getBrowserHeight() - 222;      // 高さ  ブラウザの高さ - 270px
+        if(mainWidth < 680){
+            mainWidth = 680;
+        }
+        $('#tabDiv').height(mainHeight);
+        $('#tabDiv').width(mainWidth);
+
+        var tabWidth=$('#tabDiv').width();
+        var tabHeight=$('#tabDiv').height();
+        $('#tabSpaceMailAddress').css("height", tabHeight - 70);
+        $('#tabCollabMailAddress').css("height", tabHeight - 70);
+        $('#tabComMailAddress').css("height", tabHeight - 70);
+        $('#tabArchMailAddress').css("height", tabHeight - 70);
+        $('#tableSpaceMailAddress').setGridWidth(tabWidth-170).setGridHeight(tabHeight-240);
+        $('#tableCollabMailAddress').setGridWidth(tabWidth-170).setGridHeight(tabHeight-240);
+        $('#tableComMailAddress').setGridWidth(tabWidth-170).setGridHeight(tabHeight-240);
+        $('#tableArchMailAddress').setGridWidth(tabWidth-170).setGridHeight(tabHeight-240);
+    }
+
+    $('#tabDiv').bind('tabsselect', function(event, ui) {
+        $(ui.panel).css("display", "");
+    });
+
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+        //  スペース使用量通知情報の取得
+        spaceAlert_getSpaceAlertInfo();
+    });
+
+    //================================//
+    //  スペース使用量通知情報の取得  //
+    //================================//
+    function spaceAlert_getSpaceAlertInfo(){
+        //  スペース使用量通知情報の取得処理の呼び出し
+        secureGetAsync('/setup/SettingAlertGet.json', '', spaceAlert_getSpaceAlertInfo_callback);
+
+        $("#tableSpaceMailAddress").jqGrid({
+            url : _apiUrl + '/setup/SetAlertMailAddrListV2Get.json',
+            postData : {
+                diskType : myDiskType
+            },
+            datatype : "jsonp",
+            jsonReader : {
+                repeatitems : false,
+                id : "id"
+            },
+            colNames:[
+                        '',
+                        '{!$Label.label_10131}',
+                        '{!$Label.label_00039}',
+                        '{!$Label.label_10028}',
+                        '{!$Label.label_10016}'
+                     ],
+            colModel:[
+                        {name:'id',index:'id', width:60, hidden:true},
+                        {name:'user_info',index:'userid', width:180},
+                        {name:'nameStr',index:'nameStr', width:140, hidden:true},
+                        {name:'profileName',index:'profileName', width:124},
+                        {name:'mailAddress',index:'mailAddress', width:200}
+                    ],
+            rowNum:10,
+            autowidth: true,
+            height: 200,
+            rowList:[10,50,100],
+            sortname: 'nameStr',
+            pager: '#tableSpaceMailAddressPager',
+            viewrecords: true,
+            multiselect: false
+        });
+        $("#tableSpaceMailAddress").jqGrid('navGrid','#tableSpaceMailAddressPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+        var tabWidth=$('#tabDiv').width();
+        var tabHeight=$('#tabDiv').height();
+        $("#tableCollabMailAddress").jqGrid({
+            url : _apiUrl + '/setup/SetAlertMailAddrListV2Get.json',
+            datatype : "jsonp",
+            postData : {
+                diskType : coraboDiskType
+            },
+            jsonReader : {
+                repeatitems : false,
+                id : "id"
+            },
+            colNames:[
+                        '',
+                        '{!$Label.label_10131}',
+                        '{!$Label.label_00039}',
+                        '{!$Label.label_10028}',
+                        '{!$Label.label_10016}'
+                     ],
+            colModel:[
+                        {name:'id',index:'id', width:60, hidden:true},
+                        {name:'user_info',index:'nameStr', width:180},
+                        {name:'nameStr',index:'nameStr', width:140, hidden:true},
+                        {name:'profileName',index:'profileName', width:124},
+                        {name:'mailAddress',index:'mailAddress', width:200}
+                    ],
+            rowNum:10,
+            autowidth: false,
+            rowList:[10,50,100],
+            sortname: 'nameStr',
+            pager: '#tableCollabMailAddressPager',
+            viewrecords: true
+        });
+        $("#tableCollabMailAddress").jqGrid('navGrid','#tableCollabMailAddressPager',{edit:false,add:false,del:false,refresh:false,search:false});
+        $('#tableCollabMailAddress').setGridWidth(tabWidth-250).setGridHeight(tabHeight-220);
+
+        var tabWidth=$('#tabDiv').width();
+        var tabHeight=$('#tabDiv').height();
+        $("#tableComMailAddress").jqGrid({
+
+            url : _apiUrl + '/setup/SetAlertMailAddrListV2Get.json',
+            postData : {
+                diskType : comDiskType
+            },
+            datatype : "jsonp",
+            jsonReader : {
+                repeatitems : false,
+                id : "id"
+            },
+
+            colNames:[
+                        '',
+                        '{!$Label.label_10131}',
+                        '{!$Label.label_00039}',
+                        '{!$Label.label_10028}',
+                        '{!$Label.label_10016}'
+                     ],
+            colModel:[
+                        {name:'id',index:'id', width:60, hidden:true},
+                        {name:'user_info',index:'nameStr', width:180},
+                        {name:'nameStr',index:'nameStr', width:140, hidden:true},
+                        {name:'profileName',index:'profileName', width:124},
+                        {name:'mailAddress',index:'mailAddress', width:200}
+                    ],
+            rowNum:10,
+            autowidth: false,
+            rowList:[10,50,100],
+            sortname: 'nameStr',
+            pager: '#tableComMailAddressPager',
+            viewrecords: true
+        });
+        $("#tableComMailAddress").jqGrid('navGrid','#tableComMailAddressPager',{edit:false,add:false,del:false,refresh:false,search:false});
+        $('#tableComMailAddress').setGridWidth(tabWidth-250).setGridHeight(tabHeight-220);
+
+        var tabWidth=$('#tabDiv').width();
+        var tabHeight=$('#tabDiv').height();
+        $("#tableArchMailAddress").jqGrid({
+
+            url : _apiUrl + '/setup/SetAlertMailAddrListV2Get.json',
+            postData : {
+                diskType : archDiskType
+            },
+            datatype : "jsonp",
+            jsonReader : {
+                repeatitems : false,
+                id : "id"
+            },
+            colNames:[
+                        '',
+                        '{!$Label.label_10131}',
+                        '{!$Label.label_00039}',
+                        '{!$Label.label_10028}',
+                        '{!$Label.label_10016}'
+                     ],
+            colModel:[
+                        {name:'id',index:'id', width:60, hidden:true},
+                        {name:'user_info',index:'nameStr', width:180},
+                        {name:'nameStr',index:'nameStr', width:140, hidden:true},
+                        {name:'profileName',index:'profileName', width:124},
+                        {name:'mailAddress',index:'mailAddress', width:200}
+                    ],
+            rowNum:10,
+            autowidth: false,
+            rowList:[10,50,100],
+            sortname: 'nameStr',
+            pager: '#tableArchMailAddressPager',
+            viewrecords: true
+        });
+        $("#tableArchMailAddress").jqGrid('navGrid','#tableArchMailAddressPager',{edit:false,add:false,del:false,refresh:false,search:false});
+        $('#tableArchMailAddress').setGridWidth(tabWidth-250).setGridHeight(tabHeight-220);
+
+        //  サイズ調整
+        windowResize();
+    }
+    function spaceAlert_getSpaceAlertInfo_callback(data){
+        if (data == null){
+            return;
+        }
+        if(!data["result"]){
+            var errMsg = data["message"];
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+
+        // Tabs
+        $('#tabDiv').tabs();
+        // レイアウトが崩れる原因となるクラスを削除
+        $("#tabDiv > ul").removeClass("ui-widget-header");
+
+        //----------------//
+        //  マイスペース  //
+        //----------------//
+        if (data["myAlertActiveFlag"] == true ) {
+            $("#myDisk").show();
+            if (data["myAnyUserMailFlag"] == true) {
+                $("#myMailList").show();
+            } else {
+                $("#myMailList").hide();
+            }
+        } else {
+            $("#myDisk").hide();
+            $("#myMailList").hide();
+        }
+        //  通知の有効化
+        var spaceAlert_myAlertActive = '<img src="{!URLFOR($Resource.cso, '/image/check_off.png')}" class="chkIcon imgSize"/>';
+        if (data["myAlertActiveFlag"] == true ) {
+            spaceAlert_myAlertActive = '<img src="{!URLFOR($Resource.cso, '/image/check_on.png')}" class="chkIcon imgSize"/>';
+        }
+        $("#spaceAlert_myAlertActive").html(spaceAlert_myAlertActive);
+        //  本人
+        var spaceAlert_mySelfMail = '<img src="{!URLFOR($Resource.cso, '/image/check_off.png')}" class="chkIcon imgSize"/>';
+        if (data["mySelfMailFlag"] == true) {
+            spaceAlert_mySelfMail = '<img src="{!URLFOR($Resource.cso, '/image/check_on.png')}" class="chkIcon imgSize"/>';
+        }
+        spaceAlert_mySelfMail = spaceAlert_mySelfMail + "&nbsp;&nbsp;" + "{!$Label.label_10430}";
+        $("#spaceAlert_mySelfMail").html(spaceAlert_mySelfMail);
+        //  ユーザ
+        var spaceAlert_myAnyUserMail = '<img src="{!URLFOR($Resource.cso, '/image/check_off.png')}" class="chkIcon imgSize"/>';
+        if (data["myAnyUserMailFlag"] == true) {
+            spaceAlert_myAnyUserMail = '<img src="{!URLFOR($Resource.cso, '/image/check_on.png')}" class="chkIcon imgSize"/>';
+        }
+        spaceAlert_myAnyUserMail = spaceAlert_myAnyUserMail + "&nbsp;&nbsp;" + "{!$Label.label_10131}";
+        $("#spaceAlert_myAnyUserMail").html(spaceAlert_myAnyUserMail);
+        //  閾値
+        var spaceAlert_myDiskThreshold = data["myDiskThreshold"];
+        if((spaceAlert_myDiskThreshold == null) || (spaceAlert_myDiskThreshold == "")){
+            spaceAlert_myDiskThreshold = "{!$Label.label_10431}";
+        }
+        var spaceAlert_myDiskThresholdUnit = data["myDiskThresholdUnit"];
+        if((spaceAlert_myDiskThresholdUnit == null) || (spaceAlert_myDiskThresholdUnit == "")){
+            spaceAlert_myDiskThresholdUnit = "{!$Label.label_00043}";
+        }
+        $("#spaceAlert_myDiskThreshold").html(spaceAlert_myDiskThreshold + "&nbsp;" + spaceAlert_myDiskThresholdUnit);
+        //  作成者
+        var spaceAlert_myCreater = data["myCreater"];
+        if((spaceAlert_myCreater == null) || (spaceAlert_myCreater == "")){
+            spaceAlert_myCreater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_myCreater").html(spaceAlert_myCreater);
+        //  作成日
+        var spaceAlert_myCreateDateTime = data["myCreateDateTime"];
+        if((spaceAlert_myCreateDateTime == null) || (spaceAlert_myCreateDateTime == "")){
+            spaceAlert_myCreateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_myCreateDateTime").html(spaceAlert_myCreateDateTime);
+        //  更新者
+        var spaceAlert_myUupdater = data["myUpdater"];
+        if((spaceAlert_myUupdater == null) || (spaceAlert_myUupdater == "")){
+            spaceAlert_myUupdater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_myUupdater").html(spaceAlert_myUupdater);
+        //  更新日
+        var spaceAlert_myUpdateDateTime = data["myUpdateDateTime"];
+        if((spaceAlert_myUpdateDateTime == null) || (spaceAlert_myUpdateDateTime == "")){
+            spaceAlert_myUpdateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_myUpdateDateTime").html(spaceAlert_myUpdateDateTime);
+
+
+        //------------------//
+        //  コラボスペース  //
+        //------------------//
+        if (data["collaboAlertActiveFlag"] == true ) {
+            $("#collDisk").show();
+            $("#collMailList").show();
+        } else {
+            $("#collDisk").hide();
+            $("#collMailList").hide();
+        }
+        //  通知の有効化
+        var spaceAlert_collaboAlertActive = '<img src="{!URLFOR($Resource.cso, '/image/check_off.png')}" class="chkIcon imgSize"/>';
+        if (data["collaboAlertActiveFlag"] == true ) {
+            spaceAlert_collaboAlertActive = '<img src="{!URLFOR($Resource.cso, '/image/check_on.png')}" class="chkIcon imgSize"/>';
+        }
+        $("#spaceAlert_collaboAlertActive").html(spaceAlert_collaboAlertActive);
+        //  作成者
+        var spaceAlert_collaboCreater = data["collaboCreater"];
+        if((spaceAlert_collaboCreater == null) || (spaceAlert_collaboCreater == "")){
+            spaceAlert_collaboCreater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_collaboCreater").html(spaceAlert_collaboCreater);
+        //  作成日
+        var spaceAlert_collaboCreateDateTime = data["collaboCreateDateTime"];
+        if((spaceAlert_collaboCreateDateTime == null) || (spaceAlert_collaboCreateDateTime == "")){
+            spaceAlert_collaboCreateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_collaboCreateDateTime").html(spaceAlert_collaboCreateDateTime);
+        //  更新者
+        var spaceAlert_collaboUpdater = data["collaboUpdater"];
+        if((spaceAlert_collaboUpdater == null) || (spaceAlert_collaboUpdater == "")){
+            spaceAlert_collaboUpdater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_collaboUpdater").html(spaceAlert_collaboUpdater);
+        //  更新日
+        var spaceAlert_collaboUpdateDateTime = data["collaboUpdateDateTime"];
+        if((spaceAlert_collaboUpdateDateTime == null) || (spaceAlert_collaboUpdateDateTime == "")){
+            spaceAlert_collaboUpdateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_collaboUpdateDateTime").html(spaceAlert_collaboUpdateDateTime);
+        //  閾値
+        var spaceAlert_coraboDiskThreshold = data["coraboDiskThreshold"];
+        if((spaceAlert_coraboDiskThreshold == null) || (spaceAlert_coraboDiskThreshold == "")){
+            spaceAlert_coraboDiskThreshold = "{!$Label.label_10431}";
+        }
+        var spaceAlert_coraboDiskThresholdUnit = data["coraboDiskThresholdUnit"];
+        if((spaceAlert_coraboDiskThresholdUnit == null) || (spaceAlert_coraboDiskThresholdUnit == "")){
+            spaceAlert_coraboDiskThresholdUnit = "{!$Label.label_00043}";
+        }
+        $("#spaceAlert_coraboDiskThreshold").html(spaceAlert_coraboDiskThreshold + "&nbsp;" + spaceAlert_coraboDiskThresholdUnit);
+        //  上限
+        var spaceAlert_collaboMaxDisk = data["collaboMaxDisk"];
+        if((spaceAlert_collaboMaxDisk == null) || (spaceAlert_collaboMaxDisk === "")){
+            spaceAlert_collaboMaxDisk = "&nbsp;";
+        }
+        else if(spaceAlert_collaboMaxDisk == -1){
+            spaceAlert_collaboMaxDisk = "{!$Label.label_10008}";
+        }
+        $("#spaceAlert_collaboMaxDisk").html(spaceAlert_collaboMaxDisk);
+        //  現在の使用量
+        var spaceAlert_collaboUsedDisk = data["collaboUsedDisk"];
+        if((spaceAlert_collaboUsedDisk == null) || (spaceAlert_collaboUsedDisk === "")){
+            spaceAlert_collaboUsedDisk = "&nbsp;";
+        }
+        else if(spaceAlert_collaboUsedDisk <= 0){
+            spaceAlert_collaboUsedDisk = "{!$Label.label_10432}";
+        }
+        $("#spaceAlert_collaboUsedDisk").html(spaceAlert_collaboUsedDisk);
+        //  現在の使用率
+        var spaceAlert_collaboUsedPerDisk = data["collaboUsedPerDisk"];
+        if((spaceAlert_collaboUsedPerDisk == null) || (spaceAlert_collaboUsedPerDisk === "")){
+            spaceAlert_collaboUsedPerDisk = "&nbsp;";
+        }
+        else{
+            spaceAlert_collaboUsedPerDisk = spaceAlert_collaboUsedPerDisk + "{!$Label.label_10433}";
+        }
+        $("#spaceAlert_collaboUsedPerDisk").html(spaceAlert_collaboUsedPerDisk);
+
+
+        //----------------------//
+        //  カンパニースペース  //
+        //----------------------//
+        if (data["comAlertActiveFlag"] == true ) {
+            $("#compDisk").show();
+            $("#compMailList").show();
+        } else {
+            $("#compDisk").hide();
+            $("#compMailList").hide();
+        }
+        //  通知の有効化
+        var spaceAlert_comAlertActive = '<img src="{!URLFOR($Resource.cso, '/image/check_off.png')}" class="chkIcon imgSize"/>';
+        if (data["comAlertActiveFlag"] == true ) {
+            spaceAlert_comAlertActive = '<img src="{!URLFOR($Resource.cso, '/image/check_on.png')}" class="chkIcon imgSize"/>';
+        }
+        $("#spaceAlert_comAlertActive").html(spaceAlert_comAlertActive);
+        //  作成者
+        var spaceAlert_comCreater = data["comCreater"];
+        if((spaceAlert_comCreater == null) || (spaceAlert_comCreater == "")){
+            spaceAlert_comCreater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_comCreater").html(spaceAlert_comCreater);
+        //  作成日
+        var spaceAlert_comCreateDateTime = data["comCreateDateTime"];
+        if((spaceAlert_comCreateDateTime == null) || (spaceAlert_comCreateDateTime == "")){
+            spaceAlert_comCreateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_comCreateDateTime").html(spaceAlert_comCreateDateTime);
+        //  更新者
+        var spaceAlert_comUpdater = data["comUpdater"];
+        if((spaceAlert_comUpdater == null) || (spaceAlert_comUpdater == "")){
+            spaceAlert_comUpdater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_comUpdater").html(spaceAlert_comUpdater);
+        //  更新日
+        var spaceAlert_comUpdateDateTime = data["comUpdateDateTime"];
+        if((spaceAlert_comUpdateDateTime == null) || (spaceAlert_comUpdateDateTime == "")){
+            spaceAlert_comUpdateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_comUpdateDateTime").html(spaceAlert_comUpdateDateTime);
+        //  閾値
+        var spaceAlert_comDiskThreshold = data["comDiskThreshold"];
+        if((spaceAlert_comDiskThreshold == null) || (spaceAlert_comDiskThreshold == "")){
+            spaceAlert_comDiskThreshold = "{!$Label.label_10431}";
+        }
+        var spaceAlert_comDiskThresholdUnit = data["comDiskThresholdUnit"];
+        if((spaceAlert_comDiskThresholdUnit == null) || (spaceAlert_comDiskThresholdUnit == "")){
+            spaceAlert_comDiskThresholdUnit = "{!$Label.label_00043}";
+        }
+        $("#spaceAlert_comDiskThreshold").html(spaceAlert_comDiskThreshold + "&nbsp;" + spaceAlert_comDiskThresholdUnit);
+        //  上限
+        var spaceAlert_comMaxDisk = data["comMaxDisk"];
+        if((spaceAlert_comMaxDisk == null) || (spaceAlert_comMaxDisk === "")){
+            spaceAlert_comMaxDisk = "&nbsp;";
+        }
+        else if(spaceAlert_comMaxDisk == -1){
+            spaceAlert_comMaxDisk = "{!$Label.label_10008}";
+        }
+        $("#spaceAlert_comMaxDisk").html(spaceAlert_comMaxDisk);
+        //  現在の使用量
+        var spaceAlert_comUsedDisk = data["comUsedDisk"];
+        if((spaceAlert_comUsedDisk == null) || (spaceAlert_comUsedDisk === "")){
+            spaceAlert_comUsedDisk = "&nbsp;";
+        }
+        else if(spaceAlert_comUsedDisk <= 0){
+            spaceAlert_comUsedDisk = "{!$Label.label_10432}";
+        }
+        $("#spaceAlert_comUsedDisk").html(spaceAlert_comUsedDisk);
+        //  現在の使用率
+        var spaceAlert_comUsedPerDisk = data["comUsedPerDisk"];
+        if((spaceAlert_comUsedPerDisk == null) || (spaceAlert_comUsedPerDisk === "")){
+            spaceAlert_comUsedPerDisk = "&nbsp;";
+        }
+        else{
+            spaceAlert_comUsedPerDisk = spaceAlert_comUsedPerDisk + "{!$Label.label_10433}";
+        }
+        $("#spaceAlert_comUsedPerDisk").html(spaceAlert_comUsedPerDisk);
+
+
+        //----------------------//
+        //  アーカイブスペース  //
+        //----------------------//
+        if (data["archAlertActiveFlag"] == true ) {
+            $("#archDisk").show();
+            $("#arckMailList").show();
+        } else {
+            $("#archDisk").hide();
+            $("#arckMailList").hide();
+        }
+        //  通知の有効化
+        var spaceAlert_archAlertActive = '<img src="{!URLFOR($Resource.cso, '/image/check_off.png')}" class="chkIcon imgSize"/>';
+        if (data["archAlertActiveFlag"] == true ) {
+            spaceAlert_archAlertActive = '<img src="{!URLFOR($Resource.cso, '/image/check_on.png')}" class="chkIcon imgSize"/>';
+        }
+        $("#spaceAlert_archAlertActive").html(spaceAlert_archAlertActive);
+        //  作成者
+        var spaceAlert_archCreater = data["archCreater"];
+        if((spaceAlert_archCreater == null) || (spaceAlert_archCreater == "")){
+            spaceAlert_archCreater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_archCreater").html(spaceAlert_archCreater);
+        //  作成日
+        var spaceAlert_archCreateDateTime = data["archCreateDateTime"];
+        if((spaceAlert_archCreateDateTime == null) || (spaceAlert_archCreateDateTime == "")){
+            spaceAlert_archCreateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_archCreateDateTime").html(spaceAlert_archCreateDateTime);
+        //  更新者
+        var spaceAlert_archUpdater = data["archUpdater"];
+        if((spaceAlert_archUpdater == null) || (spaceAlert_archUpdater == "")){
+            spaceAlert_archUpdater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_archUpdater").html(spaceAlert_archUpdater);
+        //  更新日
+        var spaceAlert_archUpdateDateTime = data["archUpdateDateTime"];
+        if((spaceAlert_archUpdateDateTime == null) || (spaceAlert_archUpdateDateTime == "")){
+            spaceAlert_archUpdateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_archUpdateDateTime").html(spaceAlert_archUpdateDateTime);
+        //  閾値
+        var spaceAlert_archDiskThreshold = data["archDiskThreshold"];
+        if((spaceAlert_archDiskThreshold == null) || (spaceAlert_archDiskThreshold == "")){
+            spaceAlert_archDiskThreshold = "{!$Label.label_10431}";
+        }
+        var spaceAlert_archDiskThresholdUnit = data["archDiskThresholdUnit"];
+        if((spaceAlert_archDiskThresholdUnit == null) || (spaceAlert_archDiskThresholdUnit == "")){
+            spaceAlert_archDiskThresholdUnit = "{!$Label.label_00043}";
+        }
+        $("#spaceAlert_archDiskThreshold").html(spaceAlert_archDiskThreshold + "&nbsp;" + spaceAlert_archDiskThresholdUnit);
+        //  上限
+        var spaceAlert_archMaxDisk = data["archMaxDisk"];
+        if((spaceAlert_archMaxDisk == null) || (spaceAlert_archMaxDisk === "")){
+            spaceAlert_archMaxDisk = "&nbsp;";
+        }
+        else if(spaceAlert_archMaxDisk == -1){
+            spaceAlert_archMaxDisk = "{!$Label.label_10008}";
+        }
+        $("#spaceAlert_archMaxDisk").html(spaceAlert_archMaxDisk);
+        //  現在の使用量
+        var spaceAlert_archUsedDisk = data["archUsedDisk"];
+        if((spaceAlert_archUsedDisk == null) || (spaceAlert_archUsedDisk === "")){
+            spaceAlert_archUsedDisk = "&nbsp;";
+        }
+        else if(spaceAlert_archUsedDisk <= 0){
+            spaceAlert_archUsedDisk = "{!$Label.label_10432}";
+        }
+        $("#spaceAlert_archUsedDisk").html(spaceAlert_archUsedDisk);
+        //  現在の使用率
+        var spaceAlert_archUsedPerDisk = data["archUsedPerDisk"];
+        if((spaceAlert_archUsedPerDisk == null) || (spaceAlert_archUsedPerDisk === "")){
+            spaceAlert_archUsedPerDisk = "&nbsp;";
+        }
+        else{
+            spaceAlert_archUsedPerDisk = spaceAlert_archUsedPerDisk + "{!$Label.label_10433}";
+        }
+        $("#spaceAlert_archUsedPerDisk").html(spaceAlert_archUsedPerDisk);
+
+
+        $('#tabDiv').css("display", "");
+        $('#tabSpaceMailAddress').css("display", "");
+        $('#tabCollabMailAddress').css("display", "");
+        $('#tabComMailAddress').css("display", "");
+        $('#tabArchMailAddress').css("display", "");
+    }
+
+    function editJump() {
+        var tabIndex = $("#tabDiv").tabs("option", "selected");
+
+        var search = location.search;
+        window.top.location.href = '{!JSENCODE(URLFOR($Page.SpaceAlertEdit))}' + search + '#' + tabIndex;
+        
+    }
+
+</script>
+
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/alert_space_20120420.png')}" alt="{!$Label.solxyzcso001__label_10422}" title="{!$Label.solxyzcso001__label_10422}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10345}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10422}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+
+
+                <apex:pageBlock >
+
+                    <!-- コマンドボタン -->
+                    <apex:pageBlockButtons location="top">
+                        <input class="btn" type="button" value="{!$Label.label_00073}" onclick="editJump();" />
+                    </apex:pageBlockButtons>
+
+
+
+
+
+
+
+
+<div id="tabDiv" class="ui-tab" style="display:none;overflow:auto;">
+    <ul>
+        <li><a href="#tabSpaceMailAddress">{!$Label.label_00051}</a></li>
+        <li><a href="#tabCollabMailAddress">{!$Label.label_00052}</a></li>
+        <li><a href="#tabComMailAddress">{!$Label.label_00053}</a></li>
+        <li><a href="#tabArchMailAddress">{!$Label.label_00054}</a></li>
+    </ul>
+
+
+
+    <div id="tabSpaceMailAddress" style="display:none;overflow:auto;">
+        <div style=" margin-left: 10px;">
+            <table width="100%">
+                <tr>
+                    <td width="100px" align="right" style="font-weight: bolder; text-align: right; white-space: nowrap;">
+                        {!$Label.label_10434}
+                    </td>
+                    <td align="left" id="spaceAlert_myAlertActive">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="position: absolute; margin-top: -40px; margin-left: 220px; z-index: 1000">
+            <table class="historyTbl">
+                <tr>
+                    <th>{!$Label.label_10015}</th>
+                    <td id="spaceAlert_myCreater">
+                    </td>
+                    <th>{!$Label.label_10005}</th>
+                    <td id="spaceAlert_myCreateDateTime">
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_10024}</th>
+                    <td id="spaceAlert_myUupdater">
+                    </td>
+                    <th>{!$Label.label_10006}</th>
+                    <td id="spaceAlert_myUpdateDateTime">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="myDisk" style=" margin-left: 10px; margin-top:10px">
+            <table width="100%">
+                <tr>
+                    <th width="100px" align="right" style="font-weight: bolder; text-align: right;">{!$Label.label_10435}</th>
+                    <td id="spaceAlert_myDiskThreshold" align="left">&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right" style="font-weight: bolder; text-align: right;">{!$Label.label_10436}</th>
+                    <td id="spaceAlert_mySelfMail">
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td id="spaceAlert_myAnyUserMail">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="myMailList" style=" margin-top: 9px; margin-left: 10px;">
+            <table width="100%">
+                 <tr>
+                    <td width="100px"></td>
+                    <td>
+                        <table id="tableSpaceMailAddress" ></table>
+                        <div id="tableSpaceMailAddressPager"></div>
+                    </td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+
+
+
+
+    <div id="tabCollabMailAddress" style="display:none;overflow:auto;" >
+        <div style=" margin-left: 10px; font-weight: bolder;">
+            <table width="100%">
+                <tr>
+                    <td width="100px" style="font-weight: bolder; text-align: right; white-space: nowrap;" align="right">{!$Label.label_10434}</td>
+                    <td id="spaceAlert_collaboAlertActive" align="left">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="position: absolute; margin-top: -40px; margin-left: 220px; z-index: 1000">
+            <table class="historyTbl">
+                <tr>
+                    <th>{!$Label.label_10015}</th>
+                    <td id="spaceAlert_collaboCreater">
+                    </td>
+                    <th>{!$Label.label_10005}</th>
+                    <td id="spaceAlert_collaboCreateDateTime">
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_10024}</th>
+                    <td id="spaceAlert_collaboUpdater">
+                    </td>
+                    <th>{!$Label.label_10006}</th>
+                    <td id="spaceAlert_collaboUpdateDateTime">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="collDisk" style=" margin-left: 10px;margin-top:10px;">
+            <table width="100%">
+                <tr>
+                    <th width="100px" align="right" style="font-weight: bolder; text-align: right;">
+                        {!$Label.label_10435}
+                    </th>
+                    <td id="spaceAlert_coraboDiskThreshold" align="left">&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td align="left">
+                        <table class="diskInfo">
+                            <tr>
+                                <th>{!$Label.label_10437}</th>
+                                <th>{!$Label.label_10438}</th>
+                                <th>{!$Label.label_10439}</th>
+                            </tr>
+                            <tr>
+                                <td id="spaceAlert_collaboMaxDisk">
+                                </td>
+                                <td id="spaceAlert_collaboUsedDisk">
+                                </td>
+                                <td id="spaceAlert_collaboUsedPerDisk">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="collMailList" style=" margin-left: 10px;">
+            <table width="100%">
+                 <tr>
+                    <th width="100px" valign="top" align="right" style="font-weight: bold; text-align: right;">{!$Label.label_10436}</th>
+                    <td>
+                        <table id="tableCollabMailAddress" ></table>
+                        <div id="tableCollabMailAddressPager"></div>
+                    </td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+
+
+
+    <div id="tabComMailAddress" style="display:none;overflow:auto;">
+        <div style=" margin-left: 10px; font-weight: bolder;">
+            <table width="100%">
+                <tr>
+                    <td width="100px" style="font-weight: bolder; text-align: right; white-space: nowrap;" align="right">{!$Label.label_10434}</td>
+                    <td id="spaceAlert_comAlertActive" align="left">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="position: absolute; margin-top: -40px; margin-left: 220px; z-index: 1000">
+            <table class="historyTbl">
+                <tr>
+                    <th>{!$Label.label_10015}</th>
+                    <td id="spaceAlert_comCreater">
+                    </td>
+                    <th>{!$Label.label_10005}</th>
+                    <td id="spaceAlert_comCreateDateTime">
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_10024}</th>
+                    <td id="spaceAlert_comUpdater">
+                    </td>
+                    <th>{!$Label.label_10006}</th>
+                    <td id="spaceAlert_comUpdateDateTime">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="compDisk" style=" margin-left: 10px;;margin-top:10px;">
+            <table width="100%">
+                <tr>
+                    <th width="100px" align="right" valign="top" style="font-weight: bolder; text-align: right;">{!$Label.label_10435}</th>
+                    <td id="spaceAlert_comDiskThreshold" align="left">&nbsp;
+                    </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td align="left">
+                            <table align="left" class="diskInfo" >
+                                <tr>
+                                <th>{!$Label.label_10437}</th>
+                                <th>{!$Label.label_10438}</th>
+                                <th>{!$Label.label_10439}</th>
+                            </tr>
+                            <tr>
+                                <td id="spaceAlert_comMaxDisk">
+                                </td>
+                                <td id="spaceAlert_comUsedDisk">
+                                </td>
+                                <td id="spaceAlert_comUsedPerDisk">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="compMailList" style=" margin-left: 10px;;">
+            <table width="100%">
+                 <tr>
+                    <th width="100px" align="right" valign="top" style="font-weight: bold; text-align: right;">{!$Label.label_10436}</th>
+                    <td>
+                        <table id="tableComMailAddress" ></table>
+                        <div id="tableComMailAddressPager"></div>
+                    </td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+
+
+
+
+    <div id="tabArchMailAddress" style="display:none;overflow:auto;">
+        <div style=" margin-left: 10px; font-weight: bolder;">
+            <table width="100%">
+                <tr>
+                    <td width="100px" style="font-weight: bolder; text-align: right; white-space: nowrap;" align="right">{!$Label.label_10434}</td>
+                    <td id="spaceAlert_archAlertActive" align="left">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="position: absolute; margin-top: -40px; margin-left: 220px; z-index: 1000">
+            <table class="historyTbl">
+                <tr>
+                    <th>{!$Label.label_10015}</th>
+                    <td id="spaceAlert_archCreater">
+                    </td>
+                    <th>{!$Label.label_10005}</th>
+                    <td id="spaceAlert_archCreateDateTime">
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_10024}</th>
+                    <td id="spaceAlert_archUpdater">
+                    </td>
+                    <th>{!$Label.label_10006}</th>
+                    <td id="spaceAlert_archUpdateDateTime">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="archDisk" style=" margin-left: 10px;margin-top:10px;">
+            <table width="100%">
+                <tr>
+                    <th width="100px" align="right" valign="top"  style="font-weight: bolder; text-align: right;">{!$Label.label_10435}</th>
+                    <td id="spaceAlert_archDiskThreshold">&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td align="left">
+                        <table class="diskInfo">
+                            <tr>
+                                <th>{!$Label.label_10437}</th>
+                                <th>{!$Label.label_10438}</th>
+                                <th>{!$Label.label_10439}</th>
+                            </tr>
+                            <tr>
+                                <td id="spaceAlert_archMaxDisk">
+                                </td>
+                                <td id="spaceAlert_archUsedDisk">
+                                </td>
+                                <td id="spaceAlert_archUsedPerDisk">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="arckMailList" style=" margin-left: 10px;">
+            <table width="100%">
+                 <tr>
+                    <th width="100px" align="right" valign="top" style="font-weight: bold; text-align: right;">{!$Label.label_10436}</th>
+                    <td>
+                        <table id="tableArchMailAddress" ></table>
+                        <div id="tableArchMailAddressPager"></div>
+                    </td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+                </apex:pageBlock>
+
+
+            </td>
+        </tr>
+
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+    </div>
+<!-- "Display None" attribute Panel or ContextMenu -->
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.uid == null && userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

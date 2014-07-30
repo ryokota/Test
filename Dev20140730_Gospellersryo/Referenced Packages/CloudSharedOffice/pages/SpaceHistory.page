@@ -1,0 +1,306 @@
+<apex:page cache="false" sidebar="false" >
+
+<script type="text/javascript">
+    //  初期化フラグ
+    var spaceHistory_initializeExec = false;
+    //  スペースＩＤ
+    var SpaceHistory_spaceId = "";
+
+    //==============//
+    //  初期化処理  //
+    //==============//
+    function SpaceHistory_initialize(spaceId){
+        //  スペースＩＤを保持
+        SpaceHistory_spaceId = spaceId;
+
+        //  条件の初期化
+        SpaceHistory_clearConditionVal();
+
+        $('#SpaceHistory_searchDiv').dialog({
+            autoOpen : false,
+            width : 450,
+            beforeClose : function (e) {
+                $("#SpaceHistory_from, #SpaceHistory_to").datepicker("destroy");
+                $('#dummyText').show();
+            }
+        });
+
+        var callback =  function(data){
+            $("#SpaceHistory_action option").remove();
+            $("#SpaceHistory_action").append('<option value="  " selected="selected">{!$Label.label_10176}</option>');
+            if(data["result"] == false){
+                if((data["message"] != null) && (data["message"] != "")){
+                    alert(data["message"]);
+                }
+                return;
+            }
+            //  内容コンボボックスの選択肢を追加
+            $.each(data["action_select"], function() {
+                //  未実装機能を削除（[ダウンロード(ワークフロー)]、[ワークフロー]、[スペースルール - 自動ワークフロー]）
+                if(this.code == "WFDL" || this.code == "WORKFLOW"  || this.code == "SRWF"){
+                    return;
+                }
+                $('#SpaceHistory_action').append('<option value="' + this.code + '">' + this.name + '</option>');
+            });
+
+            setPathList(data["path"]);
+            $("#c_headLeftSubTitle").html(data["spaceName"]);
+        }
+
+        //  スペース履歴一覧取得準備処理の呼び出し
+        secureGetAsync('/contentsmanagement/SpaceHistoryListGetInit.json', {"spaceId":SpaceHistory_spaceId}, callback);
+
+        //  jqGridの初期化
+        if(spaceHistory_initializeExec == false){
+            spaceHistory_initializeExec = true;
+            $("#spaceHistoryTable").jqGrid({
+                url : _apiUrl + "/contentsmanagement/SpaceHistoryListV2Get.json",
+                postData : {
+                    spaceId : SpaceHistory_spaceId
+                },
+                datatype: "jsonp",
+                jsonReader :{
+                    repeatitems: false,
+                    id         : "id"
+                },
+                colNames : [
+                            '',
+                            '{!$Label.label_10446}',
+                            '{!$Label.label_10477}',
+                            '{!$Label.label_10131}',
+                            '{!$Label.label_10126}'],
+                colModel : [{
+                    name : "id", index : "id", hidden : true,
+                }, {
+                    name : "date", index : "date", width : 130, align : "center"
+                }, {
+                    name : "name", index : "name", width : 200,
+                }, {
+                    name : "user", index : "user", width : 250,
+                }, {
+                    name : "detail", index : "detail", width : 180,
+                }],
+                height: getBrowserHeight() - 260,
+                width: getBrowserWidth() - 380,
+                rowNum : 50,
+                rowList:[50, 100, 300],
+                sortname: 'date',
+                sortorder : "desc",
+                pager: '#spaceHistoryPager',
+                viewrecords: true,
+                multiselect: false,
+                multiboxonly: false,
+                shrinkToFit : false,
+                onPaging : function(b) {
+                    $(this).setGridParam({
+                       postData : {
+                           useCache : "true"
+                       }
+                    });
+                },
+            });
+        }
+        else{
+            $('#spaceHistoryTable').clearGridData();
+            $("#spaceHistoryTable").setGridParam({
+                page : 1,
+                postData : {
+                    spaceId : SpaceHistory_spaceId,
+                    username : "",
+                    from : "",
+                    to : "",
+                    action : "",
+                    target : ""
+                }
+            });
+            $("#spaceHistoryTable").trigger("reloadGrid");
+        }
+    }
+
+    //==============//
+    //  条件クリア  //
+    //==============//
+    function SpaceHistory_clearCondition(){
+        //  クリア
+        SpaceHistory_clearConditionVal();
+        //  検索
+        SpaceHistory_searchHistory();
+    }
+    function SpaceHistory_clearConditionVal(){
+        $("#SpaceHistory_username").val("");
+        $("#SpaceHistory_from").val("");
+        $("#SpaceHistory_to").val("");
+        $('#SpaceHistory_action').val('');
+        $("#SpaceHistory_target").val("");
+
+        $('#SpaceHistory_action').attr("selectedIndex", 0);
+        $('#SpaceHistory_target').attr("selectedIndex", 0);
+    }
+
+    //========//
+    //  検索  //
+    //========//
+    function SpaceHistory_searchHistory() {
+        var username = $.trim($("#SpaceHistory_username").val());
+        var from = $.trim($("#SpaceHistory_from").val());
+        var to = $.trim($("#SpaceHistory_to").val());
+        var action = $.trim($('#SpaceHistory_action').val());
+        var target = $("#SpaceHistory_target").val();
+        if(action == "  "){
+            action = "";
+        }
+        if(target == "  "){
+            target = "";
+        }
+        if (username == "{!$Label.label_10448}") {
+            username = "";
+        }
+
+        if((from.length != 0 && !isDateFormat(from)) || (to.length != 0 && !isDateFormat(to))){
+            alert("{!$Label.msg_00062}");
+            return;
+        }else if(!isRightDate(from, to)){
+            alert("{!$Label.msg_00063}");
+            return;
+        }
+
+        var param = $("#spaceHistoryTable").getGridParam().postData;
+        delete param.useCache;
+
+        $("#spaceHistoryTable").setGridParam({
+            page : 1,
+            postData : {
+                username : username,
+                from : from,
+                to : to,
+                action : action,
+                target : target,
+            }
+        }).trigger("reloadGrid");
+    }
+
+    //==============//
+    //  ＣＳＶ出力  //
+    //==============//
+    function SpaceHistory_outputCSV() {
+        if (!confirm('{!$Label.msg_00197}')) {
+            return;
+        }
+
+        var username = $.trim($("#SpaceHistory_username").val());
+        var from = $.trim($("#SpaceHistory_from").val());
+        var to = $.trim($("#SpaceHistory_to").val());
+        var action = $.trim($('#SpaceHistory_action').val());
+        var target = $("#SpaceHistory_target").val();
+        if(action == "  "){
+            action = "";
+        }
+        if(target == "  "){
+            target = "";
+        }
+        if (username == "{!$Label.label_10448}") {
+            username = "";
+        }
+
+        var param = {
+                        "spaceId"  : SpaceHistory_spaceId,
+                        "username" : username,
+                        "from"     : from,
+                        "to"       : to,
+                        "action"   : action,
+                        "target"   : target
+                    };
+
+        var callback = function(data){
+            CsoScript_loadingStop();
+            if(data["result"] == false){
+                alert(data["message"]);
+                return;
+            }
+            var strParam = "?fileid=" + data["fileid"] + "&filename=" + encodeURI(data["filename"]);
+            $('#SpaceHistory_downframe').attr('src', _apiUrl + '/contentsmanagement/SpaceHistoryListCsvDownload.json' + strParam);
+        };
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+            return;
+        };
+
+        CsoScript_loadingStart();
+        securePostAsync("/contentsmanagement/SpaceHistoryListCsvOutput.json", param, callback, callerror);
+
+    }
+
+    //==================//
+    //  検索画面の表示  //
+    //==================//
+    function SpaceHistory_showSearchDialog(){
+        $("#SpaceHistory_searchDiv").dialog('open');
+        $('#dummyText').hide();
+        $("#SpaceHistory_from").datepicker({dateFormat : "yy/mm/dd"}).change(function() {
+            var minDate = $(this).datepicker("getDate");
+            $("#SpaceHistory_to").datepicker("option", {minDate : minDate})
+        });
+
+        $("#SpaceHistory_to").datepicker({dateFormat : "yy/mm/dd"});
+        $("#SpaceHistory_from, #SpaceHistory_to").datepicker("enable");
+        $("#SpaceHistory_username").focus();
+    }
+
+    //======================//
+    //  検索画面のクローズ  //
+    //======================//
+    function SpaceHistory_closeSearchDialog() {
+        $("#SpaceHistory_searchDiv").dialog("close");
+    }
+</script>
+
+<div class="innerContentsDiv">
+    <table id="spaceHistoryTable">
+    </table>
+    <div id="spaceHistoryPager"></div>
+</div>
+<div id="SpaceHistory_searchDiv" style="display: none;" title="{!$Label.label_00069}">
+    <input type="text" id="dummyText"/>
+    <table id="SpaceHistory_searchTable" style="border-collapse:collapse;">
+        <tr>
+            <th>{!$Label.label_10175}</th>
+            <td>
+                <input type="text" id="SpaceHistory_from" class="shortWidth" name="SpaceHistory_from"/>
+                &nbsp;～&nbsp;
+                <input type="text" id="SpaceHistory_to" class="shortWidth" name="SpaceHistory_to"/>
+            </td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10131}</th>
+            <td><input type="text" id="SpaceHistory_username" class="c_text_l" name="SpaceHistory_username" placeholder='{!$Label.label_10448}' /></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10449}</th>
+            <td>
+                <select id="SpaceHistory_target" name="SpaceHistory_target">
+                    <option value="  " selected="selected">{!$Label.label_10176}</option>
+                    <option value="contents">{!$Label.label_10011}</option>
+                    <option value="space">{!$Label.label_10155}</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10126}</th>
+            <td>
+            <select id="SpaceHistory_action" name="SpaceHistory_action">
+            </select>
+            </td>
+        </tr>
+    </table>
+    <p style="width: 100%; text-align: right;">
+    <input type="submit" class="btn" value="{!$Label.label_00069}" onclick="SpaceHistory_searchHistory();"/>
+    <input type="button" class="btn" value="{!$Label.label_00070}" onclick="SpaceHistory_clearCondition();"/>
+    <input type="button" class="btn" value="{!$Label.label_00058}" onclick="SpaceHistory_closeSearchDialog();"/>
+    </p>
+</div>
+
+<!-- コンテンツダウンロードIFRAME -->
+<iframe id="SpaceHistory_downframe" height="0" width="0" style="display:none"/>
+
+</apex:page>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Annotation</value>
+    </caseValues>
+    <fields>
+        <label><!-- Agenda Item --></label>
+        <name>Agenda_Item__c</name>
+        <relationshipLabel><!-- Annotation --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Attachment Id --></label>
+        <name>Attachment_Id__c</name>
+    </fields>
+    <fields>
+        <label><!-- Drawing Vector --></label>
+        <name>Drawing_Vector__c</name>
+    </fields>
+    <fields>
+        <label><!-- Note Body --></label>
+        <name>Note_Body__c</name>
+    </fields>
+    <fields>
+        <label><!-- Page Number --></label>
+        <name>Page_Number__c</name>
+    </fields>
+    <fields>
+        <label><!-- X --></label>
+        <name>X__c</name>
+    </fields>
+    <fields>
+        <label><!-- Y --></label>
+        <name>Y__c</name>
+    </fields>
+    <layouts>
+        <layout>Drawing</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- Drawing Info. --></label>
+            <section>Drawing Info.</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Note</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- Note Info. --></label>
+            <section>Note Info.</section>
+        </sections>
+    </layouts>
+    <recordTypes>
+        <label><!-- Drawing --></label>
+        <name>Drawing</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- Note --></label>
+        <name>Note</name>
+    </recordTypes>
+</CustomObjectTranslation>

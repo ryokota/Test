@@ -1,0 +1,17 @@
+<apex:page standardController="Case" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Case" sidebar="false" showHeader="false">
+  <!-- 下記はSalesforce内の標準オブジェクト名を設定し、ファイル名の末尾と合わせてください。 -->
+  <apex:variable id="Sf_type" var="Sf_type" value="Case" />
+  
+  <!-- 下記は証跡に出す名称を設定してください（必須） -->
+  <apex:variable id="Sf_typeName" var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Case}" /> <!--←後でカスタムラベルと翻訳に置き換える-->
+
+  <!-- ケースは証跡に表示するケースの名称は、件名が必須ではない為 -->
+  <!-- 件名が空の場合は「ケース番号」、空でなければ「ケース番号（件名）」に加工します -->
+  <apex:variable var="Sf_name" value="{!IF(Case.Subject == null || Case.Subject=='', Case.CaseNumber, Case.CaseNumber+'('+Case.Subject+')' )}" />
+
+  <apex:variable var="retURL" value="{!'/'&$CurrentPage.parameters.Id}"/>
+<!-- 
+  <apex:include pageName="RelatedContentsList"/>
+ -->
+  <c:RelatedContentsListComp id="relatedContentsListComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

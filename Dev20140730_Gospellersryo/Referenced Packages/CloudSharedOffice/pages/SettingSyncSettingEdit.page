@@ -1,0 +1,386 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingSyncSettingController" tabStyle="setting__tab" >
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_sync_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_life_cycle == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<script type="text/javascript">
+$(function(){
+
+    for(var h = 0; h < 24; h++){
+        for(var m = 0; m < 60; m += 30){
+            if(h < 10){
+                hh = "0" + h;
+            }else{
+                hh = h + "";
+            }
+            if(m < 10){
+                mm = "0" + m;
+            }else{
+                mm = m + "";
+            }
+
+            $opt = $("<option>").attr("value", hh + ":" + mm).html(hh + ":" + mm);
+            $("#timeSelect").append($opt);
+        }
+    }
+
+    // 設定情報取得
+    var param = {
+    }
+
+    var callback =  function(data){
+        if(data.result){
+            displayInit(data);
+        }else{
+            // データの読み込みに失敗しました。
+        }
+    };
+
+    var callerror =  function(data){
+    };
+
+    secureGetAsync('/setup/sync/SyncSettingDetail.json', param, callback, callerror);
+
+    $("#typeSelect").val("${setting.notifyCheckType}");
+    $("#timeSelect").val("${setting.notifyCheckTime}");
+    if("month" == "${setting.notifyCheckType}"){
+        $("#daySelect").show();
+        $("#daySelect").val("${setting.notifyCheckValue}");
+    }else if("week" == "${setting.notifyCheckType}"){
+        $("#weekDaySelect").show();
+        $("#weekDaySelect").val("${setting.notifyCheckValue}");
+    }
+
+    $("#typeSelect").change(function(){
+        changeSelect($(this).val());
+    });
+});
+
+function updateSetting(){
+    $(".btn").attr("disabled", "disabled");
+
+    // 設定情報取得
+
+    var param;
+    var nfyChkType = $("select[name='nfyChkType']").val();
+
+    if(nfyChkType == 'month'){
+        param = {
+            vt               : $("input[name='vt']:checked").val(),
+            nfyChkType       : nfyChkType,
+            day              : $("select[name='day']").val(),
+            time             : $("select[name='time']").val()
+        }
+    }else if(nfyChkType == 'week'){
+        param = {
+            vt               : $("input[name='vt']:checked").val(),
+            nfyChkType       : nfyChkType,
+            weekDay          : $("select[name='weekDay']").val(),
+            time             : $("select[name='time']").val()
+        }
+    }else{
+        param = {
+            vt               : $("input[name='vt']:checked").val(),
+            nfyChkType       : nfyChkType,
+            time             : $("select[name='time']").val()
+        }
+    }
+    
+    if($("#nfyAdmin").is(":checked")){
+    	$.extend(param, { nfyAdmin:$("#nfyAdmin").val() });
+    }
+    if($("#nfyUser").is(":checked")){
+    	$.extend(param, { nfyUser:$("#nfyUser").val() });
+    }
+
+    var callback =  function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+        location.href = '{!$Page.SettingSyncSettingDetail}';
+    };
+
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var callerrorPlace = 'updateSetting() SyncSettingUpdate.json';
+        console.log(callerrorPlace, data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    CsoScript_loadingStart();
+    securePostAsync('/setup/sync/SyncSettingUpdate.json', param, callback, callerror);
+}
+
+function displayInit(data){
+    var setting = data.setting;
+    var app = data.app;
+    var regUpDate = data.regUpDate;
+
+    $('#versionValue').text(app.version);
+
+    var vUT = setting.versionUpType;
+    $("input[name='vt']").val([vUT]);
+
+    $("select[name='nfyChkType']").val(setting.notifyCheckType);
+    changeSelect(setting.notifyCheckType, setting.notifyCheckValue);
+
+    $("select[name='time']").val(setting.notifyCheckTime);
+
+    show_checkbox('nfyAdmin', setting.notifyAdmin);
+    show_checkbox('nfyUser', setting.notifyUser);
+
+    $('#registUserName').text(setting.registUserName);
+    $('#registDate').text(regUpDate.regDate);
+    var updateUserName = setting.updateUserName;
+    var updateDate     = regUpDate.upDate;
+    if(updateUserName == null || updateUserName.length <= 0) updateUserName = "-";
+    if(updateDate == null || updateDate == -1 || updateDate == 0) updateDate = "-";
+    $('#updateUserName').text(updateUserName);
+    $('#updateDate').text(updateDate);
+}
+
+function show_checkbox(id, check){
+    if(eval(check)){
+        $('#' + id).attr('checked', 'checked');
+    } else {
+        $('#' + id).attr('checked', '');
+    }
+}
+
+function changeSelect(type, value){
+    if(type == "month"){
+        $("#daySelect").show();
+        $("#weekDaySelect").hide();
+        if(value != null) $("#daySelect").val(value);
+    }else if(type == "week"){
+        $("#daySelect").hide();
+        $("#weekDaySelect").show();
+        if(value != null) $("#weekDaySelect").val(value);
+    }else if(type == "day"){
+        $("#daySelect").hide();
+        $("#weekDaySelect").hide();
+    }
+}
+
+function cancelOnClick(){
+	window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingSyncSettingDetail))}';
+}
+
+</script>
+
+<style type="text/css">
+
+.syncSettingTable th{
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+    height: 3em;
+}
+
+.checkbox {
+    height: 20px;
+    width: 20px;
+}
+
+.updateTable{
+    color: #0000CD;
+}
+
+.updateTable th{
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+    height: 2em;
+}
+
+.updateTable td{
+    text-align: center;
+    padding: 0px 20px 0px 20px;
+}
+
+.radio{
+    vertical-align: -2px;
+}
+
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/u_32.png')}" alt="{!$Label.solxyzcso001__label_10621}" title="{!$Label.solxyzcso001__label_10621}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_13170}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_13199}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <!-- コマンドボタン表示 -->
+                        <div class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="item">
+                                    <!-- キャンセルボタン -->
+                                    <input class="btn" type="button" value="{!$Label.field_common_cancel}" onclick="cancelOnClick();" />
+                                </li>
+                                <li class="last">
+                                    <!-- OKボタン -->
+                                    <input class="btn" type="button" value="{!$Label.field_common_ok}" onclick="updateSetting();" />
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="padding: 20px 40px;">
+                            <table class="syncSettingTable">
+                                <tr>
+                                    <th valign="top">{!$Label.label_13192}</th>
+                                    <td>
+                                        <div><label><input type="radio" name="vt" value="0" class="radio" />{!$Label.label_13185}</label></div>
+                                        <div><label><input type="radio" name="vt" value="1" class="radio" />{!$Label.label_13186}</label></div>
+                                        <div><label><input type="radio" name="vt" value="2" class="radio" />{!$Label.label_13187}</label></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_13193}</th>
+                                    <td>
+                                        <select id="typeSelect" name="nfyChkType">
+                                            <option value="month">{!$Label.label_13188}</option>
+                                            <option value="week">{!$Label.label_13189}</option>
+                                            <option value="day">{!$Label.label_13190}</option>
+                                        </select>
+
+                                        <select id="daySelect" style="display: none;" name="day">
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                            <option value="7">7</option>
+                                            <option value="8">8</option>
+                                            <option value="9">9</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                            <option value="13">13</option>
+                                            <option value="14">14</option>
+                                            <option value="15">15</option>
+                                            <option value="16">16</option>
+                                            <option value="17">17</option>
+                                            <option value="18">18</option>
+                                            <option value="19">19</option>
+                                            <option value="20">20</option>
+                                            <option value="21">21</option>
+                                            <option value="22">22</option>
+                                            <option value="23">23</option>
+                                            <option value="24">24</option>
+                                            <option value="25">25</option>
+                                            <option value="26">26</option>
+                                            <option value="27">27</option>
+                                            <option value="28">28</option>
+                                            <option value="29">29</option>
+                                            <option value="30">30</option>
+                                            <option value="31">31</option>
+                                        </select>
+
+                                        <select id="weekDaySelect" style="display: none;" name="weekDay">
+                                            <option value="0">{!$Label.label_common_00022}</option>
+                                            <option value="1">{!$Label.label_common_00023}</option>
+                                            <option value="2">{!$Label.label_common_00024}</option>
+                                            <option value="3">{!$Label.label_common_00025}</option>
+                                            <option value="4">{!$Label.label_common_00026}</option>
+                                            <option value="5">{!$Label.label_common_00027}</option>
+                                            <option value="6">{!$Label.label_common_00028}</option>
+                                        </select>
+
+                                        <select    id="timeSelect" name="time"></select>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <label>
+                                            <input id="nfyAdmin" type="checkbox" name="nfyAdmin" style="vertical-align: -2px;" />
+                                            {!$Label.label_13194}
+                                        </label><br/>
+                                        <label>
+                                            <input id="nfyUser" type="checkbox" name="nfyUser" style="vertical-align: -2px;" />
+                                            {!$Label.label_13195}
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table class="updateTable" style="padding: 40px;">
+                                <tr>
+                                    <th>{!$Label.label_10015}</th>
+                                    <td><span id="registUserName"></span></td>
+                                    <th>{!$Label.label_10005}</th>
+                                    <td><span id="registDate"></span></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10024}</th>
+                                    <td><span id="updateUserName"></span></td>
+                                    <th>{!$Label.label_10006}</th>
+                                    <td><span id="updateDate"></span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

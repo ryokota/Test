@@ -1,0 +1,5 @@
+<apex:page standardController="CM_RequestDetails__c">
+
+<apex:outputField value="{!CM_RequestDetails__c.CM_Contract_Condition_Price_Description__c}" />
+
+</apex:page>

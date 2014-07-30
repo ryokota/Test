@@ -1,0 +1,142 @@
+<apex:page >
+<!-- <apex:page Controller="RelatedContentsDetailController">
+<apex:outputPanel rendered="{!IF(processResult == false, true, false)}">
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(processResult != false && userInfo.showErrPage == false, true, false)}">
+<!-- CSO認証共通モジュール
+<apex:include pageName="CsoBridge"/>
+
+<apex:includeScript value="{!$Resource.jquery}"/>
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.cso, 'css/common.child.css?20120828')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/grid.locale-ja.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/inputCheck.js')}" />
+
+<apex:include pageName="CsoScript"/>
+
+<script type="text/javascript">
+var commentEectionSelector = '{!$Component.RelatedContentsEdit.contentsForm.relatedContentsPageBlock.contentsBlockSection.contentsSectionComment}';
+
+jQuery.event.add(window, "load", function(){
+
+    $('#c_headSubTitle').html('{!JSENCODE(docName)}');
+    $('#c_headSubTitle').attr('title', $('#c_headSubTitle').html());
+
+    $("textarea[id$=explanation]").keyup(function(){
+        viewCommentLength2($("textarea[id$=explanation]"), 'explanationRemainder', 512);
+    });
+    viewCommentLength2($("textarea[id$=explanation]"), 'explanationRemainder', 512);
+
+});
+
+function viewCommentLength2(t, v, maxSize){
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    var str = $(t).val().replace(regexp, "\r\n");
+    var size = maxSize - str.length;
+
+    if(size <= 0){
+        $("#" + v).css("color","#FF0000");
+    }else{
+        $("#" + v).css("color","#000000");
+    }
+
+    $("#" + v).text(getMsg(new Array(size + ""), '{!$Label.label_wf_10227}'));
+}
+
+</script>
+<apex:include pageName="CSOSirverlight" />
+
+<apex:form id="contentsForm">
+  <apex:variable var="Sf_ID" value="{!Sf_ID}" />
+  <apex:variable var="Sf_name" value="{!Sf_name}" />
+  <apex:variable var="pageType" value="{!pageType}" />
+
+    <!-- ヘッダー
+    <apex:sectionHeader title="{!$Label.field_010200}" subtitle="{!docName}"/>
+
+<apex:pageBlock title="" id="relatedContentsPageBlock">
+    <apex:pageBlockButtons >
+      <apex:commandButton value="{!$Label.field_common_save}" action="{!contentsUpdate}" />
+      <apex:commandButton value="{!$Label.field_common_cancel}" action="{!cancelEdit}"/>
+    </apex:pageBlockButtons>
+    <!-- エラー表示用
+    <apex:pageMessages />
+
+    <!-- ページボディー
+    <apex:inputHidden id="hidden_version" value="{!version}"/>
+    <apex:pageBlockSection columns="2" id="contentsBlockSection">
+        <!-- コンテンツ名
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="content" value="{!$Label.label_10011}"/>
+            <apex:outputPanel layout="block" styleClass="c_require">
+                <apex:inputText style="width: 320px;" value="{!docName}" />
+            </apex:outputPanel>
+        </apex:pageBlockSectionItem>
+        <!-- バージョン
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="version" value="{!$Label.label_10038}"/>
+            <div id="version">{!releaseVersionString}</div>
+        </apex:pageBlockSectionItem>
+
+        <!-- 説明
+        <apex:pageBlockSectionItem id="contentsSectionComment" >
+            <apex:outputLabel for="comment" value="{!$Label.label_10012}"/>
+            <apex:outputPanel layout="block">
+                <table>
+                <tr>
+                    <td align="right">
+                        <div id="explanationRemainder"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <apex:inputtextarea id="explanation" styleClass="c_textarea_m" value="{!explanation}" />
+                    </td>
+                </tr>
+                </table>
+            </apex:outputPanel>
+        </apex:pageBlockSectionItem>
+        <!-- タグ
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="tags" value="{!$Label.label_00057}"/>
+            <apex:inputText style="height: 1.2em; width: 320px;" value="{!tagNames}" disabled="false" />
+        </apex:pageBlockSectionItem>
+
+        <!-- 作成者
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="creator" value="{!$Label.label_10015}"/>
+            <div id="regUserName" >{!regUserName}</div>
+        </apex:pageBlockSectionItem>
+        <!-- 作成日時
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="created_date" value="{!$Label.label_10014}"/>
+            <div id="regDate" >{!regDate}</div>
+        </apex:pageBlockSectionItem>
+
+        <!-- 更新者
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_person" value="{!$Label.label_10024}"/>
+            <div id="upUserName" >{!upUserName}</div>
+        </apex:pageBlockSectionItem>
+        <!-- 更新日時
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_date" value="{!$Label.label_10018}"/>
+            <div id="upDate" >{!upDateString}</div>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+
+</apex:pageBlock>
+
+</apex:form>
+</apex:outputPanel>
+</apex:page>-->
+</apex:page>

@@ -1,0 +1,31 @@
+trigger POU_UserTrigger on User (after  delete, after  insert, after  update,  after undelete, 
+                                 before delete, before insert, before update ) {
+
+    POU_UserTriggerHandler handler = new POU_UserTriggerHandler();
+    if(Trigger.isBefore){
+        if(Trigger.isDelete){
+            handler.onBeforeDelete(Trigger.old, Trigger.oldMap);
+            
+        }else if(Trigger.isInsert){
+            handler.onBeforeInsert(Trigger.new, Trigger.newMap);
+            
+        }else if(Trigger.isUpdate){
+            handler.onBeforeUpdate(Trigger.old, Trigger.new, Trigger.oldMap, Trigger.newMap);
+            
+        }
+    }else if(Trigger.isAfter){
+        if(Trigger.isDelete){
+            handler.onAfterDelete(Trigger.old, Trigger.oldMap);
+        
+        }else if(Trigger.isInsert){
+            handler.onAfterInsert(Trigger.new, Trigger.newMap);
+            
+        }else if(Trigger.isUpdate){
+            handler.onAfterUpdate(Trigger.old, Trigger.new, Trigger.oldMap, Trigger.newMap);
+        
+        }else if(Trigger.isUnDelete){
+            handler.OnUndelete(Trigger.new);
+            
+        }
+    }
+}

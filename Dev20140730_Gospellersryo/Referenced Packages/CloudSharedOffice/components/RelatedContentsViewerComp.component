@@ -1,0 +1,188 @@
+<apex:component rendered="true" id="relatedContentsViewerComp" access="global" allowDML="true" controller="SOLXYZCSO001.RelatedContentsListCompController">
+    <apex:attribute name="csoUserInfo" access="global" description="required" assignTo="{!userInfo}" type="SOLXYZCSO001.CSOUserInfo" required="false" />
+    <!--凍結 apex:variable var="isSelected" id="isSelected" value="{!isSelected}"/-->
+    <apex:iframe src="{!$Page.SOLXYZCSO001__CSO_Error}?code={!userInfo.code}&massage={!userInfo.message}&noBorder=true" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__ContentFlow, 'ContentFlow/contentflow.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__ContentFlow, 'ContentFlow/ContentFlowAddOn_lightbox.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__ContentFlow, 'ContentFlow/ContentFlowAddOn_white.js')}" />
+    <script type="text/javascript">
+        var ajaxCf = new ContentFlow('ajaxCf', {maxItemHeight: ($(window).height() * ($(window).height() / 666)), startItem: 'first'});
+        var contentFlowItems = new Array();
+        var url = '';
+
+        //凍結 選択コンポーネント表示をVisualforceパラメータで振り分ける
+        //url = '{!$Label.field_CSO_URL}' + '/contentsmanagement/contentsRelationSelectList.json?thumb=1&objid={!Sf_ID}&sidx=name&imagable=1';
+        url = '{!$Label.field_CSO_URL}' + '/contentsmanagement/contentsRelationListGet.json?thumb=1&objid={!Sf_ID}&sidx=name&imagable=1';
+
+        function init(){
+            var escaper = $('<div/>');
+            $.ajax({
+                url: url,
+                dataType: 'jsonp',
+                success: function(responce){
+                    var items;
+                    var count;
+
+                    //凍結
+                    //items = responce.files;
+                    //count = responce.count;
+
+                    items = responce.rows;
+                    count = responce.rows.length;
+
+                    if(count > 0){
+
+                        $.each(items, function(){   
+                            contentFlowItems.push(this);
+                            var name = escaper.text(this.name).html();
+                            var content = '<img src="' + decodeURI(this.thumb_full) + '" class="item" title="' + name +'"/>';
+                            $('#itemcontainer').append(content);
+                        });
+
+                        setTimeout( function() {
+                            if(!$('#ajaxCf').is(':visible')){
+                                $("#loading").hide();
+                                $('#ajaxCf').show();
+                            }
+                            ajaxCf.resize();
+                        }, 150);//リサイズが適用されないためタイマー実施
+                    }else{
+                        $('#ajaxCf').hide();
+                        alert('{!$Label.msg_01125}');
+                        changeViewMode();
+                    }
+                },
+                complete: function(){
+                    var is = $("#itemcontainer").get(0).getElementsByTagName('img');
+                    for (var i=0; i< is.length; i++) {
+                        ajaxCf.addItem(is[i], 'last');
+                    }
+
+                }
+            });
+        }
+
+        //未使用：action:ジャンプ
+        function onJumpClicked(doc_id, space_id, space_type){
+            //TODO スペースタイプとメッセージ
+            if(confirm('スペースへジャンプしますか？')){
+                space_type = '04';
+                var space_type_name = changeSpaceType(space_type);
+                if(space_type_name == ''){
+                    //error
+                    alert("{!$Label.msg_01054}"); //ジャンプ先のスペース情報が取得できませんでした。
+                    return null;
+                }
+                top.location.href='/apex/SpacePortal#'+space_id+':'+space_type_name+':doc_id='+doc_id;
+            } else {
+                return false;
+            }
+        }
+
+        //未使用：スペースタイプの変換
+        function changeSpaceType(space_type){
+            var space_type_name='';
+            var mSpaceIdentifier=0;
+
+            switch (space_type){
+                case '11':  //MY_ROOT - 11:マイスペースのルートスペース
+                case '12':  //MY_CHILD - 12:マイスペースのチャイルドスペース
+                case '13':  //MY_COOP_ROOT - 13:「招待」スペース
+                    space_type_name='my';
+                    mSpaceIdentifier = 1;
+                    break;
+                case '06':  //COLLABORATION - 06:コラボスペース
+                case '07':  //COLLABORATION_CHILD - 07:コラボスペースの子スペース
+                    space_type_name='collaboration';
+                    mSpaceIdentifier = 5;
+                    break;
+                case '02':  //PUBLIC - 02:カンパニースペース
+                case '04':  //PUBLIC_CHILD - 04:カンパニースペースの子スペース
+                    space_type_name='company';
+                    mSpaceIdentifier = 2;
+                    break;
+                case '08':  //ARCHIVE - 08:アーカイブルート
+                case '09':  //ARCHIVE_CHILD - 09:アーカイブスペースの子スペース
+                    space_type_name='archive';
+                    mSpaceIdentifier = 4;
+                    break;
+                default:
+                    //通常のスペース以外
+                    break;
+            }
+            return space_type_name;
+        }
+
+        //ブラウザによりContentFlowオブジェクトが有効になるイベントタイミングが異なるため分岐
+        if(ContentFlowGlobal.Browser.WebKit){
+            jQuery.event.add(window, "load", function(){
+                init();
+            });
+        } else {
+            $(function(){
+                init();
+            });
+        }
+
+        function changeViewMode(){
+
+            var sitePrefix = '';
+
+            if('{!$Site.prefix}'!=null || '{!$Site.prefix}' != ''){
+                sitePrefix = '{!$Site.prefix}';
+            }
+
+            var url = '{!$Page.RelatedContentsListAccount}';//ベースURL
+            url = url.split('Account').join('{!Sf_type}');
+            $.cookie('rc_viewMode', 'list', {domain:'.force.com', path:'/'});
+
+//            location.href= url + '?id={!Sf_ID}';
+
+            if('{!pagePrefix}' != 'false'){
+                location.href = url + '?id={!Sf_ID}';
+            }else{
+                if(sitePrefix==''){
+                    location.href = '{!salesforceBaseUrl}/apex/RelatedContentsList'+'{!Sf_type}?id={!Sf_ID}';
+                }else{
+                    location.href = '{!salesforceBaseUrl}'+sitePrefix+'/RelatedContentsList'+'{!Sf_type}?id={!Sf_ID}';
+                }
+            }
+            return false;
+        }
+
+        function onImageClicked(item){
+            var sitePrefix = '';
+            var fileId = contentFlowItems[item.index].id;
+            var spaceId = contentFlowItems[item.index].spaceid;
+            if('{!$Site.prefix}'!=null || '{!$Site.prefix}' != ''){
+                sitePrefix = '{!$Site.prefix}';
+            }
+        
+            if('{!pagePrefix}' != 'false'){
+                top.location.href = '{!$Page.RelatedContentsFileViewer}?spaceid=' +spaceId + '&fileId=' + fileId + '&contentFlow=true&type=alive&security=&pageType=list_detail&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+            }else{
+                if(sitePrefix==''){
+                    top.location.href = '{!JSENCODE(salesforceBaseUrl)}/apex/RelatedContentsFileViewer?spaceid=' +spaceId + '&fileId=' + fileId + '&contentFlow=true&type=alive&security=&pageType=list_detail&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+                }else{
+                    top.location.href = '{!JSENCODE(salesforceBaseUrl)}'+sitePrefix+'/RelatedContentsFileViewer?spaceid=' +spaceId + '&fileId=' + fileId + '&contentFlow=true&type=alive&security=&pageType=list_detail&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+                }
+            }
+        }
+
+    </script>
+    <div align="right">
+        <img id="loading" src="{!URLFOR($Resource.CSO, '/image/loading.gif')}" width="15px" height="15px"/>
+        <input type="image" id="change" src="{!URLFOR($Resource.ContentFlow, 'ContentFlow/img/document.png')}" onclick="changeViewMode();"/>
+    </div>
+    <div id="ajaxCf" class="ContentFlow" style="display:none" oncontextmenu="return false;">
+        <div class="loadIndicator">
+            <div class="indicator"></div>
+        </div>
+        <div class="flow"></div>
+        <div class="globalCaption"></div>
+        <div class="scrollbar"><div class="slider"><div class="position"></div></div></div>
+        <div id="itemcontainer" style="height: 0px; width: 0px; visibility: hidden"></div>
+    </div>
+</apex:component>

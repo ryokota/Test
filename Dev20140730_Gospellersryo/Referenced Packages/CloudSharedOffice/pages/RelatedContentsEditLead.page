@@ -1,0 +1,8 @@
+<apex:page standardController="Lead" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Lead">
+  <apex:variable var="Sf_type" value="Lead" />
+  <apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Lead}" />
+<!--
+  <apex:include pageName="RelatedContentsEdit"/>
+-->
+  <c:RelatedContentsEditComp id="relatedContentsEditComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

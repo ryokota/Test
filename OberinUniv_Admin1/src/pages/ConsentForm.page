@@ -1,0 +1,22 @@
+<apex:page controller="ConsentFormController" action="{!init}">
+
+    <div style="text-align:left; margin:30px 200px 30px 200px;">
+        <apex:outputText value="{!$Label.AgreementText1}" escape="false"/>
+        <apex:outputText value="{!$Label.AgreementText1_1}" escape="false"/>
+        <br />
+        <apex:outputText value="{!$Label.AgreementText2}" escape="false"/>
+        <apex:outputText value="{!$Label.AgreementText2_2}" escape="false"/>
+        <apex:outputText value="{!$Label.AgreementText2_3}" escape="false"/>
+        <br />
+        <apex:outputText value="{!$Label.AgreementText3}" escape="false"/>
+    </div>
+    
+    <hr />
+    
+    <apex:form >
+    <div style="width:100%; text-align:center;">
+        <apex:commandButton action="{!agree}" value="{!$Label.Agree}" styleclass="btn btn-primary"/>&nbsp;
+        <apex:commandButton action="{!back}" value="{!$Label.Back}"/>
+    </div>
+    </apex:form>
+</apex:page>

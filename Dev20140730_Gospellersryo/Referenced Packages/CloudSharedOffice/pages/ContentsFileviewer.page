@@ -1,0 +1,144 @@
+<apex:page sidebar="false" cache="false" controller="SOLXYZCSO001.SpacePortalController" tabStyle="ContentTab__tab" showHeader="false">
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:include pageName="SOLXYZCSO001__CSOPreviewPlugin"/>
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.csopreview.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+<script type="text/javascript" src="{!$Label.field_CSO_DVURL}/js/document-viewer.js?v100"></script>
+<!--[if lte IE 8]>
+<script type="text/javascript" src="{!$Label.field_CSO_URL}/js/jquery.backgroundSize.js"></script>
+<![endif]-->
+<script>
+var favoriteFileIDs = new Array();
+$(document).ready(function(){
+     var options = {
+        showNavigator : true,
+        loadComplete : function(){
+        },
+        resource : {
+            zoomWidthFit        : '{!$Label.label_fileviewer_zoomWidthFit}',
+            zoomHeightFit       : '{!$Label.label_fileviewer_zoomHeightFit}',
+            downloadMsg         : '{!$Label.label_fileviewer_downloadMsg}',
+            download            : '{!$Label.label_fileviewer_download}',
+            search_s            : '{!$Label.label_fileviewer_searchS}',
+            search_e            : '{!$Label.label_fileviewer_searchE}',
+            no_hit              : '{!$Label.label_fileviewer_noHit}',
+            password_1          : '{!$Label.label_fileviewer_password1}',
+            password_2          : '{!$Label.label_fileviewer_password2}',
+            dialog_info         : "INFO",
+        },
+    };
+    $("#preview-area").csopreview(options);
+    $("#csopreview-close").unbind("click").click(function(){
+        window.close();
+    });
+    $("#cso-preview-edit-link").unbind("click").click(function(){
+        $("#preview-area").context_onlineEdit();
+    });
+    if({!favorite}){
+        showFavoriteFileviewer();        
+    }else{
+        $("#preview-area").loadPreview('{!fileId}', '{!spaceId}', '{!version}', '{!paramsort}', '{!order}', '{!search}');
+    }
+});
+
+function showFavoriteFileviewer(){
+    var callback = function(data){
+        var favoriteFiles = data.favoriteFile;
+        if(favoriteFiles.length > 0){
+            for(var i = 0; i < favoriteFiles.length; i++){
+                favoriteFileIDs.push(favoriteFiles[i].id);
+            }
+            $("#preview-area").loadPreview('{!fileId}', null, '{!version}', '{!paramsort}', '{!order}', '{!search}', favoriteFileIDs);
+        }
+    };
+    secureGetAsync('/space/spaceFavoriteList.json', {type : -1, searchstr: ""}, callback);
+}
+
+function context_onlineEdit(){
+    if("true" ==  $('#contextMenuOnlineEdit').attr('disabled')){return;}
+    window.opener.hideCsoContextMenu();
+    var contentsList = new Array();
+    var ids = window.opener.jQuery("#listView1").jqGrid('getGridParam', 'selarrrow');
+    console.log(ids);
+    for(i in ids) {
+        var ret = window.opener.jQuery("#listView1").jqGrid('getRowData',ids[i]);
+        if(ret.id.match(/^SPACE/)){
+            alert('{!$Label.msg_00100}');    //スペースはオンライン編集できません。
+            return;
+        }
+        contentsList.push(ret);
+    }
+    if(1 < contentsList.length){
+        alert(getMsg(new Array('{!$Label.label_10011}', '{!$Label.label_10245}'), '{!$Label.msg_00008}'));    //コンテンツ，オンライン編集，複数の{0}を{1}することはできません。
+    }else if(contentsList.length == 1){
+        var ret = contentsList[0];
+        window.opener.location.hash = '';
+        if(window.opener.jumpFlag) {
+            window.opener.location.href = window.opener.location.href + "/ContentsOnlineEdit?fileId=" + ret.id + "&spaceId=" + ret.spaceId;
+        }else{
+            window.opener.location.href = window.opener.location.href + "/ContentsOnlineEdit?fileId=" + ret.id + "&spaceId=" + ret.spaceId + "&time=" + (new Date()).getTime();
+        }
+    }else{
+        if(arguments.length == 2){
+            window.opener.location.hash = '';
+            window.opener.location.href = window.opener.location.href + "/ContentsOnlineEdit?fileId=" + arguments[0] + "&spaceId=" + window.opener.favConSpace;
+        }else{
+            alert(getMsg(new Array('{!$Label.label_10245}'), '{!$Label.msg_00036}'));    //オンライン編集，{0}するコンテンツが選択されていません。
+        }
+    }
+}
+
+function downloadExec(url){
+    location.href = url;
+}
+
+function contents_info_download(param){
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '{!$Page.DownloadPopupWindow}';
+        url = url + '?downloadType=ContentsInfo';
+        url = url + '&fileId='  + fileId;
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+    var ver = param.ver.replace(/\./g,', ');
+    if(ver.length >0){
+        ver = "[" + ver + "]";
+    }
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SingleContentsDownloadApi.json', JSON.stringify({"fileId" : param.fileId, "refSpaceId" : param.refSpaceId, "ver" : ver}), callback, callerror);
+}
+</script>
+<div id="preview-area" style="display: none;"></div>
+</apex:page>

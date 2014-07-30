@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>RFA_BatchReminder</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>RFA_BatchReminder</value>
+    </caseValues>
+    <fields>
+        <label><!-- ReminderThreshold --></label>
+        <name>ReminderThreshold__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

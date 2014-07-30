@@ -1,0 +1,261 @@
+<apex:page id="spaceChatter_PAGE" controller="SOLXYZCSO001.SpacePortalController" sidebar="false" showHeader="false">
+<script type="text/javascript">
+
+    var chatterModal_spaceId = "";                 //  変更対象スペースＩＤ
+    var chatterModal_spaceName = "";               //  変更対象スペース名
+    var chatterModal_spaceComment = "";            //  変更対象スペース説明
+    var chatterModal_isChatter = false;            //  Chatter連携の有無
+    var chatterModal_copyAsrt = "";                //  Asrt
+    var chatterModal_isEditable = "";              //  更新可能／不可能
+
+
+    //============//
+    //  初期処理  //
+    //============//
+    function chatter_initialize(){
+        //  対象スペースＩＤを保持
+        chatterModal_spaceId = null;
+
+        //  初期化
+        chatterModal_copyAsrt = "";                                //  Asrt
+        $("#chatterModal_chatterrow").hide();                      //  Chatter連携
+        var select_chatter_group = $(document.getElementById("{!$Component.spaceChatter_PAGE.chatterModal_FORM.chatterModal_select_chatter_group}"));
+        select_chatter_group.attr("selectedIndex", 0);          //  共有先
+        $("#chatterModal_child_selected").removeAttr('checked');   //  配下のスペースに適用
+
+        //  スペースの編集画面を表示
+        $('#chatter_modalDialogDiv').attr({'title':'{!$Label.label_10560}'});
+        $('#chatter_modalDialogDiv').dialog({modal:true, width:400, 'title':'{!$Label.label_10560}'});
+
+        //  各ボタンを無効化
+        $("#chatterModal_OkBtn").attr({"disabled":"disabled"});
+        $("#chatterModal_CancelBtn").attr({"disabled":"disabled"});
+
+        var callback =  function(data, status){
+            if((data == null) || (data["space"] == null)){
+                return;
+            }
+
+            // スペースID
+            chatterModal_spaceId = data.refDto.id;
+
+            //  各ボタンを有効化
+            $("#chatterModal_OkBtn").removeAttr("disabled");
+            $("#chatterModal_CancelBtn").removeAttr("disabled");
+
+            //  スペース名と説明を保存
+            var space = data["space"];
+            chatterModal_spaceName = $('<div/>').html(space["name"]).text();
+            chatterModal_spaceComment = space["comment"];
+
+            // 編集可能か？
+            chatterModal_isEditable = data.isEditable;
+            if(data.isEditable){
+                $('#chatterModal_edit_command').show();
+                $('#chatterModal_close_command').hide();
+            } else {
+                $('#chatterModal_edit_command').hide();
+                $('#chatterModal_close_command').show();
+            }
+
+            //  chatter連携
+            var select_chatter_group = $(document.getElementById("{!$Component.spaceChatter_PAGE.chatterModal_FORM.chatterModal_select_chatter_group}"));
+            chatterModal_isChatter ={!IsChatter};
+            if((data["isShared"] == null) || (data["isShared"] == false) || (select_chatter_group.children().length <= 0)){
+                chatterModal_isChatter = false;
+            }
+            if(chatterModal_isChatter == false){
+                $("#chatterModal_chatterrow").hide();
+            }
+            else{
+                $("#chatterModal_chatterrow").show();
+                //  [chatter]
+                var rows = data["bindingoption"];
+                var count = 0;
+                if(rows != null){
+                    count = rows.length;
+                }
+                var list = $("#chatterModal_chatter_select");
+                list.empty();
+                for(var i = 0; i < count; i++){
+                    var option = $(chatterModal_createOptionTagString(rows[i].value, rows[i].text, rows[i].selected));
+                    list.append(option);
+                }
+                //  [共有先グループ]
+                if(data["groupid"] != null){
+                    var select_chatter_group = $(document.getElementById("{!$Component.spaceChatter_PAGE.chatterModal_FORM.chatterModal_select_chatter_group}"));
+                    select_chatter_group.val(data["groupid"]);
+                }
+                //  [共有先グループ]の有効化／無効化
+                chatterModal_onchecked();
+                //  [配下のスペースに適用]
+                if(data["isChildSpace"] == true){
+                    $("#chatterModal_child_selected_div").show();
+                }
+            }
+        };
+
+        //  スペース情報の取得処理の呼び出し
+        var param = chatterModal_spaceId;
+        secureGetAsync('/contentsmanagement/SpacePropertyGet.json', param, callback);
+    }
+    function chatterModal_createOptionTagString(value, label, selected){
+        var str = "";
+        str = str + "<option value='" + value + "'";
+        if(selected == "true"){
+            str = str + " selected='selected'";
+        }
+        str = str + ">" + label + "</option>";
+
+        return str;
+    }
+
+
+    //===================//
+    //  chatterの変更時  //
+    //===================//
+    function chatterModal_onchecked(){
+        var select_chatter_group = $(document.getElementById("{!$Component.spaceChatter_PAGE.chatterModal_FORM.chatterModal_select_chatter_group}"));
+
+        //  「chatterで通知しない」場合
+        if($("#chatterModal_chatter_select").val() == "None"){
+            //  共有先グループを無効化
+            select_chatter_group.attr("disabled", "disabled");
+        }
+        else{
+            //  共有先グループを有効化
+            select_chatter_group.removeAttr("disabled");
+        }
+    }
+
+
+    //======//
+    //  OK  //
+    //======//
+    function chatterEditValidate(){
+
+        //----------------------------//
+        //  共有先グループのチェック  //
+        //----------------------------//
+        var select_chatter_group = $(document.getElementById("{!$Component.spaceChatter_PAGE.chatterModal_FORM.chatterModal_select_chatter_group}"));
+        var groupID = select_chatter_group.val();
+        if(groupID == null){
+            groupID = "";
+        }
+        var chatterSel = $("#chatterModal_chatter_select").val();
+        if((spaceEdit_isChatter == true) && (chatterSel != "None") && (groupID == "")){
+            alert("{!$Label.msg_00117}");
+            return;
+        }
+        var select_chatter_group_name = $(document.getElementById("{!$Component.spaceChatter_PAGE.chatterModal_FORM.chatterModal_select_chatter_group}")).children(':selected').text();
+        if(select_chatter_group.attr("disabled") == true){
+            groupID = "";
+            select_chatter_group_name = "";
+        }
+
+        //  各ボタンを無効化
+        $("#spaceEdit_OkBtn").attr({"disabled":"disabled"});
+        $("#spaceEdit_CancelBtn").attr({"disabled":"disabled"});
+
+        //  パラメータを生成
+        var userSte = '{"createSpaceName":null, "explanation":null, "checkbo":false, "keyt":null, "auditing":null, "riskPremium":[]}';
+
+        var param = {"spaceId"                  :chatterModal_spaceId,
+                     "spaceName"                :chatterModal_spaceName,
+                     "comment"                  :chatterModal_spaceComment,
+                     "isChatter"                :chatterModal_isChatter,
+                     "chatter_select"           :$("#chatterModal_chatter_select").val(),
+                     "select_chatter_group"     :groupID,
+                     "select_chatter_group_name":select_chatter_group_name,
+                     "child_selected"           :$("#chatterModal_child_selected").attr("checked"),
+                     "userSte"                  :userSte,
+                     "isEditable"               :chatterModal_isEditable
+                     };
+
+        var callback =  function(data){
+            CsoScript_loadingStop();
+            if(data["result"] == true){
+                chatterModal_modalDialogDivClose();
+                reloadNow();
+                reloadTree();
+            }
+            else{
+                var errMsg = data["message"];
+                if((errMsg == null) || (errMsg == "")){
+                    errMsg = "{!$Label.msg_00102}";
+                }
+                alert(errMsg);
+            }
+
+            //  各ボタンを有効化
+            $("#chatterModal_OkBtn").removeAttr("disabled");
+            $("#chatterModal_CancelBtn").removeAttr("disabled");
+        };
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+
+
+        //----------------------//
+        //  登録処理の呼び出し  //
+        //----------------------//
+        CsoScript_loadingStart();
+        securePostAsync('/contentsmanagement/SpacePropertyEdit.json', param, callback, callerror);
+    }
+
+
+    //================================//
+    //  スペースの編集画面のクローズ  //
+    //================================//
+    function chatterModal_modalDialogDivClose(){
+        $("#chatter_modalDialogDiv").dialog("close");
+    }
+
+</script>
+
+<div id="chatter_modalDialogDiv" style="margin: 10px;display: none;">
+    <table style="width: 100%" >
+        <tr>
+            <td style="width: 20px;"></td>
+            <td>
+                <table class="spaceEditTable">
+
+                    <tr id="chatterModal_chatterrow" style="{!IF(!IsChatter, '', 'display:none')}">
+                        <td style="padding-top:10px;">
+                            {!$Label.label_10291}
+                            <select id="chatterModal_chatter_select" name="chatterModal_chatter_select" onchange="chatterModal_onchecked()">
+                            </select>
+                            <apex:form id="chatterModal_FORM" style="margin-top:2px;margin-bottom:1px;">
+                            {!$Label.msg_00117}
+                            <span id="chatterModal_loading" style="display:none"><img src="{!URLFOR($Resource.cso, '/image/loading.gif')}" style="width:12px;" />{!$Label.label_10152}</span>
+                            <apex:selectList id="chatterModal_select_chatter_group" size="1" disabled="true">
+                                <apex:selectOptions value="{!shareTargetGroupOptions}"></apex:selectOptions>
+                            </apex:selectList>
+                            </apex:form>
+
+                            <div id="chatterModal_child_selected_div" style="display:none">
+                                {!$Label.label_10292}
+                                <input type="checkbox" class="checkbox" id="chatterModal_child_selected" />
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td style="text-align: center; padding-top: 10px; padding-right: 30px;display:none;" id="chatterModal_edit_command">
+                <input class="btn" type="button" value="{!$Label.label_00075}" id="chatterModal_OkBtn"     onclick="chatterEditValidate();" />
+                <input class="btn" type="button" value="{!$Label.label_00058}" id="chatterModal_CancelBtn" onclick="chatterModal_modalDialogDivClose();" />
+            </td>
+            <td style="text-align: center; padding-top: 10px; padding-right: 30px;display:none;" id="chatterModal_close_command">
+                <input class="btn" type="button" value="{!$Label.label_00059}" id="chatterModal_CancelBtn" onclick="chatterModal_modalDialogDivClose();" />
+            </td>
+        </tr>
+    </table>
+</div>
+</apex:page>

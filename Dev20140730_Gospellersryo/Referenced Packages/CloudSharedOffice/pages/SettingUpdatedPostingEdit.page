@@ -1,0 +1,1648 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingUpdatedPostingController" tabStyle="setting__tab">
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_updated_post == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_updated_post == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<style type="text/css">
+
+.tabTable {
+    width : 100%;
+}
+.tabTable th {
+    width : 100px;
+    font-weight: bolder;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.tabTable td {
+    text-align: left;
+}
+.searchDelTable {
+    width:100%;
+}
+.searchDelTable td {
+    text-align: right;
+}
+
+.separatorDiv{
+    width: 100%;
+}
+
+.separatorDiv div{
+    color: white;
+    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+.brankfilter {
+    filter:alpha(opacity=60);
+    -moz-opacity:0.6;
+    opacity:0.6;
+    background:gray;
+    height:280px;
+    width:530px;
+}
+
+.infoTable {
+    width: 480px;
+    margin: 0 0 0 70px;
+}
+.infoTable th {
+    font-weight: bold;
+    text-align: right;
+    vertical-align: middle;
+}
+.infoTable td {
+    min-width: 90px;
+    vertical-align: middle;
+    padding: 5px;
+}
+
+div.border {
+    border-style:solid;
+    border-width:1px;
+    border-color : #999999;
+    border-collapse:collapse;
+    width:500px;
+    height:400px;
+    overflow:auto;
+}
+
+.ui-tabs {
+    background : none;
+    border:none;
+}
+
+.ui-tabs .ui-tabs-nav {
+    background: none;
+    border:none;
+}
+
+.ui-tabs .ui-tabs-panel {
+    background : none;
+    border:2px solid #11579c;
+    hight:100%
+}
+
+.ui-widget-header .ui-state-default {
+    background : none;
+    border: 2px solid #DFEFFC;
+
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+    background: #11579c;
+    border: 1px solid #11579c;
+
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a{
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.ui-corner-all {
+    border-radius: 5px 5px 5px 5px;
+}
+
+</style>
+
+
+
+
+
+<script type="text/javascript">
+
+var browserType = "";
+var collaboSpaces = [];
+var comSpaces = [];
+var _collaboSpaceTreeList = null;
+var _comSpaceTreeList = null;
+
+jQuery.event.add(window, "load", function(){
+
+    var spaceTreeListCallback =  function(data, status){
+        if (data.result) {
+            _collaboSpaceTreeList = data["tree"];
+        }
+    };
+    secureGetAsync('/setup/spaceTreeListGetApi.json', {asrt : "COLLABORATION"}, spaceTreeListCallback);
+
+    var spaceTreeListCallback =  function(data, status){
+        if (data.result) {
+            _comSpaceTreeList = data["tree"];
+        }
+    };
+    secureGetAsync('/setup/spaceTreeListGetApi.json', {asrt : "COMPANY"}, spaceTreeListCallback);
+
+    /*-- Tabs --*/
+    var index = $.cookie("updatePostingIndex");
+    if (!index) {
+        index = 0;
+    }
+    $('#tabDiv').tabs({
+            select: function(event, ui){
+                $("#brankComSpaceList").hide();
+                $("#brankCollaboSpaceList").hide();
+                if (ui.index==0) {
+                    myDisableControl();
+                } else if (ui.index==1) {
+                    collaboDisableControl();
+                } else if (ui.index==2) {
+                    comDisableControl();
+                }
+                $.cookie("updatePostingIndex", ui.index);
+            },
+            selected : index,
+    }).show();
+
+    //  全体的にフォントが大きくなる原因となるクラスを削除
+    $("#tabDiv").removeClass("ui-widget");
+
+    // レイアウトが崩れる原因となるクラスを削除
+    $("#tabDiv > ul").removeClass("ui-widget-header");
+
+    browserType = getBrowserType();
+    if(browserType == 'IE8'){
+        $("#brankComSpaceList"    ).css("top", "202px");
+        $("#brankCollaboSpaceList").css("top", "202px");
+    }
+    else if(browserType == 'IE9'){
+        $("#brankComSpaceList"    ).css("top", "206px");
+        $("#brankCollaboSpaceList").css("top", "206px");
+    }
+    else if(browserType == 'Firefox'){
+        $("#brankComSpaceList"    ).css("top", "220px");
+        $("#brankCollaboSpaceList").css("top", "220px");
+    }
+    else if(browserType == 'Chrome'){
+        $("#brankComSpaceList"    ).css("top", "215px");
+        $("#brankCollaboSpaceList").css("top", "215px");
+    }
+    else if(browserType == 'Safari'){
+        $("#brankComSpaceList"    ).css("top", "214px");
+        $("#brankCollaboSpaceList").css("top", "214px");
+    }
+
+
+
+    /*-- 選択肢を設定 --*/
+    setSelectOption("myAddPost");
+    setSelectOption("myUpdatePost");
+    setSelectOption("collaboAddPost");
+    setSelectOption("collaboUpdatePost");
+    setSelectOption("comAddPost");
+    setSelectOption("comUpdatePost");
+
+    /*-- 表示データ取得 --*/
+    getUpdatePositionDetailInfo();
+
+    /*-- 選択肢の生成 --*/
+    var postingOptions = "";
+    postingOptions = postingOptions +         '0:' + '{!$Label.label_10790}';
+    postingOptions = postingOptions + ";" +  '24:' + '{!$Label.label_10791}';
+    postingOptions = postingOptions + ";" +  '72:' + '{!$Label.label_10792}';
+    postingOptions = postingOptions + ";" + '120:' + '{!$Label.label_10793}';
+    postingOptions = postingOptions + ";" + '168:' + '{!$Label.label_10794}';
+    postingOptions = postingOptions + ";" + '720:' + '{!$Label.label_10795}';
+
+    /*-- jqGridの初期化（コラボスペース） --*/
+    $("#tableCollaboSpaceList").jqGrid({
+        data: collaboSpaces,
+        datatype : "local",
+        jsonReader : {
+            repeatitems : false,
+            id : "id"
+        },
+        colNames:['','','{!$Label.label_10155}','{!$Label.label_10787}','{!$Label.label_10788}'],
+        colModel:[
+                    {name:'id',index:'id', hidden:true},
+                    {name:'space_name',index:'space_name', hidden:true},
+                    {name:'space_info',index:'space_name', width:370, sortable:false},
+                    {name:'add_post',index:'add_post', width:120, sortable:false,
+                            editable: true, edittype:"select",formatter:'select',
+                            editoptions:{value:postingOptions}
+                    },
+                    {name:'update_post',index:'update_post', width:120, sortable:false,
+                            editable: true, edittype:"select",formatter:'select',
+                            editoptions:{value:postingOptions}
+                    }
+                ],
+        afterSaveCell : function(rowid, cellname, value, iRow, iCol) {
+            collaboAfterSaveCell(rowid, value, cellname);
+        },
+        cellEdit: true,
+        cellsubmit: 'clientArray',
+        autowidth: true,
+        sortname: 'space_name',
+        multiselect: true,
+        multiboxonly: true,
+        rowList:[10,50,100],
+        rowNum:10,
+        pager: '#tableCollaboSpaceListPager',
+        viewrecords: true,
+    });
+    $("#tableCollaboSpaceList").jqGrid('navGrid','#tableCollaboSpaceListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+    secureGetAsync('/setup/UpdatedPostingSpaceListApi.json',
+            {
+                page : 1,
+                rows : 1000000,
+                sord : "asc",
+                sidx : "id",
+                nd : "_",
+                _search : "false",
+                asrt : "COLLABORATION"
+            },
+            function(data) {
+                for(i=0;i<data.records;i++){
+                    var add = 0;
+                    var update = 0;
+                    try{add    = parseInt(data.rows[i].add_post);   }catch(e){}
+                    try{update = parseInt(data.rows[i].update_post);}catch(e){}
+                    collaboSpaces.push({
+                        id : data.rows[i].id,
+                        space_name : data.rows[i].space_name,
+                        space_info : data.rows[i].space_info,
+                        add_post   : add,
+                        update_post: update
+                    });
+                }
+                var opt = {
+                        data : collaboSpaces,
+                        datatype : "local"
+                };
+                $('#tableCollaboSpaceList').clearGridData();
+                $('#tableCollaboSpaceList').setGridParam(opt);
+                $('#tableCollaboSpaceList').trigger("reloadGrid");
+            }
+    );
+
+    /*-- jqGridの初期化（カンパニースペース） --*/
+    $("#tableComSpaceList").jqGrid({
+        data: comSpaces,
+        datatype : "local",
+        jsonReader : {
+            repeatitems : false,
+            id : "id"
+        },
+        colNames:['','','{!$Label.label_10155}','{!$Label.label_10787}','{!$Label.label_10788}'],
+        colModel:[
+                    {name:'id',index:'id', hidden:true},
+                    {name:'space_name',index:'space_name', hidden:true},
+                    {name:'space_info',index:'space_name', width:370, sortable:false},
+                    {name:'add_post',index:'add_post', width:120, sortable:false,
+                            editable: true, edittype:"select",formatter:'select',
+                            editoptions:{value:postingOptions}
+                    },
+                    {name:'update_post',index:'update_post', width:120, sortable:false,
+                            editable: true, edittype:"select",formatter:'select',
+                            editoptions:{value:postingOptions}
+                    }
+                ],
+        afterSaveCell : function(rowid, cellname, value, iRow, iCol) {
+            comAfterSaveCell(rowid, value, cellname);
+        },
+        cellEdit: true,
+        cellsubmit: 'clientArray',
+        autowidth: true,
+        sortname: 'space_name',
+        multiselect: true,
+        multiboxonly: true,
+        rowList:[10,50,100],
+        rowNum:10,
+        pager: '#tableComSpaceListPager',
+        viewrecords: true,
+    });
+    $("#tableComSpaceList").jqGrid('navGrid','#tableComSpaceListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+    secureGetAsync('/setup/UpdatedPostingSpaceListApi.json',
+            {
+                page : 1,
+                rows : 1000000,
+                sord : "asc",
+                sidx : "id",
+                nd : "_",
+                _search : "false",
+                asrt : "COMPANY"
+            },
+            function(data) {
+                for(i=0;i<data.records;i++){
+                    var add = 0;
+                    var update = 0;
+                    try{add    = parseInt(data.rows[i].add_post);   }catch(e){}
+                    try{update = parseInt(data.rows[i].update_post);}catch(e){}
+                    comSpaces.push({
+                        id : data.rows[i].id,
+                        space_name : data.rows[i].space_name,
+                        space_info : data.rows[i].space_info,
+                        add_post   : add,
+                        update_post: update
+                    });
+                }
+                var opt = {
+                        data : comSpaces,
+                        datatype : "local"
+                };
+                $('#tableComSpaceList').clearGridData();
+                $('#tableComSpaceList').setGridParam(opt);
+                $('#tableComSpaceList').trigger("reloadGrid");
+            }
+    );
+
+
+    /*-- スペース追加ダイアログの設定 --*/
+    $("#addCollaboSpaceDialog").dialog({
+        autoOpen : false,
+        modal : true,
+        title : '{!$Label.label_10155}',
+        width : 530,
+        height : 500,
+    });
+    $("#addComSpaceDialog").dialog({
+        autoOpen : false,
+        modal : true,
+        title : '{!$Label.label_10155}',
+        width : 530,
+        height : 500,
+    });
+
+    /*-- スペースツリーの初期化 --*/
+    //secureGetAsync('/setup/VersionSettingSpaceTreeGet.json',
+    secureGetAsync('/setup/SpaceTreeRootApi.json',
+            {
+                asrt : "COLLABORATION"
+            },
+            function(data) {
+                if (data.result) {
+                    $("#collaboSpaceTree").children().remove();
+                    var branches = $(data["tree"]).appendTo("#collaboSpaceTree");
+                    $("#collaboSpaceTree").treeview({
+                        url: "/setup/SpaceTreeChildrenApi.json",
+                        add: branches,
+                        asrt : "COLLABORATION",
+                        SpaceList : "#tableCollaboSpaceList",
+                        SpaceTree : "#collaboSpaceTree",
+                        callback: function(elements){
+                            setTimeout(function(){
+                                var $ul = elements;
+                                var $li = $ul.children("li");
+
+                                var existInterLock = false;     //-- 下位連動フラグの有無（false:下位連動なし、true:下位連動あり） --%>
+                                var interlock = "";             //-- 下位連動フラグの値（"checked":チェックする、"":チェックしない） --%>
+
+                                //-- 下位連動フラグがあった場合 --%>
+                                var objChk = $("#collaboSpaceTree").find("input[id=" + elements.prevObject[0].id + "]");
+                                if(objChk.attr("interlock") != null){
+                                    existInterLock = true;
+                                    if(objChk.attr("interlock") == "true"){
+                                        interlock = objChk.attr("interlock");
+                                    }
+                                }
+
+                                //-- [下位連動]する場合 --%>
+                                if(existInterLock == true) {
+                                    $li.each(function() {
+                                        var obj = $("#collaboSpaceTree").find("input[id=" + $(this).attr("id") + "]");
+                                        //-- 下位にも[下位連動]フラグ(interlock)を付加する --%>
+                                        obj.attr("interlock", interlock);
+                                        //-- 連動する --%>
+                                        obj.attr("checked", interlock);
+                                    });
+                                    return false;
+                                }
+
+                                var ids = $("#tableCollaboSpaceList").getGridParam("data");
+                                $("input[type=checkbox]", $("#collaboSpaceTree")).each(function() {
+                                    var id = $(this).attr("id");
+                                    for (var i in ids) {
+                                        if (ids[i].id == id) {
+                                            var lookup = false;
+                                            $li.each(function() {
+                                                if ($(this).attr("id") == id) {
+                                                    lookup = true;
+                                                    return false;
+                                                }
+                                            });
+                                            if (lookup) {
+                                                $(this).attr("checked", true);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                });
+                            },100);
+                        },
+                    });
+                }
+                $("#collaboSpaceTreeLoading").hide();
+           }
+    );
+    secureGetAsync('/setup/SpaceTreeRootApi.json',
+            {
+                asrt : "COMPANY"
+            },
+            function(data) {
+                if (data.result) {
+                    $("#comSpaceTree").children().remove();
+                    var branches = $(data["tree"]).appendTo("#comSpaceTree");
+                    $("#comSpaceTree").treeview({
+                        collapsed: true,
+                        add: branches,
+                        asrt : "COMPANY",
+                        url: "/setup/SpaceTreeChildrenApi.json",
+                        callback: function(elements){
+                            setTimeout(function(){
+                                var $ul = elements;
+                                var $li = $ul.children("li");
+
+                                var existInterLock = false;     //-- 下位連動フラグの有無（false:下位連動なし、true:下位連動あり） --%>
+                                var interlock = "";             //-- 下位連動フラグの値（"checked":チェックする、"":チェックしない） --%>
+
+                                //-- 下位連動フラグがあった場合 --%>
+                                var objChk = $("#comSpaceTree").find("input[id=" + elements.prevObject[0].id + "]");
+                                if(objChk.attr("interlock") != null){
+                                    existInterLock = true;
+                                    if(objChk.attr("interlock") == "true"){
+                                        interlock = objChk.attr("interlock");
+                                    }
+                                }
+
+                                //-- [下位連動]する場合 --%>
+                                if(existInterLock == true) {
+                                    $li.each(function() {
+                                        var obj = $("#comSpaceTree").find("input[id=" + $(this).attr("id") + "]");
+                                        //-- 下位にも[下位連動]フラグ(interlock)を付加する --%>
+                                        obj.attr("interlock", interlock);
+                                        //-- 連動する --%>
+                                        obj.attr("checked", interlock);
+                                    });
+                                    return false;
+                                }
+
+                                var ids = $("#tableComSpaceList").getGridParam("data");
+                                $("input[type=checkbox]", $("#comSpaceTree")).each(function() {
+                                    var id = $(this).attr("id");
+                                    for (var i in ids) {
+                                        if (ids[i].id == id) {
+                                            var lookup = false;
+                                            $li.each(function() {
+                                                if ($(this).attr("id") == id) {
+                                                    lookup = true;
+                                                    return false;
+                                                }
+                                            });
+                                            if (lookup) {
+                                                $(this).attr("checked", true);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                });
+                            },100);
+                        },
+                    });
+                }
+                $("#comSpaceTreeLoading").hide();
+           }
+    );
+
+    $(window).bind('resize', function () {
+        resizeWindow();
+    }).trigger('resize');
+
+    $("#myPostingActiveCheck").click(function(){
+        myDisableControl();
+    });
+    $("#collaboPostingActiveCheck").click(function(){
+        collaboDisableControl();
+    });
+    $("#comPostingActiveCheck").click(function(){
+        comDisableControl();
+    });
+
+    $("#collaboAnyCheck").click(function() {
+        collaboDisableControlAnyCheck();
+    });
+    $("#comAnyCheck").click(function() {
+        comDisableControlAnyCheck();
+    });
+
+});
+
+function getUpdatePositionDetailInfo(){
+    var callback =  function(data, status){
+        CsoScript_loadingStop();
+        if(!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+
+        initDisplay(data);
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("getWorkflowApplyInfo:" + data);
+    };
+    CsoScript_loadingStart();
+    secureGetAsync('/setup/UpdatedPostingDetailApi.json', {}, callback, callerror);
+}
+
+function initDisplay(data){
+
+    var info = data.detail.info;
+
+    /*-- 作成者 --*/
+    var registUserName = data.detail.registUserName;
+    var registDate     = data.detail.registDate;
+    if((registUserName == null) || (registUserName.length <= 0)) registUserName = "-";
+    if((registDate == null)     || (registDate.length <= 0))     registDate = "-";
+    $('#registUserName').text(registUserName);
+    $('#registDate').text(registDate);
+    /*-- 更新者 --*/
+    var updateUserName = data.detail.updateUserName;
+    var updateDate     = data.detail.updateDate;
+    if((updateUserName == null) || (updateUserName.length <= 0)) updateUserName = "-";
+    if((updateDate == null)     || (updateDate.length <= 0))     updateDate = "-";
+    $('#updateUserName').text(updateUserName);
+    $('#updateDate').text(updateDate);
+
+    /*-- 作成情報・更新情報を表示 --*/
+    $(".infoDiv").html($("#tabContent").html());
+
+
+    /*-- ------------ --*/
+    /*-- マイスペース --*/
+    /*-- ------------ --*/
+    setChecked("myPostingActiveCheck", info.MY.enabled);
+    $("#myAddPost"   ).val(info.MY.addPost);
+    $("#myUpdatePost").val(info.MY.updatePost);
+
+    /*-- -------------- --*/
+    /*-- コラボスペース --*/
+    /*-- -------------- --*/
+    setChecked("collaboPostingActiveCheck", info.COLLABORATION.enabled);
+    $("#collaboAddPost"   ).val(info.COLLABORATION.addPost);
+    $("#collaboUpdatePost").val(info.COLLABORATION.updatePost);
+    setChecked("collaboAnyCheck", info.COLLABORATION.individual);
+
+    /*-- ------------------ --*/
+    /*-- カンパニースペース --*/
+    /*-- ------------------ --*/
+    setChecked("comPostingActiveCheck", info.COMPANY.enabled);
+    $("#comAddPost"   ).val(info.COMPANY.addPost);
+    $("#comUpdatePost").val(info.COMPANY.updatePost);
+    setChecked("comAnyCheck", info.COMPANY.individual);
+
+    myDisableControl();
+    collaboDisableControl();
+    comDisableControl();
+}
+
+function setChecked(id, check){
+    $('#' + id).attr('checked', eval(check));
+}
+
+function resizeWindow(){
+    var mainWidth  = getBrowserWidth() - 340;       // 幅    ブラウザの幅   - 340px
+    var mainHeight = getBrowserHeight() - 225;      // 高さ  ブラウザの高さ - 270px
+    if(mainWidth < 680){
+        mainWidth = 680;
+    }
+    if(mainHeight < 303){
+        mainHeight = 303;
+    }
+    $('#tabDiv').height(mainHeight);
+    $('#tabDiv').width(mainWidth);
+
+    var tabWidth=$('#tabDiv').width();
+    var tabHeight=$('#tabDiv').height();
+    $('#tabMySpaceList').css("height", tabHeight-70);
+    $('#tabCollaboSpaceList').css("height", tabHeight-70);
+    $('#tabComSpaceList').css("height", tabHeight-70);
+    $('#tableCollaboSpaceList').setGridWidth(tabWidth-118).setGridHeight(tabHeight-300);
+    $('#tableComSpaceList').setGridWidth(tabWidth-118).setGridHeight(tabHeight-300);
+    $('.brankfilter').width(tabWidth-118).height(tabHeight-253);
+}
+
+function myDisableControl() {
+    if($("#myPostingActiveCheck").attr("checked")){
+        $("#myAddPost").attr('disabled',false);
+        $("#myUpdatePost").attr('disabled',false);
+    }else{
+        $("#myAddPost").attr('disabled',true);
+        $("#myUpdatePost").attr('disabled',true);
+    }
+}
+
+function collaboDisableControl() {
+    if($("#collaboPostingActiveCheck").attr("checked")){
+        $("#collaboAddPost").attr('disabled',false);
+        $("#collaboUpdatePost").attr('disabled',false);
+        $("#collaboAnyCheck").attr('disabled','');
+        collaboDisableControlAnyCheck();
+    }else{
+        $("#collaboAddPost").attr('disabled',true);
+        $("#collaboUpdatePost").attr('disabled',true);
+        $("#collaboAnyCheck").attr('disabled','disabled');
+        $("#collaboSearchButton").attr('disabled',true);
+        $("#collaboRemoveButton").attr('disabled',true);
+        $("#collaboAddButton").attr('disabled',true);
+        $("#brankCollaboSpaceList").show();
+    }
+}
+function collaboDisableControlAnyCheck() {
+    if($("#collaboAnyCheck").attr("checked")){
+        $("#collaboSearchButton").attr('disabled',false);
+        $("#collaboRemoveButton").attr('disabled',false);
+        $("#collaboAddButton").attr('disabled',false);
+        $("#brankCollaboSpaceList").hide();
+    }else{
+        $("#collaboSearchButton").attr('disabled',true);
+        $("#collaboRemoveButton").attr('disabled',true);
+        $("#collaboAddButton").attr('disabled',true);
+        $("#brankCollaboSpaceList").show();
+    }
+}
+
+function comDisableControl() {
+    if($("#comPostingActiveCheck").attr("checked")){
+        $("#comAddPost").attr('disabled',false);
+        $("#comUpdatePost").attr('disabled',false);
+        $("#comAnyCheck").attr('disabled','');
+        comDisableControlAnyCheck();
+    }else{
+        $("#comAddPost").attr('disabled',true);
+        $("#comUpdatePost").attr('disabled',true);
+        $("#comAnyCheck").attr('disabled','disabled');
+        $("#comSearchButton").attr('disabled',true);
+        $("#comRemoveButton").attr('disabled',true);
+        $("#comAddButton").attr('disabled',true);
+        $("#brankComSpaceList").show();
+    }
+}
+function comDisableControlAnyCheck() {
+    if($("#comAnyCheck").attr("checked")){
+        $("#comSearchButton").attr('disabled',false);
+        $("#comRemoveButton").attr('disabled',false);
+        $("#comAddButton").attr('disabled',false);
+        $("#brankComSpaceList").hide();
+    }else{
+        $("#comSearchButton").attr('disabled',true);
+        $("#comRemoveButton").attr('disabled',true);
+        $("#comAddButton").attr('disabled',true);
+        $("#brankComSpaceList").show();
+    }
+}
+
+/*-- 保存 --*/
+function clickOkButton() {
+    $(".btn").attr("disabled", "disabled");
+
+    jqgrid_commit();
+
+    var spaceList = [];
+    for (var i=0; i<collaboSpaces.length ; i++) {
+        var space = collaboSpaces[i];
+        spaceList.push(space);
+    }
+    for (var i=0; i<comSpaces.length ; i++) {
+        var space = comSpaces[i];
+        spaceList.push(space);
+    }
+
+    /*-- ---------------- --*/
+    /*-- パラメータの生成 --*/
+    /*-- ---------------- --*/
+    var query = {
+            myEnabled         : $("#myPostingActiveCheck").attr("checked"),
+            myAddPost         : $("#myAddPost").val(),
+            myUpdatePost      : $("#myUpdatePost").val(),
+            myIndividual      : false,
+            collaboEnabled    : $("#collaboPostingActiveCheck").attr("checked"),
+            collaboAddPost    : $("#collaboAddPost").val(),
+            collaboUpdatePost : $("#collaboUpdatePost").val(),
+            collaboIndividual : $("#collaboAnyCheck").attr("checked"),
+            companyEnabled    : $("#comPostingActiveCheck").attr("checked"),
+            companyAddPost    : $("#comAddPost").val(),
+            companyUpdatePost : $("#comUpdatePost").val(),
+            companyIndividual : $("#comAnyCheck").attr("checked"),
+            spaces            : JSON.stringify(spaceList)
+    }
+
+    /*-- -------- --*/
+    /*-- 登録処理 --*/
+    /*-- -------- --*/
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+        CsoScript_loadingStop();
+        clickCancelButton();
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("UpdatedPostingEditApi:" + data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    CsoScript_loadingStart();
+    securePostAsync('/setup/UpdatedPostingEditApi.json', query, callback, callerror);
+
+    return true;
+
+}
+
+/*-- キャンセル --*/
+function clickCancelButton(){
+    location.href='{!$Page.SettingUpdatedPostingDetail}';
+}
+
+function setSelectOption(id){
+    $('#' + id).append($('<option>').html('{!$Label.label_10790}').val('0'));
+    $('#' + id).append($('<option>').html('{!$Label.label_10791}').val('24'));
+    $('#' + id).append($('<option>').html('{!$Label.label_10792}').val('72'));
+    $('#' + id).append($('<option>').html('{!$Label.label_10793}').val('120'));
+    $('#' + id).append($('<option>').html('{!$Label.label_10794}').val('168'));
+    $('#' + id).append($('<option>').html('{!$Label.label_10795}').val('720'));
+}
+
+/*-- Cellの値の変更時 --*/
+function collaboAfterSaveCell(rowid, value, cellname){
+    if((cellname != "add_post") && (cellname != "update_post")){
+        return;
+    }
+
+    $(collaboSpaces).each(function() {
+        if (this.id == rowid) {
+            var intVal = 0;
+            try{intVal = parseInt(value);}catch(e){}
+            if(cellname == "add_post"){
+                this.add_post = intVal;
+            }
+            else{
+                this.update_post = intVal;
+            }
+            return false;
+        }
+    });
+}
+function comAfterSaveCell(rowid, value, cellname){
+    if((cellname != "add_post") && (cellname != "update_post")){
+        return;
+    }
+
+    $(comSpaces).each(function() {
+        if (this.id == rowid) {
+            var intVal = 0;
+            try{intVal = parseInt(value);}catch(e){}
+            if(cellname == "add_post"){
+                this.add_post = intVal;
+            }
+            else{
+                this.update_post = intVal;
+            }
+            return false;
+        }
+    });
+}
+
+/*-- スペース追加ダイアログの表示 --*/
+function openAddCollaboSpace() {
+    var ids = getSpaces();
+    $("input[type=checkbox]", $("#collaboSpaceTree")).each(function() {
+        var id = $(this).attr("id");
+        var checked = false;
+        for (var i in ids) {
+            if (ids[i].id == id) {
+                checked = true;
+                break;
+            }
+        }
+        $(this).attr("checked", checked);
+    });
+    $("#addCollaboSpaceDialog").dialog("open");
+    return false;
+}
+function openAddComSpace() {
+    var ids = getSpaces();
+    $("input[type=checkbox]", $("#comSpaceTree")).each(function() {
+        var id = $(this).attr("id");
+        var checked = false;
+        for (var i in ids) {
+            if (ids[i].id == id) {
+                checked = true;
+                break;
+            }
+        }
+        $(this).attr("checked", checked);
+    });
+    $("#addComSpaceDialog").dialog("open");
+    return false;
+}
+
+function clickSpace(obj, id) {
+    var checked = $(obj).attr("checked");
+    var p = $(obj).parent().parent();
+    var c = $("input[type=checkbox]", p);
+
+    c.attr({checked:checked, interlock:checked});
+}
+
+/*-- スペース追加ダイアログを閉じる --*/
+function closeAddCollaboSpace() {
+    $("#addCollaboSpaceDialog").dialog("close");
+    return false;
+}
+function closeAddComSpace() {
+    $("#addComSpaceDialog").dialog("close");
+    return false;
+}
+
+/*-- 選択スペースをjqGridに追加 --*/
+function addCollaboSpace() {
+    var add = 168;
+    var update = 168;
+    try{add    = parseInt($("#collaboAddPost").val());   }catch(e){}
+    try{update = parseInt($("#collaboUpdatePost").val());}catch(e){}
+
+    var spaces = [];
+    $(collaboSpaces).each(function() {
+        if ($("#collaboSpaceTree").find("li#" + this.id).length < 1) {
+            spaces.push(this);
+        }
+    });
+
+    $("input[type=checkbox]:checked", $("#collaboSpaceTree")).each(function() {
+
+        var spaceId = $(this).attr("id");
+
+        /*-- 既存のスペースを検索 --*/
+        var bExists = false;
+        $(collaboSpaces).each(function() {
+            if (this.id == spaceId) {
+                spaces.push(this);
+                 bExists = true;
+                return false;
+            }
+        });
+
+        /*-- 既存のスペースだった場合 --*/
+        if(bExists == true){
+            return true;
+        }
+
+        /*-- 新しく追加されたスペースだった場合 --*/
+        var escaper = $('<div/>');
+        var space = {
+            id : $(this).attr("id"),
+            space_info : "<div class='jqgrid-list-standard-name-top'>" + escaper.text($(this).attr("spacename")).html() + "</div><div class='jqgrid-list-standard-name-bottom'>" + escaper.text($(this).attr("path")).html() + "</div>",
+            space_name : $(this).attr("spacename"),
+            add_post   : add,
+            update_post: update
+        };
+        spaces.push(space);
+
+        var $li = $("#collaboSpaceTree").find("li#" + spaceId);
+        if($li.hasClass("hasChildren")){
+            if(_collaboSpaceTreeList != null){
+                for(var i = 0; i < _collaboSpaceTreeList.length; i++){
+                    var info = _collaboSpaceTreeList[i];
+                    var path = info.parentPath;
+                    if(!path){
+                    }else{
+                        //-- 重複チェック --%>
+                        var bExists = false;
+                        for(var idx = 0; idx < spaces.length; idx++){
+                            if(spaces[idx].id == info.spaceId){
+                                bExists = true;
+                                break;
+                            }
+                        }
+                        if(bExists == true){
+                            continue;
+                        }
+
+                        if(path.indexOf(spaceId)!=-1){
+                            var space = {
+                                id : info.spaceId,
+                                space_info : "<div class='jqgrid-list-standard-name-top'>" + escaper.text(info.spaceName).html() + "</div><div class='jqgrid-list-standard-name-bottom'>" + escaper.text(info.spacePath).html() + "</div>",
+                                space_name : info.spaceName
+                            };
+                            spaces.push(space);
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    //-- 選択したスペース一覧から、下位連動で未選択とされたスペースを削除 --%>
+    $("#collaboSpaceTree").find("input[type=checkbox][interlock=false]").each(function(){
+        var spaceId = $(this).context.id;
+        var $li = $("#collaboSpaceTree").find("li#" + spaceId);
+        if($li.hasClass("hasChildren")){
+            if(_collaboSpaceTreeList != null){
+                for(var i = 0; i < _collaboSpaceTreeList.length; i++){
+                    var info = _collaboSpaceTreeList[i];
+                    var path = info.parentPath;
+                    if(!path){
+                    }else{
+                        if(path.indexOf(spaceId)!=-1){
+                            for(var idx = 0; idx < spaces.length; idx++){
+                                if(spaces[idx].id == info.spaceId){
+                                    spaces.splice(idx, 1);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+
+    $("#addCollaboSpaceDialog").dialog("close");
+
+    $('#tableCollaboSpaceList').clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+
+    collaboSpaces = spaces;
+
+    return false;
+}
+function addComSpace() {
+    var add = 168;
+    var update = 168;
+    try{add    = parseInt($("#comAddPost").val());   }catch(e){}
+    try{update = parseInt($("#comUpdatePost").val());}catch(e){}
+
+    var spaces = [];
+    $(comSpaces).each(function() {
+        if ($("#comSpaceTree").find("li#" + this.id).length < 1) {
+            spaces.push(this);
+        }
+    });
+    $("input[type=checkbox]:checked", $("#comSpaceTree")).each(function() {
+
+        var spaceId = $(this).attr("id");
+
+        /*-- 既存のスペースを検索 --*/
+        var bExists = false;
+        $(comSpaces).each(function() {
+            if (this.id == spaceId) {
+                spaces.push(this);
+                 bExists = true;
+                return false;
+            }
+        });
+
+        /*-- 既存のスペースだった場合 --*/
+        if(bExists == true){
+            return true;
+        }
+
+        /*-- 新しく追加されたスペースだった場合 --*/
+        var escaper = $('<div/>');
+        var space = {
+            id : $(this).attr("id"),
+            space_info : "<div class='jqgrid-list-standard-name-top'>" + escaper.text($(this).attr("spacename")).html() + "</div><div class='jqgrid-list-standard-name-bottom'>" + escaper.text($(this).attr("path")).html() + "</div>",
+            space_name : $(this).attr("spacename"),
+            add_post   : add,
+            update_post: update
+        };
+        spaces.push(space);
+
+        var $li = $("#comSpaceTree").find("li#" + spaceId);
+        if($li.hasClass("hasChildren")){
+            if(_comSpaceTreeList != null){
+                for(var i = 0; i < _comSpaceTreeList.length; i++){
+                    var info = _comSpaceTreeList[i];
+                    var path = info.parentPath;
+                    if(!path){
+                    }else{
+                        //-- 重複チェック --%>
+                        var bExists = false;
+                        for(var idx = 0; idx < spaces.length; idx++){
+                            if(spaces[idx].id == info.spaceId){
+                                bExists = true;
+                                break;
+                            }
+                        }
+                        if(bExists == true){
+                            continue;
+                        }
+
+                        if(path.indexOf(spaceId)!=-1){
+                            var space = {
+                                id : info.spaceId,
+                                space_info : escaper.text(info.spaceName).html() + "<br/><font color='gray'>" + escaper.text(info.spacePath).html() + "</gray>",
+                                space_name : info.spaceName,
+                                add_post   : add,
+                                update_post: update
+                            };
+                            spaces.push(space);
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    //-- 選択したスペース一覧から、下位連動で未選択とされたスペースを削除 --%>
+    $("#comSpaceTree").find("input[type=checkbox][interlock=false]").each(function(){
+        var spaceId = $(this).context.id;
+        var $li = $("#comSpaceTree").find("li#" + spaceId);
+        if($li.hasClass("hasChildren")){
+            if(_comSpaceTreeList != null){
+                for(var i = 0; i < _comSpaceTreeList.length; i++){
+                    var info = _comSpaceTreeList[i];
+                    var path = info.parentPath;
+                    if(!path){
+                    }else{
+                        if(path.indexOf(spaceId)!=-1){
+                            for(var idx = 0; idx < spaces.length; idx++){
+                                if(spaces[idx].id == info.spaceId){
+                                    spaces.splice(idx, 1);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    $("#addComSpaceDialog").dialog("close");
+
+    $('#tableComSpaceList').clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+
+    comSpaces = spaces;
+
+    return false;
+}
+
+/*-- 削除（コラボスペース） --*/
+function removeCollaboSpaceList(){
+    var grid = getTargetGrid();
+    if(grid == null){
+        return;
+    }
+    var selected = grid.getGridParam("selarrrow");
+
+    var spaces = [];
+    var ids = collaboSpaces;
+    for (var i=0; i<ids.length; i++) {
+        var k = ids[i];
+        if($.inArray(k.id, selected) < 0){
+            spaces.push(k);
+        }
+    }
+
+    grid.clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+    collaboSpaces = grid.getGridParam("data");
+
+    return false;
+}
+
+/*-- 削除（カンパニースペース） --*/
+function removeComSpaceList(){
+    var grid = getTargetGrid();
+    if(grid == null){
+        return;
+    }
+    var selected = grid.getGridParam("selarrrow");
+
+    var spaces = [];
+    var ids = comSpaces;
+    for (var i=0; i<ids.length; i++) {
+        var k = ids[i];
+        if($.inArray(k.id, selected) < 0){
+            spaces.push(k);
+        }
+    }
+
+    grid.clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+    comSpaces = grid.getGridParam("data");
+
+    return false;
+}
+
+/*-- 検索 --*/
+function execSearch() {
+    var str    = getSearchString();
+    var grid   = getTargetGrid();
+    var spaces = getSpaces();
+
+    if((browserType == 'IE8') || (browserType == 'IE9')){
+        if (str == "{!$Label.label_11061}") {
+            str = "";
+        }
+    }
+
+    str = (str + '').replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\\$&");
+
+    var regexp = new RegExp(str, "i");
+    var ret = [];
+
+    $(spaces).each(function() {
+        var name = this.space_name;
+        if (name.match(regexp)) {
+            ret.push(this);
+        }
+    });
+
+    grid.clearGridData().setGridParam({data : ret}).trigger("reloadGrid");
+
+    return false;
+}
+
+/*-- 現在表示されているタブのindexを取得する --*/
+function getTabIndex(){
+    var selected = 0;
+    try{
+        selected = parseInt($("#tabDiv").tabs("option", "selected"));
+    }
+    catch(e){
+        selected = 0;
+    }
+
+    return selected;
+}
+/*-- 現在表示されているタブのjpGridを取得する --*/
+function getTargetGrid() {
+    var grid = null;
+    var selected = getTabIndex();
+    switch (selected) {
+    case 1:
+        grid = $('#tableCollaboSpaceList');
+        break;
+    case 2:
+        grid = $('#tableComSpaceList');
+        break;
+    }
+    return grid;
+}
+/*-- 現在表示されているタブの検索文字列を取得する --*/
+function getSearchString() {
+    var strSearch = "";
+    var selected = getTabIndex();
+    switch (selected) {
+    case 1:
+        strSearch = $('#collaboSpaceName').val();
+        break;
+    case 2:
+        strSearch = $('#comSpaceName').val();
+        break;
+    }
+    return strSearch;
+}
+/*-- 現在表示されているタブのスペース情報一覧を取得する --*/
+function getSpaces() {
+    var spaces = [];
+    var selected = getTabIndex();
+    switch (selected) {
+    case 1:
+        spaces = collaboSpaces;
+        break;
+    case 2:
+        spaces = comSpaces;
+        break;
+    }
+    return spaces;
+}
+
+function jqgrid_commit(){
+
+    /*--  編集中だった場合（コラボスペース） --*/
+    $("#tableCollaboSpaceList  select").each(function(){
+        var id   = $(this).attr("id");
+        var name = $(this).attr("name");
+
+        if((name != "add_post") && (name != "update_post")){
+            return;
+        }
+
+        var parts = id.split("_");
+        if(parts.length < 2){
+            return;
+        }
+
+        /*--  編集中セルの行番号 --*/
+        var row = parseInt(parts[0]);
+        /*--  編集中セルの列番号 --*/
+        var col = 4;
+        if(name == "update_post"){
+            col = 5;
+        }
+
+        $("#tableCollaboSpaceList").saveCell(row, col);
+    });
+
+    /*--  編集中だった場合（カンパニースペース） --*/
+    $("#tableComSpaceList  select").each(function(){
+        var id   = $(this).attr("id");
+        var name = $(this).attr("name");
+
+        if((name != "add_post") && (name != "update_post")){
+            return;
+        }
+
+        var parts = id.split("_");
+        if(parts.length < 2){
+            return;
+        }
+
+        /*--  編集中セルの行番号 --*/
+        var row = parseInt(parts[0]);
+        /*--  編集中セルの列番号 --*/
+        var col = 4;
+        if(name == "update_post"){
+            col = 5;
+        }
+
+        $("#tableComSpaceList").saveCell(row, col);
+    });
+}
+
+</script>
+
+
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/update_post.png')}" alt="{!$Label.solxyzcso001__label_10785}" title="{!$Label.solxyzcso001__label_10785}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_11009}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10785}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+
+                        <apex:pageBlockButtons location="top">
+                            <input type="button" class="btn" onclick="return clickOkButton();" value="{!$Label.label_00075}" />
+                            <input type="button" class="btn" onclick="return clickCancelButton();"     value="{!$Label.label_00058}" />
+                        </apex:pageBlockButtons>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="tabDiv" style="display:none;overflow:auto;">
+    <ul>
+        <li><a href="#tabMySpaceList"     >{!$Label.label_00051}</a></li>
+        <li><a href="#tabCollaboSpaceList">{!$Label.label_00052}</a></li>
+        <li><a href="#tabComSpaceList"    >{!$Label.label_00053}</a></li>
+    </ul>
+
+
+    <!-- マイスペース -->
+    <div id="tabMySpaceList" style="overflow:auto;">
+        <div style=" margin-left: 55px; font-weight: bolder;">
+            <table class="tabTable" >
+                <tr>
+                    <th>
+                        {!$Label.label_11011}
+                    </th>
+                    <td>
+                        <input type="checkbox" id="myPostingActiveCheck" name="myPostingActiveCheck"  value="1"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10787}
+                    </th>
+                    <td>
+                        <select id="myAddPost">
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10788}
+                    </th>
+                    <td>
+                        <select id="myUpdatePost">
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="infoDiv">
+        </div>
+    </div>
+
+
+
+    <!-- コラボスペース -->
+    <div id="tabCollaboSpaceList" style="overflow:auto;">
+        <div style=" margin-left: 55px; font-weight: bolder;">
+            <table class="tabTable" >
+                <tr>
+                    <th>
+                        {!$Label.label_11011}
+                    </th>
+                    <td>
+                        <input type="checkbox" id="collaboPostingActiveCheck" name="collaboPostingActiveCheck"  value="1"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10787}
+                    </th>
+                    <td>
+                        <select id="collaboAddPost">
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10788}
+                    </th>
+                    <td>
+                        <select id="collaboUpdatePost">
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="infoDiv">
+        </div>
+
+        <div style="margin-left: 55px;">
+            <table class="tabTable">
+                <tr>
+                    <td nowrap="nowrap">
+                        <div id="collaboAnyCheckDiv">
+                            <label>
+                                <input type="checkbox" id="collaboAnyCheck" name="collaboAnyCheck"  value="1"/>
+                                {!$Label.label_10789}
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <table class="searchDelTable" style="padding-right:10px;">
+                            <tr>
+                                <td nowrap="nowrap">
+                                    <input type="text"   class="middleWidth" id="collaboSpaceName" name="collaboSpaceName" maxlength="255" placeholder='{!$Label.label_11061}' />
+                                    <input type="button" class="btn" id="collaboSearchButton" onclick="execSearch();"             value="{!$Label.label_00069}"/>
+                                    <input type="button" class="btn" id="collaboRemoveButton" onclick="removeCollaboSpaceList();" value="{!$Label.label_00072}"/>
+                                    <input type="button" class="btn" id="collaboAddButton"    onclick="openAddCollaboSpace();"    value="{!$Label.label_10020}"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table id="tableCollaboSpaceList"></table>
+                        <div id="tableCollaboSpaceListPager"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div  id="brankCollaboSpaceList" style="position: absolute; top:224px; left:82px;display: none;">
+            <table class="brankfilter" >
+                 <tr>
+                    <td></td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+
+
+
+    <!-- カンパニー -->
+    <div id="tabComSpaceList" style="overflow:auto;" >
+        <div style=" margin-left: 55px; font-weight: bolder;">
+            <table class="tabTable" >
+                <tr>
+                    <th>
+                        {!$Label.label_11011}
+                    </th>
+                    <td>
+                        <input type="checkbox" id="comPostingActiveCheck" name="comPostingActiveCheck"  value="1"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10787}
+                    </th>
+                    <td>
+                        <select id="comAddPost">
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10788}
+                    </th>
+                    <td>
+                        <select id="comUpdatePost">
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="infoDiv">
+        </div>
+
+        <div style="margin-left: 55px;">
+            <table class="tabTable">
+                <tr>
+                    <td nowrap="nowrap">
+                        <div id="comAnyCheckDiv">
+                            <label>
+                                <input type="checkbox" id="comAnyCheck" name="comAnyCheck"  value="1"/>
+                                {!$Label.label_10789}
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <table class="searchDelTable" style="padding-right:10px;">
+                            <tr>
+                                <td nowrap="nowrap">
+                                    <input type="text"   class="middleWidth" id="comSpaceName" name="comSpaceName" maxlength="255" placeholder='{!$Label.label_11061}' />
+                                    <input type="button" class="btn" id="comSearchButton" onclick="execSearch();"         value="{!$Label.label_00069}"/>
+                                    <input type="button" class="btn" id="comRemoveButton" onclick="removeComSpaceList();" value="{!$Label.label_00072}"/>
+                                    <input type="button" class="btn" id="comAddButton"    onclick="openAddComSpace();"    value="{!$Label.label_10020}"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table id="tableComSpaceList" ></table>
+                        <div id="tableComSpaceListPager"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div  id="brankComSpaceList" style="position: absolute; top:224px; left:82px;display: none;">
+            <table class="brankfilter" >
+                 <tr>
+                    <td></td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+
+<div id="tabContent" style="display:none">
+    <table class="infoTable">
+        <tr>
+            <th>{!$Label.label_10015}</th>
+            <td id="registUserName"></td>
+            <th>{!$Label.label_10005}</th>
+            <td id="registDate"></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10024}</th>
+            <td id="updateUserName"></td>
+            <th>{!$Label.label_10006}</th>
+            <td id="updateDate"></td>
+        </tr>
+    </table>
+</div>
+
+
+
+<div id="addCollaboSpaceDialog" style="display: none;" >
+    <div>
+        {!$Label.label_10796}
+        <div class="border">
+            <ul id="collaboSpaceTree" class="selectTree filetree">
+            </ul>
+            <img alt="loading" src="{!URLFOR($Resource.cso, '/image/loading.gif')}" style="position: absolute; top: 50%;left: 47%; " id="collaboSpaceTreeLoading"/>
+        </div>
+        <div style="text-align:center;margin:5px;">
+            <input type="button" class="btn" onclick="return addCollaboSpace();"      value="{!$Label.label_00059}" />
+            <input type="button" class="btn" onclick="return closeAddCollaboSpace();" value="{!$Label.label_00058}" />
+        </div>
+    </div>
+</div>
+
+<div id="addComSpaceDialog" style="display: none;" >
+    <div>
+        {!$Label.label_10796}
+        <div class="border">
+            <ul id="comSpaceTree" class="selectTree filetree">
+            </ul>
+            <img alt="loading" src="{!URLFOR($Resource.cso, '/image/loading.gif')}" style="position: absolute; top: 50%;left: 47%; " id="comSpaceTreeLoading"/>
+        </div>
+        <div style="text-align:center;margin:5px;">
+            <input type="button" class="btn" onclick="return addComSpace();"      value="{!$Label.label_00059}" />
+            <input type="button" class="btn" onclick="return closeAddComSpace();" value="{!$Label.label_00058}" />
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+
+</apex:outputPanel>
+</apex:page>

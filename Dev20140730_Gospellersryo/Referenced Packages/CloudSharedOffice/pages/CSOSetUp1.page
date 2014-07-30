@@ -1,0 +1,28 @@
+<apex:page tabStyle="setting__tab" controller="SOLXYZCSO001.CSOSetUpController" sidebar="false" >
+    <apex:form >
+    <apex:sectionHeader subtitle="{!$Label.solxyzcso001__label_10323}" title="{!$Label.solxyzcso001__label_00002}"/>
+    <apex:pageMessages />
+    <apex:pageBlock mode="edit" title="{!$Label.solxyzcso001__label_10088}  {!$Organization.Name}">
+        <apex:pageBlockButtons >
+            <apex:commandButton value="{!$Label.solxyzcso001__label_10325}" action="{!NextStep2}"/>
+        </apex:pageBlockButtons>
+        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10326}">
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_10329}</apex:outputLabel>
+               <apex:outputLabel ></apex:outputLabel>
+           </apex:pageBlockSectionItem>
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_10003}</apex:outputLabel>
+               <apex:outputLabel > {!$User.Username}</apex:outputLabel>
+           </apex:pageBlockSectionItem>
+           <apex:pageBlockSectionItem >
+               <apex:outputLabel >{!$Label.solxyzcso001__label_10331}</apex:outputLabel>
+               <apex:outputPanel styleClass="requiredInput" layout="block">
+                   <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                   <apex:inputSecret value="{!Token}"/>
+               </apex:outputPanel>
+           </apex:pageBlockSectionItem>
+        </apex:pageblockSection>
+    </apex:pageBlock>
+    </apex:form>
+</apex:page>

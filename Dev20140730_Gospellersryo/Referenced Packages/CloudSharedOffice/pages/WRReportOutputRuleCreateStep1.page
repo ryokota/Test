@@ -1,0 +1,271 @@
+<apex:page controller="SOLXYZCSO001.WRReportOutputRuleCreateController" action="{!init}" tabStyle="WRRuleTab__tab">
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<iframe src="{!$Label.field_CSO_URL}/common/AuthenticationApi?id={!URLENCODE($User.UserName)}&tk={!ecmToken}&isEvidence=false" height="0" width="0" id="auth_frame" style="display:none;"/>
+<style type="text/css">
+.navi_message{
+    font-size:1.1em;
+    margin:40px 0 15px 60px;
+}
+.form_table {
+    margin-left:50px;
+}
+.form_table_label {
+    font-size:0.9em;
+    padding-top:5px;
+    padding-right:15px;
+    width:130px;
+    min-width:130px;
+    text-align:right;
+    font-weight:bold;
+    color:#4a4a56 !important;
+}
+.form_table_label_sub {
+    font-size:0.9em;
+    width:75px;
+    min-width:75px;
+}
+.form_table_label_normal {
+    text-align:right;
+}
+.form_table_radio{
+    width:120px;
+}
+.form_table_data {
+}
+.ios-checkbox-container{
+    width:120px;
+}
+.fieldset_style_containar{
+    border:1px solid silver;
+    background-color:white; 
+    padding:8px 8px 8px 8px;
+    display:none;
+}
+.c_require{
+    width:4px;
+    height:23px;
+    float: left;
+}
+</style>
+<script type="text/javascript">
+
+$(document).ready(function(){
+    $('input[type!="submit"][type!="button"],select').keypress(function(e){
+        if((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+            return false;
+        }else{
+            return true;
+        }
+    });
+
+    // 出力指示指定の項目制御
+    switchOutputInstruction();
+    
+    // 頻度指定の項目制御
+    switchExecIntervalMode();
+    
+    // 毎月の日 or 週指定を選択させる
+    $('input[name="execMonthMode"]').val(['{!JSENCODE(everyMonthMode)}']);
+    
+    // 毎月指定の項目制御
+    switchExecMonthMode();
+});
+
+function switchOutputInstruction(){
+    if($('.outputInstruction :checked').val() == 'User'){
+        $('.instruction_system_containar').hide();
+        $('.instruction_user_containar').show();
+    } else if($('.outputInstruction :checked').val() == 'System'){
+        $('.instruction_user_containar').hide();
+        $('.instruction_system_containar').show();
+        $('.on_off_toggle').attr('checked', 'checked');
+    }
+}
+
+function switchExecMonthMode(){
+    if($('input[name="execMonthMode"]:checked').val() == 'day'){
+        $('.execMonthDayOfMonth').removeAttr('disabled');
+        $('.execMonthWeekNumberOfMonth').attr('disabled', 'disabled');
+        $('.execMonthWeekOfMonth').attr('disabled', 'disabled');
+        $('.everyMonthMode').val('day');
+    } else if($('input[name="execMonthMode"]:checked').val() == 'week'){
+        $('.execMonthDayOfMonth').attr('disabled', 'disabled');
+        $('.execMonthWeekNumberOfMonth').removeAttr('disabled');
+        $('.execMonthWeekOfMonth').removeAttr('disabled');
+        $('.everyMonthMode').val('week');
+    } else {
+        $('.execMonthDayOfMonth').attr('disabled', 'disabled');
+        $('.execMonthWeekNumberOfMonth').attr('disabled', 'disabled');
+        $('.execMonthWeekOfMonth').attr('disabled', 'disabled');
+    }
+}
+
+function switchExecIntervalMode(){
+    if($('.execInterval :checked').val() == 'EveryWeek'){
+        $('#execIntervalWeekConfig').show();
+        $('#execIntervalMonthConfig').hide();
+    } else if($('.execInterval :checked').val() == 'EveryMonth'){
+        $('#execIntervalWeekConfig').hide();
+        $('#execIntervalMonthConfig').show();
+    }
+}
+// セレクトボックス間移動
+function move(moveFrom, moveTo, to, destbox){
+    // 移動後、移動データを削除
+    $('.'+ moveFrom + ' option:selected').each(function(){
+        $('.'+ moveTo).append($("<option>").val($(this).val()).text($(this).text()));
+        $(this).remove();
+    });
+
+    // 現在選択されているユーザーをHiddenに設定
+    var addItem = '';
+    $('.' + to).children().each(function(){
+        addItem += ',' + $(this).val();
+    });
+    $('.' + destbox).val(addItem.substring(1, addItem.length));
+    return false;
+}
+</script>
+<apex:sectionHeader title="{!$Label.solxyzcso001__label_wr_outputrule_00016}" subtitle="{!$Label.solxyzcso001__label_wr_outputrule_00022}" />    <!-- 帳票出力ルール 新規帳票出力ルール（ステップ１/４） -->
+<apex:pageMessages />
+<apex:form >
+<apex:pageBlock >
+    <apex:pageBlockSection title="{!$Label.solxyzcso001__label_wr_outputrule_00023}" collapsible="false"/>    <!-- ステップ１: 出力内容設定 -->
+    <apex:pageBlockButtons dir="RTL">
+        <apex:commandButton action="{!cancel}" value="{!$Label.solxyzcso001__label_wr_outputrule_00024}"/>    <!-- キャンセル -->
+        <apex:commandButton action="{!next1}" value="{!$Label.solxyzcso001__label_wr_outputrule_00025}"/>    <!-- 次へ -->
+    </apex:pageBlockButtons>
+
+    <div class="navi_message">{!$Label.msg_wr_outputrule_00005}</div>    <!-- ルールを適用する帳票出力の指示者を選択してください -->
+
+    <table class="form_table" cellspacing="5">
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00005}</td>    <!-- 出力指示 -->
+            <td class="form_table_data" width="300px;">
+                <img src="{!URLFOR($Resource.iosstyle, 'require.png')}" class="c_require"/>
+                <apex:selectRadio value="{!outputInstruction}" onclick="switchOutputInstruction()" styleClass="outputInstruction">
+                    <apex:selectOptions value="{!outputInstructionOptions}"/>
+                </apex:selectRadio>
+            </td>
+        </tr>
+    </table>
+
+    <div class="navi_message instruction_user_containar" style="display:none">{!$Label.msg_wr_outputrule_00006}</div>    <!-- ルールの適用対象のメンバーとページを設定してください -->
+        
+    <table class="form_table instruction_user_containar" cellspacing="5" style="display:none">
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00026}</td>    <!-- メンバー -->
+            <td class="form_table_data">
+                <img src="{!URLFOR($Resource.iosstyle, 'require.png')}" class="c_require"/>
+                <apex:outputPanel id="panelK">
+                    <apex:selectList id="searchType"  value="{!searchType}" size="1">
+                        <apex:selectOptions value="{!searchTypeOptions}"/>
+                        <apex:actionSupport event="onchange" action="{!redraw}" rerender="notAddUserList" />
+                    </apex:selectList>
+                    <apex:inputText value="{!searchWord}" maxlength="255"/>
+                    <apex:commandButton value="{!$Label.solxyzcso001__label_wf_00029}" action="{!redraw}" rerender="notAddUserList" />
+                    <table width="100" >
+                        <tr>
+                            <td>
+                                <div>{!$Label.label_wf_00033}</div>
+                                <apex:outputPanel id="notAddUserList">
+                                    <apex:selectList size="10" style="min-width: 150px; width:250px;" multiselect="true" id="notAddUserSelect" styleClass="notAddUserSelect">
+                                        <apex:selectOptions value="{!notAddUserOptions}"/>
+                                    </apex:selectList>
+                                </apex:outputPanel>
+                            </td>
+                            <td align="center" style="width: *; vertical-align: middle;">
+                                <apex:outputpanel >
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_10020}" style="width:60px;" onclick="move('notAddUserSelect', 'addedUserSelect', 'addedUserSelect', 'addedUser'); return false;"/>
+                                    <apex:actionSupport event="onclick" action="{!redraw}" rerender="addedUserList" />
+                                </apex:outputpanel>
+                                <apex:outputpanel >
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00072}" style="width:60px;" onclick="move('addedUserSelect', 'notAddUserSelect', 'addedUserSelect', 'addedUser'); return false;"/>
+                                    <apex:actionSupport event="onclick" action="{!redraw}" rerender="addedUserList" />
+                                </apex:outputpanel>
+                            </td>
+                            <td>
+                                <div>{!$Label.solxyzcso001__label_wf_00034}</div>
+                                <apex:outputpanel id="addedUserList">
+                                    <apex:inputText value="{!addedUser}" style="display:none;" styleClass="addedUser" />
+                                </apex:outputpanel>
+                                <apex:outputpanel >
+                                    <apex:selectList size="10" style="min-width: 150px; width:250px;" multiselect="true" id="addedUserSelect" styleClass="addedUserSelect" readonly="true" >
+                                        <apex:selectOptions value="{!addedUserOptions}"/>
+                                    </apex:selectList>
+                                </apex:outputpanel>
+                            </td>
+                        </tr>
+                    </table>
+                </apex:outputPanel>
+            </td>
+        </tr>
+        <tr>
+            <td class="form_table_label">ページ</td>    <!-- ページ -->
+            <td class="form_table_data">
+                <img src="{!URLFOR($Resource.iosstyle, 'require.png')}" class="c_require"/>
+                <apex:selectRadio value="{!pageType}">
+                    <apex:selectOptions value="{!pageTypeOptions}"/>
+                </apex:selectRadio>
+            </td>
+        </tr>
+    </table>
+
+    <div class="navi_message instruction_system_containar" style="display:none">{!$Label.msg_wr_outputrule_00007}</div>    <!-- ルールの実行日時と対象レコードの検索条件を設定してください -->
+
+    <table class="form_table instruction_system_containar" cellspacing="5" style="display:none">
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00028}</td>    <!-- 実行日時 -->
+            <td class="form_table_data" style="width:615px;min-width:615px;">
+                <img src="{!URLFOR($Resource.iosstyle, 'require.png')}" class="c_require"/>
+                <table>
+                    <tr>
+                        <td class="form_table_label form_table_label_sub">{!$Label.label_wr_outputrule_00029}</td>    <!-- 頻度 -->
+                        <td width="80px">
+                            <apex:selectRadio value="{!execInterval}" layout="pageDirection" styleClass="execInterval" onchange="switchExecIntervalMode()">
+                                <apex:selectOptions value="{!intervalOptions}"/>
+                            </apex:selectRadio>
+                        </td>
+                        <td>
+                            <div class="fieldset_style_containar" id="execIntervalWeekConfig" style="width:410px;">
+                                <div>{!$Label.solxyzcso001__label_wr_outputrule_00030}</div>    <!-- 毎週 -->
+                                <apex:selectCheckboxes value="{!execWeekDayOfWeek}">
+                                    <apex:selectOptions value="{!dayOfWeekOptions}"/>
+                                </apex:selectCheckboxes>
+                                <div style="text-align:right">{!$Label.label_wr_outputrule_00031}</div>    <!-- に繰り返し -->
+                            </div>
+                            <div class="fieldset_style_containar" id="execIntervalMonthConfig" style="width:280px;">
+                                <input type="radio" onclick="switchExecMonthMode()" value="day" name="execMonthMode"/>{!$Label.label_wr_outputrule_00032}    <!-- 毎月 -->
+                                <apex:selectList value="{!execMonthDayOfMonth}" size="1" styleClass="execMonthDayOfMonth">
+                                    <apex:selectOptions value="{!dayOfMonthOptions}"/>
+                                </apex:selectList>
+                                <input type="radio" onclick="switchExecMonthMode()" value="week" name="execMonthMode"/>{!$Label.label_wr_outputrule_00032}    <!-- 毎月 -->
+                                <apex:selectList value="{!execMonthWeekNumberOfMonth}" size="1" styleClass="execMonthWeekNumberOfMonth">
+                                    <apex:selectOptions value="{!WeekNumberOfMonthOptions}"/>
+                                </apex:selectList>
+                                <apex:selectList value="{!execMonthWeekOfMonth}" size="1" styleClass="execMonthWeekOfMonth">
+                                    <apex:selectOptions value="{!dayOfWeekOptions}"/>
+                                </apex:selectList>
+                            </div>
+                            <apex:inputText value="{!everyMonthMode}" style="display:none" styleClass="everyMonthMode"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="form_table_label form_table_label_sub">{!$Label.label_wr_outputrule_00033}</td>    <!-- 開始時刻 -->
+                        <td colspan="2">
+                            <apex:selectList value="{!execTime}" size="1">
+                                <apex:selectOptions value="{!timeOptions}"/>
+                            </apex:selectList>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</apex:pageBlock>
+</apex:form>
+</apex:page>

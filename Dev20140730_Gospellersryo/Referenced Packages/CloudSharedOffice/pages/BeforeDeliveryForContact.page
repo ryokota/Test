@@ -1,0 +1,28 @@
+<apex:page sidebar="false" standardController="Contact" extensions="SOLXYZCSO001.BeforeDeliveryForContactController" recordSetVar="contacts">
+
+<script type="text/javascript">
+    var view_title        = "{!title}";
+    var view_idList       = new Array();
+    var view_nameList     = new Array();
+    var view_firstNameList = new Array();
+    var view_lastNameList = new Array();
+    var view_mailNameList = new Array();
+    var view_addressList  = new Array();
+    var view_corpnameList = new Array();
+
+    jQuery.event.add(window, "load", function(){
+        <apex:repeat value="{!mailInfoList}" var="obj">
+            view_idList[view_idList.length]             = "{!obj.id}";
+            view_nameList[view_nameList.length]         = "{!obj.name}";
+            view_mailNameList[view_mailNameList.length] = "{!obj.name}";
+            view_firstNameList[view_firstNameList.length] = "{!obj.firstName}";
+            view_lastNameList[view_lastNameList.length] = "{!obj.lastName}";
+            view_addressList[view_addressList.length]   = "{!obj.address}";
+            view_corpnameList[view_corpnameList.length] = "{!obj.corpname}";
+        </apex:repeat>
+    });
+</script>
+
+<apex:include pageName="SOLXYZCSO001__BeforeDelivery" />
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:page>

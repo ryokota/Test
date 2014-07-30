@@ -1,0 +1,23 @@
+<apex:page sidebar="true" showHeader="true" standardController="Case" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Case">
+<apex:form >
+<apex:variable var="Sf_ID" value="{!Id}" />
+<!-- ケースは証跡に表示するケースの名称は、件名が必須ではない為 -->
+<!-- 件名が空の場合は「ケース番号」、空でなければ「ケース番号（件名）」に加工します -->
+<apex:variable var="Sf_name" value="{!IF(Case.Subject == null || Case.Subject=='', Case.CaseNumber, Case.CaseNumber+'('+Case.Subject+')' )}" />
+
+<apex:variable var="pageType" value="list" />
+<apex:variable var="Sf_type" value="Case" />
+<apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Case}" />
+
+  <apex:detail />
+  <!-- 
+  <apex:include pageName="ContentsSelect"/>
+   -->
+  <c:ContentsSelectComp id="contentsSelectComp"  csoUserInfo="{!cso_UserInfo}"/>
+</apex:form>
+<!-- スペース登録 -->
+<!-- 
+<apex:include pageName="AddSpace"/>
+ -->
+<c:AddSpaceComp id="addSpaceComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

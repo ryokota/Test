@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Cost Center</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Cost Centers</value>
+    </caseValues>
+    <fields>
+        <label><!-- Active/Inactive --></label>
+        <name>ActiveInactive__c</name>
+        <picklistValues>
+            <masterLabel>Active</masterLabel>
+            <translation><!-- Active --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Inactive</masterLabel>
+            <translation><!-- Inactive --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Cost Center Name (EN）</label>
+        <name>Cost_Center_Name_En__c</name>
+    </fields>
+    <fields>
+        <label>Cost Center Name (JP)</label>
+        <name>Cost_Center_Name__c</name>
+    </fields>
+    <fields>
+        <label>Function (EN)</label>
+        <name>Function_En__c</name>
+    </fields>
+    <fields>
+        <label>Function (JP)</label>
+        <name>Function__c</name>
+    </fields>
+    <layouts>
+        <layout>Cost Center Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>Cost Center No.</nameFieldLabel>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

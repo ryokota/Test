@@ -1,0 +1,169 @@
+<apex:page showHeader="false" cache="false" sidebar="false" controller="SOLXYZCSO001.WRManagerHomeController">
+
+<style type="text/css">
+#control{
+    width: 240px;
+    text-align:right;
+}
+</style>
+
+<script type="text/javascript">
+
+/*
+ * スペース切替
+ */
+function onChangeSpace(space){
+    // すべてのコンテキストメニュー非表示
+    hideContextMenu();
+    // ローディングを表示
+    displayLoading();
+
+    if(space == 'overlay'){
+        // オーバレイ
+        $('#createNewLabel').html('{!$Label.label_wf_00001}');
+        side_overlay_reload(false);
+    } else if(space == 'category') {
+        // カテゴリ
+        $('#createNewLabel').html('{!$Label.label_wf_00040}');
+        side_category_reload(false);
+    } else if(space == 'printer') {
+        // プリンタ
+        $('#createNewLabel').html('{!$Label.label_wf_00041}');
+        side_printer_reload(false);
+    }
+}
+
+/*
+ * コンテキストメニューの非表示
+ */
+function hideContextMenu() {
+    $('#jqContextMenu').hide();
+    $('#jqContextMenu').next().hide(); // これがないとコンテキストメニューの跡が灰色になって残ります。
+}
+
+/**
+ * オーバレイ管理のリロード実施
+ */
+function side_overlay_reload(flg){
+
+    var callback =  function(data){
+                        sideRoot["asrt"] = "overlay";
+                        loadTree(data, "myspacetree", "{!$Label.label_wf_00001}", "overlay", flg);
+    };
+    secureGetAsync('/api/overlayList.json', {"JSESSIONID":"", 'respType' : '1', locale : userlocale ,'userid' : '{!$User.UserName}', 'credential' : '{!credential}' }, callback);
+
+    mSpaceIdentifier =1;
+    //hideCsoContextMenu();
+}
+
+function side_category_reload(flg){
+}
+
+function side_printer_reload(flg){
+}
+
+/**
+ *ツリーリンク押下時のイベント
+ *
+ * @param type     file:ファイル / dir:ディレクトリ
+ * @param id       スペース、またはファイルのid
+ * @param dispType 表示するファイルのタイプ
+ * @param name     表示名
+ *
+ */
+function overlayTreeLink(type, id, dispType, name){
+
+    // コンテンツエリア表示
+    if (location.href.indexOf(id) < 0) {
+        location.href = "#" + id;
+        loadHtml2(type, id);
+    } else {
+        reloadNow();
+    }
+}
+
+/*
+ * 選択スペースの文字色変更
+ */
+function changeCurrentTreeColor(id){
+    var url = location.href;
+
+    if(id =="") id = "root";
+
+    $("#spaceTree a").each(function(){
+        if($(this).attr("outerHTML").toString().indexOf(id, 0) > 0){
+            $(this).css({color:"red"});
+        }else{
+            $(this).css({color:"black"});
+        }
+    });
+}
+
+/** ツリーの生成を行う。 */
+function loadTree(data, cookieId, spaceTitle, asrt, flg){
+
+    //根本
+    var branches = $("#spaceTree").html(data["tree"]);
+
+    //treeviewの生成
+    $("#spaceTree").treeview({
+        collapsed: true,
+        persist: "cookie",
+        cookieId: cookieId,
+        add: branches,
+        control: "#control",
+        animated: "fast"
+    });
+    // スペースツリー表示
+    displaySpaceTree();
+}
+
+function reloadTree(){
+
+    side_overlay_reload(false);
+}
+
+</script>
+<div id="c_left_container">
+<table width="width:250px;" cellspacing="0" cellpadding="0" style="min-width:250px; max-width:250px;">
+    <tr>
+        <td>
+            <div class="sidebar" id="sidebarDiv" style="margin:5px 0px 5px 25px;">
+                <div class="sidebarModule createNewModule" style="margin-bottom:0px;">
+                    <div class="sidebarModuleBody sidebarModuleBodyNoHeader">
+                        <div class="menuButton brandPrimaryBgr brandPrimaryBrd2" id="createNew">
+                            <div class="menuButtonButton" id="createNewButton" style="white-space: nowrap;">
+                                <span  class="menuButtonLabel" id="createNewLabel" tabindex="0">{!$Label.label_wf_00001}</span>
+                                <span class="brandMenuButtonArrow brandPrimaryFgrBrdTop"></span>
+                            </div>
+                            <div class="menuButtonMenu" id="createNewMenu">
+                                <a href="?#" onclick="onChangeSpace('overlay'); return false;" style="white-space: nowrap;">
+                                    {!$Label.label_wf_00001}
+                                </a>
+                                <a href="?#" onclick="onChangeSpace('category'); return false;" style="white-space: nowrap;display:none;">
+                                    {!$Label.label_wf_00040}
+                                </a>
+                                <a href="?#" onclick="onChangeSpace('printer'); return false;" style="white-space: nowrap;display:none">
+                                    {!$Label.label_wf_00041}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script  type="text/javascript">new MenuButton('createNew', false);</script>
+        </td>
+    </tr>
+</table>
+<hr class="c_hr_90"/>
+<div id="control">
+    <a href="?#" class="c_link_s">{!$Label.label_wf_00042}</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="?#" class="c_link_s">{!$Label.label_wf_00043}</a>
+</div>
+<div id ="tree_div">
+    <!-- ローディングエリア -->
+    <div id="loadingGif"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'image/loading.gif')}" style="margin:50px 0 0 100px" alt="loading"/></div>
+    <!-- スペースツリーエリア -->
+    <ul id="spaceTree" class="filetree" style="height:95%"></ul>
+</div>
+</div>
+</apex:page>

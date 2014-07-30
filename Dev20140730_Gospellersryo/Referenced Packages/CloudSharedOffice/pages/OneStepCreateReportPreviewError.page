@@ -1,0 +1,11 @@
+<apex:page showHeader="false" Controller="SOLXYZCSO001.OneStepCreateReportController" Id="PreviewError">
+<apex:include pageName="SOLXYZCSO001__WbBridge"/>
+
+  <apex:form >
+    <apex:pageMessages />
+  </apex:form>
+
+<br/><hr/>
+<apex:outputpanel style="width:100%; text-align:center;" layout="block"><apex:outputlabel >{!$Label.solxyzcso001__field_CSO_copyright}</apex:outputlabel></apex:outputpanel>
+
+</apex:page>

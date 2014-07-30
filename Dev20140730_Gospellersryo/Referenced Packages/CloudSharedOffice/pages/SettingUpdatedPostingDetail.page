@@ -1,0 +1,684 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingUpdatedPostingController" tabStyle="setting__tab">
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_updated_post == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_updated_post == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<style type="text/css">
+
+.tabTable {
+    width : 100%;
+}
+.tabTable th {
+    width : 100px;
+    font-weight: bolder;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.tabTable td {
+    text-align: left;
+}
+.searchDelTable {
+    width:100%;
+}
+.searchDelTable td {
+    text-align: right;
+}
+
+.separatorDiv{
+    width: 100%;
+}
+
+.separatorDiv div{
+    color: white;
+    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+.brankfilter {
+    filter:alpha(opacity=60);
+    -moz-opacity:0.6;
+    opacity:0.6;
+    background:gray;
+    height:280px;
+    width:530px;
+}
+
+.infoTable {
+    width: 480px;
+    margin: 0 0 0 70px;
+}
+.infoTable th {
+    font-weight: bold;
+    text-align: right;
+    vertical-align: middle;
+}
+.infoTable td {
+    min-width: 90px;
+    vertical-align: middle;
+    padding: 5px;
+}
+
+.checkbox{
+    width: 20px;
+    height: 20px;
+}
+
+
+.ui-tabs {
+    background : none;
+    border:none;
+}
+
+.ui-tabs .ui-tabs-nav {
+    background: none;
+    border:none;
+}
+
+.ui-tabs .ui-tabs-panel {
+    background : none;
+    border:2px solid #11579c;
+    hight:100%
+}
+
+.ui-widget-header .ui-state-default {
+    background : none;
+    border: 2px solid #DFEFFC;
+
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+    background: #11579c;
+    border: 1px solid #11579c;
+
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a{
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.ui-corner-all {
+    border-radius: 5px 5px 5px 5px;
+}
+
+</style>
+
+
+
+
+
+<script type="text/javascript">
+
+var browserType = "";
+
+jQuery.event.add(window, "load", function(){
+
+    browserType = getBrowserType();
+
+    /*-- Tabs --*/
+    var index = $.cookie("updatePostingIndex");
+    if (!index) {
+        index = 0;
+    }
+    $('#tabDiv').tabs({
+            select: function(event, ui){
+                $.cookie("updatePostingIndex", ui.index);
+            },
+            selected : index,
+    }).show();
+
+    //  全体的にフォントが大きくなる原因となるクラスを削除
+    $("#tabDiv").removeClass("ui-widget");
+
+    // レイアウトが崩れる原因となるクラスを削除
+    $("#tabDiv > ul").removeClass("ui-widget-header");
+
+    /*-- 表示データ取得 --*/
+    getUpdatePositionDetailInfo();
+
+    /*-- 選択肢の生成 --*/
+    var postingOptions = "";
+    postingOptions = postingOptions +         '0:' + '{!$Label.label_10790}';
+    postingOptions = postingOptions + ";" +  '24:' + '{!$Label.label_10791}';
+    postingOptions = postingOptions + ";" +  '72:' + '{!$Label.label_10792}';
+    postingOptions = postingOptions + ";" + '120:' + '{!$Label.label_10793}';
+    postingOptions = postingOptions + ";" + '168:' + '{!$Label.label_10794}';
+    postingOptions = postingOptions + ";" + '720:' + '{!$Label.label_10795}';
+
+    /*-- jqGridの初期化 --*/
+    $("#tableCollaboSpaceList").jqGrid({
+        url : _apiUrl + '/setup/UpdatedPostingSpaceListApi.json',
+        postData : {
+            asrt : "COLLABORATION"
+        },
+        datatype : "jsonp",
+        jsonReader : {
+            repeatitems : false,
+            id : "id"
+        },
+        colNames:['','','{!$Label.label_10155}','{!$Label.label_10787}','{!$Label.label_10788}'],
+        colModel:[
+                    {name:'id',index:'id', hidden:true},
+                    {name:'space_name',index:'space_name', hidden:true},
+                    {name:'space_info',index:'space_name', width:370, sortable:false},
+                    {name:'add_post',index:'add_post', width:120, sortable:false,
+                            editable: true, edittype:"select",formatter:'select',
+                            editoptions:{value:postingOptions}
+                    },
+                    {name:'update_post',index:'update_post', width:120, sortable:false,
+                            editable: true, edittype:"select",formatter:'select',
+                            editoptions:{value:postingOptions}
+                    }
+                ],
+        autowidth: true,
+        rowNum:10,
+        rowList:[10,50,100],
+        sortname: 'space_name',
+        pager: '#tableCollaboSpaceListPager',
+        viewrecords: true,
+        multiselect: false
+    });
+    $("#tableCollaboSpaceList").jqGrid('navGrid','#tableCollaboSpaceListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+
+    $("#tableComSpaceList").jqGrid({
+        url : _apiUrl + '/setup/UpdatedPostingSpaceListApi.json',
+        postData : {
+            asrt : "COMPANY"
+        },
+        datatype : "jsonp",
+        jsonReader : {
+            repeatitems : false,
+            id : "id"
+        },
+        colNames:['','','{!$Label.label_10155}','{!$Label.label_10787}','{!$Label.label_10788}'],
+        colModel:[
+                    {name:'id',index:'id', hidden:true},
+                    {name:'space_name',index:'space_name', hidden:true},
+                    {name:'space_info',index:'space_name', width:370, sortable:false},
+                    {name:'add_post',index:'add_post', width:120, sortable:false,
+                            editable: true, edittype:"select",formatter:'select',
+                            editoptions:{value:postingOptions}
+                    },
+                    {name:'update_post',index:'update_post', width:120, sortable:false,
+                            editable: true, edittype:"select",formatter:'select',
+                            editoptions:{value:postingOptions}
+                    }
+                ],
+        autowidth: true,
+        rowNum:10,
+        rowList:[10,50,100],
+        sortname: 'space_name',
+        pager: '#tableComSpaceListPager',
+        viewrecords: true,
+        multiselect: false
+    });
+    $("#tableComSpaceList").jqGrid('navGrid','#tableComSpaceListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+
+    $(window).bind('resize', function () {
+        resizeWindow();
+    }).trigger('resize');
+});
+
+function getUpdatePositionDetailInfo(){
+    var callback =  function(data, status){
+        CsoScript_loadingStop();
+        if(!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+
+        initDisplay(data);
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("getWorkflowApplyInfo:" + data);
+    };
+    CsoScript_loadingStart();
+    secureGetAsync('/setup/UpdatedPostingDetailApi.json', {}, callback, callerror);
+}
+
+function initDisplay(data){
+
+    var info = data.detail.info;
+
+    /*-- 作成者 --*/
+    var registUserName = data.detail.registUserName;
+    var registDate     = data.detail.registDate;
+    if((registUserName == null) || (registUserName.length <= 0)) registUserName = "-";
+    if((registDate == null)     || (registDate.length <= 0))     registDate = "-";
+    $('#registUserName').text(registUserName);
+    $('#registDate').text(registDate);
+    /*-- 更新者 --*/
+    var updateUserName = data.detail.updateUserName;
+    var updateDate     = data.detail.updateDate;
+    if((updateUserName == null) || (updateUserName.length <= 0)) updateUserName = "-";
+    if((updateDate == null)     || (updateDate.length <= 0))     updateDate = "-";
+    $('#updateUserName').text(updateUserName);
+    $('#updateDate').text(updateDate);
+
+    /*-- 作成情報・更新情報を表示 --*/
+    $(".infoDiv").html($("#tabContent").html());
+
+
+    /*-- ------------ --*/
+    /*-- マイスペース --*/
+    /*-- ------------ --*/
+    show_checkbox('myPostingActiveCheck', info.MY.enabled);
+    setPostString("myAddPost",    info.MY.addPost);
+    setPostString("myUpdatePost", info.MY.updatePost);
+
+    /*-- -------------- --*/
+    /*-- コラボスペース --*/
+    /*-- -------------- --*/
+    show_checkbox('collaboPostingActiveCheck', info.COLLABORATION.enabled);
+    setPostString("collaboAddPost",    info.COLLABORATION.addPost);
+    setPostString("collaboUpdatePost", info.COLLABORATION.updatePost);
+    show_checkbox('collaboAnyCheck', info.COLLABORATION.individual);
+    if (eval(info.COLLABORATION.individual) == true) {
+        $("#collaboButtons").show();
+        $("#collaboSpaceList").show();
+    }
+
+    /*-- ------------------ --*/
+    /*-- カンパニースペース --*/
+    /*-- ------------------ --*/
+    show_checkbox('comPostingActiveCheck', info.COMPANY.enabled);
+    setPostString("comAddPost",    info.COMPANY.addPost);
+    setPostString("comUpdatePost", info.COMPANY.updatePost);
+    show_checkbox('comAnyCheck', info.COMPANY.individual);
+    if (eval(info.COMPANY.individual) == true) {
+        $("#comButtons").show();
+        $("#comSpaceList").show();
+    }
+}
+
+function resizeWindow(){
+    var mainWidth  = getBrowserWidth() - 340;       // 幅    ブラウザの幅   - 340px
+    var mainHeight = getBrowserHeight() - 225;      // 高さ  ブラウザの高さ - 270px
+    if(mainWidth < 680){
+        mainWidth = 680;
+    }
+    if(mainHeight < 303){
+        mainHeight = 303;
+    }
+    $('#tabDiv').height(mainHeight);
+    $('#tabDiv').width(mainWidth);
+
+    var tabWidth=$('#tabDiv').width();
+    var tabHeight=$('#tabDiv').height();
+    $('#tabMySpaceList').css("height", tabHeight-70);
+    $('#tabCollaboSpaceList').css("height", tabHeight-70);
+    $('#tabComSpaceList').css("height", tabHeight-70);
+    $('#tableCollaboSpaceList').setGridWidth(tabWidth-100).setGridHeight(tabHeight-295);
+    $('#tableComSpaceList').setGridWidth(tabWidth-100).setGridHeight(tabHeight-295);
+}
+
+function show_checkbox(id, check){
+    if(eval(check)){
+        $('#' + id).attr('src', "{!URLFOR($Resource.cso, '/image/check_on.png')}");
+    } else {
+        $('#' + id).attr('src', "{!URLFOR($Resource.cso, '/image/check_off.png')}");
+    }
+    $('#' + id).show();
+}
+
+function setPostString(id, val){
+
+    var intValue = 0;
+    try{
+        intValue = parseInt(val);
+    }
+    catch(e){
+        return;
+    }
+
+    var strVal = "";
+    switch(intValue) {
+        case 0 :
+            strVal = '{!$Label.label_10790}';
+            break;
+        case 24 :
+            strVal = '{!$Label.label_10791}';
+            break;
+        case 72 :
+            strVal = '{!$Label.label_10792}';
+            break;
+        case 120 :
+            strVal = '{!$Label.label_10793}';
+            break;
+        case 168 :
+            strVal = '{!$Label.label_10794}';
+            break;
+        case 720 :
+            strVal = '{!$Label.label_10795}';
+            break;
+    }
+
+    $("#" + id).text(strVal);
+}
+
+function editJump() {
+    location.href='{!$Page.SettingUpdatedPostingEdit}';
+}
+
+function collaboSearchOnClick(){
+    var spaceName = $.trim($("#collaboSpaceName").val());
+
+    if((browserType == 'IE8') || (browserType == 'IE9')){
+        if (spaceName == "{!$Label.label_11061}") {
+            spaceName = "";
+        }
+    }
+
+    $('#tableCollaboSpaceList').setGridParam({
+        postData : {
+            sn : spaceName
+        }
+    });
+    $('#tableCollaboSpaceList').trigger('reloadGrid');
+}
+
+function comSearchOnClick(){
+    var spaceName = $.trim($("#comSpaceName").val());
+
+    if((browserType == 'IE8') || (browserType == 'IE9')){
+        if (spaceName == "{!$Label.label_11061}") {
+            spaceName = "";
+        }
+    }
+
+    $('#tableComSpaceList').setGridParam({
+        postData : {
+            sn : spaceName
+        }
+    });
+    $('#tableComSpaceList').trigger('reloadGrid');
+}
+
+</script>
+
+
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/update_post.png')}" alt="{!$Label.solxyzcso001__label_10784}" title="{!$Label.solxyzcso001__label_10784}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_11009}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10784}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+
+                        <apex:pageBlockButtons location="top">
+                           <apex:commandButton id="btnEdit" value="{!$Label.solxyzcso001__label_00073}" onclick="editJump();return false;"/>
+                        </apex:pageBlockButtons>
+
+
+
+
+<div id="tabDiv" style="display:none;overflow:auto;">
+    <ul>
+        <li><a href="#tabMySpaceList"     >{!$Label.label_00051}</a></li>
+        <li><a href="#tabCollaboSpaceList">{!$Label.label_00052}</a></li>
+        <li><a href="#tabComSpaceList"    >{!$Label.label_00053}</a></li>
+    </ul>
+
+
+    <!-- マイスペース -->
+    <div id="tabMySpaceList" style="overflow:auto;">
+        <div style=" margin-left: 55px;">
+            <table class="tabTable" >
+                <tr>
+                    <th>
+                        {!$Label.label_11011}
+                    </th>
+                    <td>
+                        <img src="" id="myPostingActiveCheck" class="checkbox" style="display:none"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10787}
+                    </th>
+                    <td id="myAddPost"></td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10788}
+                    </th>
+                    <td id="myUpdatePost"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="infoDiv">
+        </div>
+    </div>
+
+
+
+    <!-- コラボスペース -->
+    <div id="tabCollaboSpaceList" style="overflow:auto;">
+        <div style=" margin-left: 55px;">
+            <table class="tabTable" >
+                <tr>
+                    <th>
+                        {!$Label.label_11011}
+                    </th>
+                    <td>
+                        <img src="" id="collaboPostingActiveCheck" class="checkbox" style="display:none"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10787}
+                    </th>
+                    <td id="collaboAddPost"></td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10788}
+                    </th>
+                    <td id="collaboUpdatePost"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="infoDiv">
+        </div>
+
+        <div style="margin-left: 55px;">
+            <table class="tabTable">
+                <tr>
+                    <td>
+                        <table>
+                            <tr>
+                                <td>
+                                    <img src="" id="collaboAnyCheck" class="checkbox" style="display:none"/>
+                                </td>
+                                <td>
+                                    {!$Label.label_10789}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td id="collaboButtons" style="display:none;">
+                        <table class="searchDelTable">
+                            <tr>
+                                <td nowrap="nowrap">
+                                    <input type="text"   class="middleWidth" id="collaboSpaceName" name="collaboSpaceName" placeholder='{!$Label.label_11061}' />
+                                    <input type="button" class="btn" id="collaboSearchButton" onclick="collaboSearchOnClick();" value="{!$Label.label_00069}" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="collaboSpaceList" style="display:none;" colspan="2">
+                        <table id="tableCollaboSpaceList"></table>
+                        <div id="tableCollaboSpaceListPager"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+
+    <!-- カンパニー -->
+    <div id="tabComSpaceList" style="overflow:auto;" >
+        <div style=" margin-left: 55px;">
+            <table class="tabTable" >
+                <tr>
+                    <th>
+                        {!$Label.label_11011}
+                    </th>
+                    <td>
+                        <img src="" id="comPostingActiveCheck" class="checkbox" style="display:none"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10787}
+                    </th>
+                    <td id="comAddPost"></td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10788}
+                    </th>
+                    <td id="comUpdatePost"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="infoDiv">
+        </div>
+
+        <div style="margin-left: 55px;">
+            <table class="tabTable">
+                <tr>
+                    <td>
+                        <div id="comAnyCheckDiv">
+                        <table>
+                            <tr>
+                                <td>
+                                    <img src="" id="comAnyCheck" class="checkbox" style="display:none"/>
+                                </td>
+                                <td>
+                                    {!$Label.label_10789}
+                                </td>
+                            </tr>
+                        </table>
+                        </div>
+                    </td>
+                    <td id="comButtons" style="display:none;">
+                        <table class="searchDelTable">
+                            <tr>
+                                <td nowrap="nowrap">
+                                    <input type="text"   class="middleWidth" id="comSpaceName" name="comSpaceName" placeholder='{!$Label.label_11061}' />
+                                    <input type="button" class="btn" id="comSearchButton" onclick="comSearchOnClick();" value="{!$Label.label_00069}" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="comSpaceList" style="display:none;" colspan="2">
+                        <table id="tableComSpaceList" ></table>
+                        <div id="tableComSpaceListPager"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+
+<div id="tabContent" style="display:none">
+    <table class="infoTable">
+        <tr>
+            <th>{!$Label.label_10015}</th>
+            <td id="registUserName"></td>
+            <th>{!$Label.label_10005}</th>
+            <td id="registDate"></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10024}</th>
+            <td id="updateUserName"></td>
+            <th>{!$Label.label_10006}</th>
+            <td id="updateDate"></td>
+        </tr>
+    </table>
+</div>
+
+
+
+
+
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

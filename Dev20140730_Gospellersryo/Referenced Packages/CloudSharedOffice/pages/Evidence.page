@@ -1,0 +1,3430 @@
+<apex:page sidebar="false" id="evidencePage" controller="SOLXYZCSO001.EvidenceController" action="{!init}">
+<apex:iframe src="{!$Page.SOLXYZCSO001__CSO_Error}?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == true,false,true)}">
+
+<apex:outputPanel id="c_wrapper" rendered="{!CSOAuthority}">
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/evidence.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/fg.menu.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<link type="text/css" rel="stylesheet" href="{!$Label.field_CSO_URL}/css/tooltip.css" />
+<script type="text/javascript" src="{!$Label.field_CSO_URL}/js/tooltip.js" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<style type="text/css">
+.chevron {
+    background: url("{!URLFOR($Resource.cso, 'image/s-arrow.gif')}") no-repeat right center;
+    font-weight: bold;
+    padding-right: 20px;
+}
+
+li.viewitem {
+    font-size : 0.8em;
+}
+
+ul.viewlist {
+/*
+    display: none;
+    width : 200px;
+    z-index: 1050;
+*/
+    list-style-type: none;
+/*
+    padding-left : 5px;
+*/
+}
+.selected-search-action {
+    width: 430px;
+    max-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: block;
+    float: left;
+}
+.selected-search-space {
+    width: 430px;
+    max-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: block;
+    float: left;
+}
+.export-dialog-modified {
+    color: #FF9E00;
+    font-weight: bold;
+}
+#searchTable th{
+    text-align: right;
+    font-weight: bold;
+    padding-right: 15px;
+    min-width: 75px;
+    vertical-align: top;
+}
+
+.copylight{
+    width: 100%;
+    text-align: center;
+    margin-top: 5px;
+}
+
+#searchFS{
+    margin-bottom: 10px;
+    width: 80%;
+}
+
+.separatorDiv{
+    width: 100%;
+}
+
+.separatorDiv div{
+    color: white;
+    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+#evidence  a:hover {
+        background-position: right top !important;
+}
+
+#evidence  a:hover span {
+        background-position: left top !important;
+}
+
+.jqGridIcon{
+    margin: 3px;
+}
+
+.jqgrid-list-user-name-bottom{
+    font-size: 13px;
+}
+
+.btn {
+    cursor: pointer;
+}
+.ui-jqgrid .loading {
+    z-index: 2000;
+}
+
+.modal {
+    display: none;
+}
+/*
+.export-dialog-edit {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    cursor: pointer;
+    float: left;
+}
+*/
+#exportDialogSearchUsernameSpan {
+    width: 350px;
+    max-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-break: break-all;
+    display: block;
+    float: left;
+}
+.selected-search-space {
+    width: 425px;
+    width: 410px\9; /* IE8 */
+    max-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-break: break-all;
+    display: block;
+    float: left;
+}
+.selected-search-action {
+    width: 430px;
+    max-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-break: break-all;
+    display: block;
+    float: left;
+}
+.selected-search-action:not(:target) {
+    width: 425px; /* IE9 */
+}
+#exportTable th {
+    text-align: right;
+    font-weight: bold;
+    padding-right: 5px;
+    min-width: 75px;
+    vertical-align: top;
+}
+.export-dialog-edit {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    cursor: pointer;
+    float: left;
+    margin: 0 5px 0 5px;
+}
+.export-dialog-selected-search-group {
+    width: 345px;
+    width: 330px\9; /* IE8 */
+    max-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-break: break-all;
+    display: block;
+    float: left;
+}
+.export-dialog-selected-search-group:not(:target) {
+    width: 395px\9; /* IE9 */
+}
+.export-dialog-selected-search-space {
+    width: 345px;
+    width: 330px\9; /* IE8 */
+    max-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-break: break-all;
+    display: block;
+    float: left;
+}
+.export-dialog-selected-search-space:not(:target) {
+    width: 395px\9; /* IE9 */
+}
+.export-dialog-selected-search-action {
+    width: 345px;
+    width: 330px\9; /* IE8 */
+    max-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-break: break-all;
+    display: block;
+    float: left;
+}
+.export-dialog-selected-search-action:not(:target) {
+    width: 395px\9; /* IE9 */
+}
+.export-dialog-selected-output-space {
+    width: 345px;
+    width: 330px\9; /* IE8 */
+    max-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-break: break-all;
+    display: block;
+    float: left;
+}
+.export-dialog-selected-output-space:not(:target) {
+    width: 395px\9; /* IE9 */
+}
+.export-dialog-input {
+    margin: 0 0 0 23px;
+    display: none;
+}
+.export-dialog-input-timezone {
+    width: 380px;
+}
+.export-dialog-search-count {
+    display: inline-block;
+    margin: 0 0 0 0;
+}
+.export-dialog-explanation {
+    margin: 20px 0 10px 50px;
+}
+.export-dialog-explanation-1 {
+    margin: 0;
+}
+.export-dialog-explanation-2 {
+    margin: 0;
+}
+.export-history-dialog-explanation-box-1 {
+    float: left;
+    width: 360px;
+    margin-top: 10px;
+}
+.export-history-dialog-explanation-box-1 p {
+    margin: 0;
+}
+.export-history-dialog-explanation-box-2 {
+    float: left;
+    width: 340px;
+    margin-top: 20px;
+}
+.export-history-dialog-explanation-box-2 p {
+    margin: 0;
+}
+.spacelist {
+    height: 300px;
+    width: 475px;
+    overflow: auto;
+    border: solid 1px #909090;
+}
+.spacelist-autoselect {
+    float: left;
+    padding: 5px 0 5px 0;
+}
+.select-space-dialog-selectable {
+
+}
+.select-space-dialog-unselectable {
+    color: #B0B0B0;
+    cursor: default;
+}
+.select-action-dialog-input-header {
+    margin: 10px 0 3px 0;
+}
+.select-action-dialog-select-box {
+    float: left;
+    margin: 0 0 5px 0;
+}
+.select-action-dialog-select {
+    width: 195px;
+    height: 200px;
+}
+.select-action-dialog-operate-box {
+    float: left;
+    padding: 80px 15px 0 15px;
+}
+.select-action-dialog-operate-button {
+    display: block;
+    margin: 10px 0 0 0;
+}
+.button-box {
+    float: right;
+    margin: 15px 5px 10px 0;
+}
+.loading2 {
+    width: 36px;
+    height: 36px;
+    background-image: url({!URLFOR($Resource.cso, 'image/loading.gif')});
+    display: none;
+    position: absolute;
+}
+.loading3 {
+    width: 16px;
+    height: 16px;
+    background-image: url({!URLFOR($Resource.cso, 'image/loading.gif')});
+    background-size: 16px 16px;
+    display: none;
+    position: absolute;
+}
+.filetree span.folder, .filetree span.file, .filetree span.folderS, .filetree span.folderShare  {
+    display: inline;
+}
+.search-space-info {
+    vertical-align: middle;
+}
+.select-target-space-dialog-selected {
+    height: 20px;
+    width: 475px;
+    background-color: #E4E4E4;
+    border-top: solid 1px #909090;
+    border-right: solid 1px #909090;
+    border-left: solid 1px #909090;
+    overflow: hidden;
+}
+.select-target-space-dialog-selected-span {
+    display: block;
+    margin: 2px 0 0 3px;
+}
+.treeview .select-target-space-dialog-selectable {
+}
+.treeview .select-target-space-dialog-unselectable {
+    color: #B0B0B0;
+    cursor: default;
+}
+#targetSpaceList {
+    height: 300px;
+    width: 475px;
+    overflow: auto;
+    border: solid 1px #909090;
+}
+#targetSpaceList .targetspacelist-selected{
+    color: red;
+}
+.error {
+    color: red;
+}
+.export-dialog-search-count-info {
+    vertical-align: middle;
+}
+.export-dialog-error {
+    color: red;
+    font-weight: bold;
+    background-color: yellow;
+}
+.export-dialog-modified {
+    color: #FF9E00;
+    font-weight: bold;
+}
+
+.ui-tabs {
+    background : none;
+    border:none;
+}
+
+.ui-tabs .ui-tabs-nav {
+    background: none;
+    border:none;
+}
+
+.ui-tabs .ui-tabs-panel {
+    background : none;
+    border:2px solid #11579c;
+}
+
+.ui-widget-header .ui-state-default {
+    background : none;
+    border: 2px solid #DFEFFC;
+
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+    background: #11579c;
+    border: 1px solid #11579c;
+
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a{
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.ui-corner-all {
+    border-radius: 5px 5px 5px 5px;
+}
+.tab-inner {
+    height: 340px
+}
+
+.syncSearchTable th{
+    text-align: right;
+    font-weight: bold;
+    padding-right: 15px;
+    min-width: 75px;
+}
+</style>
+
+<script type="text/javascript">
+
+var datePickerFormat = "yy/mm/dd";
+
+<apex:outputPanel layout="none" rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+datePickerFormat = "mm/dd/yy";
+</apex:outputPanel>
+
+function isDatePickerFormatValid(value, instance) {
+    if (!instance[0]) return false;
+    var inst = $.datepicker._getInst(instance[0]);
+    var dateFormat = $.datepicker._get(inst, 'dateFormat');
+    try {
+        var date = $.datepicker.parseDate(dateFormat, value, $.datepicker._getFormatConfig(inst));
+    } catch(e) {
+        return false;
+    }
+
+    return true;
+}
+
+function isDatePickerFromToValid(fromElement, toElement) {
+    var fromDate = $(fromElement).datepicker('getDate');
+    var toDate = $(toElement).datepicker('getDate');
+
+    return toDate.getTime() >= fromDate.getTime();
+}
+
+</script>
+
+<script type="text/javascript">
+var _isManager  = false;
+
+var _actionCategory1DataAll = null;
+var _actionCategory2DataAll = null;
+var _actionDataAll  = null;
+var _timezoneDataAll = null;
+var _languageDataAll = null;
+
+var _fromExportDialog   = false;    // false:検索ダイアログ、true:エクスポート確認ダイアログ
+var _fromSync   = false;            // false:通常証跡、true:同期証跡
+
+// グループ選択ダイアログで選択したグループ
+// ダイアログを閉じるとき、このIDを選択済み検索グループに追加する
+var _selectedGroups         = new Object();
+
+// グループ選択ダイアログで選択を解除したグループ
+// ダイアログを閉じるとき、このIDを選択済み検索グループから削除する
+var _deselectedGroups       = new Object();
+
+var _exportSelectedSearchGroups     = new Object(); // 選択した対象グループ（エクスポート用）
+var _selectedSearchSpaces   = new Object();
+var _selectedSearchActions  = new Array();
+
+
+////////////////
+//    SYNC    //
+////////////////
+var _syncSelectedSearchGroups       = new Object(); // 選択済み対象グループ
+var _syncExportSelectedSearchGroups = new Object(); // 選択した対象グループ（エクスポート用）
+
+/////////////////////
+// 通常・SYNC 共用 //
+/////////////////////
+var _intSelectedSearchGroups        = new Object();
+var _intExportSelectedSearchGroups  = new Object();
+var _intElmUsername     = null;
+var _intElmGroupsLabel  = null;
+var _intElmFrom         = null;
+var _intElmTo           = null;
+
+var _exportSelectedSearchSpaces     = new Object();
+var _exportSelectedSearchActions    = new Array();
+
+var _exportSelectedTargetSpaceId                = null;
+var _exportSelectedTargetRootType               = null;
+var _exportSelectedTargetBreadCrumbs            = "";
+var _exportSelectedTargetBreadCrumbsRejectRoot  = "";
+
+var _exportHistoryDialogSelectedRowId   = null;
+var _language   = "{!cso_userInfo.locale}";
+var _timezone   = "{!cso_userInfo.TimeZone}";
+var isSync = {!cso_userInfo.option_sync};
+var eviId = ""; // グループ管理者のユーザ変更メールパラメータ SFでは不使用
+var recordCountReminder = 0;
+
+var _spaceTreeList  = null;
+
+var _eviCount;
+var _syncEviCount;
+
+
+/*
+ * 読込処理
+ */
+jQuery.event.add(window, "load", function(){
+    readyForSync();
+    controleAppLink({!cso_userInfo.option_sync}&&{!cso_userInfo.proAuth_sync_use});
+    controleSupportLink({!cso_userInfo.option_support}, {!cso_userInfo.supportUser});
+    setIsManager({!cso_userInfo.proAuth_evidence_manage});
+    var index = $.cookie("updatePostingIndex");
+    if (!index) {
+        index = 0;
+    }
+    $('#exportHistoryDialogTab').tabs({
+            select: function(event, ui){
+                $.cookie("updatePostingIndex", ui.index);
+            },
+            selected : index,
+    }).show();
+
+    //  全体的にフォントが大きくなる原因となるクラスを削除
+    $("#exportHistoryDialogTab").removeClass("ui-widget");
+
+    // レイアウトが崩れる原因となるクラスを削除
+    $("#exportHistoryDialogTab > ul").removeClass("ui-widget-header");
+    var browserType = getBrowserType();
+    clearCondition();
+    $("#exportLanguage").val(_language);
+    $("#exportTimezone").val(_timezone);
+
+    // 検索ダイアログ定義
+    $('#searchDiv').dialog({
+        autoOpen : false,
+        width : 550
+    });
+    // 透かし情報で照会ダイアログ定義
+    $('#searchDigimarkDiv').dialog({
+        autoOpen : false,
+        width : 550
+    });
+    // 証跡出力ダイアログ定義
+    $("#exportDialog").dialog({
+        width       : 550,
+        autoOpen    : false,
+        resizable   : false,
+        modal       : true,
+    });
+
+    $("#exportDialogSearchUsernameInput").keypress(function(e){
+        stopEnterEvent(e);
+    });
+
+    $("#exportDialogSearchUsernameInput").blur(function(){
+        if($("#exportDialogSearchUsernameInput").val() == "" || $("#exportDialogSearchUsernameInput").val() == "{!$Label.label_evidence_00045}"){
+            $("#exportDialogSearchUsernameSpan").text("{!$Label.label_evidence_00001}");
+        }else{
+            $("#exportDialogSearchUsernameSpan").text($("#exportDialogSearchUsernameInput").val());
+        }
+        if($("#exportDialogSearchUsernameInput").val() == _intElmUsername.val()
+                || (_intElmUsername.val() == "{!$Label.label_evidence_00045}" && $("#exportDialogSearchUsernameInput").val() == "")
+                || (_intElmUsername.val() == "" && $("#exportDialogSearchUsernameInput").val() == "{!$Label.label_evidence_00045}")){
+            $("#exportDialogSearchUsernameSpan").removeClass("export-dialog-modified");
+        }else{
+            $("#exportDialogSearchUsernameSpan").addClass("export-dialog-modified");
+        }
+        $("#exportDialogSearchUsernameDisplay").css("display", "block");
+        $("#exportDialogSearchUsernameEdit").css("display", "none");
+        setExportDialogSearchCount();
+    });
+    $("#exportDialogFrom").keypress(function(e){
+        stopEnterEvent(e);
+    });
+    $("#exportDialogFrom").focus(function(){
+        onExportDialogFocusDate();
+    }).blur(function(){
+        setTimeout(function(){$(document).click(onExportDialogBlurDate);}, 200);
+    });
+    $("#exportDialogTo").keypress(function(e){
+        stopEnterEvent(e);
+    });
+    $("#exportDialogTo").focus(function(){
+        onExportDialogFocusDate();
+    }).blur(function(){
+        setTimeout(function(){$(document).click(onExportDialogBlurDate);}, 200);
+    });
+    $("#exportLanguage").blur(function(){
+        $("#exportDialogLanguageSpan").html($("#exportLanguage option:selected").html());
+        if($("#exportLanguage").val() == _language){
+            $("#exportDialogLanguageSpan").removeClass("export-dialog-modified");
+        }else{
+            $("#exportDialogLanguageSpan").addClass("export-dialog-modified");
+        }
+        $("#exportDialogLanguageDisplay").css("display", "block");
+        $("#exportDialogLanguageEdit").css("display", "none");
+    });
+    $("#exportTimezone").blur(function(){
+        $("#exportDialogTimezoneSpan").html($("#exportTimezone option:selected").html());
+        if($("#exportTimezone").val() == _timezone){
+            $("#exportDialogTimezoneSpan").removeClass("export-dialog-modified");
+        }else{
+            $("#exportDialogTimezoneSpan").addClass("export-dialog-modified");
+        }
+        $("#exportDialogTimezoneDisplay").css("display", "block");
+        $("#exportDialogTimezoneEdit").css("display", "none");
+    });
+
+    $("#selectGroupDialog").dialog({
+        width       : 530,
+        autoOpen    : false,
+        resizable   : false,
+        modal       : true,
+    });
+
+    $("#selectSpaceDialog").dialog({
+        width       : 500,
+        autoOpen    : false,
+        resizable   : false,
+        modal       : true,
+    });
+
+    $("#selectActionDialog").dialog({
+        width       : 525,
+        autoOpen    : false,
+        resizable   : false,
+        modal       : true,
+    });
+
+    $("#selectTargetSpaceDialog").dialog({
+        width       : 500,
+        autoOpen    : false,
+        resizable   : false,
+        modal       : true,
+    });
+
+    $("#exportHistoryDialog").dialog({
+        width       : 750,
+        autoOpen    : false,
+        resizable   : false,
+        modal       : true,
+    });
+
+   $("#syncEvidenceSearchDialog").dialog({
+        width       : 450,
+        autoOpen    : false,
+        resizable   : false,
+    });
+
+    $("#exportButton").menu({
+        content     : $("#exportPullMenu").html(),
+        showSpeed   : 100,
+        width       : 180,
+    });
+
+    $("#evidence a span").addClass("shadow");
+    if (browserType == "IE8"){
+        $("#evidence a").css("background","url(/image/_right_selected.png) right top no-repeat !important");
+        $(".shadow").css("background","url(/image/_left_selected.png) left top no-repeat !important");
+    }
+
+    $(window).resize(resizeGrid);
+
+    $("form").submit(function(e){
+        e.preventDefault();
+    });
+
+    // Datepicker定義
+    $("#from").datepicker({dateFormat : datePickerFormat});
+    $("#to").datepicker({dateFormat : datePickerFormat});
+    $("#syncFrom").datepicker({dateFormat : datePickerFormat});
+    $("#syncTo").datepicker({dateFormat : datePickerFormat});
+    $("#exportDialogFrom").datepicker({dateFormat : datePickerFormat});
+    $("#exportDialogTo").datepicker({dateFormat : datePickerFormat});
+
+    //  検索条件の一覧を取得する
+    search_List();
+
+    $("#evidenceList").jqGrid({
+        url: _apiUrl + "/evidencemanagement/EvidenceListV2Get.json",
+        datatype: "jsonp",
+        postData : {
+            eviId : eviId
+        },
+        jsonReader :{
+            repeatitems: false,
+            id         : "id"
+        },
+        colNames:[
+            '',
+            '{!$Label.label_10019}',
+            '{!$Label.label_10131}',
+            '{!$Label.label_10276}',
+            '',
+            '{!$Label.field_010057}',
+            '{!$Label.label_00062}',
+            '{!$Label.label_10843}',//操作元IP
+            '{!$Label.label_10844}',//ユーザエージェント
+            '{!$Label.label_10126}'
+        ],
+        colModel:[
+            {name:'0',  index:'0',  hidden:true},
+            {name:'2',  index:'2',  width:130, align:"center"},
+            {name:'4',  index:'16', width:250, align:"left"},
+            {name:'8',  index:'8',  width:110, align:"center"},
+            {name:'12',  index:'12', hidden:true},
+            {name:'actionName', index:'actionName', width:90, align:'center'},
+            {name:'10', index:'10', width:50, align:'center'},
+            {name:'globalIpAddress',  index:'globalIpAddress', width:100, align:"left"},
+            {name:'userAgent',  index:'userAgent', width:130, align:"left"},
+            {name:'15', index:'15', width:340, sortable:false, formatter: myFormatter, unformat: myUnformatter}
+        ],
+        rowNum:50,
+        autowidth: true,
+        height: getBrowserHeight() - 300,
+        width: getBrowserWidth() - 85,
+        rowList:[50,100,300],
+        sortname: "2",
+        pager: "#evidenceListPager",
+        viewrecords: true,
+        sortorder: "desc",
+        shrinkToFit : false,
+        loadComplete: function(){
+            resizeGrid();
+            // 検索結果件数設定
+            $(getId('{!$Component.evidencePage.evidenceForm.evidenceBlock.recordCount} h3')).text($("#evidenceList").jqGrid("getGridParam", "records") + " " + "{!$Label.msg_00006}");
+            recordCountReminder = $("#evidenceList").jqGrid("getGridParam", "records");
+        }
+    });
+    $("#evidenceList").jqGrid("navGrid",'#evidenceListPager',{edit:false,add:false,del:false,search:false});
+
+    $("#exportButton").menu({ content : $("#exportPullMenu").html(), showSpeed : 100, width : 180});
+
+    if(isSync){
+
+        $("#syncEvidenceSearchDialog").dialog({
+            width       : 550,
+            autoOpen    : false,
+            resizable   : false,
+        });
+
+        $("#syncEvidenceList").jqGrid({
+            url         : _apiUrl + '/evidencemanagement/SyncList.json',
+            datatype    : "jsonp",
+            mtype       : "post",
+            jsonReader  : {
+                repeatitems: false,
+                id         : "0"
+            },
+            colNames    : [
+                '',
+                '{!$Label.label_10019}',
+                '{!$Label.label_10131}',
+                '{!$Label.label_10276}',
+                '{!$Label.label_10843}',//操作元IP
+                '{!$Label.label_10126}'
+            ],
+            colModel    : [
+                {name:'id',         index:'id',         hidden:true},
+                {name:'datetime',   index:'datetime',   width:80,       align:"center"},
+                {name:'user',       index:'user',       width:250,      align:"left",       sortable:false},
+                {name:'role',       index:'role',       width:110,      align:"center",     sortable:false},
+                {name:'ip',         index:'ip',         width:70,       align:"center",     sortable:false},
+                {name:'detail',     index:'detail',     width:340,      sortable:false}
+            ],
+            rowNum : 50,
+            height: getBrowserHeight() - 174,
+            rowList:[50,100,300],
+            sortname: 'datetime',
+            pager: '#syncEvidenceListPager',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit : true,
+            loadComplete: function(){
+                resizeGrid();
+                localStorage.setItem(rowNumKey,$(this).getGridParam("rowNum"));
+            }
+        });
+        $("#syncEvidenceList").jqGrid('navGrid','#syncEvidenceListPager',{edit:false,add:false,del:false,search:false});
+    }
+
+    resizeGrid();
+
+    setActionCategory1();
+    setCSOLanguage();
+    setCSOTimezone();
+
+    $(".search-space-info").tooltip({
+        text    : "{!$Label.label_evidence_00002}",
+        width   : 230,
+        height  : 60,
+    });
+
+    $("#exportDialogSearchCountInfo").tooltip({
+        text    : "{!$Label.label_evidence_00003}",
+        width   : 230,
+        height  : 40,
+    });
+
+    $('#exportHistoryDialogTab').tabs({
+        selected    : 0,
+        show        : function(e, ui){
+            if(ui.index == 0){
+                $("#exportHistoryPriorityUpButton").show();
+                $("#exportHistoryPriorityDownButton").show();
+                $("#exportHistoryStopButton").show();
+                $("#exportHistoryDialogExplanation").show();
+            }else if(ui.index == 1){
+                $("#exportHistoryPriorityUpButton").hide();
+                $("#exportHistoryPriorityDownButton").hide();
+                $("#exportHistoryStopButton").hide();
+                $("#exportHistoryDialogExplanation").hide();
+            } else {
+                $("#exportHistoryPriorityUpButton").hide();
+                $("#exportHistoryPriorityDownButton").hide();
+                $("#exportHistoryStopButton").hide();
+                $("#exportHistoryDialogExplanation").hide();
+            }
+        }
+    });
+
+    $("#selectGroupDialogSearch").keydown(function(e){
+        if(e.keyCode == 13){
+            onSelectGroupDialogSearchClicked();
+        }
+    });
+});
+
+function myFormatter(cellvalue, options, rowObject) {
+    if (rowObject['name_raw'] && !rowObject['__initialized_name']) {
+        rowObject['__initialized_name'] = true;
+        rowObject['name'] = rowObject['name_raw'];
+    }
+
+    if (cellvalue != null) {
+        return $.jgrid.htmlEncode(cellvalue);
+    }
+
+    return "";
+}
+
+function myUnformatter(cellvalue, options, cell) {
+    return cellvalue;
+}
+
+/*
+ * 検索条件（アクション）の一覧を取得する
+ */
+function search_List(){
+
+    var callback =  function(data){
+
+        if (data == null) {
+            return false;
+        }
+
+        var rows = data["actionlist"];
+        var count = rows.length;
+
+        //  ユーザ一覧をクリア
+        var actionList = $("#action");
+        actionList.empty();
+
+        //  ユーザ一覧に追加
+        var option;
+        option = $(createActionListString("  ", "{!$Label.label_10176}"));
+        option.attr("id", "value");
+        actionList.append(option);
+        for(var i = 0; i < count; i++){
+            option = $(createActionListString(rows[i].code, rows[i].name));
+            option.attr("id", "value");
+            actionList.append(option);
+        }
+        if(count == 0){
+          alert("{!$Label.msg_00054}");
+        }
+    };
+    secureGetAsync('/evidencemanagement/ActionSelectListGet.json', {"":""}, callback);
+}
+
+/*
+ * 検索条件のタグを編集する
+ */
+function createActionListString(id, name){
+    var str = "<option id='" + id + "' value='" + id + "'>" + name + "</option>";
+    return str;
+}
+
+function setIsManager(isManager){
+    _isManager = isManager;
+}
+
+/*
+ * 画面リサイズ時の各要素のサイズをリサイズ
+ */
+function resizeGrid(){
+    var height = getBrowserHeight() - 300;
+    if (height >= 270) {
+        $("#evidenceList").setGridHeight(height);
+        $("#syncEvidenceList").setGridHeight(height);
+    }
+    $("#evidenceList-container").width(getBrowserWidth() - 85);
+    $("#evidenceList").setGridWidth($("#evidenceList-container").innerWidth(), true);
+    $("#syncEvidenceList-container").width(getBrowserWidth() - 85);
+    $("#syncEvidenceList").setGridWidth($("#syncEvidenceList-container").innerWidth(), true);
+}
+
+/*
+ * 透かし条件に合わせてデータを検索する
+ */
+function evidenceDigimarkSearch(){
+    jQuery("#evidenceList").jqGrid("setGridParam", {
+        page:1,
+        postData : {
+            digimark_payload : $.trim($("#digimark_payload").val())
+        }
+    });
+    $('#evidenceList').trigger('reloadGrid');
+}
+
+/*
+ * クリアボタン時動作 透かし情報を空にして検索する
+ */
+function clearDigimarkCondition(){
+    $("#digimark_payload").val("");
+    evidenceDigimarkSearch();
+}
+
+/*
+ * 検索条件に合わせてデータを検索する
+ */
+function evidenceSearch(){
+    var username = $.trim($("#username").val());
+    if($("#username").val() == $("#username").attr("placeholder")){
+        username = "";
+    }
+    var from = $.trim($("#from").val());
+    var to = $.trim($("#to").val());
+    var action = "";
+    for(var i=0; i<_selectedSearchActions.length; i++){
+        if(i!=0){
+            action += ",";
+        }
+        action += _selectedSearchActions[i].val();
+    }
+
+    var groupIDs = "";
+    for (var key in _selectedSearchGroups) {
+        if (groupIDs != "") {
+            groupIDs += ",";
+        }
+        groupIDs += key;
+    }
+
+    var spaceIDs = "";
+    for(var key in _selectedSearchSpaces){
+        if(spaceIDs != ""){
+            spaceIDs += ",";
+        }
+        spaceIDs += key;
+    }
+
+    if((from.length != 0 && !isDatePickerFormatValid(from, $("#from"))) ||
+            (to.length != 0 && !isDatePickerFormatValid(to, $("#to")))){
+        alert("{!$Label.msg_00062}");
+        return;
+    }else if(from.length != 0 && to.length != 0 && !isDatePickerFromToValid($("#from"), $("#to"))){
+        alert("{!$Label.msg_00063}");
+        return;
+    }
+
+    if(spaceIDs == ""){
+        var colModel = [
+            {name:'0',  index:'0',  hidden:true},
+            {name:'2',  index:'2',  width:130, align:"center"},
+            {name:'4',  index:'16', width:250, align:"left"},
+            {name:'8',  index:'8',  width:110, align:"center", sortable:true},
+            {name:'12',  index:'12',  hidden : true},
+            {name:'actionName',  index:'actionName',  align : "center", width : 90},
+            {name:'10', index:'10', width:50, align:'center', sortable:true},
+            {name:'globalIpAddress', index:'globalIpAddress', align : "center", width : 70},
+            {name:'userAgent', index:'userAgent', align : "left", width : 90},
+            {name:'15', index:'15', width:340, sortable:false}
+        ];
+    }else{
+        var colModel = [
+            {name:'0',  index:'0',  hidden:true},
+            {name:'2',  index:'2',  width:130, align:"center"},
+            {name:'4',  index:'16', width:250, align:"left"},
+            {name:'8',  index:'8',  width:110, align:"center", sortable:false},
+            {name:'12',  index:'12',  hidden : true},
+            {name:'actionName',  index:'actionName',  align : "center", width : 90},
+            {name:'10', index:'10', width:50, align:'center', sortable:false},
+            {name:'globalIpAddress', index:'globalIpAddress', align : "center", width : 70},
+            {name:'userAgent', index:'userAgent', align : "left", width : 90},
+            {name:'15', index:'15', width:340, sortable:false}
+        ];
+    }
+//    delete $("#evidenceList").getGridParam().postData.eviId; // TODO 用途特定
+
+    jQuery("#evidenceList").jqGrid("setGridParam", {
+        page:1,
+        postData : {
+            username : username,
+            from : from,
+            to : to,
+            action : action,
+            space_ids   : spaceIDs/*,
+            group_ids   : groupIDs*/
+        }
+    });
+    $('#evidenceList').trigger('reloadGrid');
+}
+
+/*
+ * 検索条件をクリアする
+ */
+function clearCondition(){
+    $("#username").val("");
+
+    _selectedSearchGroups = new Object();
+    $("#selectedSearchGroup").text("-");
+
+    _selectedSearchSpaces = new Object();
+    $("#selectedSearchSpace").html("-");
+
+    _selectedSearchActions = new Array();
+    $("#selectedSearchAction").html("-");
+
+
+    $("#from").val("");
+    $("#to").val("");
+//    $("#action").val("");
+//    $('#action').attr("selectedIndex", 0);
+    evidenceSearch();
+}
+
+/*
+ * 検索条件ダイアログを表示する
+ */
+function searchEvidence(){
+    if ($("#viewChangeBtn").val() != "{!$Label.field_010139}") {
+        _fromSync = false;
+    } else {
+        _fromSync = true;
+    }
+
+    var searchDialogId;
+    if (_fromSync) {
+        searchDialogId = "syncEvidenceSearchDialog";
+    } else {
+        searchDialogId = "searchDiv";
+    }
+    if($("[aria-labelledby=ui-dialog-title-" + searchDialogId + "]:first").css("display") == "block"){
+        $("#" + searchDialogId).dialog('close');
+    }else{
+        $("#" + searchDialogId).dialog('open');
+    }
+}
+
+//
+//
+
+
+/*----------------------------------------*/
+/*  [グループを選択する]リンク押下時      */
+/*----------------------------------------*/
+function onSelectGroupClicked(){
+    _fromExportDialog = false;
+
+    setIntegratedVariables();
+
+    _selectedGroups = $.extend({}, _intSelectedSearchGroups);
+
+    _deselectedGroups = new Object();
+    if ($("#selectGroupDialogListTable").getGridParam() == undefined) {
+        setGroupList();
+    } else {
+        groupListReload();
+    }
+    $("#selectGroupDialog").dialog("open");
+}
+
+function onSelectGroupDialogSearchClicked() {
+    groupListReload();
+}
+
+function groupListReload() {
+    $("#selectGroupDialogListTable").clearGridData().setGridParam({
+        page        : 1,
+        postData    : { search : $("#selectGroupDialogSearch").val() }
+    }).trigger("reloadGrid");
+}
+
+function setGroupList() {
+    $("#selectGroupDialogListTable").jqGrid({
+        url         : _apiUrl + "/evidencemanagement/groupList.json",
+        postData    : {
+            search      : $("#selectGroupDialogSearch").val()
+        },
+        datatype    :"jsonp",
+        jsonReader  : {
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames    : [
+                "",
+                "",
+                "{!$Label.label_10548}",
+        ],
+        colModel    : [
+                {name : "id",       index : "id",   hidden : true },
+                {name : "name",     index : "name", hidden : true },
+                {name : "group",    index : "group" },
+        ],
+        rowNum      : 30,
+        height      : 300,
+        width       : 500,
+        autowidth   : false,
+        rowList     : [10,30,50],
+        sortname    : 'name',
+        sortorder   : 'asc',
+        pager       : $('#selectGroupDialogListTablePager'),
+        viewrecords : true,
+        multiselect : true,
+        multiboxonly: true,
+        shrinkToFit : true,
+        onSelectRow : function(id, b_check){
+            var ids = $('#selectGroupDialogListTable').getDataIDs();
+            var selrows = $('#selectGroupDialogListTable').getGridParam("selarrrow");
+            for (var i = 0; i < ids.length; i++) {
+                var row = $('#selectGroupDialogListTable').getRowData(ids[i]);
+                if ($.inArray(row.id, selrows) >= 0) {
+                    _selectedGroups[row.id] = row.name;
+                    delete _deselectedGroups[row.id];
+                } else {
+                    delete _selectedGroups[row.id];
+                    _deselectedGroups[row.id] = row.name;
+                }
+            }
+        },
+        onSelectAll : function(ids, b_check) {
+            var selrows = $('#selectGroupDialogListTable').getGridParam('selarrrow');
+            for (var i = 0; i < selrows.length; i++) {
+                var row = $('#selectGroupDialogListTable').getRowData(selrows[i]);
+                _selectedGroups[row.id] = row.name;
+                delete _deselectedGroups[row.id];
+            }
+        },
+        onPaging    : function(b) {
+        },
+        loadComplete: function(data){
+            for (var key in _selectedGroups) {
+                $('#selectGroupDialogListTable').setSelection(key, false);
+            }
+        }
+    });
+    $("#selectGroupDialogListTable").jqGrid('navGrid','#selectGroupDialogListTablePager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function onSelectGroupDialogCancelClicked() {
+    $("#selectGroupDialog").dialog("close");
+}
+
+function onSelectGroupDialogOkClicked() {
+    setSelectedGroups();
+    $("#selectGroupDialog").dialog("close");
+}
+
+function setSelectedGroups() {
+    setIntegratedVariables();
+
+    var selectedSearchGroups = new Object();
+    if (_fromExportDialog) {
+        selectedSearchGroups = $.extend({}, _exportSelectedSearchGroups);
+    } else {
+        selectedSearchGroups = $.extend({}, _intSelectedSearchGroups);
+    }
+
+    for (var key in _selectedGroups) {
+        selectedSearchGroups[key] = _selectedGroups[key];
+    }
+    for (var key in _deselectedGroups) {
+        delete selectedSearchGroups[key];
+    }
+
+    var groupNames = "";
+    for (var key in selectedSearchGroups) {
+        if (groupNames != "") {
+            groupNames += ", ";
+        }
+        groupNames += selectedSearchGroups[key];
+    }
+
+    if (_fromExportDialog) {
+        _exportSelectedSearchGroups = selectedSearchGroups;
+        if (_fromSync) {
+            _syncExportSelectedSearchGroups = selectedSearchGroups;
+        } else {
+            _exportSelectedSearchGroups = selectedSearchGroups;
+        }
+        $("#exportDialogSelectedSearchGroup").text(groupNames == "" ? "-" : groupNames);
+
+        var b_eq = true;
+        for (var key in _intSelectedSearchGroups) {
+            if (!(key in _exportSelectedSearchGroups)) {
+                b_eq = false;
+                break;
+            }
+        }
+        if (b_eq) {
+            for (var key in _exportSelectedSearchGroups) {
+                if (!(key in _intSelectedSearchGroups)) {
+                    b_eq = false;
+                    break;
+                }
+            }
+        }
+
+        if (b_eq) {
+            $("#exportDialogSelectedSearchGroup").removeClass("export-dialog-modified");
+        } else {
+            $("#exportDialogSelectedSearchGroup").addClass("export-dialog-modified");
+        }
+
+        setExportDialogSearchCount();
+    } else {
+        _intSelectedSearchGroups = $.extend({}, selectedSearchGroups);
+        if (_fromSync) {
+            _syncSelectedSearchGroups = $.extend({}, selectedSearchGroups);
+        } else {
+            _selectedSearchGroups = $.extend({}, selectedSearchGroups);
+        }
+
+        _intElmGroupsLabel.text(groupNames == "" ? "-" : groupNames);
+    }
+}
+
+
+//
+//
+
+
+/*
+ * 透かし情報で紹介ダイアログを表示する
+ */
+function searchDigimarkEvidence(){
+    $("#searchDigimarkDiv").dialog("open");
+}
+
+function onSelectSpaceClicked(){
+    _fromExportDialog = false;
+    getSpaceList();
+    setSpaceList();
+    $("#selectSpaceDialog").dialog("open");
+}
+
+function getSpaceList(){
+    var spaceTreeListCallback =  function(data, status){
+        if (data.result) {
+            _spaceTreeList = data["tree"];
+        }
+    };
+    secureGetAsync('/evidencemanagement/spaceTreeListGetApi.json', ' ', spaceTreeListCallback);
+
+}
+
+function setSpaceList(){
+    $("#spaceList").html("");
+    $("#spaceListLoading").css({
+        "display"   : "block",
+        "top"       : "170px",
+        "left"      : "230px",
+    });
+
+    var callback = function(data){
+        var branches = $("#spaceList").html(data["tree"]);
+        $("#spaceList").treeview({
+            //animated    : "fast",
+            //collapsed   : false,
+            //add         : branches,
+            //persist     : "cookie",
+            //cookieId    : "evidenceSpaceTree",
+            //add: branches,
+
+            url: "/evidencemanagement/SpaceTreeChildrenApi.json",
+            add         : branches,
+            animated: "fast",
+            persist     : "fixed-close",
+            cookieId    : "evidenceSpaceTree",
+            callback: function(elements){
+                setTimeout(function(){
+                    if(_fromExportDialog){
+                        setChildSpaceListCheck(_exportSelectedSearchSpaces,elements);
+                    }else{
+                        setChildSpaceListCheck(_selectedSearchSpaces,elements);
+                    }
+                },100);
+            },
+        });
+
+        if(_fromExportDialog){
+            setSpaceListCheck(_exportSelectedSearchSpaces);
+        }else{
+            setSpaceListCheck(_selectedSearchSpaces);
+        }
+
+        $("#spaceListLoading").css("display", "none");
+    };
+
+    secureGetAsync('/evidencemanagement/spaceTreeRootApi.json',  ' ', callback);
+}
+
+function setSpaceListCheck(arr){
+    for(var key in arr){
+        $("#spaceList").find("input[value=" + key + "]").attr("checked", "checked");
+    }
+}
+
+function setChildSpaceListCheck(arr,elm){
+    var $ul = elm;
+    var $li = $ul.children("li");
+
+    var existInterLock = false;     //  下位連動フラグの有無（false:下位連動なし、true:下位連動あり）
+    var interlock = "";             //  下位連動フラグの値（"checked":チェックする、"":チェックしない）
+
+    //  下位連動フラグがあった場合
+    var objChk = $("#spaceList").find("input[value=" + elm.prevObject[0].id + "]");
+    if(objChk.attr("interlock") != null){
+        existInterLock = true;
+        interlock = objChk.attr("interlock");
+    }
+
+    // [下位連動]する場合
+    if(existInterLock == true) {
+        $li.each(function() {
+            var obj = $("#spaceList").find("input[value=" + $(this).attr("id") + "]");
+            // 下位にも[下位連動]フラグ(interlock)を付加する
+            obj.attr("interlock", interlock);
+            // 連動する
+            obj.attr("checked", interlock);
+        });
+        return false;
+    }
+
+    for(var key in arr){
+        // 追加表示する要素にのみチェックを入れる
+        var lookup = false;
+        $li.each(function() {
+            if ($(this).attr("id") == key) {
+                lookup = true;
+                return false;
+            }
+        });
+        if (lookup) {
+            $("#spaceList").find("input[value=" + key + "]").attr("checked", "checked");
+        }
+    }
+}
+
+function onSearchSpaceChecked(obj){
+    if($("#spacelistAutoselect").attr("checked")){
+        //  下位のチェック状態の変更と、[下位連動]フラグ(interlock)の付加
+        var value =  $(obj).attr("checked") ? "checked" : "";
+        $(obj).closest("li").find("input[value^=SPACE_]").attr({checked:value, interlock:value});
+    }
+}
+
+function onSelectSpaceDialogCancelClicked(){
+    $("#selectSpaceDialog").dialog("close");
+}
+
+function onSelectSpaceDialogOkClicked(){
+    var spaces = new Object();
+    var selectedSearchSpace = "";
+    $("#spaceList").find("input[value^=SPACE_][selectable=1]:checked, input[value^=SPACE_][selectable=1][interlock=checked]").each(function(){
+        if($(this).attr("checked") == true){
+            spaces[$(this).val()] = $("#spaceList").find("span[spaceid=" + $(this).val() + "]").html();
+            if(selectedSearchSpace == ""){
+                selectedSearchSpace += spaces[$(this).val()];
+            }else{
+                selectedSearchSpace += ",&nbsp;" + spaces[$(this).val()];
+            }
+        }
+        if(($(this).attr("interlock") != null) && ($(this).attr("interlock") == "checked")){
+            // 下位連動フラグ(interlock)が"checked"の場合、
+            // [自動的に下位スペースを選択する]が指定されていて、
+            // このスペース配下が読み込まれていない場合は、
+            // 末端までのスペースが選択されたものとして処理する
+            var id = $(this).val();
+            var $li = $("#spaceList").find("li#" + id);
+            if($li.hasClass("hasChildren")){
+                if(_spaceTreeList != null){
+                    for(var i = 0; i < _spaceTreeList.length; i++){
+                        var info = _spaceTreeList[i];
+                        var path = info.parentPath;
+                        if(!path){
+                        }else{
+                            if(path.indexOf(id)!=-1){
+                                spaces[info.spaceId] = info.spaceName;
+                                if(selectedSearchSpace == ""){
+                                    selectedSearchSpace += info.spaceName;
+                                }else{
+                                    selectedSearchSpace += ",&nbsp;" + info.spaceName;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    //------------------------------------------------------//
+    // 今回選択したスペース一覧に、
+    // 前回選択したスペース一覧（beforeSpaceList）から
+    // 以下のスペースを除いたスペースを追加
+    // ・今回、選択したスペース
+    // ・今回、未選択とされたスペース
+    // ・今回、下位連動で未選択とされたスペース
+    //------------------------------------------------------//
+    // 前回選択したスペース一覧を取得
+    var beforeSpaceList = _selectedSearchSpaces;
+    if(_fromExportDialog){
+        beforeSpaceList = _exportSelectedSearchSpaces
+    }
+
+    // 前回選択したスペース一覧から、今回、選択したスペースを削除
+    for(var key in beforeSpaceList){
+        if(spaces[key] != null){
+            delete beforeSpaceList[key];
+        }
+    }
+
+    // 前回選択したスペース一覧から、今回、未選択とされたスペースを削除
+    $("#spaceList").find("input[value^=SPACE_][selectable=1][checked=false]").each(function(){
+        delete beforeSpaceList[$(this).val()];
+    });
+
+    // 前回選択したスペース一覧から、今回、下位連動で未選択とされたスペースを削除
+    $("#spaceList").find("input[value^=SPACE_][selectable=1][interlock='']").each(function(){
+        // 下位連動フラグ(interlock)が""の場合、
+        // このスペース配下が読み込まれていない場合は、
+        // 末端までのスペースが選択解除されたものとして処理する
+        var id = $(this).val();
+        var $li = $("#spaceList").find("li#" + id);
+        if($li.hasClass("hasChildren")){
+            if(_spaceTreeList != null){
+                for(var i = 0; i < _spaceTreeList.length; i++){
+                    var info = _spaceTreeList[i];
+                    var path = info.parentPath;
+                    if(!path){
+                    }else{
+                        if(path.indexOf(id)!=-1){
+                            delete beforeSpaceList[info.spaceId];
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 今回選択したスペース一覧に追加
+    for(var key in beforeSpaceList){
+        spaces[key] = beforeSpaceList[key];
+        if(selectedSearchSpace == ""){
+            selectedSearchSpace += beforeSpaceList[key];
+        }else{
+            selectedSearchSpace += ",&nbsp;" + beforeSpaceList[key];
+        }
+    }
+
+    if(selectedSearchSpace==""){
+        selectedSearchSpace = "-";
+    }
+
+    if(_fromExportDialog){
+        _exportSelectedSearchSpaces = spaces;
+        $("#exportDialogSelectedSearchSpace").html(selectedSearchSpace);
+        var b_eq = true;
+        for(var key in _selectedSearchSpaces){
+            if(!(key in _exportSelectedSearchSpaces)){
+                b_eq = false;
+                break;
+            }
+        }
+        if(b_eq){
+            for(var key in _exportSelectedSearchSpaces){
+                if(!(key in _selectedSearchSpaces)){
+                    b_eq = false;
+                    break;
+                }
+            }
+        }
+        if(b_eq){
+            $("#exportDialogSelectedSearchSpace").removeClass("export-dialog-modified");
+        }else{
+            $("#exportDialogSelectedSearchSpace").addClass("export-dialog-modified");
+        }
+        setExportDialogSearchCount();
+    }else{
+        _selectedSearchSpaces = spaces;
+        $("#selectedSearchSpace").html(selectedSearchSpace);
+    }
+
+    $("#selectSpaceDialog").dialog("close");
+}
+
+function onSelectActionClicked(){
+    _fromExportDialog = false;
+    $("#selectActionDialogSelectedAction").html("");
+    for(var key in _selectedSearchActions){
+        var o = _selectedSearchActions[key];
+        $("#selectActionDialogSelectedAction").append(
+            $("<option>").attr({
+                "value"     : o.val(),
+                "sort"      : o.attr("sort"),
+                "category1" : o.attr("category1"),
+                "category2" : o.attr("category2"),
+                "title"     : o[0].text
+            }).html(o[0].text)
+        );
+    }
+    setAllActionsByCache();
+    $("#selectActionDialog").dialog("open");
+}
+
+function onActionCategory1Changed(){
+    setActionCategory2($("#selectActionDialogCategory1").val());
+}
+
+function onActionCategory2Changed(){
+    setActionList(
+        $("#selectActionDialogCategory1").val(),
+        $("#selectActionDialogCategory2").val()
+    );
+}
+
+
+function setAllActionsByCache(){
+    $("#selectActionDialogCategory1").html("");
+    for(var key in _actionCategory1DataAll){
+        var option = $("<option>").attr({
+            "value" : key,
+        }).html(_actionCategory1DataAll[key]);
+        $("#selectActionDialogCategory1").append(option);
+    }
+
+    $("#selectActionDialogCategory2").html("");
+    for(var key in _actionCategory2DataAll){
+        var option = $("<option>").attr({
+            "value" : key,
+        }).html(_actionCategory2DataAll[key]);
+        $("#selectActionDialogCategory2").append(option);
+    }
+
+    $("#selectActionDialogSelectableAction").html("");
+    for(var key in _actionDataAll){
+        if(key=="CREATE_PDF" || key=="DEL_FILE" || key=="WORKFLOW"){
+            continue;
+        }else if($("#selectActionDialogSelectedAction").find("[value=" + key + "]").length > 0){
+            continue;
+        }
+        var option = $("<option>").attr({
+            "value"     : key,
+            "sort"      : _actionDataAll[key].sort,
+            "category1" : _actionDataAll[key].category1,
+            "category2" : _actionDataAll[key].category2,
+            "title"     : _actionDataAll[key].name
+        }).html(_actionDataAll[key].name);
+        $("#selectActionDialogSelectableAction").append(option);
+    }
+}
+
+function setActionCategory1(){
+    var callback = function(data){
+        if(_actionCategory1DataAll==null){
+            _actionCategory1DataAll = data.list;
+        }
+        $("#selectActionDialogCategory1").html("");
+        for(var key in data.list){
+            var option = $("<option>").attr({
+                "value" : key,
+            }).html(data.list[key]);
+            $("#selectActionDialogCategory1").append(option);
+        }
+        setActionCategory2($("#selectActionDialogCategory1").val());
+    };
+
+    secureGetAsync('/evidencemanagement/actionCategory1List.json', {}, callback);
+}
+
+function setActionCategory2(category1){
+    if(category1==undefined || category1==null){
+        category1 = "ALL";
+    }
+
+    var callback = function(data){
+        if(_actionCategory2DataAll==null && category1=="ALL"){
+            _actionCategory2DataAll = data.list;
+        }
+        $("#selectActionDialogCategory2").html("");
+        for(var key in data.list){
+            var option = $("<option>").attr({
+                "value" : key,
+            }).html(data.list[key]);
+            $("#selectActionDialogCategory2").append(option);
+        }
+        setActionList(
+            $("#selectActionDialogCategory1").val(),
+            $("#selectActionDialogCategory2").val()
+        );
+    };
+
+    secureGetAsync('/evidencemanagement/actionCategory2List.json', {category1 : category1}, callback);
+}
+
+function setActionList(category1, category2){
+    if(category1==undefined || category1==null){
+        category1 = "ALL";
+    }
+    if(category2==undefined || category2==null){
+        category2 = "ALL";
+    }
+
+    var callback = function(data){
+        if(_actionDataAll==null && category1=="ALL" && category2=="ALL"){
+            _actionDataAll = data.list;
+        }
+        $("#selectActionDialogSelectableAction").html("");
+        for(var key in data.list){
+            if(key=="CREATE_PDF" || key=="DEL_FILE" || key=="WORKFLOW"){
+                continue;
+            }else if($("#selectActionDialogSelectedAction").find("[value=" + key + "]").length > 0){
+                continue;
+            }
+            var option = $("<option>").attr({
+                "value"     : key,
+                "sort"      : data.list[key].sort,
+                "category1" : data.list[key].category1,
+                "category2" : data.list[key].category2,
+                "title"     : data.list[key].name
+            }).html(data.list[key].name);
+            $("#selectActionDialogSelectableAction").append(option);
+        }
+    };
+
+    secureGetAsync('/evidencemanagement/actionList.json', {category1 : category1, category2 : category2}, callback);
+}
+
+function onSelectActionDialogAddClicked(){
+    var forSortList = new Array();
+    $("#selectActionDialogSelectableAction").find("option:selected").each(function(){
+        forSortList.push($(this));
+    });
+    $("#selectActionDialogSelectedAction").find("option").each(function(){
+        forSortList.push($(this));
+    });
+
+    forSortList = actionSort(forSortList);
+
+    for(var i=0; i<forSortList.length; i++){
+        $("#selectActionDialogSelectedAction").append(forSortList[i]);
+    }
+}
+
+function onSelectActionDialogDelClicked(){
+    var forSortList = new Array();
+    $("#selectActionDialogSelectableAction").find("option").each(function(){
+        forSortList.push($(this));
+    });
+    $("#selectActionDialogSelectedAction").find("option:selected").each(function(){
+        var cat1 = $("#selectActionDialogCategory1").val();
+        var cat2 = $("#selectActionDialogCategory2").val();
+        if((cat1 == "ALL" && (cat2 == "ALL" || cat2 == $(this).attr("category2")))
+                || (cat1 == $(this).attr("category1") && (cat2 == "ALL" || cat2 == $(this).attr("category2")))){
+            forSortList.push($(this));
+        }else{
+            $(this).remove();
+        }
+    });
+
+    forSortList = actionSort(forSortList);
+
+    for(var i=0; i<forSortList.length; i++){
+        $("#selectActionDialogSelectableAction").append(forSortList[i]);
+    }
+}
+
+function onSelectActionDialogDelClicked(){
+    var forSortList = new Array();
+    $("#selectActionDialogSelectableAction").find("option").each(function(){
+        forSortList.push($(this));
+    });
+    $("#selectActionDialogSelectedAction").find("option:selected").each(function(){
+        var cat1 = $("#selectActionDialogCategory1").val();
+        var cat2 = $("#selectActionDialogCategory2").val();
+        if((cat1 == "ALL" && (cat2 == "ALL" || cat2 == $(this).attr("category2")))
+                || (cat1 == $(this).attr("category1") && (cat2 == "ALL" || cat2 == $(this).attr("category2")))){
+            forSortList.push($(this));
+        }else{
+            $(this).remove();
+        }
+    });
+
+    forSortList = actionSort(forSortList);
+
+    for(var i=0; i<forSortList.length; i++){
+        $("#selectActionDialogSelectableAction").append(forSortList[i]);
+    }
+}
+
+function onSelectActionDialogCancelClicked(){
+    $("#selectActionDialog").dialog("close");
+}
+
+function onSelectActionDialogOkClicked(){
+    var actions = new Array();
+
+    var selectedSearchAction = "";
+    $("#selectActionDialogSelectedAction").find("option").each(function(){
+        actions.push($(this));
+        if(selectedSearchAction == ""){
+            selectedSearchAction += $(this).html();
+        }else{
+            selectedSearchAction += ",&nbsp;" + $(this).html();
+        }
+    });
+    if(selectedSearchAction == ""){
+        selectedSearchAction = "{!$Label.label_evidence_00004}";
+    }
+
+    if(_fromExportDialog){
+        _exportSelectedSearchActions    = actions;
+        $("#exportDialogSelectedSearchAction").html(selectedSearchAction);
+        var b_eq = true;
+        if(_selectedSearchActions.length != _exportSelectedSearchActions.length){
+            b_eq = false;
+        }else{
+            for(var i=0; i<_selectedSearchActions.length; i++){
+                if(_selectedSearchActions[i].val() != _exportSelectedSearchActions[i].val()){
+                    b_eq = false;
+                    break;
+                }
+            }
+        }
+        if(b_eq){
+            $("#exportDialogSelectedSearchAction").removeClass("export-dialog-modified");
+        }else{
+            $("#exportDialogSelectedSearchAction").addClass("export-dialog-modified");
+        }
+        setExportDialogSearchCount();
+    }else{
+        _selectedSearchActions          = actions;
+        $("#selectedSearchAction").html(selectedSearchAction);
+    }
+
+    $("#selectActionDialog").dialog("close");
+}
+
+function onExportButtonClicked(obj){
+    setPullMenuPosition(obj);
+}
+
+function onExportMenuClicked(){
+    if ($("#viewChangeBtn").val() != "{!$Label.field_010139}") {
+        _fromSync = false;
+    } else {
+        _fromSync = true;
+    }
+
+    setIntegratedVariables();
+    $("#searchDiv").dialog("close");
+    $('#syncEvidenceSearchDialog').dialog('close');
+
+    $("#exportOutputSpace").removeClass("error");
+    $("#exportDialogError").html("");
+    if(_intElmUsername.val() == "" || _intElmUsername.val() == "{!$Label.label_evidence_00045}"){
+        $("#exportDialogSearchUsernameSpan").text("{!$Label.label_evidence_00001}");
+        $("#exportDialogSearchUsernameInput").val("");
+    }else{
+        $("#exportDialogSearchUsernameSpan").text(_intElmUsername.val());
+        $("#exportDialogSearchUsernameInput").val(_intElmUsername.val());
+    }
+
+    if (_fromSync) {
+        _exportSelectedSearchGroups = $.extend({}, _syncSelectedSearchGroups);
+    } else {
+        _exportSelectedSearchGroups = $.extend({}, _selectedSearchGroups);
+    }
+
+    if (_intElmGroupsLabel.html() == "-") {
+        $("#exportDialogSelectedSearchGroup").html("-");
+    } else {
+        $("#exportDialogSelectedSearchGroup").html(_intElmGroupsLabel.html());
+    }
+
+    if (_fromSync) {
+        $("#exportDialogSelectedSearchSpaceRow").hide();
+    } else {
+        $("#exportDialogSelectedSearchSpaceRow").show();
+        _exportSelectedSearchSpaces = _selectedSearchSpaces;
+        if($("#selectedSearchSpace").html() == "-"){
+            $("#exportDialogSelectedSearchSpace").html("-");
+        }else{
+            $("#exportDialogSelectedSearchSpace").html($("#selectedSearchSpace").html());
+        }
+    }
+
+    if (_fromSync) {
+        $("#exportDialogSelectedSearchActionRow").hide();
+    } else {
+        $("#exportDialogSelectedSearchActionRow").show();
+        _exportSelectedSearchActions = _selectedSearchActions;
+        if(_exportSelectedSearchActions.length == 0){
+            $("#exportDialogSelectedSearchAction").html("{!$Label.label_evidence_00004}");
+        }else{
+            $("#exportDialogSelectedSearchAction").html($("#selectedSearchAction").html());
+        }
+    }
+
+    $("#exportDialogSearchFromSpan").html(_intElmFrom.val());
+    $("#exportDialogSearchToSpan").html(_intElmTo.val());
+    $("#exportDialogFrom").val(_intElmFrom.val());
+    $("#exportDialogTo").val(_intElmTo.val());
+    if(_intElmFrom.val()!="" || _intElmTo.val()!=""){
+        $("#exportDialogSearchDateConnect").html("&nbsp;" + "{!$Label.label_10316}" + "&nbsp;");
+    }else{
+        $("#exportDialogSearchDateConnect").html("{!$Label.label_evidence_00005}");
+    }
+
+    $("#exportLanguage").val(_language);
+    $("#exportDialogLanguageSpan").html($("#exportLanguage option:selected").html());
+
+    $("#exportTimezone").val(_timezone);
+    $("#exportDialogTimezoneSpan").html($("#exportTimezone option:selected").html());
+
+    _exportSelectedTargetSpaceId = null;
+    _exportSelectedTargetRootType = null;
+    _exportSelectedTargetBreadCrumbs = "";
+    _exportSelectedTargetBreadCrumbsRejectRoot = "";
+    $("#exportOutputSpace").html("{!$Label.label_evidence_00006}");
+
+    $(".export-dialog-modified").removeClass("export-dialog-modified");
+
+    $("#exportDialogOkButton").val("{!$Label.label_evidence_00023}");
+
+    setExportDialogSearchCount();
+
+    $("#exportDialog").dialog("open");
+
+    $(".export-dialog-edit").blur();
+}
+
+function onExportDialogSearchUsernameEditClicked(){
+    $("#exportDialogSearchUsernameDisplay").css("display", "none");
+    $("#exportDialogSearchUsernameEdit").css("display", "block");
+    $("#exportDialogSearchUsernameInput").focus();
+}
+
+function onExportDialogDateEditClicked(){
+    $("#exportDialogSearchDateDisplay").css("display", "none");
+    $("#exportDialogSearchDateEdit").css("display", "block");
+    $("#exportDialogFrom").focus();
+}
+
+function onExportDialogFocusDate(){
+    $(document).unbind("click", onExportDialogBlurDate);
+}
+
+function onExportDialogBlurDate(){
+    if($(":focus").attr("id") != "exportDialogFrom" && $(":focus").attr("id") != "exportDialogTo"){
+        $(document).unbind("click", onExportDialogBlurDate);
+
+        $("#exportDialogSearchFromSpan").html($("#exportDialogFrom").val());
+        $("#exportDialogSearchToSpan").html($("#exportDialogTo").val());
+        if($("#exportDialogFrom").val()!="" || $("#exportDialogTo").val()!=""){
+            $("#exportDialogSearchDateConnect").html("&nbsp;" + "{!$Label.label_10316}" + "&nbsp;");
+        }else{
+            $("#exportDialogSearchDateConnect").html("{!$Label.label_evidence_00005}");
+        }
+
+        if(_intElmFrom.val() == $("#exportDialogFrom").val()){
+            $("#exportDialogSearchFromSpan").removeClass("export-dialog-modified");
+        }else{
+            $("#exportDialogSearchFromSpan").addClass("export-dialog-modified");
+        }
+        if(_intElmTo.val() == $("#exportDialogTo").val()){
+            $("#exportDialogSearchToSpan").removeClass("export-dialog-modified");
+        }else{
+            $("#exportDialogSearchToSpan").addClass("export-dialog-modified");
+        }
+
+        $("#exportDialogSearchDateDisplay").css("display", "block");
+        $("#exportDialogSearchDateEdit").css("display", "none");
+
+        setExportDialogSearchCount();
+    }
+}
+
+function onExportDialogLanguageEditClicked(){
+    $("#exportDialogLanguageDisplay").css("display", "none");
+    $("#exportDialogLanguageEdit").css("display", "block");
+    $("#exportLanguage").focus();
+}
+
+function onExportDialogTimezoneEditClicked(){
+    $("#exportDialogTimezoneDisplay").css("display", "none");
+    $("#exportDialogTimezoneEdit").css("display", "block");
+    $("#exportTimezone").focus();
+}
+
+function onExportDialogOutputSpaceEditClicked(){
+    if(_exportSelectedTargetBreadCrumbs != ""){
+        $("#selectTargetSpaceDialogSelectedSpan").text(_exportSelectedTargetBreadCrumbs);
+    }else{
+        $("#selectTargetSpaceDialogSelectedSpan").text("");
+    }
+    setTargetSpaceList();
+    $("#selectTargetSpaceDialog").dialog("open");
+}
+
+function setTargetSpaceList(){
+    $("#targetSpaceList").html("");
+    $("#targetSpaceListLoading").css({
+        "display"   : "block",
+        "top"       : "190px",
+        "left"      : "230px",
+    });
+
+    var callback = function(data){
+        var branches = $("#targetSpaceList").html(data["tree"]);
+        $("#targetSpaceList").treeview({
+                    url         : "/evidencemanagement/targetSpaceTreeChildrenApi.json",
+                    add         : branches,
+                    animated    : "fast",
+                    persist     : "fixed-close",
+                    cookieId    : "evidenceTargetSpaceTree",
+                    callback    : function(elements){
+                        setTimeout(function(){
+                            if(_exportSelectedTargetSpaceId != null){
+                                $("#targetSpaceList").find("[spaceid=" + _exportSelectedTargetSpaceId + "]").addClass("targetspacelist-selected");
+                            }
+                        },100);
+                    },
+        });
+        if(_exportSelectedTargetSpaceId != null){
+            $("#targetSpaceList").find("[spaceid=" + _exportSelectedTargetSpaceId + "]").addClass("targetspacelist-selected");
+        }
+        $("#targetSpaceListLoading").css("display", "none");
+    };
+
+    secureGetAsync('/evidencemanagement/targetSpaceTreeRootApi.json', {}, callback);
+}
+
+function onTargetSpaceClicked(obj){
+    _exportSelectedTargetSpaceId = $(obj).attr("spaceid");
+    $(".targetspacelist-selected").removeClass("targetspacelist-selected");
+    $(obj).addClass("targetspacelist-selected");
+    _exportSelectedTargetBreadCrumbs = getTargetSpaceBreadCrumbs($(obj).attr("spaceid"), $(obj).text());
+    $("#selectTargetSpaceDialogSelectedSpan").text(_exportSelectedTargetBreadCrumbs);
+}
+
+function getTargetSpaceBreadCrumbs(spaceId, childrenBreadCrumbs){
+    var parentNode = $("[spaceid=" + spaceId + "]").closest("li").closest("ul");
+    if(parentNode.attr("class") != "filetree"){
+        var parentSpan = parentNode.closest("li").find("span a");
+        if(parentSpan.attr("root") == "1"){
+            _exportSelectedTargetRootType = parentSpan.attr("type");
+            _exportSelectedTargetBreadCrumbsRejectRoot = childrenBreadCrumbs;
+        }
+        return getTargetSpaceBreadCrumbs(
+            parentSpan.attr("spaceid"),
+            parentSpan.html() + " > " + childrenBreadCrumbs
+        );
+    }else{
+        return childrenBreadCrumbs;
+    }
+}
+
+function onSelectTargetSpaceDialogCancelClicked(){
+    $("#selectTargetSpaceDialog").dialog("close");
+}
+
+function onSelectTargetSpaceDialogOkClicked(){
+    $("#exportOutputSpace").text(_exportSelectedTargetBreadCrumbs);
+    $("#selectTargetSpaceDialog").dialog("close");
+}
+
+function onExportDialogSelectGroupClicked() {
+    _fromExportDialog = true;
+    setIntegratedVariables();
+    _selectedGroups = $.extend({}, _exportSelectedSearchGroups);
+    _deselectedGroups = new Object();
+    if ($("#selectGroupDialogListTable").getGridParam() == undefined) {
+        setGroupList();
+    } else {
+        groupListReload();
+    }
+    $("#selectGroupDialog").dialog("open");
+}
+
+function onExportDialogSelectSpaceClicked(){
+    _fromExportDialog = true;
+    setSpaceList();
+    getSpaceList();
+    $("#selectSpaceDialog").dialog("open");
+}
+
+function onExportDialogSelectActionClicked(){
+    _fromExportDialog = true;
+    $("#selectActionDialogSelectedAction").html("");
+    for(var key in _exportSelectedSearchActions){
+        var o = _exportSelectedSearchActions[key];
+        $("#selectActionDialogSelectedAction").append(
+            $("<option>").attr({
+                "value"     : o.val(),
+                "sort"      : o.attr("sort"),
+                "category1" : o.attr("category1"),
+                "category2" : o.attr("category2"),
+                "title"     : o[0].text
+            }).html(o[0].text)
+        );
+    }
+    setAllActionsByCache();
+    $("#selectActionDialog").dialog("open");
+}
+
+function setExportDialogSearchCount(){
+    setIntegratedVariables();
+
+    $("#exportDialogSearchCount").html("");
+    $("#exportDialogSearchCountLoading").css("display", "inline");
+
+    var searchUser = "";
+    if($("#exportDialogSearchUsernameInput").val() != ""
+        && $("#exportDialogSearchUsernameInput").val() != "{!$Label.label_evidence_00045}"){
+        searchUser = $("#exportDialogSearchUsernameInput").val();
+    }
+
+    var searchGroupIDs = "";
+    for(var key in _exportSelectedSearchGroups){
+        if(searchGroupIDs != ""){
+            searchGroupIDs += ",";
+        }
+        searchGroupIDs += key;
+    }
+
+    if (_fromSync) {
+        var searchSpaceIDs = "";
+        for(var key in _exportSelectedSearchSpaces){
+            if(searchSpaceIDs != ""){
+                searchSpaceIDs += ",";
+            }
+            searchSpaceIDs += key;
+        }
+
+        var searchActions = "";
+        for(var i=0; i<_exportSelectedSearchActions.length; i++){
+            if(searchActions != ""){
+                searchActions += ",";
+            }
+            searchActions += _exportSelectedSearchActions[i].val();
+        }
+    }
+
+    var searchTimeStart = $("#exportDialogFrom").val();
+    var searchTimeEnd   = $("#exportDialogTo").val();
+    if((searchTimeStart.length != 0 && !isDatePickerFormatValid(searchTimeStart, $("#exportDialogFrom"))) ||
+            (searchTimeEnd.length != 0 && !isDatePickerFormatValid(searchTimeEnd, $("#exportDialogTo")))){
+        searchTimeStart = "";
+    }else if(searchTimeStart.length != 0 && searchTimeEnd.length != 0 && !isDatePickerFromToValid($("#exportDialogFrom"), $("#exportDialogTo"))){
+        searchTimeEnd = "";
+    }
+
+    var params = {
+        search_user         : searchUser,
+        //search_group_ids    : searchGroupIDs,
+        search_space_ids    : searchSpaceIDs,
+        search_actions      : searchActions,
+        search_time_start   : searchTimeStart,
+        search_time_end     : searchTimeEnd,
+    }
+
+    var callback = function(data){
+        $("#exportDialogSearchCountInput").val(data.count);
+        $("#exportDialogSearchCount").html(addComma(data.count));
+        if(parseInt($("#exportDialogSearchCountInput").val()) > 100000){
+            $("#exportDialogSearchCount").addClass("error");
+        }else{
+            $("#exportDialogSearchCount").removeClass("error");
+        }
+        $("#exportDialogSearchCountLoading").css("display", "none");
+    };
+
+    var apiUrl;
+    if (_fromSync) {
+        apiUrl = "/evidencemanagement/sync/listCount.json";
+    } else {
+        apiUrl = "/evidencemanagement/listCount.json";
+    }
+
+    securePostAsync(apiUrl, params, callback);
+}
+
+function onExportDialogCancelClicked(){
+    $("#exportDialog").dialog("close");
+}
+
+function onExportDialogOkClicked(){
+    if($("#exportDialogSearchCountLoading").css("display") != "none"){
+        setTimeout(function(){ onExportDialogOkClicked(); }, 50);
+        return;
+    }
+
+    exportDialogButtonDisable();
+
+
+    $("#exportOutputSpace").removeClass("error");
+    $("#exportDialogSearchCount").removeClass("error");
+    $("#exportDialogError").html("");
+
+    var err = new Array();
+
+    var searchUser = "";
+    if($("#exportDialogSearchUsernameInput").val() != ""
+        && $("#exportDialogSearchUsernameInput").val() != "{!$Label.label_evidence_00045}"){
+        searchUser = $("#exportDialogSearchUsernameInput").val();
+    }
+
+    var searchGroupIDs = "";
+    var __exportSelectedSearchGroups = new Object();
+    if(_fromSync){
+        __exportSelectedSearchGroups = _syncExportSelectedSearchGroups;
+    } else {
+        __exportSelectedSearchGroups = _exportSelectedSearchGroups;
+    }
+    for (var key in __exportSelectedSearchGroups) {
+        if (searchGroupIDs != "") {
+            searchGroupIDs += ",";
+        }
+        searchGroupIDs += key;
+    }
+
+    var searchSpaceIDs = "";
+    if (!_fromSync) {
+        for (var key in _exportSelectedSearchSpaces) {
+            if (searchSpaceIDs != "") {
+                searchSpaceIDs += ",";
+            }
+            searchSpaceIDs += key;
+        }
+    }
+
+    var searchActions = "";
+    if (!_fromSync) {
+        for(var i=0; i<_exportSelectedSearchActions.length; i++){
+            if(searchActions != ""){
+                searchActions += ",";
+            }
+            searchActions += _exportSelectedSearchActions[i].val();
+        }
+    }
+
+    var searchTimeStart = $("#exportDialogFrom").val();
+    var searchTimeEnd   = $("#exportDialogTo").val();
+    if((searchTimeStart.length != 0 && !isDatePickerFormatValid(searchTimeStart, $("#exportDialogFrom"))) ||
+            (searchTimeEnd.length != 0 && !isDatePickerFormatValid(searchTimeEnd, $("#exportDialogTo")))){
+//      err.push("{!$Label.msg_00062}");
+        alert("{!$Label.msg_00062}");
+        exportDialogButtonEnable();
+        return;
+    }else if(searchTimeStart.length != 0 && searchTimeEnd.length != 0 && !isDatePickerFromToValid($("#exportDialogFrom"), $("#exportDialogTo"))){
+//      err.push("{!$Label.msg_00063}");
+        alert("{!$Label.msg_00063}");
+        exportDialogButtonEnable();
+        return;
+    }
+
+    if(_exportSelectedTargetSpaceId==null || _exportSelectedTargetSpaceId==""){
+//      $("#exportOutputSpace").addClass("error");
+//      err.push("{!$Label.label_evidence_00006}");
+        alert("{!$Label.label_evidence_00006}");
+        exportDialogButtonEnable();
+        return;
+    }
+
+    if(parseInt($("#exportDialogSearchCountInput").val()) > 100000){
+//      $("#exportDialogSearchCount").addClass("error");
+//      err.push("{!$Label.label_evidence_00007}");
+        alert("{!$Label.label_evidence_00007}");
+        exportDialogButtonEnable();
+        return;
+    }
+
+    if(err.length > 0){
+        $("#exportDialogError").html(err.join("<br />"));
+        exportDialogButtonEnable();
+        return;
+    }
+
+    if(!confirm("{!$Label.label_evidence_00008}")){
+        exportDialogButtonEnable();
+        return;
+    }
+
+    var params = {
+        search_user         : searchUser,
+        //search_group_ids    : searchGroupIDs,
+        search_space_ids    : searchSpaceIDs,
+        search_actions      : searchActions,
+        search_time_start   : searchTimeStart,
+        search_time_end     : searchTimeEnd,
+        lang                : $("#exportLanguage").val(),
+        timezone            : $("#exportTimezone").val(),
+        space_id            : _exportSelectedTargetSpaceId,
+        space_path          : _exportSelectedTargetBreadCrumbsRejectRoot,
+        space_type          : _exportSelectedTargetRootType,
+        url                 : '{!salesforceBaseUrl}',
+        sync                : _fromSync,
+    }
+
+    var callback = function(data){
+        if(data["alert"] != null){
+            alert(data["alert"]);
+            exportDialogButtonEnable();
+            return;
+        }else{
+            loadExportHistoryList();
+            $("#exportDialog").dialog("close");
+
+            $(".ui-jqgrid .loading").css("z-index", "1000");
+            $('#evidenceList').trigger('reloadGrid');
+        }
+        exportDialogButtonEnable();
+    };
+
+    securePostAsync('/evidencemanagement/evidenceExportRegist.json', params, callback);
+}
+
+function exportDialogButtonDisable(){
+    $("#exportDialogOkButton").attr("disabled", "disabled");
+    $("#exportDialogCancelButton").attr("disabled", "disabled");
+    $(".export-dialog-edit").attr("disabled", "disabled");
+}
+
+function exportDialogButtonEnable(){
+    $("#exportDialogOkButton").removeAttr("disabled");
+    $("#exportDialogCancelButton").removeAttr("disabled");
+    $(".export-dialog-edit").removeAttr("disabled");
+}
+
+function onExportHistoryMenuClicked(){
+    $("#exportHistoryDialogError").html("");
+    $('#exportHistoryDialogTabUnfinished').css("display", "");
+    $('#exportHistoryDialogTabFinished').css("display", "");
+    $('#exportHistoryDialogTabSyncFinished').css("display", "");
+    loadExportHistoryList();
+
+    $("#exportHistoryDialog").dialog("open");
+}
+
+        var rowNumKey = "evidence_history_rownum";
+function loadExportHistoryList(){
+    if($("#exportHistoryUnfinishedList").getGridParam() == undefined){
+        var rowNum = 50;
+//        var rowNumKey = "evidence_history_rownum"; // TODO 4行上に移動したが、エラーが出た理由を
+        if (localStorage) {
+            if (localStorage.getItem(rowNumKey)) {
+                rowNum = localStorage.getItem(rowNumKey);
+            }
+        }
+
+        var colNames = [
+            "",
+            "",
+            "",
+            "",
+            "{!$Label.label_10834}",
+            "{!$Label.label_10131}",
+            "{!$Label.label_10587}",
+            "{!$Label.label_10753}",
+        ];
+
+        $("#exportHistoryUnfinishedList").jqGrid({
+            url         : _apiUrl + '/evidencemanagement/exportHistoryUnfinishedList.json',
+            datatype    : "jsonp",
+            type        : "post",
+            jsonReader  : {
+                repeatitems: false,
+                id         : "0"
+            },
+            colNames    : colNames,
+            colModel    : [
+                { name : "id", index : "id", hidden : true },
+                { name : "statusval", index : "statusval", hidden : true },
+                { name : "userid", index : "userid", hidden : true },
+                { name : "own", index : "own", hidden : true },
+                { name : "time", index : "time", width : 125, align : "left", sortable : false },
+                { name : "user", index : "user", width : 360, align : "left", sortable : false },
+                { name : "status", index : "status", width : 93, align : "center", sortable : false },
+                { name : "condition", index : "condition", width : 70, align : "center", sortable : false },
+            ],
+            rowNum      : 50,
+            rowList     :[50,100,300],
+            height      : 290,
+            width       : 685,
+            autowidth   : false,
+            sortname    : 'priority',
+            pager       : '#exportHistoryUnfinishedListPager',
+            viewrecords : true,
+            sortorder   : "asc",
+            shrinkToFit : false,
+            loadComplete: function(){
+                selectExportHistoryListRow("exportHistoryUnfinishedList");
+                localStorage.setItem(rowNumKey,$(this).getGridParam("rowNum"));
+            }
+        });
+        $("#exportHistoryUnfinishedList").jqGrid('navGrid','#exportHistoryUnfinishedListPager',{edit:false,add:false,del:false,search:false});
+
+        $("#exportHistoryFinishedList").jqGrid({
+            url         : _apiUrl + '/evidencemanagement/exportHistoryFinishedList.json',
+            datatype    : "jsonp",
+            type        : "post",
+            jsonReader  : {
+                repeatitems: false,
+                id         : "0"
+            },
+            colNames    : colNames,
+            colModel    : [
+                { name : "id",          index : "id",           hidden : true },
+                { name : "statusval",   index : "statusval",    hidden : true },
+                { name : "userid",      index : "userid",       hidden : true },
+                { name : "own",         index : "own",          hidden : true },
+                { name : "time",        index : "time",         width : 125,    align : "left" },
+                { name : "user",        index : "user",         width : 360,    align : "left" },
+                { name : "status",      index : "status",       width : 93,     align : "center" },
+                { name : "condition",   index : "condition",    width : 70,     align : "center",   sortable : false },
+            ],
+            rowNum      : 50,
+            rowList     :[50,100,300],
+            height      : 290,
+            width       : 685,
+            autowidth   : false,
+            sortname    : 'time',
+            pager       : '#exportHistoryFinishedListPager',
+            viewrecords : true,
+            sortorder   : "desc",
+            shrinkToFit : false,
+            loadComplete: function(){
+                localStorage.setItem(rowNumKey,$(this).getGridParam("rowNum"));
+            }
+        });
+        $("#exportHistoryFinishedList").jqGrid('navGrid','#exportHistoryFinishedListPager',{edit:false,add:false,del:false,search:false});
+        $("#exportHistorySyncFinishedList").jqGrid({
+            url         : _apiUrl + '/evidencemanagement/sync/exportHistoryFinishedList.json',
+            datatype    : "jsonp",
+            type        : "post",
+            jsonReader  : {
+                repeatitems: false,
+                id         : "0"
+            },
+            colNames    : colNames,
+            colModel    : [
+                { name : "id",          index : "id",           hidden : true },
+                { name : "statusval",   index : "statusval",    hidden : true },
+                { name : "userid",      index : "userid",       hidden : true },
+                { name : "own",         index : "own",          hidden : true },
+                { name : "time",        index : "time",         width : 125,    align : "left" },
+                { name : "user",        index : "user",         width : 360,    align : "left" },
+                { name : "status",      index : "status",       width : 93,     align : "center" },
+                { name : "condition",   index : "condition",    width : 70,     align : "center",   sortable : false },
+            ],
+            rowNum      : 50,
+            rowList     :[50,100,300],
+            height      : 290,
+            width       : 685,
+            autowidth   : false,
+            sortname    : 'time',
+            pager       : '#exportHistorySyncFinishedListPager',
+            viewrecords : true,
+            sortorder   : "desc",
+            shrinkToFit : false,
+            loadComplete: function(){
+                localStorage.setItem(rowNumKey,$(this).getGridParam("rowNum"));
+            }
+        });
+        $("#exportHistorySyncFinishedList").jqGrid('navGrid','#exportHistorySyncFinishedListPager',{edit:false,add:false,del:false,search:false});
+    }else{
+        $("#exportHistoryUnfinishedList").jqGrid("clearGridData");
+        $("#exportHistoryUnfinishedList").trigger("reloadGrid");
+        $("#exportHistoryFinishedList").jqGrid("clearGridData");
+        $("#exportHistoryFinishedList").trigger("reloadGrid");
+        $("#exportHistorySyncFinishedList").jqGrid("clearGridData");
+        $("#exportHistorySyncFinishedList").trigger("reloadGrid");
+    }
+
+    if(!isSync){
+        $("#exportHistoryDialogTab > ul > li:nth-child(3)").hide();
+        $("#exportHistoryDialogTabSyncFinished").hide();
+    }
+}
+
+function selectExportHistoryListRow(listId){
+    var gridIDs = $("#" + listId).getDataIDs();
+    if(_exportHistoryDialogSelectedRowId != null){
+        $("#" + listId).setSelection(_exportHistoryDialogSelectedRowId);
+    }else{
+        for(var i=0; i<gridIDs.length; i++){
+            var row = $("#" + listId).getRowData(gridIDs[i]);
+            if(row.statusval == "1"){
+                $("#" + listId).setSelection(row.id);
+            }
+        }
+    }
+}
+
+function onExportHistoryListConditionClicked(id){
+    $("#exportDialogOkButton").val("{!$Label.label_evidence_00009}");
+    setExportDialogParameters(id);
+}
+
+function onExportHistoryUnfinishedListConditionClicked(id){
+    $("#exportHistoryUnfinishedList").setSelection(id);
+    $("#exportDialogOkButton").val("{!$Label.label_evidence_00009}");
+    setExportDialogParameters(id);
+}
+
+function onExportHistoryFinishedListConditionClicked(id){
+    $("#exportHistoryFinishedList").setSelection(id);
+    $("#exportDialogOkButton").val("{!$Label.label_evidence_00009}");
+    setExportDialogParameters(id);
+}
+
+function setExportDialogParameters(id){
+    clearExportDialogParameters()
+
+    var callback = function(data){
+        if(data["alert"] != null){
+            alert(data["alert"]);
+            return;
+        }else{
+
+            _fromSync = data.sync;
+
+            if(data.search_user != ""){
+                $("#exportDialogSearchUsernameSpan").text(data.search_user);
+            }
+            $("#exportDialogSearchUsernameInput").val(data.search_user);
+
+            var groupsTxt = "";
+            for(var key in data.search_group_map){
+                _exportSelectedSearchGroups[key] = data.search_group_map[key];
+                if(groupsTxt != ""){
+                    groupsTxt += ", ";
+                }
+                groupsTxt += data.search_group_map[key]
+            }
+            if(groupsTxt != ""){
+                $("#exportDialogSelectedSearchGroup").text(groupsTxt);
+            }
+            if (data.sync) {
+                $("#exportDialogSelectedSearchSpaceRow").hide();
+            } else {
+                $("#exportDialogSelectedSearchSpaceRow").show();
+                var spacesTxt = "";
+                for(var key in data.search_space_map){
+                    _exportSelectedSearchSpaces[key] = data.search_space_map[key];
+                    if(spacesTxt != ""){
+                        spacesTxt += ",&nbsp;";
+                    }
+                    spacesTxt += data.search_space_map[key]
+                }
+                if(spacesTxt != ""){
+                    $("#exportDialogSelectedSearchSpace").text(spacesTxt);
+                }
+            }
+
+            if (data.sync) {
+                $("#exportDialogSelectedSearchAction").hide();
+            } else {
+                $("#exportDialogSelectedSearchAction").show();
+                var actionsTxt = "";
+                for(var key in data.search_actions_map){
+                    var option = $("<option>").attr({
+                        "value"     : key,
+                        "sort"      : _actionDataAll[key].sort,
+                        "category1" : _actionDataAll[key].category1,
+                        "category2" : _actionDataAll[key].category2,
+                        "title"     : _actionDataAll[key].name
+                    }).html(_actionDataAll[key].name);
+                    _exportSelectedSearchActions.push(option);
+                    if(actionsTxt != ""){
+                        actionsTxt += ",&nbsp;";
+                    }
+                    actionsTxt += data.search_actions_map[key];
+                }
+                if(actionsTxt != ""){
+                    $("#exportDialogSelectedSearchAction").html(actionsTxt);
+                }
+            }
+
+            $("#exportDialogSearchFromSpan").html(data.search_time_start);
+            $("#exportDialogFrom").val(data.search_time_start);
+            $("#exportDialogSearchToSpan").html(data.search_time_end);
+            $("#exportDialogTo").val(data.search_time_end);
+            if($("#exportDialogFrom").val()!="" || $("#exportDialogTo").val()!=""){
+                $("#exportDialogSearchDateConnect").html("&nbsp;" + "{!$Label.label_10316}" + "&nbsp;");
+            }
+
+            $("#exportLanguage").val(data.lang);
+            $("#exportDialogLanguageSpan").html($("#exportLanguage option:selected").html());
+
+            $("#exportTimezone").val(data.timezone);
+            $("#exportDialogTimezoneSpan").html($("#exportTimezone option:selected").html());
+
+            setExportDialogSearchCount();
+
+            $("#exportDialog").dialog("open");
+        }
+    };
+
+    securePostAsync('/evidencemanagement/exportHistoryInfo.json', {id:id}, callback);
+}
+
+function clearExportDialogParameters(){
+    $("#exportOutputSpace").removeClass("error");
+    $("#exportDialogSearchCount").removeClass("error");
+    $("#exportDialogError").html("");
+
+    $("#exportDialogSearchUsernameSpan").text("{!$Label.label_evidence_00001}");
+    $("#exportDialogSearchUsernameInput").val("");
+
+    _exportSelectedSearchSpaces = new Object();
+    $("#exportDialogSelectedSearchSpace").html("-");
+
+    _exportSelectedSearchActions = new Array();
+    $("#exportDialogSelectedSearchAction").html("{!$Label.label_evidence_00004}");
+
+    $("#exportDialogSearchFromSpan").html("");
+    $("#exportDialogSearchToSpan").html("");
+    $("#exportDialogFrom").val("");
+    $("#exportDialogTo").val("");
+    $("#exportDialogSearchDateConnect").html("{!$Label.label_evidence_00005}");
+
+    $("#exportLanguage").val(_language);
+    $("#exportDialogLanguageSpan").html($("#exportLanguage option:selected").html());
+
+    $("#exportTimezone").val(_timezone);
+    $("#exportDialogTimezoneSpan").html($("#exportTimezone option:selected").html());
+
+    _exportSelectedTargetSpaceId = null;
+    _exportSelectedTargetRootType = null;
+    _exportSelectedTargetBreadCrumbs = "";
+    _exportSelectedTargetBreadCrumbsRejectRoot = "";
+    $("#exportOutputSpace").html("{!$Label.label_evidence_00006}");
+
+    $(".export-dialog-modified").removeClass("export-dialog-modified");
+}
+
+function setCSOTimezone(){
+    var callback = function(data){
+        if(_timezoneDataAll==null){
+            _timezoneDataAll = data.timezone_select;
+        }
+        $("#exportTimezone").html("");
+        for(var i=0; i<data.timezone_select.length; i++){
+            var option = $("<option>").attr({
+                "value" : data.timezone_select[i].code,
+            }).html(data.timezone_select[i].name);
+            $("#exportTimezone").append(option);
+        }
+    };
+
+    secureGetAsync('/setup/timezoneListGet.json', {}, callback);
+}
+
+function setCSOLanguage(){
+    var callback = function(data){
+        if(_languageDataAll==null){
+            _languageDataAll = data.language_select;
+        }
+        $("#exportLanguage").html("");
+        for(var i=0; i<data.language_select.length; i++){
+            var option = $("<option>").attr({
+                "value" : data.language_select[i].code,
+            }).html(data.language_select[i].name);
+            $("#exportLanguage").append(option);
+        }
+    };
+
+    secureGetAsync('/setup/languageListGet.json', {}, callback);
+}
+
+function onExportHistoryDialogPriorityUpClicked(){
+    var selID = $("#exportHistoryUnfinishedList").jqGrid("getGridParam", "selrow");
+    if(selID == null){
+        return
+    }
+
+    if(!_isManager && $("#exportHistoryUnfinishedList").getRowData(selID).own=="0"){
+        return;
+    }
+
+    var status = $("#exportHistoryUnfinishedList").getRowData(selID).statusval;
+    if(status != 0){
+        return;
+    }
+
+    _exportHistoryDialogSelectedRowId = selID;
+
+    secureGetAsync('/evidencemanagement/evidenceExportPriorityUp.json',
+                    {id:selID},
+                    function(data){$("#exportHistoryUnfinishedList").trigger("reloadGrid");}
+                    );
+}
+
+function onExportHistoryDialogPriorityDownClicked(){
+    var selID = $("#exportHistoryUnfinishedList").jqGrid("getGridParam", "selrow");
+    if(selID == null){
+        return
+    }
+
+    if(!_isManager && $("#exportHistoryUnfinishedList").getRowData(selID).own=="0"){
+        return;
+    }
+
+    var status = $("#exportHistoryUnfinishedList").getRowData(selID).statusval;
+    if(status != 0){
+        return;
+    }
+
+    _exportHistoryDialogSelectedRowId = selID;
+    secureGetAsync('/evidencemanagement/evidenceExportPriorityDown.json',
+                    {id:selID},
+                    function(data){$("#exportHistoryUnfinishedList").trigger("reloadGrid");}
+                    );
+}
+function onExportHistoryDialogExportStopClicked(){
+    var selID = $("#exportHistoryUnfinishedList").jqGrid("getGridParam", "selrow");
+    if(selID == null){
+        return
+    }
+
+    if(!_isManager && $("#exportHistoryUnfinishedList").getRowData(selID).own=="0"){
+//      $("#exportHistoryDialogError").html("{!$Label.label_evidence_00010}");
+        alert("{!$Label.label_evidence_00010}");
+        return;
+    }
+    $("#exportHistoryDialogError").html("");
+
+    var status = $("#exportHistoryUnfinishedList").getRowData(selID).statusval;
+    if(status != 0){
+        alert("{!$Label.label_evidence_00048}");
+        return;
+    }
+
+    if(!confirm("{!$Label.label_evidence_00011}")){
+        return;
+    }
+
+    _exportHistoryDialogSelectedRowId = selID;
+
+    var callback = function(data){
+            if(data["message"] != null){
+                alert(data["message"]);
+            }else if(data["alert"] != null){
+                alert(data["alert"]);
+            }
+            $('#evidenceList').trigger('reloadGrid');
+            $("#exportHistoryUnfinishedList").trigger("reloadGrid");
+            $("#exportHistoryFinishedList").trigger("reloadGrid");
+    };
+
+    secureGetAsync('/evidencemanagement/evidenceExportStop.json', {id:selID}, callback);
+}
+
+function onExportHistoryDialogOkClicked(){
+    $("#exportHistoryDialog").dialog("close");
+}
+
+function setPullMenuPosition(obj){
+    var menuPosX    = 0;
+    var menuPosY    = 0;
+    menuPosX    = $(obj).offset().left;
+    menuPosY    = $(obj).offset().top;
+    $(".positionHelper").css({
+        top     : menuPosY,
+        left    : menuPosX,
+    });
+}
+function actionSort(arr){
+    arr.sort(function(o, n){
+        if($(o).attr("sort") > $(n).attr("sort")){
+            return 1;
+        }else if($(o).attr("sort") < $(n).attr("sort")){
+            return -1;
+        }else{
+            return 0;
+        }
+    });
+    return arr;
+}
+
+function addComma(str) {
+    var num = new String(str).replace(/,/g, "");
+    while(num != (num = num.replace(/^(-?\d+)(\d{3})/, "$1,$2")));
+    return num;
+}
+
+function stopEnterEvent(e){
+    if(e.keyCode == 13){
+        e.preventDefault();
+    }
+}
+
+function setIntegratedVariables() {
+    if (_fromSync) {
+        _intSelectedSearchGroups = _syncSelectedSearchGroups;
+        _intElmUsername     = $("#syncSearchUser");
+        _intElmGroupsLabel  = $("#syncSelectedSearchGroup");
+        _intElmFrom         = $("#syncFrom");
+        _intElmTo           = $("#syncTo");
+    } else {
+        _intSelectedSearchGroups = _selectedSearchGroups;
+        _intElmUsername     = $("#username");
+        _intElmGroupsLabel  = $("#selectedSearchGroup");
+        _intElmFrom         = $("#from");
+        _intElmTo           = $("#to");
+    }
+}
+
+function changeEvidence(){
+    if($("#viewChangeBtn").val() != "{!$Label.field_010139}"){
+        _fromSync = true;
+        $("#viewChangeBtn").val("{!$Label.field_010139}");
+        $("#viewChangeBtn").parent("li").removeClass("item").addClass("last");
+        $("#evidenceList-container").hide();
+        $("#syncEvidenceDiv").show();
+        $("#syncEvidenceList-container").show();
+        /*$("#syncEvidenceSearchBtn").parent("li").show();
+        $("#searchButton").parent("li").hide();
+        $("#exportButton").parent("li").hide();*/
+        $("#digimarkButton").parent("li").hide();
+        $(getId('{!$Component.evidencePage.evidenceForm.evidenceBlock.recordCount} h3')).css("visibility","hidden");
+        //$(getId('{!$Component.evidencePage.evidenceForm.evidenceBlock.recordCount} h3')).text("　");
+        $("#searchDiv").dialog("close");
+        $("#syncEvidenceSearchDialog").dialog("close");
+    }else{
+        _fromSync = false;
+        $("#viewChangeBtn").val("{!$Label.label_13275}");
+        $("#viewChangeBtn").parent("li").removeClass("last").addClass("item");
+        $("#evidenceList-container").show();
+        $("#syncEvidenceList-container").hide();
+        /*$("#syncEvidenceSearchBtn").parent("li").hide();
+        $("#searchButton").parent("li").show();
+        $("#exportButton").parent("li").show();*/
+        $("#digimarkButton").parent("li").show();
+        $(getId('{!$Component.evidencePage.evidenceForm.evidenceBlock.recordCount} h3')).css("visibility","visible");
+        $(getId('{!$Component.evidencePage.evidenceForm.evidenceBlock.recordCount} h3')).text(recordCountReminder + " " + "{!$Label.msg_00006}");
+        $("#searchDiv").dialog("close");
+        $("#syncEvidenceSearchDialog").dialog("close");
+    }
+    resizeGrid();
+}
+
+function changeBtn(text){
+    $img = $("<img>").attr("src", img);
+    $("#viewChangeBtn").html("");
+    $("#viewChangeBtn").append($img).append(text);
+}
+
+function syncEvidenceSearchDialog(){
+    $("#syncEvidenceSearchDialog").dialog("open");
+}
+
+function syncEvidenceSearchExec(){
+    var user = $.trim($("#syncSearchUser").val());
+
+    var groupIDs = "";
+    for (var key in _syncSelectedSearchGroups) {
+        if (groupIDs != "") {
+            groupIDs += ",";
+        }
+        groupIDs += key;
+    }
+
+    var from = $.trim($("#syncFrom").val());
+    var to = $.trim($("#syncTo").val());
+
+    if((from.length != 0 && !isDateFormat(from)) ||
+            (to.length != 0 && !isDateFormat(to))){
+        alert("{!$Label.msg_00062}");
+        return;
+    }else if(!isRightDate(from, to)){
+        alert("{!$Label.msg_00063}");
+        return;
+    }
+
+    $("#syncEvidenceList").jqGrid("setGridParam", {
+        page        :1,
+        postData    : {
+            user        : user,
+            //group_ids   : groupIDs,
+            from        : from,
+            to          : to,
+        },
+    });
+
+    $('#syncEvidenceList').trigger('reloadGrid');
+}
+
+function syncEvidenceSearchClear(){
+    $('#syncSearchUser').val('');
+    $('#syncFrom').val('');
+    $('#syncTo').val('');
+
+    _syncSelectedSearchGroups = new Object();
+    $("#syncSelectedSearchGroup").text("-");
+    syncEvidenceSearchExec();
+}
+function isPastDate(date){
+    var now = new Date();
+
+    var nYear = now.getYear() < 2000 ? 1900 + now.getYear() : now.getYear();
+    var nMonth = now.getMonth() + 1;
+    var nDay = now.getDate();
+
+    if(datePickerFormat== 'yy/mm/dd'){
+        var iYear = parseInt(date.substr(0, 4), 10);
+        var iMonth = parseInt(date.substr(5, 2), 10);
+        var iDay = parseInt(date.substr(8, 2), 10);
+    }else{
+        var iYear = parseInt(date.substr(6, 4), 10);
+        var iMonth = parseInt(date.substr(0, 2), 10);
+        var iDay = parseInt(date.substr(3, 2), 10);
+    }
+
+    if(nYear > iYear){
+        return true;
+    } else if (nYear < iYear) {
+        return false;
+    }
+
+    if(nMonth > iMonth){
+        return true;
+    } else if (nMonth < iMonth) {
+        return false;
+    }
+
+    if(nDay > iDay){
+        return true;
+    } else if (nDay < iDay) {
+        return false;
+    }
+
+    return false;
+}
+
+function isRightDate(from, to){
+
+    if(datePickerFormat == "yy/mm/dd"){
+        var fYear = parseInt(from.substr(0, 4), 10);
+        var fMonth = parseInt(from.substr(5, 2), 10);
+        var fDay = parseInt(from.substr(8, 2), 10);
+
+        var tYear = parseInt(to.substr(0, 4), 10);
+        var tMonth = parseInt(to.substr(5, 2), 10);
+        var tDay = parseInt(to.substr(8, 2), 10);
+    }else{
+        var fYear = parseInt(from.substr(6, 4), 10);
+        var fMonth = parseInt(from.substr(0, 2), 10);
+        var fDay = parseInt(from.substr(3, 2), 10);
+
+        var tYear = parseInt(to.substr(6, 4), 10);
+        var tMonth = parseInt(to.substr(0, 2), 10);
+        var tDay = parseInt(to.substr(3, 2), 10);
+    }
+
+    if(fYear > tYear){
+        return false;
+    } else if (fYear < tYear) {
+        return true;
+    }
+
+    if(fMonth > tMonth){
+        return false;
+    } else if (fMonth < tMonth) {
+        return true;
+    }
+
+    if(fDay > tDay){
+        return false;
+    } else if (fDay < tDay) {
+        return true;
+    }
+
+    return true;
+
+}
+
+function isDateFormat(argValue)
+{
+    if (argValue.length != 10 )
+    {
+        // 10桁以外の場合
+        return false;
+    }
+    var ymd = argValue.split("/");
+    if(ymd.length != 3){
+        // 区切りがスラッシュでない場合
+        return false;
+    }
+
+    for(var i = 0; i < ymd.length; i++){
+        var val = ymd[i];
+        if(!isNumeric(val)) return false;
+    }
+
+    if(datePickerFormat == "yy/mm/dd"){
+        var iYear = parseInt(ymd[0], 10);
+        var iMonth = parseInt(ymd[1], 10);
+        var iDay = parseInt(ymd[2], 10);
+    }else{
+        var iYear = parseInt(ymd[2], 10);
+        var iMonth = parseInt(ymd[0], 10);
+        var iDay = parseInt(ymd[1], 10);
+    }
+
+    var iMaxDayOfMonth = Array(31, 29, 31, 30, 31, 30,
+        31, 31, 30, 31, 30, 31);
+
+    if (iMonth < 1 || iMonth > 12)
+    {
+        return false;
+    }
+    if (iDay < 1 || iDay > iMaxDayOfMonth[iMonth - 1])
+    {
+        return false;
+    }
+    if (iMonth != 2)
+    {
+        return true;
+    }
+    if (iDay < 29)
+    {
+        return true;
+    }
+    if ((iYear % 4) == 0 && (iYear % 100) != 0)
+    {
+        return true;
+    }
+    if ((iYear % 400) == 0)
+    {
+        return true;
+    }
+    return false;
+}
+</script>
+<!--
+-->
+
+
+<!-- warapper -->
+<apex:pageMessages />
+
+<!--div id="c_wrapper"-->
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- header container -->
+            <td id="c_head">
+                 <!-- ヘッダー -->
+                <table width="100%">
+                    <tr>
+                        <td id="c_headLeft" nowrap="nowrap">
+                            <div id="folder_image">
+                                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/evidence.png')}" alt="{!$Label.solxyzcso001__label_10226}" title="{!$Label.solxyzcso001__label_10226}"/>
+                            </div>
+                            <br/>
+                            <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10226}</h2>
+                        </td>
+                        <td id="c_headCenter" nowrap="nowrap"/>
+                        <!-- 操作ボックス -->
+                        <td id="c_headRight">
+                            <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <!-- content container -->
+            <td id="c_right">
+                <apex:form id="evidenceForm" >
+                    <apex:pageBlock id="evidenceBlock">
+                        <!-- コマンドボタン表示 -->
+                        <div class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="item">
+                                    <!-- 検索ボタン -->
+                                    <!--apex:commandButton value="{!$Label.label_00069}" onclick="searchEvidence(); return false;"/-->
+                                    <input type="button" class="btn" value="{!$Label.label_00069}" id="searchButton" onclick="searchEvidence(); return false;"/>
+                                </li>
+                               	<!-- <apex:outputPanel rendered="{!IF(((cso_userInfo.option_sync == 'true')&&(cso_userInfo.proAuth_sync_manage== 'true')),true,false)}">
+
+                                <li class="item" style="display: none;">
+                                    <input type="button" class="btn" value="{!$Label.label_00069}" id="syncEvidenceSearchBtn" onclick="syncEvidenceSearchDialog();"/>
+                                </li>
+                                 -->
+                                 <apex:outputPanel rendered="{!IF((cso_userInfo.option_sync == 'true'),true,false)}">
+                                <li class="item">
+                                    <input type="button" class="btn" value="{!$Label.label_13275}" id="viewChangeBtn" onclick="changeEvidence();"/>
+                                </li>
+                                </apex:outputPanel>
+                                <apex:outputPanel rendered="{!IF(((cso_userInfo.proAuth_digimark == 'true')&&(cso_userInfo.option_digimark == 'true')),true,false)}">
+                                    <li class="item">
+                                        <!-- 透かし情報で照会ボタン -->
+                                        <!--apex:commandButton value="{!$Label.label_13116}" onclick="searchDigimarkEvidence(); return false;"/-->
+                                        <input type="button" class="btn" value="{!$Label.label_13116}" id="digimarkButton" onclick="searchDigimarkEvidence(); return false;"/>
+                                    </li>
+                                </apex:outputPanel>
+                                <apex:outputPanel rendered="{!cso_userInfo.proAuth_evidence_csv_export}">
+                                    <li class="last">
+                                        <button id="exportButton" class="btn icon-btn c_commandButton" onclick="onExportButtonClicked(this); return false;">
+                                            <div class="chevron">
+                                                {!$Label.label_13042}
+                                            </div>
+                                        </button>
+                                    </li>
+                                </apex:outputPanel>
+                            </ul>
+                        </div>
+
+                        <!-- データ件数表示 -->
+                        <apex:pageBlockSection title="  " collapsible="false" id="recordCount"/>
+
+                        <!-- 証跡データ一覧 -->
+                        <div id="evidenceList-container">
+                            <table id="evidenceList"/>
+                            <div id="evidenceListPager"/>
+                        </div>
+
+                        <!-- 同期クライアントの証跡一覧 -->
+                        <div id="syncEvidenceList-container" style="display: none;">
+                            <table id="syncEvidenceList"></table>
+                            <div id="syncEvidenceListPager"></div>
+                        </div>
+
+                        <div id="syncEvidenceDiv" style="display: none;">
+                            <table id="syncEvidenceList"></table>
+                            <div id="syncEvidenceListPager"></div>
+                        </div>
+
+                        <!-- 検索ポップアップ -->
+                        <div id="searchDiv" style="display: none;" title="{!$Label.label_00069}">
+                            <table id="searchTable" cellpadding="5">
+                                <tr>
+                                    <th>{!$Label.label_10021}</th>
+                                    <td><input type="text" id="username" class="c_text_m" name="username" maxlength="255" /></td>
+                                </tr>
+                                <!-- <tr>
+                                    <th>{!$Label.label_10022}</th>
+                                    <td><span id="selectedSearchGroup" class="selected-search-group">-</span></td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <a id="searchGroup" href="javascript:void(0);" onclick="onSelectGroupClicked();">{!$Label.label_evidence_00049}</a>
+                                    </td>
+                                </tr> -->
+                                <tr>
+                                    <th>{!$Label.label_evidence_00013}</th>
+                                    <td><span id="selectedSearchSpace" class="selected-search-space">-</span></td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <a id="searchSpace" href="javascript:void(0);" onclick="onSelectSpaceClicked();">{!$Label.label_evidence_00014}</a>
+                                        <img id="searchSpaceInfo" src="{!$Label.field_CSO_URL}/image/tooltip.png" class="search-space-info" />
+                                 </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10174}</th>
+                                    <td>
+                                        <span id="selectedSearchAction" class="selected-search-action">{!$Label.label_evidence_00004}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <a id="searchAction" href="javascript:void(0);" onclick="onSelectActionClicked();">{!$Label.label_evidence_00015}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10175}</th>
+                                    <td>
+                                        <input type="text" id="from" class="c_text_s" name="from" maxlength="10" />
+                                        {!$Label.label_10316}
+                                        <input type="text" id="to" class="c_text_s" name="to" maxlength="10" />
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="width: 100%; text-align: center;">
+                                <input type="submit" class="btn" value="{!$Label.label_00069}" onclick="evidenceSearch();"/>
+                                <input type="button" class="btn" value="{!$Label.label_00070}" onclick="clearCondition();"/>
+                                <input type="button" class="btn" value="{!$Label.label_00058}" onclick="$('#searchDiv').dialog('close');"/>
+                            </p>
+                        </div>
+                        <!-- 透かし情報で照会ポップアップ -->
+                        <div id="searchDigimarkDiv" style="display: none;" title="{!$Label.label_13114}">
+                            <table id="searchDigimarkTable" cellpadding="5">
+                                <tr>
+                                    <th>{!$Label.label_13115}</th>
+                                    <td><input type="text" id="digimark_payload" class="c_text_m" name="digimark_payload" maxlength="255" /></td>
+                                </tr>
+                            </table>
+                            <p style="width: 100%; text-align: center;">
+                                <input type="submit" class="btn" value="{!$Label.label_00069}" onclick="evidenceDigimarkSearch();"/>
+                                <input type="button" class="btn" value="{!$Label.label_00070}" onclick="clearDigimarkCondition();"/>
+                                <input type="button" class="btn" value="{!$Label.label_00058}" onclick="$('#searchDigimarkDiv').dialog('close');"/>
+                            </p>
+                        </div>
+
+
+                        <!-- group dialog-->
+                        <div id="selectGroupDialog" class="modal" title="{!$Label.label_evidence_00050}">
+                            <input id="selectGroupDialogSearch" class="longWidth select-group-dialog-search" />
+                            <input type="button" value="{!$Label.label_00069}" onclick="onSelectGroupDialogSearchClicked();" />
+                            <table id="selectGroupDialogListTable"></table>
+                            <div id="selectGroupDialogListTablePager"></div>
+                            <div class="button-box">
+                                <input type="button" class="btn" value="{!$Label.label_00059}" onclick="onSelectGroupDialogOkClicked();" />
+                                <input type="button" class="btn" value="{!$Label.label_00058}" onclick="onSelectGroupDialogCancelClicked();" />
+                            </div>
+                        </div>
+
+
+
+                        <!-- 証跡CSV出力ダイアログ -->
+                        <div id="exportDialog" style="display: none;" title="{!$Label.label_evidence_00016}">
+                            <table id="searchTable" cellpadding="5">
+                                <tr>
+                                    <th>{!$Label.label_10131}</th>
+                                    <td>
+                                        <div id="exportDialogSearchUsernameDisplay">
+                                            <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogSearchUsernameEditClicked();" />
+                                            <span id="exportDialogSearchUsernameSpan"></span>
+                                        </div>
+                                        <div id="exportDialogSearchUsernameEdit" class="export-dialog-input">
+                                            <input type="text" id="exportDialogSearchUsernameInput" class="longWidth" name="exportDialogUser" placeholder="{!$Label.label_evidence_00045}" maxlength="255" />
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- <tr>
+                                    <th>{!$Label.label_10022}</th>
+                                    <td>
+                                        <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogSelectGroupClicked();" />
+                                        <span id="exportDialogSelectedSearchGroup" class="export-dialog-selected-search-group">-</span>
+                                    </td>
+                                </tr> -->
+                                <tr id="exportDialogSelectedSearchSpaceRow">
+                                    <th>{!$Label.label_evidence_00013}</th>
+                                    <td>
+                                        <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogSelectSpaceClicked();" />
+                                        <span id="exportDialogSelectedSearchSpace" class="export-dialog-selected-search-space">-</span>
+                                    </td>
+                                </tr>
+                                <tr id="exportDialogSelectedSearchActionRow">
+                                    <th>{!$Label.label_evidence_00044}</th>
+                                    <td>
+                                        <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogSelectActionClicked();" />
+                                        <span id="exportDialogSelectedSearchAction" class="export-dialog-selected-search-action">-</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10175}</th>
+                                    <td>
+                                        <div id="exportDialogSearchDateDisplay">
+                                            <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogDateEditClicked();" />
+                                            <span id="exportDialogSearchFromSpan"></span>
+                                            <span id="exportDialogSearchDateConnect"></span>
+                                            <span id="exportDialogSearchToSpan"></span>
+                                        </div>
+                                        <div id="exportDialogSearchDateEdit" class="export-dialog-input">
+                                            <input type="text" id="exportDialogFrom" class="shortWidth" name="exportDialogFrom" maxlength="10" />
+                                            &nbsp;{!$Label.label_10316}&nbsp;
+                                            <input type="text" id="exportDialogTo" class="shortWidth" name="exportDialogTo" maxlength="10" />
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_evidence_00017}</th>
+                                    <td>
+                                        <div id="exportDialogLanguageDisplay">
+                                            <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogLanguageEditClicked();" />
+                                            <span id="exportDialogLanguageSpan"></span>
+                                        </div>
+                                        <div id="exportDialogLanguageEdit" class="export-dialog-input">
+                                            <select name="exportLanguage" id="exportLanguage"></select>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_evidence_00018}</th>
+                                    <td>
+                                        <div id="exportDialogTimezoneDisplay">
+                                            <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogTimezoneEditClicked();" />
+                                            <span id="exportDialogTimezoneSpan"></span>
+                                        </div>
+                                        <div id="exportDialogTimezoneEdit" class="export-dialog-input">
+                                            <select name="exportTimezone"  id="exportTimezone" class="export-dialog-input-timezone"></select>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_evidence_00019}</th>
+                                    <td>
+                                        <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogOutputSpaceEditClicked();" />
+                                        <span id="exportOutputSpace" class="export-dialog-selected-output-space"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_evidence_00020}</th>
+                                    <td>
+                                        <img id="exportDialogSearchCountInfo" src="{!URLFOR($Resource.cso, 'image/tooltip.png')}" class="export-dialog-search-count-info" />
+                                        <span id="exportDialogSearchCount" class="export-dialog-search-count"></span>
+                                        <input id="exportDialogSearchCountInput" type="hidden" />
+                                        <img id="exportDialogSearchCountLoading" class="loading3" />
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="export-dialog-explanation">
+                                <p class="export-dialog-explanation-1">{!$Label.label_evidence_00021}</p>
+                                <p class="export-dialog-explanation-2">{!$Label.label_evidence_00022}</p>
+                            </div>
+                            <div class="button-box">
+                                <input id="exportDialogCancelButton" type="button" class="btn" value="{!$Label.field_common_cancel}" onclick="onExportDialogCancelClicked();" />
+                                <input id="exportDialogOkButton" type="button" class="btn" value="{!$Label.label_evidence_00023}" onclick="onExportDialogOkClicked();" />
+                            </div>
+                        </div>
+                        <!-- 証跡CSV出力履歴画面 -->
+                        <div id="exportHistoryDialog" class="modal" style="display: none;" title="{!$Label.label_evidence_00024}">
+                            <div id="exportHistoryDialogTab" class="ui-tab">
+                                <ul>
+                                    <li><a href="#exportHistoryDialogTabUnfinished">{!$Label.label_evidence_00025}</a></li>
+                                    <li><a href="#exportHistoryDialogTabFinished">{!$Label.label_evidence_00026}</a></li>
+                                    <li><a href="#exportHistoryDialogTabSyncFinished">{!$Label.label_evidence_00051}</a></li>
+                                </ul>
+                                <div id="exportHistoryDialogTabUnfinished" class="tab-inner" style="display:none;overflow:auto;">
+                                    <div id="exportHistoryDialogError" class="export-dialog-error"></div>
+                                    <table id="exportHistoryUnfinishedList"></table>
+                                    <div id="exportHistoryUnfinishedListPager"></div>
+                                </div>
+                                <div id="exportHistoryDialogTabFinished" class="tab-inner" style="display:none;overflow:auto;">
+                                    <table id="exportHistoryFinishedList"></table>
+                                    <div id="exportHistoryFinishedListPager"></div>
+                                </div>
+                                <div id="exportHistoryDialogTabSyncFinished" class="tab-inner" style="display:none;overflow:auto;">
+                                    <table id="exportHistorySyncFinishedList"></table>
+                                    <div id="exportHistorySyncFinishedListPager"></div>
+                                </div>
+                                <div id="exportHistoryDialogExplanation">
+                                    <apex:outputPanel rendered="{!cso_userInfo.proAuth_evidence_manage}">
+                                            <div class="export-history-dialog-explanation-box-1">
+                                                <p>{!$Label.label_evidence_00027}</p>
+                                                <p>{!$Label.label_evidence_00028}</p>
+                                            </div>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_evidence_manage == 'false',true,false)}">
+                                            <div class="export-history-dialog-explanation-box-2">
+                                                <p>{!$Label.label_evidence_00029}</p>
+                                            </div>
+                                    </apex:outputPanel>
+                                </div>
+                                <div class="button-box">
+                                    <apex:outputPanel rendered="{!cso_userInfo.proAuth_evidence_manage}">
+                                        <input id="exportHistoryPriorityUpButton" type="button" class="btn" value="{!$Label.label_evidence_00030}" onclick="onExportHistoryDialogPriorityUpClicked();" />
+                                        <input id="exportHistoryPriorityDownButton" type="button" class="btn" value="{!$Label.label_evidence_00031}" onclick="onExportHistoryDialogPriorityDownClicked();" />
+                                    </apex:outputPanel>
+                                    <input id="exportHistoryStopButton" type="button" class="btn" value="{!$Label.label_evidence_00032}" onclick="onExportHistoryDialogExportStopClicked();" />
+                                    <input id="exportHistoryOkButton" type="button" class="btn" value="{!$Label.field_common_ok}" onclick="onExportHistoryDialogOkClicked();" />
+                                </div>
+                            </div>
+                        </div>
+                        <!-- スペース選択ダイアログ -->
+                        <div id="selectSpaceDialog" class="modal" style="display: none;" title="{!$Label.label_evidence_00033}">
+                            <p>{!$Label.label_evidence_00034}</p>
+                            <div class="spacelist-autoselect">
+                                <label>
+                                    <input id="spacelistAutoselect" type="checkbox" />
+                                    {!$Label.label_evidence_00035}
+                                </label>
+                            </div>
+                            <div id="spaceList" class="spacelist"></div>
+                            <div id="spaceListLoading" class="loading2"></div>
+                            <div class="button-box">
+                                <input type="button" class="btn" value="{!$Label.field_common_cancel}" onclick="onSelectSpaceDialogCancelClicked();" />
+                                <input type="button" class="btn" value="{!$Label.field_common_ok}" onclick="onSelectSpaceDialogOkClicked();" />
+                            </div>
+                        </div>
+                        <!-- アクション選択ダイアログ -->
+                        <div id="selectActionDialog" class="modal" style="padding: 5px 15px 5px 25px; display: none;" title="{!$Label.label_evidence_00036}">
+                            <p>{!$Label.label_evidence_00037}</p>
+                            <div>
+                                <p class="select-action-dialog-input-header">{!$Label.label_evidence_00038}</p>
+                                <select id="selectActionDialogCategory1" style="width: 250px;" onchange="onActionCategory1Changed();"></select>
+                            </div>
+                            <div>
+                                <p class="select-action-dialog-input-header">{!$Label.label_evidence_00039}</p>
+                                <select id="selectActionDialogCategory2" style="width: 250px;" onchange="onActionCategory2Changed();"></select>
+                            </div>
+                            <div>
+                                <div class="select-action-dialog-select-box">
+                                    <p class="select-action-dialog-input-header">{!$Label.label_evidence_00040}</p>
+                                    <select id="selectActionDialogSelectableAction" class="select-action-dialog-select" multiple="true"></select>
+                                    <!-- <select id="selectActionDialogSelectableAction" class="select-action-dialog-select" ></select> -->
+                                </div>
+                                <div class="select-action-dialog-operate-box">
+                                    <input type="button" class="btn select-action-dialog-operate-button" onclick="onSelectActionDialogAddClicked();" value="{!$Label.label_10020}" />
+                                    <input type="button" class="btn select-action-dialog-operate-button" onclick="onSelectActionDialogDelClicked();" value="{!$Label.field_common_remove}" />
+                                </div>
+                                <div class="select-action-dialog-select-box">
+                                    <p class="select-action-dialog-input-header">{!$Label.label_evidence_00041}</p>
+                                    <select id="selectActionDialogSelectedAction" class="select-action-dialog-select" multiple="true"></select>
+                                    <!-- <select id="selectActionDialogSelectedAction" class="select-action-dialog-select" ></select> -->
+                                </div>
+                            </div>
+                            <div class="button-box">
+                                <input type="button" class="btn" value="{!$Label.field_common_cancel}" onclick="onSelectActionDialogCancelClicked();" />
+                                <input type="button" class="btn" value="{!$Label.field_common_ok}" onclick="onSelectActionDialogOkClicked();" />
+                            </div>
+                        </div>
+                        <!-- 証跡出力先選択ダイアログ -->
+                        <div id="selectTargetSpaceDialog" class="modal" style="display: none;" title="{!$Label.label_evidence_00042}">
+                            <p>{!$Label.label_evidence_00043}</p>
+                            <div class="select-target-space-dialog-selected">
+                                <span id="selectTargetSpaceDialogSelectedSpan" class="select-target-space-dialog-selected-span"></span>
+                            </div>
+                            <div id="targetSpaceList"></div>
+                            <div id="targetSpaceListLoading" class="loading2"></div>
+                            <div class="button-box">
+                                <input type="button" class="btn" value="{!$Label.field_common_cancel}" onclick="onSelectTargetSpaceDialogCancelClicked();" />
+                                <input type="button" class="btn" value="{!$Label.field_common_ok}" onclick="onSelectTargetSpaceDialogOkClicked();" />
+                            </div>
+                        </div>
+                        <div id="exportPullMenu" style="display:none;">
+                            <ul class="viewlist">
+                                <li><a href="javascript:void(0);" onclick="onExportMenuClicked(); return false;">{!$Label.label_13042}</a></li>
+                                <li><a href="javascript:void(0);" onclick="onExportHistoryMenuClicked(); return false;">{!$Label.label_evidence_00024}</a></li>
+                            </ul>
+                        </div>
+                        <!-- 同期クライアントの証跡検索ダイアログ -->
+                        <div id="syncEvidenceSearchDialog" title="{!$Label.label_00069}" style="display: none;">
+                            <table class="syncSearchTable" cellpadding="5">
+                                <tr>
+                                    <th>{!$Label.label_10021}</th>
+                                    <td>
+                                        <input type="text" id="syncSearchUser" style="padding: 5px; width: 280px;" class="longWidth" maxLength="255" placeholder="{!$Label.label_evidence_00045}"/>
+                                    </td>
+                                </tr>
+                                <!-- <tr>
+                                    <th>{!$Label.label_evidence_00050} </th>
+                                    <td><span id="syncSelectedSearchGroup" class="selected-search-group">-</span></td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <a id="syncSearchGroup" href="javascript:void(0);" onclick="onSelectGroupClicked();">{!$Label.label_evidence_00049} </a>
+                                    </td>
+                                </tr> -->
+                                <!--tr>
+                                    <th>{!$Label.label_10175}</th>
+                                    <td>
+                                        <input type="text" id="syncFrom" class="shortWidth datePicker" name="from" maxlength="10" style="padding: 5px;" />
+                                        &nbsp;{!$Label.label_10316}&nbsp;
+                                        <input type="text" id="syncTo" class="shortWidth datePicker" name="to" maxlength="10" style="padding: 5px;" />
+                                    </td>
+                                </tr-->
+                                <tr>
+                                    <th>{!$Label.label_10175}</th>
+                                    <td>
+                                        <input type="text" id="syncFrom" class="c_text_s" name="from" maxlength="10" />
+                                        {!$Label.label_10316}
+                                        <input type="text" id="syncTo" class="c_text_s" name="to" maxlength="10" />
+                                    </td>
+                                </tr>
+                            </table>
+                            <div style="float: right; margin: 10px 0px;">
+                                <input type="button" class="btn" value="{!$Label.label_00058}" onclick="$('#syncEvidenceSearchDialog').dialog('close');"/>
+                                <input type="button" class="btn" value="{!$Label.label_00070}" onclick="syncEvidenceSearchClear();"/>
+                                <input type="button" class="btn" value="{!$Label.label_00069}" onclick="syncEvidenceSearchExec();"/>
+                            </div>
+                        </div>
+                    </apex:pageBlock>
+                    <apex:actionFunction name="readyForSync" action="{!readyForSync}" rerender="dummy"/>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel id="err" rendered="{!!CSOAuthority}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == false,true,false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

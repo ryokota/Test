@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>false</available>
+    <description>Information only Email Communication to Info Only users when the RFA is pushed to circulation</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>RFA02 Upon Circulation - Info Only</name>
+    <style>none</style>
+    <subject>起案通知 (Information Only) : {!RFA__c.Name} - {!RFA__c.RequestTitle__c}</subject>
+    <type>custom</type>
+</EmailTemplate>

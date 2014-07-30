@@ -1,0 +1,64 @@
+<apex:page standardController="RFA__c" sidebar="false" tabstyle="RFA__c" extensions="RM_VFC_Project_Common" action="{!isRfa}">
+	<apex:includeScript value="{!URLFOR($Resource.jQueryGantt, 'jquery.min.js')}"   />
+ 	<apex:sectionHeader subtitle="{!$Label.RM_RFA_Approver_User}" title="{!$Label.RM_RFA_Approver_User}"/>
+ 	<apex:pageMessages />
+ 	<apex:form >
+	    <apex:pageBlock id="pblock" title="{!$Label.RM_RFA_Approver_User_Edit}" mode="edit">
+	    	<apex:pageblockbuttons >
+	    		<apex:commandbutton action="{!save}" value="{!$Label.RM_Save}"/>
+	    		<apex:commandbutton action="{!save}" value="{!$Label.RM_Save_New}"/>
+	    		<apex:commandbutton action="{!cancel}" value="{!$Label.RM_Cancel}"/>
+	    	</apex:pageblockbuttons>
+	        <apex:pageblocksection columns="2" >
+	        	<apex:outputField Value="{!RFA__c.RecordTypeId}"/>
+	        	<apex:outputField Value="{!RFA__c.OwnerId}"/>
+	            <apex:inputField value="{!RFA__c.RM_Related_Project__c}" onchange="getProjectData(document.getElementById(this.id + '_lkid').value);" required="true">
+	            	<apex:actionFunction name="getProjectData" action="{!getProjectData}" immediate="true" rerender="pblock" >
+	            		<apex:param name="projectId" assignTo="{!projectId}" value=""/>
+	            	</apex:actionFunction>
+	            </apex:inputField>
+	        </apex:pageblocksection>
+	        <apex:pageblocksection columns="2" title="{!$Label.RM_General_Information}">
+	        	<apex:inputfield Value="{!RFA__c.RM_Project_No__c}"/>
+	        	<apex:inputfield Value="{!RFA__c.Id}"/>
+	        	<apex:inputfield Value="{!RFA__c.RequestTitle__c}" required="true"/>
+	        	<apex:inputfield Value="{!RFA__c.Stage__c}"/>
+	        	<apex:inputfield Value="{!RFA__c.RM_Start_Date__c}" required="true"/>
+	        	<apex:inputfield Value="{!RFA__c.RM_End_Date__c}" required="true"/>        
+	        	<apex:inputfield Value="{!RFA__c.RM_Owner_Function_L2__c}" required="true"/>
+	        	<apex:inputfield Value="{!RFA__c.RM_Sponsor__c}" required="true"/>
+	        	<apex:inputfield Value="{!RFA__c.RM_Project_Lead_From_Owner_Function__c}" required="true"/>        
+	        </apex:pageblocksection>
+	        <apex:pageblocksection columns="1" title="{!$Label.RM_OverView}">
+	        	<apex:inputfield Value="{!RFA__c.RM_Background_Current_Issue__c}" required="true" style="width:80%;"/>
+	        	<apex:inputfield Value="{!RFA__c.RM_Project_Objectives__c}" required="true" style="width:80%;"/>
+	        	<apex:inputfield Value="{!RFA__c.RM_Estimated_Benefit_Overview__c}" required="true" style="width:80%;"/>        
+	        </apex:pageblocksection>
+	        <apex:pageblocksection columns="2" title="{!$Label.RM_Support_Function_L2_Sub_Function_L3}">
+	        	<apex:inputfield Value="{!RFA__c.RM_Commercial_Check__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_Commercial_Select__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_SCM_Check__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_SCM_Select__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_Procurement_Check__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_Procurement_Select__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_HR_Check__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_HR_Select__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_Finance_Check__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_Finance_Select__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_IS_Check__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_IS_Select__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_Legal_Check__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_Legal_Select__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_PAC_Check__c}"/>
+	        	<apex:inputfield Value="{!RFA__c.RM_PAC_Select__c}"/>    
+	        	<apex:inputfield Value="{!RFA__c.RM_BI_Check__c}"/>
+	        	<apex:inputfield Value="{!RFA__c.RM_BI_Select__c}"/>
+	        </apex:pageblocksection>
+	    </apex:pageBlock>
+    </apex:form>
+	<script type="text/javascript" >
+		$(document).ready(function(){
+		    $(".content img").remove();
+		});
+	</script>
+</apex:page>

@@ -1,0 +1,434 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingSyncSpaceController" tabStyle="setting__tab" >
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_sync_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_sync_manage == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<script type="text/javascript">
+
+var selectSyncSpace = new Object();
+var selectSyncSpaceClone;
+var selectedSpaceList;
+
+jQuery.event.add(window, "load", function(){
+    $(window).resize(resizeGrid);
+    $("#syncSpaceList-container").width(getBrowserWidth() - 340);
+    $("#syncSpaceList").jqGrid({
+        url:_apiUrl + '/setup/sync/SyncSpaceList.json',
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems    : false,
+            id             : "id"
+        },
+        colNames:[
+            '',
+            '{!$Label.label_00039}',
+            '{!$Label.label_10006}',
+        ],
+        colModel:[
+            {name:'id',index:'id', width:350, hidden:true},
+            {name:'name',index:'name', width:350, formatter:imgFormatter, unformat:imgUnformatter},
+            {name:'update',index:'update', width:120,align:"center"},
+        ],
+        rowNum            : 50,
+        width             : $("#syncSpaceList-container").innerWidth(),
+        height            : getBrowserHeight() - 360,
+        rowList            : [10,50,100],
+        sortname        : 'name',
+        pager            : '#syncSpaceListPager',
+        shrinkToFit        : true,
+        viewrecords        : true,
+        multiselect        : true,
+        multiboxonly    : true,
+        loadComplete    :
+            function(data){
+                selectedSpaceList = data.pathList;
+            }
+    });
+    $("#syncSpaceList").jqGrid('navGrid','#syncSpaceListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+    loadSelectSyncSpace();
+
+    $("#spaceTreeDiv").dialog({
+        width        : 600,
+        height        : 500,
+        autoOpen    : false,
+        resizable    : false,
+        modal        : true,
+    });
+
+    $("#searchDiv").dialog({
+        width        : 360,
+        height        : 135,
+        autoOpen    : false,
+        resizable    : false,
+    });
+});
+
+function imgFormatter(cellvalue, options, rowObject){
+	cellvalue = cellvalue.replace("/image/folder.png", "{!URLFOR($Resource.cso, 'image/folder.png')}");
+	return cellvalue;
+}
+
+function imgUnformatter(cellvalue, options, cell){
+	return cellvalue;
+}
+
+function resizeGrid(){
+    var height = getBrowserHeight() - 360;
+    if (height >= 270) {
+        $("#syncSpaceList").setGridHeight(height);
+    }
+    $("#syncSpaceList-container").width(getBrowserWidth() - 340);
+    $("#syncSpaceList").setGridWidth($("#syncSpaceList-container").innerWidth(), true);
+    if (height >= 270) {
+        $("#syncSpaceList").setGridHeight(height);
+    }
+
+    $("body").css("overflow-x", $("body").width() > 993 ? "hidden" : "auto");
+}
+
+function loadSelectSyncSpace(){
+    var param = {
+        type : 0
+    }
+
+    var callback =  function(result){
+        selectSyncSpace = new Object();
+        for(var i in result.list){
+            selectSyncSpace[result.list[i]] = true;
+        }
+    };
+
+    var callerror =  function(data){
+    };
+
+    secureGetAsync('/setup/sync/SyncSpaceList.json', param, callback, callerror);
+}
+
+function showSearchDialog(){
+    $("#searchDiv").dialog("open");
+}
+
+function clearCondition(){
+    $("#searchText").val("");
+    execSearch();
+}
+
+function execSearch(){
+    var text = $.trim($("#searchText").val());
+    $("#syncSpaceList").setGridParam({
+        page        : 1,
+        postData    : {"search" : text}
+    });
+    $("#syncSpaceList").trigger("reloadGrid");
+}
+
+function showSyncSpaceDialog(){
+    $("#spaceTreeDiv").dialog("open");
+    $("#syncSpaceTreeLoadingImage").show();
+    $("#syncSpaceTreeDiv").html("");
+    var param = {
+    }
+
+    var callback =  function(data, status){
+        if (data.result) {
+            var branches = $("#syncSpaceTreeDiv").html(data["tree"]);
+            $("#syncSpaceTreeDiv").treeview({
+                url            : '/setup/sync/SpaceTreeChildren.json',
+                add            : branches,
+                animated    : "fast",
+                persist        : "fixed-close",
+                cookieId    : "syncSpaceTree",
+                callback: function(elements){
+                    setTimeout(function(){
+                        setChildSpaceListCheck(elements);
+                    },100);
+                },
+            });
+            initSelect();
+            $("#syncSpaceTreeLoadingImage").hide();
+        }
+    };
+
+    var callerror =  function(data){
+    };
+
+    secureGetAsync('/setup/sync/SpaceTreeRoot.json', param, callback, callerror);
+    selectSyncSpaceClone = $.cloneObject(selectSyncSpace, true);
+}
+
+function initSelect(){
+    for(var k in selectSyncSpace){
+        $("[value='" + k + "']").attr("checked", "checked");
+        searchSpaceChecked(k, true);
+    }
+
+    $.each(selectedSpaceList, function(i, val){
+        if(!selectSyncSpace[val]){
+            $("[spaceid='" + val + "']").css("color", "red");
+        }
+    })
+
+}
+
+function searchSpaceChecked(v, f){
+    var isCheck = $("[value='" + v + "']").attr("checked");
+    selectSyncSpace[v] = isCheck || $("[value='" + v + "']").attr("checked") == undefined;
+    if(!f){
+        searchSyncSpace(v);
+    }
+    $("#" + v + " :checkbox").each(function(){
+        if($(this).val() == v) return;
+        if(isCheck){
+            $(this).attr({
+                "checked"        : "checked",
+                "disabled"        : "disabled"
+            });
+        }else{
+            $(this).removeAttr("checked").removeAttr("disabled");
+        }
+    });
+}
+
+function onSearchSpaceChecked(e){
+    searchSpaceChecked(e.value, false);
+}
+
+function searchSyncSpace(id){
+    for(var x in selectSyncSpace){
+        if($("#" + id).find("#" + x).length == 1){
+            selectSyncSpace[x] = false;
+        }
+    }
+}
+
+function setChildSpaceListCheck(e){
+    var isCheck = false;
+    $(e).parent().find("input:checkbox").each(function(index){
+        if(selectSyncSpace[this.value]){
+            $(this).attr("checked", "checked");
+        }
+        if(index == 0){
+            isCheck = $(this).attr("checked");
+            return;
+        }
+        if(isCheck){
+            $(this).attr({
+                "checked"        : "checked",
+                "disabled"        : "disabled"
+            });
+        }
+        if(contains(selectedSpaceList, $(this).val())){
+            if(!selectSyncSpace[$(this).val()]){
+                $("[spaceid='" + $(this).val() + "']").css("color", "red");
+            }
+        }
+
+    });
+}
+
+function removeSyncSpace(){
+    if(confirm("{!$Label.label_13200}")){
+        var selrows = $("#syncSpaceList").jqGrid('getGridParam','selarrrow');
+        var param = {
+            id         : selrows.join(",")
+        }
+
+        var callback =  function(data, status){
+            loadSelectSyncSpace();
+            $("#syncSpaceList").trigger("reloadGrid");
+        };
+
+        var callerror =  function(data){
+        };
+
+        securePostAsync('/setup/sync/SyncSpaceDelete.json', param, callback, callerror);
+    }
+}
+
+function addSyncSpace(){
+    var arr = new Array();
+    for(var k in selectSyncSpace){
+        if(selectSyncSpace[k]) arr.push(k);
+    }
+
+    var param = {
+        id         : arr.join(",")
+    }
+
+    var callback =  function(data, status){
+        loadSelectSyncSpace();
+        $("#syncSpaceList").trigger("reloadGrid");
+        $("#spaceTreeDiv").dialog("close");
+    };
+
+    var callerror =  function(data){
+    };
+    securePostAsync('/setup/sync/SyncSpaceUpdate.json', param, callback, callerror);
+}
+
+function cancelSyncSpace(){
+    $("#spaceTreeDiv").dialog("close");
+    selectSyncSpace = selectSyncSpaceClone;
+}
+
+function contains(arr, str){
+    for(var l in arr){
+        if(arr[l] == str) return true;
+    }
+    return false;
+}
+
+function clickSpace(obj, id) {
+    var checked = $(obj).attr("checked");
+    var p = $(obj).parent().parent();
+    var c = $("input[type=checkbox]", p);
+
+    c.attr({checked:checked, interlock:checked});
+}
+
+</script>
+
+<style type="text/css">
+.name-top{
+}
+.name-bottom{
+    color: gray;
+    font-size: 95%;
+}
+.date-top{
+}
+.date-bottom{
+    padding: 2px 0px 5px 0px;
+}
+
+#syncSpaceTreeDiv{
+    border: solid 1px silver;
+    margin: 10px 0px;
+    height: 390px;
+    overflow: auto;
+}
+
+#syncSpaceTreeLoadingImage{
+    position: absolute;
+    top: 200px;
+    left: 270px;
+}
+
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/a_32.png')}" alt="{!$Label.solxyzcso001__label_10621}" title="{!$Label.solxyzcso001__label_10621}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_13170}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_10219}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <!-- コマンドボタン表示 -->
+                        <div class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="item">
+                                    <!-- 検索ボタン -->
+                                    <apex:commandButton styleClass="btn" value="{!$Label.solxyzcso001__label_00069}" onclick="showSearchDialog(); return false;"/>
+                                </li>
+                                <li class="item">
+                                    <!-- 削除ボタン -->
+                                    <apex:commandButton styleClass="btn" value="{!$Label.solxyzcso001__label_00072}" onclick="removeSyncSpace(); return false;"/>
+                                </li>
+                                <li class="last">
+                                    <!-- 追加ボタン -->
+                                    <apex:commandButton styleClass="btn" value="{!$Label.solxyzcso001__label_10020}" onclick="showSyncSpaceDialog(); return false;" />
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- グリッド -->
+                        <div id="syncSpaceList-container">
+                            <table id="syncSpaceList"/>
+                            <div id="syncSpaceListPager" style="text-align:center;"/>
+                        </div>
+
+                        <!-- 隠しフィールド -->
+                        <input type="hidden" id="deleteIds" name="deleteIds" />
+
+                        <!-- 追加ダイアログ -->
+                        <div id="spaceTreeDiv" style="display: none;" title="{!$Label.label_13176}">
+                            <span>{!$Label.label_13201}</span>
+                            <div id="syncSpaceTreeDiv">
+
+                            </div>
+                            <div style="text-align: right;">
+                                <input type="button" class="btn" value="{!$Label.field_common_cancel}" onclick="cancelSyncSpace();" />
+                                <input type="button" class="btn" value="{!$Label.field_common_ok}" onclick="addSyncSpace();" />
+                            </div>
+                            <img src="{!URLFOR($Resource.cso, 'image/loading2.gif')}" id="syncSpaceTreeLoadingImage" />
+                        </div>
+
+                        <!-- 検索ダイアログ -->
+                        <div id="searchDiv" class="searchDiv" style="display: none;" title="{!$Label.solxyzcso001__label_00069}">
+	                        <input type="text" placeholder="{!$Label.label_11061}" style="width: 315px; padding: 5px;" id="searchText" />
+	                        <p style="width: 100%; text-align: right;">
+	                            <input type="button" class="btn" value="{!$Label.label_00070}" onclick="clearCondition();" />
+	                            <input type="button" class="btn" value="{!$Label.solxyzcso001__label_00069}" onclick="execSearch();" />
+	                        </p>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>30.0</apiVersion>
+    <available>true</available>
+    <description>Send Email communication to Primary Point of Contact related to an RFA when they are added to it for seal paperless.</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>Seal RFAVFT01 Upon Addition Primary POC</name>
+    <style>none</style>
+    <subject>起案通知 (Information Only) :  -【】 【押印申請】</subject>
+    <type>visualforce</type>
+</EmailTemplate>

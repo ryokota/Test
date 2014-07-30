@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>false</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <fields>
+        <fullName>Agenda_Item__c</fullName>
+        <externalId>false</externalId>
+        <label>Agenda Item</label>
+        <referenceTo>Agenda_Item__c</referenceTo>
+        <relationshipLabel>Agenda Item Members</relationshipLabel>
+        <relationshipName>Agenda_Item_Members</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>User__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>User</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Agenda_Item_Members</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>duplicate_check__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <externalId>false</externalId>
+        <label>Duplicate Check for Agenda Item Members</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <label>Agenda Item Members</label>
+    <nameField>
+        <displayFormat>AgendaMember-{00000000}</displayFormat>
+        <label>Agenda Item Members Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <recordTypes>
+        <fullName>BOD_Admin</fullName>
+        <active>true</active>
+        <label>BOD Admin</label>
+    </recordTypes>
+    <recordTypes>
+        <fullName>BOD_Advisor</fullName>
+        <active>true</active>
+        <label>BOD Advisor</label>
+    </recordTypes>
+    <recordTypes>
+        <fullName>BOD_Guest</fullName>
+        <active>true</active>
+        <label>BOD Guest</label>
+    </recordTypes>
+    <recordTypes>
+        <fullName>BOD_Member</fullName>
+        <active>true</active>
+        <label>BOD Member</label>
+    </recordTypes>
+    <recordTypes>
+        <fullName>BOD_Secretary</fullName>
+        <active>true</active>
+        <label>BOD Secretary</label>
+    </recordTypes>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

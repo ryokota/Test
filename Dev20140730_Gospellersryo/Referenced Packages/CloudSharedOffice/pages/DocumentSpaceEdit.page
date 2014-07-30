@@ -1,0 +1,455 @@
+<apex:page id="spaceEdit_PAGE" sidebar="false" showHeader="false" cache="false" controller="SOLXYZCSO001.SpacePortalController">
+
+<script type="text/javascript">
+
+    var spaceEdit_spaceId = "";                 //  変更対象スペースＩＤ
+    var spaceEdit_isChatter = false;            //  Chatter連携の有無
+    var spaceEdit_copySpaceId = "";             //  コピー元スペースＩＤ
+    var spaceEdit_copyAsrt = "";                //  Asrt
+    var spaceEdit_isEditable = "";              //  更新可能／不可能
+
+    //============//
+    //  初期処理  //
+    //============//
+    function spaceEdit_initialize(id){
+        //  対象スペースＩＤを保持
+        spaceEdit_spaceId = id;
+        
+        //  カスタム項目
+        $("#customfieldsTblEdit").customfields({
+            obj_id  : id,
+            attach  : "space",
+            edit    : true,
+        });
+
+        //  初期化
+        spaceEdit_copySpaceId = "";                             //  コピー元スペースＩＤ
+        spaceEdit_copyAsrt = "";                                //  Asrt
+        $('#spaceEdit_editNameReadOnlyRow').hide();             //  スペース名表示エリア
+        $('#spaceEdit_editNameRow').hide();                     //  スペース名入力エリア
+        $('#spaceEdit_editCommentRow').hide();                  //  説明入力エリア
+        $("#spaceEdit_spaceEditName").val("");                  //  スペース名
+        $("#spaceEdit_spaceEditComment").val("");               //  説明
+        $("#spaceEdit_remainder").val("");                      //  残り文字数
+        $("#spaceEdit_registUserName").text("");                //  作成者
+        $("#spaceEdit_registDate").text("");                    //  作成日
+        $("#spaceEdit_updateUserName").text("");                //  更新者
+        $("#spaceEdit_updateDate").text("");                    //  更新日
+        $("#spaceEdit_copyPath").val("");                       //  コピー元
+        $("#spaceEdit_chatterrow").hide();                      //  Chatter連携
+        $("#spaceEdit_accessToCopy").hide();                    //  コピー元欄
+        $("#spaceEdit_spaceEditComment").parent().css("max-width","none");
+        var select_chatter_group = $(document.getElementById("{!$Component.spaceEdit_Page.spaceEdit_Form.spaceEdit_select_chatter_group}"));
+        select_chatter_group.attr("selectedIndex", 0);          //  共有先
+        $("#spaceEdit_child_selected").removeAttr('checked');   //  配下のスペースに適用
+
+        //  スペースの編集画面を表示
+        $('#spaceEdit_modalDialogDiv').dialog({modal:true, width:680, 'title':'{!$Label.label_10034}', autoOpen:false});
+        $('#spaceEdit_spaceEditComment').keyup(function(){
+            viewCommentLength('spaceEdit_spaceEditComment', 'spaceEdit_remainder', 512);
+        });
+
+        //  各ボタンを無効化
+        $("#spaceEdit_OkBtn").attr({"disabled":"disabled"});
+        $("#spaceEdit_CancelBtn").attr({"disabled":"disabled"});
+
+        spaceEdit_isChatter ={!IsChatter};
+
+        var callback =  function(data, status){
+            if((data == null) || (data["space"] == null)){
+                return;
+            }
+
+            // スペースID
+            spaceEdit_spaceId = data.refDto.id;
+
+            //  各ボタンを有効化
+            $("#spaceEdit_OkBtn").removeAttr("disabled");
+            $("#spaceEdit_CancelBtn").removeAttr("disabled");
+
+            //  スペース名
+            var space = data["space"];
+            var spaceName = $('<div>').html(space["name"]).text()
+            $("#spaceEdit_spaceEditName").val(spaceName );
+            $("#spaceEdit_editNameReadOnly").html(space["name"]);
+            //  説明
+            $("#spaceEdit_spaceEditComment").val(space["comment"]);
+            $('#spaceEdit_spaceEditComment').keyup();
+
+
+            // 編集可能か？
+            spaceEdit_isEditable = data.isEditable;
+            if(data.isEditable){
+                $('#spaceEdit_editNameReadOnlyRow').hide();
+                $('#spaceEdit_editNameRow').show();
+                $('#spaceEdit_editCommentRow').show();
+                $('#spaceEdit_edit_command').show();
+                $('#spaceEdit_close_command').hide();
+            } else {
+                $('#spaceEdit_editNameReadOnlyRow').show();
+                $('#spaceEdit_editNameRow').hide();
+                $('#spaceEdit_editCommentRow').hide();
+                $('#spaceEdit_edit_command').hide();
+                $('#spaceEdit_close_command').show();
+            }
+
+            //  作成者
+            $("#spaceEdit_registUserName").text(space["registUserName"]);
+            //  作成日
+            $("#spaceEdit_registDate").text(data["registDate"]);
+            //  更新者
+            $("#spaceEdit_updateUserName").text(space["updateUserName"]);
+            //  更新日
+            if((data["updateDate"] != null) && (data["updateDate"] != "")){
+                $("#spaceEdit_updateDate").text(data["updateDate"]);
+            }
+            //  コピー元がある場合
+            if(data["accessToCopy"]){
+                //  コピー元スペースＩＤ
+                spaceEdit_copySpaceId = data["copySpaceId"];
+                //  Asrt
+                spaceEdit_copyAsrt = data["copyAsrt"];
+                //  コピー元
+                $("#spaceEdit_copyPath").text(data["copyPath"]);
+                //  コピー元欄
+                $("#spaceEdit_accessToCopy").show();
+            }
+
+            //  chatter連携
+            var select_chatter_group = $(document.getElementById("{!$Component.spaceEdit_Page.spaceEdit_Form.spaceEdit_select_chatter_group}"));
+            
+            if((data["isShared"] == null) || (data["isShared"] == false) || (select_chatter_group.children().length <= 0)){
+                spaceEdit_isChatter = false;
+            }
+            if(spaceEdit_isChatter == false || !data.isEditable){
+                $("#spaceEdit_chatterrow").hide();
+            }
+            else{
+                $("#spaceEdit_chatterrow").show();
+                //  [chatter]
+                var rows = data["bindingoption"];
+                var count = 0;
+                if(rows != null){
+                    count = rows.length;
+                }
+                var list = $("#spaceEdit_chatter_select");
+                list.empty();
+                for(var i = 0; i < count; i++){
+                    var option = $(spaceEdit_createOptionTagString(rows[i].value, rows[i].text, rows[i].selected));
+                    list.append(option);
+                }
+                //  [共有先グループ]
+                if(data["groupid"] != null){
+                    var select_chatter_group = $(document.getElementById("{!$Component.spaceEdit_Page.spaceEdit_Form.spaceEdit_select_chatter_group}"));
+                    select_chatter_group.val(data["groupid"]);
+                }
+                //  [共有先グループ]の有効化／無効化
+                spaceEdit_chatter_onchecked();
+                //  [配下のスペースに適用]
+                if(data["isChildSpace"] == true){
+                    $("#spaceEdit_child_selected_div").show();
+                }
+            }
+            
+            $("#spaceEdit_modalDialogDiv").dialog("open");
+        };
+
+        //  スペース情報の取得処理の呼び出し
+        //var param = {"editSpaceId":spaceEdit_spaceId};
+        var param = spaceEdit_spaceId ? {"editSpaceId":spaceEdit_spaceId} : null;
+        
+        setTimeout(function(){
+            secureGetAsync('/contentsmanagement/SpacePropertyGet.json', param, callback);
+        }, 1000);
+    }
+    function spaceEdit_createOptionTagString(value, label, selected){
+        var str = "";
+        str = str + "<option value='" + value + "'";
+        if(selected == "true"){
+            str = str + " selected='selected'";
+        }
+        str = str + ">" + label + "</option>";
+
+        return str;
+    }
+
+
+    //===================//
+    //  chatterの変更時  //
+    //===================//
+    function spaceEdit_chatter_onchecked(){
+        var select_chatter_group = $(document.getElementById("{!$Component.spaceEdit_Page.spaceEdit_Form.spaceEdit_select_chatter_group}"));
+
+        //  「chatterで通知しない」場合
+        if($("#spaceEdit_chatter_select").val() == "None"){
+            //  共有先グループを無効化
+            select_chatter_group.attr("disabled", "disabled");
+        }
+        else{
+            //  共有先グループを有効化
+            select_chatter_group.removeAttr("disabled");
+        }
+    }
+
+
+    //==================//
+    //  コピー元リンク  //
+    //==================//
+    function spaceEdit_movetoCopiedSpace() {
+        //  スペースの編集画面のクローズ
+        spaceEdit_modalDialogDivClose();
+
+        var url = "#" + spaceEdit_copySpaceId + ":" + spaceEdit_copyAsrt.toLowerCase();
+
+        location.href = url;
+
+        reloadTree();
+
+        switch (spaceEdit_copyAsrt) {
+        case "MY":
+            $('#createNewLabel').html('{!$Label.label_00051}');
+            break;
+        case "COLLABORATION":
+            $('#createNewLabel').html('{!$Label.label_00052}');
+            break;
+        case "COMPANY":
+            $('#createNewLabel').html('{!$Label.label_00053}');
+            break;
+        case "ARCHIVE":
+            $('#createNewLabel').html('{!$Label.label_00055}');
+            break;
+        }
+    }
+
+
+    //======//
+    //  OK  //
+    //======//
+    function spaceEditValidate(){
+        var err = new Array();
+        
+        CsoScript_loadingStart();
+        
+        //------------------------//
+        //  スペース名のチェック  //
+        //------------------------//
+        var spaceNameVal = $.trim($("#spaceEdit_spaceEditName").val());
+        if(spaceNameVal.length == 0){
+            err.push("{!$Label.msg_00033}");
+        }
+        if(spaceNameVal.match(/^.*[\\|/|:|\*|?|\"|<|>|\|].*$/)){
+            err.push('{!$Label.msg_00215}');
+        }
+
+        //------------------//
+        //  説明のチェック  //
+        //------------------//
+        var regexp = RegExp(/\r\n|\r|\n/g);
+        var spaceExplanationVal = $("#spaceEdit_spaceEditComment").val().replace(regexp, "\r\n");
+        if(spaceExplanationVal.length > 512){
+            err.push("{!$Label.msg_00007}");
+        } else {
+            spaceExplanationVal = $.trim(spaceExplanationVal);
+        }
+
+        //----------------------------//
+        //  共有先グループのチェック  //
+        //----------------------------//
+        var select_chatter_group = $(document.getElementById("{!$Component.spaceEdit_Page.spaceEdit_Form.spaceEdit_select_chatter_group}"));
+        var groupID = select_chatter_group.val();
+        if(groupID == null){
+            groupID = "";
+        }
+        var chatterSel = $("#spaceEdit_chatter_select").val();
+        if((spaceEdit_isChatter == true) && (chatterSel != "None") && (groupID == "")){
+            err.push("{!$Label.msg_00117}");
+        }
+        var groupName = $(document.getElementById("{!$Component.spaceEdit_Page.spaceEdit_Form.spaceEdit_select_chatter_group}")).children(':selected').text();
+        if(select_chatter_group.attr("disabled") == true){
+            groupID = "";
+            select_chatter_group_name = "";
+        }
+        
+        //  カスタム項目
+        var customFieldsVal = $("#customfieldsTblEdit").cfValues();
+        
+        var args = {
+            "spaceNameVal"          : spaceNameVal,
+            "spaceExplanationVal"   : spaceExplanationVal,
+            "groupID"               : groupID,
+            "groupName"             : groupName,
+            "chatterSel"            : chatterSel,
+            "customFieldsVal"       : customFieldsVal
+        };
+        
+        //  カスタム項目
+        $("#customfieldsTblEdit").cfValidator({
+            "err"       : err,
+            "errClass"  : "",
+            "args"      : args,
+            "success"   : editSpaceSuccess,
+            "fail"      : editSpaceFail
+        });
+    }
+    
+    var editSpaceSuccess = function(args) {
+        //  各ボタンを無効化
+        $("#spaceEdit_OkBtn").attr({"disabled":"disabled"});
+        $("#spaceEdit_CancelBtn").attr({"disabled":"disabled"});
+        
+        //  パラメータを生成
+        var userSte = '{"createSpaceName":null, "explanation":null, "checkbo":false, "keyt":null, "auditing":null, "riskPremium":[]}';
+
+        var param = {"spaceId"                  :spaceEdit_spaceId,
+                     "spaceName"                :args.spaceNameVal,
+                     "comment"                  :args.spaceExplanationVal,
+                     "isChatter"                :spaceEdit_isChatter,
+                     "chatter_select"           :args.chatterSel,
+                     "select_chatter_group"     :args.groupID,
+                     "select_chatter_group_name":args.groupName,
+                     "child_selected"           :$("#spaceEdit_child_selected").attr("checked"),
+                     "userSte"                  :userSte,
+                     "isEditable"               :spaceEdit_isEditable,
+                     "customfields"             :args.customFieldsVal
+                     };
+
+        var callback =  function(data){
+            CsoScript_loadingStop();
+            if(data["result"] == true){
+                spaceEdit_modalDialogDivClose();
+                reloadNow();
+                reloadTree();
+            }
+            else{
+                var errMsg = data["message"];
+                if((errMsg == null) || (errMsg == "")){
+                    errMsg = "{!$Label.msg_00102}";
+                }
+                alert(errMsg);
+            }
+
+            //  各ボタンを有効化
+            $("#spaceEdit_OkBtn").removeAttr("disabled");
+            $("#spaceEdit_CancelBtn").removeAttr("disabled");
+        };
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+
+
+        //----------------------//
+        //  登録処理の呼び出し  //
+        //----------------------//
+        securePostAsync('/contentsmanagement/SpacePropertyEdit.json', param, callback, callerror);
+    }
+    
+    var editSpaceFail = function(args) {
+        CsoScript_loadingStop();
+        return false;
+    }
+
+    //================================//
+    //  スペースの編集画面のクローズ  //
+    //================================//
+    function spaceEdit_modalDialogDivClose(){
+        $("#spaceEdit_modalDialogDiv").dialog("close");
+    }
+
+</script>
+
+<div id="spaceEdit_modalDialogDiv" style="display:none;">
+<div style="max-height:500px; overflow-y:auto;">
+    <table style="width: 100%" >
+        <tr>
+            <td style="width: 20px;"></td>
+            <td>
+                <table id="customfieldsTblEdit" class="spaceEditTable customfields">
+
+                    <tr id="spaceEdit_editNameReadOnlyRow" cfname="name">
+                        <th>{!$Label.label_11061}</th>
+                        <td>
+                            <span id="spaceEdit_editNameReadOnly"></span>
+                        </td>
+                    </tr>
+
+                    <tr id="spaceEdit_editNameRow" cfname="name">
+                        <th>{!$Label.label_11061}</th>
+                        <td class="c_require"><input type="text" maxlength="255" class="c_text_l" id="spaceEdit_spaceEditName" value="" /></td>
+                    </tr>
+
+                    <tr id="spaceEdit_editCommentRow" cfname="explanation">
+                        <th>{!$Label.label_10012}</th>
+                        <td>
+                            <table width="10%">
+                                <tr>
+                                    <td align="right"><div id="spaceEdit_remainder" style="padding-bottom: 0.3em"></div></td>
+                                </tr>
+                                <tr>
+                                    <td><textarea style="height: 150px; width: 450px; resize: none;" id="spaceEdit_spaceEditComment"></textarea></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr id="spaceEdit_chatterrow" cfname="chatter" style="{!IF(!IsChatter, '', 'display:none')}">
+                        <th>{!$Label.label_13224}</th>
+                        <td style="padding-top:10px;">
+                            {!$Label.label_10291}
+                            <select id="spaceEdit_chatter_select" name="spaceEdit_chatter_select" onchange="spaceEdit_chatter_onchecked()">
+                            </select>
+                            <apex:form id="spaceEdit_FORM" style="margin-top:2px;margin-bottom:1px;">
+                            {!$Label.msg_00117}
+                            <span id="spaceEdit_loading" style="display:none"><img src="{!URLFOR($Resource.cso, '/image/loading.gif')}" style="width:12px;" />{!$Label.label_10152}</span>
+                            <apex:selectList id="spaceEdit_select_chatter_group" size="1" disabled="true">
+                                <apex:selectOptions value="{!shareTargetGroupOptions}"></apex:selectOptions>
+                            </apex:selectList>
+                            </apex:form>
+
+                            <div id="spaceEdit_child_selected_div" style="display:none">
+                                {!$Label.label_10292}
+                                <input type="checkbox" class="checkbox" id="spaceEdit_child_selected" />
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+
+                <br/>
+
+                <table style="text-align:center; width:580px;">
+                    <tr>
+                        <th style="text-align:center;">{!$Label.label_10015}</th>
+                        <td style="text-align:center;" id="spaceEdit_registUserName"></td>
+                        <th style="text-align:center;">{!$Label.label_10014}</th>
+                        <td style="text-align:center;" id="spaceEdit_registDate"></td>
+                    </tr>
+                    <tr>
+                        <th style="text-align:center;">{!$Label.label_10024}</th>
+                        <td style="text-align:center;" id="spaceEdit_updateUserName"></td>
+                        <th style="text-align:center;">{!$Label.label_10018}</th>
+                        <td style="text-align:center;" id="spaceEdit_updateDate"></td>
+                    </tr>
+                    <tr id="spaceEdit_accessToCopy">
+                        <th style="text-align:center;">{!$Label.label_10322}</th>
+                        <td style="text-align:center;">
+                            <a href="javascript:void(0);" id="spaceEdit_copyPath" onclick="spaceEdit_movetoCopiedSpace();" style="color:#0000ff;">
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+</div>
+<div style="text-align: center; padding-top: 10px; padding-right: 30px;display:none;" id="spaceEdit_edit_command">
+    <input class="btn" type="button" value="{!$Label.label_00075}" id="spaceEdit_OkBtn"     onclick="spaceEditValidate();" />
+    <input class="btn" type="button" value="{!$Label.label_00058}" id="spaceEdit_CancelBtn" onclick="spaceEdit_modalDialogDivClose();" />
+</div>
+<div style="text-align: center; padding-top: 10px; padding-right: 30px;display:none;" id="spaceEdit_close_command">
+    <input class="btn" type="button" value="{!$Label.label_00059}" id="spaceEdit_CancelBtn" onclick="spaceEdit_modalDialogDivClose();" />
+</div>
+</div>
+</apex:page>

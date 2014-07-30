@@ -1,0 +1,1264 @@
+<apex:page id="contentsEdit" sidebar="false" showHeader="false" controller="SOLXYZCSO001.OverlayInfoController" >
+<apex:iframe src="/apex/CSO_WR_Error?code={!wr_userInfo.code}&massage={!wr_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(wr_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(wr_userInfo.showErrPage == false, true, false)}">
+<apex:include pageName="SOLXYZCSO001__WRCSOBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery.plupload.queue.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/common.child.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/colorado.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/callActiveX.js')}" />
+<apex:includescript value="{!URLFOR($Resource.SOLXYZCSO001__webreport, 'js/jquery.form.js')}"/>
+<script src="../../soap/ajax/24.0/connection.js" type="text/javascript"></script>
+<script src="../../soap/ajax/24.0/apex.js" type="text/javascript"></script>
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+<!--
+<apex:include pageName="CSOSirverlight"/>
+-->
+<style type="text/css">
+
+.innerTable_down {
+    margin: 0px 0px 10px 100px;
+}
+
+.innerTable_down th {
+    text-align: right;
+    font-weight: bold;
+}
+
+.innerTable_down td {
+    border: none !important;
+    padding: 5px !important;
+}
+
+.plupload_scroll .plupload_filelist{
+    height: 150px;
+}
+
+.inputTable th{
+    text-align : right;
+}
+
+.input_title{
+    //text-align : right;
+}
+
+.uploadifyQueueItem {
+    display: none;
+}
+
+.overlayCreateErrorMsg {
+    background-color: #FFFF00;
+    color: #FF0000;
+    font-weight: bold;
+    display: none;
+}
+
+.required {
+    background-color: #FFCCFF;
+    border: solid 1px silver;
+}
+
+.error {
+    border-color: red !important;
+}
+
+.ellipsis-overflow {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+</style>
+
+<script type="text/javascript">
+
+//Salesforceコミュニティでスクリプトエラーが発生するので、コメントアウトする
+//sforce.connection.sessionId = "{!$Api.Session_ID}";
+
+$(window).unload(function() {
+    top.window.opener.reloadNow();
+});
+
+//20130213 #5259 add
+var Fovlname = "";
+var Fexplanation = "";
+var Fupdate_comment = "";
+
+window.onload = function () {
+
+    Fovlname = $.trim($("#name").val());
+    Fexplanation = $.trim($("#explanation").val());
+    Fupdate_comment = $.trim($("#update_comment").val());
+
+}
+//20130213 #5259 add end
+
+var uploaderlist = [];
+var imgList = [];
+
+var imagecounter = 0;
+
+function addImageInput(){
+
+    var _div = document.createElement('div');
+    _div.id = "image_div_" + imagecounter;
+
+    var _file = document.createElement('input');
+    _file.id = "jrImg_" + imagecounter;
+    _file.type = "file";
+    _file.name = "jrImg";
+
+    var _text = document.createElement('input');
+    _text.type = "text";
+    _text.id = "image_text" + imagecounter;
+    _text.style.width = "240px";
+
+
+    var _button = document.createElement('button');
+     _button.onclick = function(){ return false; };
+    $(_button).text("{!$Label.label_wf_00045}");
+
+    var _delete = document.createElement('button');
+    _delete.onclick = function(){ $(this).parent().remove();}
+    $(_delete).text("{!$Label.label_wf_00031}");
+    $(_delete).css("display", "none");
+
+    $(_div).append(_file);
+    $(_div).append(_text);
+    $(_div).append(_button);
+    $(_div).append(_delete);
+
+    $("#imagefile_container").append(_div);
+
+    (function(_delete){
+        addEventsObj(_file, _text, _button, function(){
+            addImageInput();
+            $(_delete).css("display", "inline");
+        });
+
+    })(_delete);
+
+    _file = null;
+    _text = null;
+    _button = null;
+    _delete = null;
+
+    imagecounter++;
+}
+
+/**
+ * アップロードイベントを追加
+ */
+function addEvents(input, text, button, change){
+
+    $('#'+input).css({
+    //    'position' : 'absolute',
+    //    'top' : '-9999px'
+          'display' : 'inline'
+    }).change(function () {
+        var val = $(this).val();
+        var path = val.replace(/\\/g, '/');
+        var match = path.lastIndexOf('/');
+        $('#'+text).val(match !== -1 ? val.substring(match + 1) : val);
+    });
+    $('#'+text).css({
+        'display' : 'none',
+        'position' : 'absolute',
+        'top' : '-9999px'
+    }).bind('keyup, keydown, keypress', function () {
+        return false;
+    });
+
+    $('#'+button).css({
+        'display' : 'none',
+        'position' : 'absolute',
+        'top' : '-9999px'
+    }).click(function () {
+        $('#'+input).click();
+    });
+
+    $('#'+input).change(change);
+
+}
+
+function addEventsObj(input, text, button, change){
+    $(input).css({
+        //'position' : 'absolute',
+        //'top' : '-9999px',
+        'display' : 'inline'
+    }).change(function () {
+        var val = $(this).val();
+        var path = val.replace(/\\/g, '/');
+        var match = path.lastIndexOf('/');
+        $(text).val(match !== -1 ? val.substring(match + 1) : val);
+    });
+    $(text).css({
+        'display' : 'none',
+        'position' : 'absolute',
+        'top' : '-9999px'
+    }).bind('keyup, keydown, keypress', function () {
+        return false;
+    });
+
+    $(button).css({
+        'display' : 'none',
+        'position' : 'absolute',
+        'top' : '-9999px'
+    }).click(function () {
+        $(input).trigger('click');
+    });
+
+    $(input).change(change);
+}
+
+
+jQuery.event.add(window, "load", function(){
+
+    // 必要枠を削除
+    if({!JSENCODE(overlayID) == null}){
+        //追加
+
+    }else{
+        //編集
+        $("#td_fileselect").removeClass("c_require");
+    }
+
+
+    // アップロード初期化処理
+
+
+    // 文字数カウンター定義
+    $("#explanation").keyup(function(){
+        viewCommentLength("explanation", "explanationRemainder", 512);
+    });
+    viewCommentLength("explanation", "explanationRemainder", 512);
+    
+    var updateComment = $("#update_comment");
+    if (updateComment.length) {
+        updateComment.keyup(function(){
+            viewCommentLength("update_comment", "updateCommentRemainder", 512);
+        });
+        viewCommentLength("update_comment", "updateCommentRemainder", 512);
+    }
+
+    searchMethod();
+
+
+    //ファイル選択
+    /*
+    $(".uploadfile").each(function() {
+        setupUpload($(this).attr("id"));
+    });
+    */
+
+    //ファイル選択について変更する
+    addEvents('a', 'b', 'c', function(){
+
+        if($(this).val().length > 0) {
+
+            var index = $(this).val().lastIndexOf(".");
+            if (index > 0) {
+                var p = $(this).val().substring(index + 1, $(this).val().length);
+                if (p == "jrxml") {
+                    enableImage();
+                    addImageInput();
+                } else {
+                    disableImage();
+                }
+            } else {
+                disableImage();
+            }
+        }else{
+            disableImage();
+        }
+    });
+    //イメージ部分変更
+
+});
+
+function removeImageFile() {
+    var uploader = imgList[0];
+    $("#imagefilenames option:selected").each(function() {
+        var file = uploader.getFile($(this).val());
+        uploader.removeFile(file);
+        uploader.refresh();
+        $(this).remove();
+    });
+}
+
+function disableImage() {
+     $("#imagefile_row_name").hide();
+    $("#imagefile_row").hide();
+    $("#imagefilenames option").remove();
+    for(var i = 0; i < imgList.length; i++){
+        var uploader = imgList[i];
+        $.each(uploader.files, function() {
+    //      console.info(this);
+            uploader.removeFile(this);
+        });
+    }
+}
+
+function enableImage() {
+    $("#imagefile_row").show();
+    $("#imagefile_row_name").show();
+
+}
+
+var limitUserList = null;
+//2012.11.08 #4253対応
+//var rows_child;
+
+function searchMethod() {
+    $("#overlayCreateErrorMsg").html("");
+    var searchType = $("#userType").val();
+    var word = $("#searchWord").attr("value");
+
+    val = $.trim(word);
+    if (val == null) {
+    }else if (val.length >30 ) {
+         //overlayCreateValidateError(getMsg(new Array(JSMsg["field.33002"],30), JSMsg["msg.CROE009"]));
+         return false;
+    }
+
+    //通信
+    var callback =  function(data){
+
+        //alert(data);
+
+        var rows = data["rows"];
+        var options = "";
+
+        var list = [];
+
+    if(limitUserList == null){
+        limitUserList = [];
+        var listJson = '{!authUserList}';
+        //var listJson_g = '{!authGroupList}';
+
+        if(listJson != ''){
+            list = JSON.parse(listJson);
+
+            for(var id in list){
+                limitUserList[limitUserList.length] = list[id];
+                //alert("★★★limitUserList.length=" + limitUserList.length);
+            }
+        }
+    }
+
+        //貰ったものでループ
+        for(var id in rows){
+            var _id  = rows[id]["id"];
+            var _dom = rows[id]["dom"];
+
+            var index = -1;
+            try{
+                index = list.indexOf(_id,0);
+            }catch(e){
+                //alert("indexofの取得に失敗");
+                for(var i in list){
+                    if(_id == list[i]) index = i;
+                    break;
+                }
+            }
+            if(index >= 0){
+                $("#referLimitsList").append(_dom);
+            }else{
+
+                var flg = false;
+
+                // すでに一覧にないか確認
+                $("#referLimitsList option").each(function(){
+                    if($(this).val() == _id) flg = true;
+                });
+                if(!flg) options = options + _dom;
+
+                flg = false;
+            }
+        }
+
+        $("#limitsList").html(options);
+
+    };
+    secureGetAsyncSfJsonAccess('/api/overlayLimitList.json', {userType:"", word:val, "JSESSIONID":"","userid" : '{!$User.UserName}', "credential" : "{!credentialOnly}"}, callback);
+}
+
+
+/**
+ *2012.11.05 #4253対応
+ *紐づけ用ユーザ/グループ表示切り替え
+ */
+
+//function userType_select(){
+//
+//     $("#overlayCreateErrorMsg").html("");
+//    var searchType = $("#userType").val();
+//    var word = $("#searchWord").attr("value");
+//
+//    val = $.trim(word);
+//    if (val == null) {
+//    }else if (val.length >30 ) {
+//         //overlayCreateValidateError(getMsg(new Array(JSMsg["field.33002"],30), JSMsg["msg.CROE009"]));
+//         return false;
+//    }
+//
+//   var limitUserList = null;
+//    var limitUserList_g = null;
+//   var type2 = "";
+//    var userTypeValue = $('select[id$="userType"]').val();
+//    //alert("★★★userType_value★★★" + userTypeValue);
+//
+//    $("#limitsList").empty();
+//    //$("#referLimitsList").empty();
+//
+//    if(userTypeValue == '0'){
+//        type2 = "username";
+//    }else{
+//        type2 = "group";
+//    }
+//    //alert("★★★type2★★★" + type2);
+//
+//     //通信
+//    var callback2 =  function(data){
+//        //alert(data);
+//
+//        var rows2 = data["rows"];
+//        var options2 = "";
+//
+//        var list2 = [];
+//
+//        //alert("★★★limitUserList★★★=" + limitUserList);
+//
+//        //ユーザ
+//        if(type2 == "username"){
+//            if(limitUserList == null){
+//                limitUserList = [];
+//                var listJson2 = '{!authUserList}';
+//
+//                //alert("★★★listJson2★★★=" + listJson2);
+//
+//                if(listJson2 != ''){
+//                    list2 = JSON.parse(listJson2);
+//
+//                    for(var id2 in list2){
+//                        limitUserList[limitUserList.length] = list2[id2];
+//                    }
+//                }
+//            }
+//
+//         //グループ
+//         }else{
+//             if(limitUserList_g == null){
+//                limitUserList_g = [];
+//                var listJson2 = '{!authGroupList}';
+//
+//                //alert("★★★listJson2★★★=" + listJson2);
+//
+//                if(listJson2 != ''){
+//                    list2 = JSON.parse(listJson2);
+//
+//                    for(var id2 in list2){
+//                        limitUserList_g[limitUserList_g.length] = list2[id2];
+//                    }
+//                }
+//            }
+//          }
+//
+//        //貰ったものでループ
+//
+//        for(var id2 in rows2){
+//            var _id2  = rows2[id2]["id"];
+//            var _dom2 = rows2[id2]["dom"];
+//
+//            var index2 = list2.indexOf(_id2,0);
+//            //alert("★★★index2★★★=" + index2);
+//
+//            if(index2 >= 0){
+//
+//                var flg = false;
+//
+//                // すでに選択済み一覧にないか確認
+//                $("#referLimitsList option").each(function(){
+//                    if($(this).val() == _id2) flg = true;
+//                });
+//                if(!flg) $("#referLimitsList").append(_dom2);
+//
+//                flg = false;
+//
+//            }else{
+//
+//                var flg2 = false;
+//
+//                // すでに一覧にないか確認
+//               $("#referLimitsList option").each(function(){
+//                    if($(this).val() == _id2) flg2 = true;
+//                });
+//                if(!flg2) options2 = options2 + _dom2;
+//
+//                flg2 = false;
+//            }
+//        }
+//
+//        $("#limitsList").html(options2);
+//
+//    };
+//    secureGetAsync('/api/overlayLimitList.json', {userType:type2, word:val, "JSESSIONID":""}, callback2);
+//}
+//
+
+/**
+ * 移動
+ */
+function move(moveFrom, moveTo){
+    $("#" + moveFrom + " option:selected").each(function(){
+        var val = $(this).val();
+        var text = $(this).text();
+        $("#" + moveTo).append($("<option>").val(val).text(text));
+        $(this).remove();
+    });
+}
+
+////////////////////////////////////////////////////////////////////
+// 送信前イベント
+////////////////////////////////////////////////////////////////////
+
+var isRegistAccessing = false;
+
+/* jQueryイベントの拡張 */
+(function($) {
+$.fn.serializefiles = function() {
+    var obj = $(this);
+    /* ADD FILE TO PARAM AJAX */
+    var formData = new FormData();
+    $.each($(obj).find("input[type='file']"), function(i, tag) {
+        $.each($(tag)[0].files, function(i, file) {
+            formData.append(tag.name, file);
+        });
+    });
+    var params = $(obj).serializeArray();
+    $.each(params, function (i, val) {
+        formData.append(val.name, val.value);
+    });
+    return formData;
+};
+})(jQuery);
+
+/**
+ * 送信前
+ */
+function beforeSend(){
+
+    //if(isRegistAccessing) return false;
+
+    //バリデーションチェック
+    if (!ovrlayCreateValidate()) {
+        //isRegistAccessing = false;
+        return false;
+    }
+
+    //20130213 #5259 add 変更チェック
+    if(overlayChangeCheck()){
+        //表示画面へ遷移
+        moveReference_JS();
+        return false;
+    }
+    //20130213 #5259 add end
+
+    $("#remoteConfirm").dialog({
+        modal:true,
+        width:400,
+        height:250
+    });
+
+    //接続先を設定する
+    //$("#contentsForm").attr("action", "{!$Label.field_csowebreport_url}/api/overlayRegist.json");
+    $("#contentsForm").attr("enctype", "multipart/form-data")
+                      .attr("encoding", "multipart/form-data");
+    //サブミットする。
+
+    var list = [];
+
+    $("#referLimitsList option").each(function(){
+        list[list.length] = $(this).val();
+    });
+
+    $("#referLimitsList_hidden").val(JSON.stringify(list));
+    //alert("★★★#referLimitsList_hidden=" + $("#referLimitsList_hidden").val());
+
+    $("#innerFrame").load(function(){
+        //alert("end.");
+        //alert($("#innerFrame").contents().find("#ovlid").val());
+
+        //top.window.close();
+
+        loadedFlag2 = true;
+        if(__result == undefined || __result == ''){
+            setTimeout('request_id2()', 100);
+        }
+    });
+
+    execedFlag2 = false;
+    loadedFlag2 = false;
+    __result = '';
+    endFlag2 = false;
+
+    try{
+        //$("#contentsForm").submit();
+
+
+//        var cookieInfo = sforce.apex.execute("GlobalTokenAccessor", "getToken", {});
+//        var writeCookie = cookieInfo[0];
+
+        /**
+         * Multipart text Create.
+         */
+        //var boundary = generateBoundary();
+        //var data =buildMessage(getelements(), boundary);
+
+        //var senddata = $("#contentsForm").serializefiles();
+        /*
+        sforce.connection.remoteFunction({
+            url : "{!$Label.field_csowebreport_url}/api/overlayRegist.json",
+            requestData : $("#contentsForm").serializefiles(),
+            method : "POST",
+            requestHeaders : {
+                //"mime-Type" : "multipart/form-data",
+                //"Content-Type": "multipart/form-data",
+                "Cookie" : writeCookie ,
+                "enctype" : "multipart/form-data",
+                "encoding": "multipart/form-data"
+            },
+            onSuccess : function(responce){
+                alert("success!" + responce);
+            },
+            onFailure : function(responce){
+                alert("faild."+responce);
+            }
+        });
+        */
+
+        //
+
+        document.contentsForm.submit();
+        //alert("domain:"+document.domain);
+        //silverlightPost2("contentsForm");
+
+
+    }catch(e){
+       alert(e.message);
+       throw e;
+    }
+    return false;
+};
+
+//////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+
+var __result = '';
+var execedFlag2 = false;
+var loadedFlag2 = false;
+var endFlag2 = false;
+/*
+ * ECMセッションID要求/受取ハンドラ
+ */
+if(window.addEventListener) {
+    window.addEventListener("message",
+                            function(e){
+                                //if(e.data.toString().indexOf('result:') < 0) return;
+                                __result = e.data;
+
+                                if(e.data == 'OVERLAY_REGISTER_COMPLETED'){
+                                    //window.close();
+                                    if({!overlayID == null}){
+                                        window.close();
+                                    }else{
+                                        moveReference_JS();
+                                    }
+                                    $('#load_bridge2').val("");
+                                } else {
+                                    $('#load_bridge2').val(e.data);
+                                    setTimeout('load_fire2()', 100);
+                                }
+                            }, false);
+} else {
+    window.attachEvent("onmessage",
+                       function(e){
+                           //if(e.data.toString().indexOf('result:') < 0) return;
+                           __result = e.data;
+
+                           if(e.data == 'OVERLAY_REGISTER_COMPLETED'){
+                                    //window.close();
+                                    if({!overlayID == null}){
+                                        window.close();
+                                    }else{
+                                        moveReference_JS();
+                                    }
+                                    $('#load_bridge2').val("");
+                           } else {
+                               $('#load_bridge2').val(e.data);
+                               setTimeout('load_fire2()', 100);
+                           }
+                       }, false);
+}
+
+/*
+ * ECMセッションID要求
+ */
+function request_id2(){
+    if(__result == ''){
+        var frame = document.getElementById('innerFrame');
+        frame.contentWindow.postMessage('', '*');
+    } else {
+        setTimeout('load_fire2()', 100);
+    }
+}
+
+/*
+ * 読込処理起動
+ */
+function load_fire2(){
+   if(loadedFlag2 && __result != '' && !execedFlag2 && !endFlag2){
+       execedFlag2 = true;
+       var message2 = $('#load_bridge2').val();
+       $('#load_bridge2').trigger('change');
+       //alert("load_bridge2 ::: " + $('#load_bridge2').val());
+       if($('#load_bridge2').val() != ''){
+           // display error message.
+           var message3 = $('#load_bridge2').val();
+           addErrorMessage($('#load_bridge2').val());
+       }
+       $("#remoteConfirm").dialog('close');
+
+       endFlag2 = true;
+   } else {
+       setTimeout('load_fire2()', 100);
+   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+function addErrorMessage(messageStr){
+
+    var err = new Array();
+    var obj = new Object();
+    $("#overlayCreateErrorMsg").html("");
+    var styleClass = "error";
+
+    //err[err.length] = "{!$Label.label_wf_00190}";
+    err[err.length] = messageStr;
+
+    if (err.length != 0) {
+        overlayCreateValidateError(err);
+        return false;
+    }
+
+    leavePageFlag = false;
+    isRegistAccessing = false;
+
+    return true;
+}
+
+/**
+ * バリデートを行う。
+ */
+function ovrlayCreateValidate() {
+
+    var err = new Array();
+    var obj = new Object();
+    $("#overlayCreateErrorMsg").html("");
+    var styleClass = "error";
+
+    $("#name").removeClass(styleClass);
+    $("#explanation").removeClass(styleClass);
+    //$("#comment").removeClass(styleClass);    
+    $("#update_comment").removeClass(styleClass);    
+    $("[name='ovl_filename']").removeClass(styleClass);
+
+    obj["id"] = "${param.id}";
+
+    //overlay名
+    var val = $.trim($("#name").val());
+    if (val.length == 0) {
+        err[err.length] = "{!$Label.message_wf_00005}";
+        $("#name").addClass(styleClass);
+    } else if (val.length > 100) {
+        err[err.length] = getMsg(["{!JSINHTMLENCODE($Label.label_wf_00014)}",
+                                  100],
+                                 "{!JSINHTMLENCODE($Label.msg_validation_text_over_maximum_characters_v1)}");
+        $("#name").addClass(styleClass);
+    }
+    
+    if (val.match(/^.*[\\\\/*:\"\\?\\|<>]+.*$/)) {
+        err[err.length] = getMsg(["{!JSINHTMLENCODE($Label.label_wf_00014)}",
+                                  '\\ / : * ? " < > |'],
+                                 "{!JSINHTMLENCODE($Label.msg_validation_text_prohibited_characters_v1)}");
+        $("#name").addClass(styleClass);
+    }
+        
+    obj["overlayName"] = val;
+
+    if ($("[name='ovl']").val() == "") {
+        // 編集の時はチェックしない
+        if({!JSENCODE(overlayID) == null}){
+            err[err.length] = "{!$Label.message_wf_00004}"
+            $("[name='ovl_filename']").addClass(styleClass);
+        }
+    }else{
+        val = $("[name='ovl']").val().substring($("[name='ovl']").val().lastIndexOf(".")+1).toLowerCase();
+        // #4248 2012.11.19 add
+        // if(val!="xls"&&val!="jrxml"){
+        if(val!="xls"&&val!="jrxml"&&val!="xlsx"){
+            err[err.length] = "{!$Label.message_wf_00006}"
+            $("[name='ovl_filename']").addClass(styleClass);
+        }
+    }
+
+    var regexNewLineNormalize = RegExp(/\r\n|\r|\n/g);    
+    val = $("#explanation").val().replace(regexNewLineNormalize, "\r\n");
+    if (val.length >512 ) {
+        err[err.length] = "{!$Label.message_wf_00007}";
+        $("#explanation").addClass(styleClass);
+    }
+    obj["explanation"] = val;    
+    
+    if ($("#update_comment").length && $("#update_comment").val().replace(regexNewLineNormalize, "\r\n").length > 512 ) {
+        err[err.length] = getMsg(["{!JSINHTMLENCODE($Label.label_wf_00018)}",
+                                  512],
+                                 "{!JSINHTMLENCODE($Label.msg_validation_text_over_maximum_characters_v1)}");
+        $("#update_comment").addClass(styleClass);
+    }
+
+    var checkOption=$("#referLimitsList option");
+    var referLimitsList = new Array();
+    checkOption.each(function() {
+        referLimitsList.push($(this).val())
+    })
+    obj["referLimitsList"] = referLimitsList.join(",");
+
+    //checkOption=$("#editLimitsList option");
+    //var editLimitsList = new Array();
+    //checkOption.each(function() {
+    //    editLimitsList.push($(this).val())
+    //})
+    //obj["editLimitsList"] = editLimitsList.join(",");
+
+    if (err.length != 0) {
+        overlayCreateValidateError(err);
+        return false;
+    }
+
+    leavePageFlag = false;
+
+
+    return true;
+}
+
+/**
+ * バリデートにエラーが発生した場合
+ */
+function overlayCreateValidateError(array) {
+
+    $("#overlayCreateErrorMsg").html("");
+    var dom = "<ul class='err'>"
+    for (var i = 0; i < array.length; i++) {
+        dom += "<li>" + array[i] + "</li>";
+    }
+    dom += "</ul>";
+    $("#overlayCreateErrorMsg").html(dom);
+    $("#overlayCreateErrorMsg").show();
+}
+
+/**
+*#5264対応 オーバレイ名にオーバレイファイル名を入れる
+**/
+function OverlayNameChange(){
+
+    //オーバレイ名取得
+      var ovlname = $.trim($("#name").val());
+    //オーバレイファイル名取得
+      var ovlfilename = $.trim($("#a").val());
+
+    //オーバレイ名が空白もしくは新規登録時、オーバレイファイル名を入れる
+    if(ovlname == '' || "{!overlayID}" == ''){
+
+        if(ovlfilename.search('xls') > -1){
+            ovlname = ovlfilename.split('.xls')[0];
+
+        }else if(ovlfilename.search('jrxml') > -1){
+            ovlname = ovlfilename.split('.jrxml')[0];
+
+        }else if(ovlfilename.search('xlsx') > -1){
+            ovlname = ovlfilename.split('.xlsx')[0];
+        }
+    }
+
+    //パス付の場合
+    var regexp = RegExp(/.*\\/);
+    var i = ovlname.match(regexp);
+
+    if(i != null){
+        ovlname = ovlname.split(i)[1];
+    }
+    //オーバレイ名を返却
+    $("#name").val(ovlname);
+
+}
+
+/**
+ * 20130213 #5259対応
+ * 変更チェックを行う（編集のみ）。
+ */
+function overlayChangeCheck() {
+
+    var changeF = true;
+
+    //overlay名
+    var val = $.trim($("#name").val());
+    if(Fovlname != val){
+        changeF = false;
+    };
+
+    //説明
+    val = $.trim($("#explanation").val());
+    if(val != Fexplanation){
+        changeF = false;
+    }
+    //更新理由
+    val = $.trim($("#update_comment").val());
+    if(val != Fupdate_comment){
+        changeF = false;
+    }
+    //オーバレイファイル更新
+    val = $.trim($("#a").val());
+    if(val != ''){
+        changeF = false;
+    }
+
+    return changeF;
+}
+
+
+</script>
+<input type="text" id="load_bridge2" style="display:none;" />
+<!--
+<apex:form >
+    <apex:actionFunction name="addErrorMessage" action="{!displayErrorOveralyRegist}" rendered="false" />
+</apex:form>
+-->
+
+    <!-- ヘッダ情報 -->
+    <div id="c_head">
+        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__FE_CSO, 'image/manager/overlay.png')}"/>
+        <div id="c_headTitle">
+            {!$Label.label_cm_00002}
+        </div>
+        <div id="c_headSubTitle" class="ellipsis-overflow">
+            <apex:outputlabel rendered="{!overlayID == null}" value="{!$Label.solxyzcso001__label_wf_00022}" />
+            <apex:outputlabel rendered="{!overlayID != null}" value="{!overlayname}" />
+
+        </div>
+    </div>
+
+    <apex:pageBlock title="" id="contentsPageBlock">
+    <!-- エラー用エリア -->
+    <apex:pageMessages />
+    <div id="overlayCreateErrorMsg" class="overlayCreateErrorMsg" style="display:block;"></div>
+
+    <!-- ボタン群 -->
+    <apex:pageBlockButtons location="top">
+
+        <apex:form >
+        <button onclick="beforeSend(); return false;">
+            {!$Label.label_wf_00035}
+        </button>
+        <!--
+        <input type="submit" value="登録2" />
+        -->
+
+         <!-- キャンセルボタン -->
+        <!-- 20130206 #5258 add
+        <button onclick="top.window.close();" >
+            {!$Label.solxyzcso001__label_wf_00021}
+        </button>
+        -->
+        <apex:commandButton value="{!$Label.solxyzcso001__label_wf_00021}" rendered="{!FlgEdit == false}" onclick="top.window.close();"/>
+        <apex:commandButton value="{!$Label.solxyzcso001__label_wf_00021}" rendered="{!FlgEdit == true}" action="{!moveReference}"/>
+
+        </apex:form>
+        <!-- 20130206 #5258 add end -->
+
+    </apex:pageBlockButtons>
+<form id="contentsForm" name="contentsForm" method="post"
+    target="innerFrame"
+    encoding="multipart/form-data"
+    enctype="multipart/form-data"
+    action="{!$Label.field_csowebreportSf_url}/api/overlayRegist.json?{!credential}" >
+    <input id="dirid" name="dirid" type="hidden" value="{!spaceID}" />
+
+    <!-- オーバレイID(ない場合には隠す) -->
+    <apex:outputpanel rendered="{!JSENCODE(overlayID) != null}">
+        <input type="hidden" name="ovlid" id="ovlid" value="{!JSENCODE(overlayID)}" />
+        <input type="hidden" name="token" id="updDateLong" value="{!updDateLong}" />
+    </apex:outputpanel>
+
+    <!-- バージョン -->
+    <input type="hidden" id="hidden_version" value="{!version}"/>
+
+    <table class="inputTable">
+        <tr>
+            <!-- オーバレイ名 -->
+            <th class="input_title">
+                <apex:outputLabel for="overlays" value="{!$Label.solxyzcso001__label_wf_00014}"/>
+            </th>
+            <td class="c_require">
+                    <input type="text" style="width:420px;" id="name" name="name" value="{!overlayname}" class="c_text_l"/>
+            </td>
+
+        </tr>
+        <tr>
+            <!-- オーバレイファイル-->
+            <th>
+
+            </th >
+            <td>
+                <script>
+                        function switchAutoVer(){
+                            if($("#autoVer").attr("checked")){
+                                $("#autoVer_bool").val("true");
+                            }else{
+                                $("#autoVer_bool").val("false");
+                            }
+                        }
+                </script>
+                <apex:outputpanel rendered="{!overlayID == null}">
+                    <input type="checkbox" id="autoVer" name="autoVer_check" onchange="switchAutoVer();" checked="checked" /><label for="autoVer">{!$Label.label_wf_00023}</label>
+                </apex:outputpanel>
+                <input type="hidden" id="autoVer_bool" name="autoVer" value="true" />
+
+            <!--
+                <div id="uploader" style="max-width:600px; min-width:584px;">{!$Label.message_wf_00002}<br /><a href='http://www.microsoft.com/japan/silverlight/'>インストール</a></div>
+            -->
+            </td>
+        </tr>
+        <tr>
+            <th class="input_title"><apex:outputlabel for="files" value="{!$Label.solxyzcso001__label_wf_00015}"/></th>
+            <td id="td_fileselect" class="c_require">
+                <!-- ファイル選択 -->
+                <div id="overlayfile_container">
+                    <!--
+                    <input type="text" id="fPath" name="fPath" readonly="readonly" class="width:240px; required" />
+                    <button class="btn uploadfile" name="overlayfile" id="overlayfile" style="margin-left:10px; vertical-align:top;">
+                        {!$Label.label_wf_00045}
+                    </button>
+                    -->
+
+                                      <!-- 代替用 -->
+                    <!-- 20130208 #5264 -->
+                    <!-- <input type="file" id="a" name="ovl" accept="*/*" /> -->
+                    <input type="file" id="a" name="ovl" accept="*/*" onchange="OverlayNameChange();"/>
+                    <!-- 20130208 #5264対応 -->
+
+                    <input type="text" id="b" name="ovl_filename" style="width:300px;" readonly="readonly"/>
+                    <button id="c" onclick="return false;">{!$Label.label_wf_00045}</button>
+
+                </div>
+                <div id="_overlayfiles" style="display:none;">
+                </div>
+            </td>
+        </tr>
+        <tr id="imagefile_row" style="display:none;">
+        <th>イメージ</th>
+        <td colspan="3">
+            <!--
+            <div id="imagefile_container">
+                <div style="float:left;">
+                    <select id="imagefilenames" multiple="multiple" class="longWidth" style="height:70px;width:300px;"></select>
+                </div>
+                <div>
+                    <button name="imagefile" id="imagefile" class="btn uploadfile" style="margin-left:10px;">
+                        選択
+                    </button>
+                </div>
+                <div>
+                    <button id="removeimagefile" name="removeimagefile" onclick="removeImageFile();" class="btn" style="margin-left:10px; margin-top:10px;">
+                        削除
+                    </button>
+                </div>
+            </div>
+            -->
+
+            <div id="imagefile_container" style="height:100px; width:400px; overflow-y:scroll">
+
+            </div>
+
+        </td>
+    </tr>
+        <tr>
+            <!-- 説明 -->
+            <th >
+                <apex:outputLabel for="comment" value="{!$Label.solxyzcso001__label_wf_00007}"/>
+            </th >
+            <td>
+                <table>
+                <tr>
+                    <td align="right">
+                        <div id="explanationRemainder"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <textarea id="explanation" name="explanation" rows="8" cols="80" >{!explanation}</textarea>
+                        <!--
+                        <apex:inputtextarea id="explanation" rows="8" cols="80" value="{!explanation}" />
+                        -->
+                    </td>
+                </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                <apex:outputpanel rendered="{!overlayID != null}">
+                    <apex:outputLabel for="upload_type" value="{!$Label.solxyzcso001__label_wf_00008}"/>
+                </apex:outputpanel>
+            </th>
+            <td>
+                <script type="text/javascript">
+                    function type_select(){
+                        if($("#versionup_select").val() == '0')
+                            $("#versionType").val("0");
+                        else{
+                            $("#versionType").val("1");
+                        }
+                    }
+                </script>
+                <apex:outputpanel rendered="{!overlayID != null}">
+                    <select id="versionup_select" name="versionTypeSel" onchange="type_select();" >
+                        <option value="0" selected="selected">{!$Label.label_wf_00036}</option>
+                        <option value="1">{!$Label.label_wf_00037}</option>
+                    </select>
+                </apex:outputpanel>
+                <input type="hidden" id="versionType" name="versionType" value="0"/>
+            </td>
+        </tr>
+
+        <tr>
+            <!-- 更新理由 -->
+            <th >
+                <apex:outputpanel rendered="{!overlayID != null}">
+                    <apex:outputLabel for="update_comment" value="{!$Label.solxyzcso001__label_wf_00018}"/>
+                </apex:outputpanel>
+            </th >
+            <td>
+                <apex:outputpanel rendered="{!overlayID != null}">
+                <table>
+                <tr>
+                    <td align="right">
+                        <div id="updateCommentRemainder"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <textarea id="update_comment" name="comment" rows="8" cols="80" ></textarea>
+                        <!--
+                        <apex:inputtextarea id="explanation" rows="8" cols="80" value="{!explanation}" />
+                        -->
+                    </td>
+                </tr>
+                </table>
+                </apex:outputpanel>
+            </td>
+        </tr>
+        <!-- <tr>  -->
+            <!-- 権限 -->
+            <!-- <th >  -->
+                <!-- <apex:outputlabel for="auth" value="{!$Label.label_wf_00026}"/>  -->
+            <!-- </th>  -->
+            <!-- <td>  -->
+                <!-- <apex:form >  -->
+                    <!-- <apex:outputlabel for="auth" value="{!$Label.label_wf_00027}"/>  -->
+                    <!-- <apex:selectList id="userType"  value="{!userType}" size="1"  onchange="userType_select()"> -->
+                    <!--     <apex:selectOptions value="{!userTypeItems}"/> -->
+                    <!-- </apex:selectList> -->
+                    <!-- <input id="searchWord" type="text" class="c_commandButton" name="searchWord" maxlength="30" />  -->
+                    <!-- <input id="searchButton" class="btn" type="button" value="{!$Label.label_wf_00029}" onclick="searchMethod();" name="SearchButton" />  -->
+                    <!-- <input id="searchButton" class="btn" type="button" value="{!$Label.label_wf_00029}" onclick="userType_select();" name="SearchButton" /> -->
+                <!-- </apex:form>  -->
+
+            <!-- <fieldset><legend>{!$Label.label_wf_00032}</legend>  -->
+            <!-- <table>  -->
+            <!-- <tr>  -->
+                <!-- <td>  -->
+                    <!-- <div style="">{!$Label.label_wf_00033}</div>  -->
+                    <!-- <select id="limitsList" multiple="multiple" size="5" style="min-width: 150px; width: 250px;"></select>  -->
+                <!-- </td>  -->
+                <!-- <td>  -->
+                    <!-- <p><input type="button" name="InsertUser" value="{!$Label.label_wf_00030}" onclick="move('limitsList', 'referLimitsList');" class="btn" /></p>  -->
+                    <!-- <p><input type="button" name="DeleteUser" value="{!$Label.label_wf_00031}" onclick="move('referLimitsList', 'limitsList');" class="btn" /></p>  -->
+                <!-- </td>  -->
+                <!-- <td> -->
+                 <!-- <div style="">{!$Label.label_wf_00034}</div>  -->
+                    <!-- <select id="referLimitsList" name="referLimitsList_sel" multiple="multiple" size="5" style="min-width: 150px; width: 250px;"> -->
+               <!--
+               <c:forEach items="${readable}" var="target">
+                   <option value="${target.id}">${fn:escapeXml(target.name)}</option>
+               </c:forEach>
+               -->
+                    <!-- </select>  -->
+                    <!-- <input type="hidden" id="referLimitsList_hidden" name="referLimitsList" value=""/>  -->
+                <!-- </td>  -->
+            <!-- </tr>  -->
+        <!-- </table>  -->
+        <!-- </fieldset>  -->
+        <!-- </td>  -->
+        <!-- </tr>  -->
+    </table>
+</form>
+
+</apex:pageBlock>
+
+<div id="remoteConfirm" style="display: none;margin: 10px;">
+    <!--
+    <div style="border: solid 2px #E8E8E8;width:92%;height: 94%;position: absolute;">
+    -->
+            <!--  <div style="margin-top:50px;margin-left:30px;"> -->
+            <div style="margin-top:10px;margin-left:50px;">
+            <div style="float:left;">
+                <!-- message here. -->
+                <apex:outputPanel rendered="{!overlayID == null}">
+                    {!$Label.solxyzcso001__label_wf_00189}
+                </apex:outputPanel>
+                <apex:outputpanel rendered="{!overlayID != null}">
+                    {!$Label.solxyzcso001__label_wf_00191}
+                </apex:outputpanel>
+            </div><br/><br/>
+            <div style="float:left;padding-left:100px">
+
+                <img alt="" src="{!URLFOR($Resource.WRCSO, '/image/loading.gif')}" id="rt_loading"/>
+
+            </div>
+        </div>
+    <!--
+    </div>
+    -->
+</div>
+
+<script type="text/javascript">
+
+</script>
+
+<!-- 20130213 #5258 add -->
+<apex:form >
+    <apex:actionFunction action="{!moveReference}" name="moveReference_JS"/>
+</apex:form>
+<!-- 20130213 #5258 end -->
+
+<iframe id="innerFrame" name="innerFrame" style="display:none;" />
+</apex:outputPanel>
+</apex:page>

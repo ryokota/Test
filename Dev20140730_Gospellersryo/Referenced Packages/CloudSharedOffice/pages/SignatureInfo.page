@@ -1,0 +1,327 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SignatureController" tabStyle="delivery__tab" id="sigInfoPage">
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid != null, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/delivery.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<style type="text/css">
+.separatorDiv {
+    width: 100%;
+}
+
+.separatorDiv div {
+    color: white;
+    padding: 3px 0px 3px 5px;
+}
+
+table th{
+    font-weight: bold;
+    text-align: right;
+}
+</style>
+
+<script type="text/javascript">
+/*
+ * 画面読込処理
+ */
+jQuery.event.add(window, "load", function(){
+    initSignature();
+});
+
+//--------------------------------------
+// 署名設定初期処理
+//--------------------------------------
+function initSignature(){
+    setButtonsDisabled(true);
+
+    // 署名一覧初期化
+    $('#signature_list').children().remove();
+
+    // 署名一覧取得
+    secureGetAsync('/deliverymanagement/signatureListGet.json',
+        {},
+        function(data){
+            if(data.result){
+                // 署名選択肢
+                $(data.signature_list).each(function(){
+                    $('#signature_list').append($('<option>').attr({ value: this.code }).text(this.name));
+                });
+                // 初期選択
+                $('#signature_list').val(data.selected);
+
+                // 署名内容取得
+                getSignature();
+                setButtonsDisabled(false);
+            } else {
+                setButtonsDisabled(false);
+            }
+        });
+}
+
+
+var selectingSignatureName = null;
+
+//--------------------------------------
+// 署名内容取得
+//--------------------------------------
+function getSignature(){
+
+    $("#signature_view").val("");
+    selectingSignatureName = null;
+
+    var id = $("#signature_list").val();
+
+    // 削除／編集ボタンの表示／非表示制御
+    buttonChange();
+
+    // 署名選択中の場合のみ署名取得
+    if (id != null && id != 'none') {
+        secureGetAsync('/deliverymanagement/signatureGet.json',
+            {"signature_id":id},
+            function(data){
+                if(!data.result){
+                    alert(data.message);
+                }else if(data.name != null){
+                    $("#signature_view").val(data.context);
+                    selectingSignatureName = data.name;
+                }
+                // 削除／編集ボタンの表示／非表示制御
+                buttonChange();
+            });
+    }
+
+}
+
+//--------------------------------------
+// 削除／編集ボタンの表示／非表示制御
+//--------------------------------------
+function buttonChange(){
+
+    var item = $("#signature_list").val();
+
+    if(item == null || item == 'none'){
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_remove}')).hide();
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_edit}')).hide();
+
+/***************
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_remove}')).attr('disabled', 'disabled');
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_remove}')).attr('class', 'btnDisabled');
+
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_edit}')).attr('disabled', 'disabled');
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_edit}')).attr('class', 'btnDisabled');
+*****************/
+    }else{
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_remove}')).show();
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_edit}')).show();
+/***************
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_remove}')).attr('disabled', false);
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_edit}')).attr('disabled', false);
+
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_remove}')).attr('class', 'btn');
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_edit}')).attr('class', 'btn');
+******************/
+    }
+}
+
+//--------------------------------------
+// 適用／新規作成ボタンの無効化制御
+//--------------------------------------
+function setButtonsDisabled(val) {
+    if (val == true) {
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_apply}')).attr('disabled', 'disabled');
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_create}')).attr('disabled', 'disabled');
+    } else {
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_apply}')).attr('disabled', false);
+        $(getId('{!$Component.sigInfoPage.sigInfoForm.sigInfoBlock.sigInfoBlockBtns.button_create}')).attr('disabled', false);
+    }
+}
+
+
+//--------------------------------------
+// 署名削除
+//--------------------------------------
+function removeSign(){
+    //get selecting item
+    var item = $("#signature_list").val();
+    if(item=='none'){
+        alert('署名を選択してください。');
+        return;
+    }
+
+    if(window.confirm(getMsg(new Array($("#signature_list option:selected").text()), '{!$Label.msg_00144}'))){
+       var callback = function(data){
+                CsoScript_loadingStop();
+                if(!data.result){
+                    alert(data.message);
+                }
+//                location.reload();
+                initSignature();
+            };
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+
+        CsoScript_loadingStart();
+
+        // 署名削除
+        securePostAsync('/deliverymanagement/signatureDelete.json',
+            {"signature_id":item},
+            callback, callerror);
+    }else{
+    }
+}
+
+//--------------------------------------
+// 署名編集
+//--------------------------------------
+function editSign(){
+    //get selecting item
+    var item = $("#signature_list").val();
+
+    if(item == 'none'){
+        alert('{!$Label.msg_00143}');
+        return false;
+    }
+    // 選択ID（非表示項目）に取得値セット
+    $(getId('{!$Component.sigInfoPage.sigInfoForm.selectedId}')).val(item);
+
+    return true;
+}
+
+//--------------------------------------
+// 署名適用
+//--------------------------------------
+function applySign(){
+
+    //get selecting item
+    var item = $("#signature_list").val();
+
+    var confirmMessage = getMsg(new Array($("#signature_list option:selected").text()), '{!$Label.msg_00145}');
+
+    if(item=='none'){
+    //  alert('<fmt:message key="msg.030016" />');
+    //  return;
+
+        //Change the message.
+        confirmMessage = '{!$Label.msg_00146}';
+    }
+
+
+    if(window.confirm(confirmMessage)){
+
+       var callback = function(data){
+                CsoScript_loadingStop();
+                if(!data.result){
+                    alert(data.message);
+                    return false;
+                }
+//                location.reload();
+                initSignature();
+            };
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+
+        CsoScript_loadingStart();
+
+        // 署名適用
+        securePostAsync('/deliverymanagement/signatureApply.json',
+            {"signature_id":item},
+            callback, callerror);
+    }else{
+    }
+}
+
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__DeliveryMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/signature.png')}" alt="{!$Label.solxyzcso001__label_10399}" title="{!$Label.solxyzcso001__label_10399}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10399}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_10400}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinksDelivery"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form id="sigInfoForm">
+                <apex:pageBlock id="sigInfoBlock">
+                    <!-- コマンドボタン -->
+                    <apex:pageBlockButtons location="top" id="sigInfoBlockBtns">
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00072}" id="button_remove" onclick="removeSign(); return false;" />
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00073}" id="button_edit"  onclick="return editSign();" action="{!edit}"/>
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_10401}" id="button_apply" onclick="applySign(); return false;"/>
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00074}" id="button_create" action="{!create}"/>
+                    </apex:pageBlockButtons>
+
+
+                    <div id ="signatureInfoMain" style="overflow:auto;">
+                        <div class="separatorDiv LabelBGColor subLabelHeight">
+                            <div></div>
+                        </div>
+
+                        <div style="padding: 10px;">
+
+                            <table>
+                                <tr>
+                                    <th style="min-width: 60px;">{!$Label.label_10402}</th>
+                                    <td>
+                                        <select id="signature_list" onchange="getSignature(); return false;" class="c_text_l">
+                                            <option value="none">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr><td></td></tr>
+                                <tr>
+                                    <th style="min-width: 60px;">{!$Label.label_10403}</th>
+                                    <td>
+                                        <textarea id="signature_view" name="signature_view" rows="10" style="width:550px; resize: none;" readonly="readonly"></textarea>
+                                    </td>
+                                </tr>
+
+                            </table>
+
+                            <br/>
+
+                        </div>
+                    </div>
+                </apex:pageBlock>
+
+                <apex:inputHidden value="{!id}" id="selectedId"/>
+
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

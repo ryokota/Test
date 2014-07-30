@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>true</available>
+    <description>Information Only Email Communication to Requester when RFA is pushed to circulation</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>RFAVFT03_Upon Circulation - Requester</name>
+    <style>none</style>
+    <subject>回覧通知（Information Only）:  -</subject>
+    <type>visualforce</type>
+</EmailTemplate>

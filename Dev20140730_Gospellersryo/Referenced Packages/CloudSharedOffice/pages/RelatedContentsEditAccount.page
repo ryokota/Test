@@ -1,0 +1,8 @@
+<apex:page standardController="Account" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Account">
+  <apex:variable var="Sf_type" value="Account" />
+  <apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Account}" />
+<!-- 
+  <apex:include pageName="RelatedContentsEdit"/>
+ -->
+  <c:RelatedContentsEditComp id="relatedContentsEditComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

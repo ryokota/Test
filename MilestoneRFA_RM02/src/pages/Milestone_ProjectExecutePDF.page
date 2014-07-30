@@ -1,0 +1,240 @@
+<apex:page renderas="pdf" controller="Milestone_ProjectExecutePDFCtrl">
+<html><head>
+
+<apex:stylesheet value="{!$Resource.ProjectExecuteStyle}"/>
+</head>
+<body style="background-image: url('{!URLFOR($Resource.CCEJReportLogo, 'cokewave.png')}')">
+    <!-- <apex:repeat value="{!viewList}" var="vw"> -->
+    <!-- Header -->
+    <table class="fullWidth">
+        <tr>
+            <td width="250"><apex:image url="{!URLFOR($Resource.CCEJReportLogo, 'cokeone-logo.png')}" width="170" height="130"/></td>
+            <td>
+                <table id="headtitle"><tr><td><h3><apex:outputText escape="false" value="{!projectObj.Name}"></apex:outputText></h3></td></tr></table>
+                
+                <table class="status" align="right" style="background-color:{!bgColor}">
+                    <tr>
+                        <td id="projectStatus" style="margin-bottom: 10px;" align="right"><apex:outputText value="{!$Label.RM_Project_Status}:{!projectObj.Project_Status__c}" /></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td align="left">{!$Label.RM_Function} : {!projectObj.Function__c}</td>
+            <td align="right">
+                {!$Label.RM_Create_By_PDF} : <apex:outputText value="{0, date, YYYY/MM/dd}" ><apex:param value="{!createByPdf}" /></apex:outputText>
+            </td>
+        </tr>
+    </table>
+    <!-- ProjectTeam -->
+    <table class="borderTable fullWidth overflow" id="ProjectTeam">
+        <tr>
+            <th>{!$Label.RM_Project_Team}</th>
+        </tr>
+        <tr>
+            <td class="fs9">
+                {!$Label.RM_Sponsor} : {!projectObj.Project_Sponsor__r.Name}<br/>
+                {!$Label.RM_Leader}  : {!projectObj.Project_Leader__r.Name}<br/>
+                {!$Label.RM_Members} : <br/><apex:outputText escape="false" value="{!memberNames}" />
+            </td>
+        </tr>
+    </table>
+    <!-- Weekly Report -->
+    <table class="borderTable fullWidth overflow" id="Accomplishments">
+        <tr>
+            <th>
+                {!$Label.RM_Key_Events_From_This_Week}
+            </th>
+            <th>
+                {!$Label.RM_Key_Events_For_Next_Week}
+            </th>
+            <th>
+                {!$Label.RM_Issues_For_Escalation_Recovery_plan}
+            </th>
+        </tr>
+        <tr>
+            <td class="fs9"><apex:outputText escape="false" value="{!projectObj.RM_Key_Events_From_This_Week__c}" /></td>
+            <td class="fs9"><apex:outputText escape="false" value="{!projectObj.RM_Key_Events_For_Next_Week__c}" /></td>
+            <td class="fs9"><apex:outputText escape="false" value="{!projectObj.RM_Issues_For_Escalation_Recovery_plan__c}" /></td>
+        </tr>
+    </table>
+    <!-- Milestone -->
+    <apex:outputText rendered="{!NOT(milestone_nondisplay_flag)}">
+        {!$Label.RM_Milestone}
+        <apex:repeat value="{!milestoneList}" var="mList">
+        <table class="borderTable" id="Milestones">
+            <tr>
+                <th style="text-align:center" width="450px">{!$Label.RM_Milestone_Name}</th>
+                <th style="text-align:center" width="60px">{!$Label.RM_Start_br_Date}</th>
+                <th style="text-align:center" width="60px">{!$Label.RM_End_br_Date}</th>
+                <th style="text-align:center" width="60px">{!$Label.RM_Adjustment_br_Date}</th>
+                <th style="text-align:center" width="60px">{!$Label.RM_Actual_br_Date}</th>
+            </tr>
+            <apex:repeat value="{!mList}" var="milestone">
+            <tr>
+                <td class="fs9" align="left"><apex:outputText escape="false" value="{!milestone.Name}" /></td>
+                <td class="fs9" align="center"><apex:outputText value="{0, date, YYYY/MM/dd}" ><apex:param value="{!milestone.Kickoff__c}" /></apex:outputText></td>
+                <td class="fs9" align="center"><apex:outputText value="{0, date, YYYY/MM/dd}" ><apex:param value="{!milestone.Deadline__c}" /></apex:outputText></td>
+                <td class="fs9" align="center"><apex:outputText value="{0, date, YYYY/MM/dd}" ><apex:param value="{!milestone.RM_Adjustment_Date__c}" /></apex:outputText></td>
+                <td class="fs9" align="center"><apex:outputText value="{0, date, YYYY/MM/dd}" ><apex:param value="{!milestone.RM_Actual_Date__c}" /></apex:outputText></td>
+            </tr>
+            </apex:repeat>
+        </table>
+        
+        <div style="display:block;page-break-before:always;"></div>
+        </apex:repeat>
+    </apex:outputText>
+    <apex:outputText rendered="{!milestone_nondisplay_flag && NOT(yosan_nonDisplay_flag)}"><div style="display:block;page-break-before:always;"></div>
+    </apex:outputText>
+    <apex:outputText rendered="{!NOT(yosan_nonDisplay_flag)}">
+    <!-- yosan -->
+    {!$Label.RM_Only_Procurement_Synergy}
+    <table class="borderTable" id="procurement">
+        <tr>
+            <th rowspan="2" style="text-align:center" width="40px">{!$Label.RM_Month}</th>
+            <th colspan="5" style="text-align:center" width="350px">{!$Label.RM_Opex}</th>
+            <th colspan="5" style="text-align:center" width="350px">{!$Label.RM_Capex}</th>
+        </tr>
+        <tr>
+            <th width="70px" style="text-align:center">{!$Label.RM_ABP}</th>
+            <th width="70px" style="text-align:center">{!$Label.RM_RE}</th>
+            <th width="70px" style="text-align:center">{!$Label.RM_RE_Upper}</th>
+            <th width="70px" style="text-align:center">{!$Label.RM_RE_Lower}</th>
+            <th width="70px" style="text-align:center">{!$Label.RM_Actual}</th>
+            <th width="70px" style="text-align:center">{!$Label.RM_ABP}</th>
+            <th width="70px" style="text-align:center">{!$Label.RM_RE}</th>
+            <th width="70px" style="text-align:center">{!$Label.RM_RE_Upper}</th>
+            <th width="70px" style="text-align:center">{!$Label.RM_RE_Lower}</th>
+            <th width="70px" style="text-align:center">{!$Label.RM_Actual}</th>
+        </tr>
+        <apex:repeat value="{!Procurements}" var="procurement">
+        <tr>
+            <td class="fs9" align="center"><apex:outputText value="{!RIGHT(procurement.Name, 2)}"/></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!procurement.POV_Plan_ABP_Opex__c}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!procurement.POV_RE_Opex__c}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!procurement.RM_RE_upper_Pr_Opex__c}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!procurement.RM_RE_lower_Pr_Opex__c}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!procurement.POV_Actual_Opex__c}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!procurement.POV_Plan_ABP_Capex__c}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!procurement.POV_RE_Capex__c}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!procurement.RM_RE_upper_Pr_Capex__c}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!procurement.RM_RE_lower_Pr_Capex__c}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!procurement.POV_Actual_Capex__c}" />
+                      </apex:outputText></td>
+        </tr>
+        </apex:repeat>
+        <tr>
+            <td class="fs9" align="center">{!$Label.RM_Total}</td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_POV_Plan_ABP_Opex}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_POV_RE_Opex}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_RE_upper_Pr_Opex}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_RE_lower_Pr_Opex}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_POV_Actual_Opex}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_POV_Plan_ABP_Capex}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_POV_RE_Capex}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_RE_upper_Pr_Capex}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_RE_lower_Pr_Capex}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_POV_Actual_Capex}" /></apex:outputText></td>
+        </tr>
+    </table>
+    {!$Label.RM_Synergy_Management}
+    <table class="borderTable" id="synergy">
+        <tr>
+            <th style="text-align:center" width="40px">{!$Label.RM_Month}</th>
+            <th style="text-align:center" width="70px" >{!$Label.RM_Day1_Plan}</th>
+            <th style="text-align:center" width="70px" >{!$Label.RM_New_Plan}</th>
+            <th style="text-align:center" width="70px" >{!$Label.RM_ABP}</th>
+            <th style="text-align:center" width="70px" >{!$Label.RM_RE}</th>
+            <th style="text-align:center" width="70px" >{!$Label.RM_Actual}</th>
+        </tr>
+        <apex:repeat value="{!synergys}" var="synergy">
+        <tr>
+            <td class="fs9" align="center"><apex:outputText value="{!RIGHT(synergy.Name, 2)}"/></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!synergy.Day1_Plan__c}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!synergy.New_Plan__c}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!synergy.ABP__c}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!synergy.RE__c}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!synergy.Actual__c}" /></apex:outputText></td>
+        </tr>
+        </apex:repeat>
+        <tr>
+            <td class="fs9" align="center">{!$Label.RM_Total}</td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!Total_Day1_Plan}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!Total_New_Plan}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!Total_ABP}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!Total_RE}" />
+                      </apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" >
+                        <apex:param value="{!Total_Actual}" />
+                      </apex:outputText></td>
+        </tr>
+    </table>
+    <!-- <div style="display:block;page-break-before:always;"></div> -->
+    {!$Label.RM_Investment_Budget}
+    <table class="borderTable" id="budget">
+        <tr>
+            <th style="text-align:center" width="40px">{!$Label.RM_Month}</th>
+            <th style="text-align:center" width="70px" >{!$Label.RM_Capex}</th>
+            <th style="text-align:center" width="70px" >{!$Label.RM_Depreciation}</th>
+            <th style="text-align:center" width="70px" >{!$Label.RM_Other_OPEX}</th>
+        </tr>
+        <apex:repeat value="{!budgets}" var="budget">
+        <tr>
+            <td class="fs9" align="center"><apex:outputText value="{!RIGHT(budget.Name, 2)}"/></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!budget.Capex__c}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!budget.Depreciation__c}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!budget.Other_OPEX__c}" /></apex:outputText></td>
+        </tr>
+        </apex:repeat>
+        <tr>
+            <td class="fs9" align="center">{!$Label.RM_Total}</td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_Capex}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_Depreciation}" /></apex:outputText></td>
+            <td class="fs9" align="right"><apex:outputText value="{0, number, ###,###}" ><apex:param value="{!Total_Other_OPEX}" /></apex:outputText></td>
+        </tr>
+    </table>
+    <div style="display:block;page-break-before:always;"></div>
+    </apex:outputText>
+    <!-- Project discussion -->
+    {!$Label.RM_Project_discussion}
+    <table class="borderTable fullWidth overflow" id="Accomplishments">
+        <tr>
+            <th>{!$Label.RM_Sponsor}</th>
+            <th>{!$Label.RM_Leader}</th>
+            <th>{!$Label.RM_Team_Member}</th>
+        </tr>
+        <tr>
+            <td class="fs9"><apex:outputText escape="false" value="{!projectObj.RM_Sponsor_discussion__c}" /></td>
+            <td class="fs9"><apex:outputText escape="false" value="{!projectObj.RM_Leader_discussion__c}" /></td>
+            <td class="fs9"><apex:outputText escape="false" value="{!projectObj.RM_Team_Member_discussion__c}" /></td>
+        </tr>
+    </table>
+</body>
+</html>
+</apex:page>

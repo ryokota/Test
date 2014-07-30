@@ -1,0 +1,10 @@
+<apex:page standardController="Lead" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Lead" sidebar="false" showHeader="false">
+  <apex:variable id="Sf_type" var="Sf_type" value="Lead" />
+  <apex:variable var="Sf_name" value="{!Lead.Name}" />
+  <apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Lead}" />
+  <apex:variable var="retURL" value="{!'/'&$CurrentPage.parameters.Id}"/>
+<!-- 
+  <apex:include pageName="RelatedContentsList"/>
+ -->
+  <c:RelatedContentsListComp id="relatedContentsListComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

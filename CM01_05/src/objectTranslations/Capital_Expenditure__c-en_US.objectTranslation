@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Capital Request Detail</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Capital Request Details</value>
+    </caseValues>
+    <fields>
+        <label>Amount (JPY)</label>
+        <name>Amount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Asset Category --></label>
+        <name>AssetCategory__c</name>
+        <picklistValues>
+            <masterLabel>IT ｿﾌﾄｳｪｱ / IT Software</masterLabel>
+            <translation><!-- IT ｿﾌﾄｳｪｱ / IT Software --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>IT ﾊｰﾄﾞｳｪｱ / IT Hardware</masterLabel>
+            <translation><!-- IT ﾊｰﾄﾞｳｪｱ / IT Hardware --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>その他無形固定資産 / Other Intangible Assets</masterLabel>
+            <translation><!-- その他無形固定資産 / Other Intangible Assets --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>土地 / Land</masterLabel>
+            <translation><!-- 土地 / Land --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>工具器具備品 / Furniture &amp; Fixtures</masterLabel>
+            <translation><!-- 工具器具備品 / Furniture &amp; Fixtures --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>建物 / Buildings</masterLabel>
+            <translation><!-- 建物 / Buildings --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>建物付属設備 / Building Fixtures</masterLabel>
+            <translation><!-- 建物付属設備 / Building Fixtures --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>建物改造費 / Building Improvements</masterLabel>
+            <translation><!-- 建物改造費 / Building Improvements --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>構築物 / Land Improvements</masterLabel>
+            <translation><!-- 構築物 / Land Improvements --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>機械設備 / Machinery &amp; Equipment</masterLabel>
+            <translation><!-- 機械設備 / Machinery &amp; Equipment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>販売機材 - その他 / Sales Equipment - Other</masterLabel>
+            <translation><!-- 販売機材 - その他 / Sales Equipment - Other --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>販売機材 - 自販機 / Sales Equipment - VM</masterLabel>
+            <translation><!-- 販売機材 - 自販機 / Sales Equipment - VM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>販売機材 - ｸｰﾗｰ / Sales Equipment - Coolers</masterLabel>
+            <translation><!-- 販売機材 - ｸｰﾗｰ / Sales Equipment - Coolers --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>販売機材 - ﾃﾞｨｽﾍﾟﾝｻｰ / Sales Equipment - Dispensers</masterLabel>
+            <translation><!-- 販売機材 - ﾃﾞｨｽﾍﾟﾝｻｰ / Sales Equipment - Dispensers --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>車両 - その他 / Fleet - Other</masterLabel>
+            <translation><!-- 車両 - その他 / Fleet - Other --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>車両 - 自動車 / Fleet - Automobiles</masterLabel>
+            <translation><!-- 車両 - 自動車 / Fleet - Automobiles --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>車両 - ﾄﾗｯｸ / Fleet - Trucks</masterLabel>
+            <translation><!-- 車両 - ﾄﾗｯｸ / Fleet - Trucks --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>ﾘｰｽ物件改良費 / Leasehold Improvements</masterLabel>
+            <translation><!-- ﾘｰｽ物件改良費 / Leasehold Improvements --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Investment Objective Category --></label>
+        <name>InvestmentObjectiveCategory__c</name>
+        <picklistValues>
+            <masterLabel>その他の戦略的対応 / Strategic Initiatives</masterLabel>
+            <translation><!-- その他の戦略的対応 / Strategic Initiatives --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>効率性/生産性向上 / Efficiency/Productivity</masterLabel>
+            <translation><!-- 効率性/生産性向上 / Efficiency/Productivity --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>品質基準対応（環境負荷軽減・労働安全衛生含む） / Quality Standards</masterLabel>
+            <translation><!-- 品質基準対応（環境負荷軽減・労働安全衛生含む） / Quality Standards --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>売上成長/営業力強化 / Other Growth Initiatives</masterLabel>
+            <translation><!-- 売上成長/営業力強化 / Other Growth Initiatives --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>更新投資（老朽に伴う入替） / Maintenance or Replacement</masterLabel>
+            <translation><!-- 更新投資（老朽に伴う入替） / Maintenance or Replacement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>法律/法的規制対応 / Legal Regulatory Compliance</masterLabel>
+            <translation><!-- 法律/法的規制対応 / Legal Regulatory Compliance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>販売機材戦略 / Cold Drink Initiatives</masterLabel>
+            <translation><!-- 販売機材戦略 / Cold Drink Initiatives --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>顧客ﾆｰｽﾞへの対応 / Customer Specific and Consumer Focus</masterLabel>
+            <translation><!-- 顧客ﾆｰｽﾞへの対応 / Customer Specific and Consumer Focus --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- RFA --></label>
+        <name>RFA__c</name>
+        <relationshipLabel><!-- 資産申請詳細 --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Amount (000JPY) --></label>
+        <name>Report_Amount_000JPY__c</name>
+    </fields>
+    <layouts>
+        <layout>Capital Request Detail Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <recordTypes>
+        <label><!-- Capital Project Request --></label>
+        <name>CapitalProjectRequest</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- Medium Project Request --></label>
+        <name>SmallProjectRequest</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- Small Project Request --></label>
+        <name>Small_Project_Request_25MM</name>
+    </recordTypes>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

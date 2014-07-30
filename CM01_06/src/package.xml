@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>*</members>
+        <name>CustomLabels</name>
+    </types>
+    <types>
+        <members>Status_Indicator_Detail__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>Status_Indicator_Detail__c-en_US</members>
+        <members>Status_Indicator_Detail__c-ja</members>
+        <name>CustomObjectTranslation</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>Translations</name>
+    </types>
+    <version>28.0</version>
+</Package>

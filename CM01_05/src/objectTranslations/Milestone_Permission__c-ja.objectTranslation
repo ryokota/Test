@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>プロジェクトチーム</value>
+    </caseValues>
+    <fields>
+        <label>アクセス権限</label>
+        <name>ProjectRole__c</name>
+        <picklistValues>
+            <masterLabel>Editable(Non-Members)</masterLabel>
+            <translation>メンバー以外編集可</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Modify All</masterLabel>
+            <translation>全編集可</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Read Only</masterLabel>
+            <translation>閲覧のみ</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- プロジェクト名 --></label>
+        <name>Project__c</name>
+        <relationshipLabel><!-- プロジェクトチーム --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>期待される役割</label>
+        <name>RM_Expected_Roles__c</name>
+    </fields>
+    <fields>
+        <label>ファンクション</label>
+        <name>RM_Function__c</name>
+    </fields>
+    <fields>
+        <label>サブファンクション</label>
+        <name>RM_Sub_Function__c</name>
+    </fields>
+    <fields>
+        <label>ユニークID</label>
+        <name>UniqueId__c</name>
+    </fields>
+    <fields>
+        <label><!-- ユーザ名 --></label>
+        <name>UserName__c</name>
+        <relationshipLabel><!-- プロジェクトチーム --></relationshipLabel>
+    </fields>
+    <layouts>
+        <layout>Milestone_PermissionLayout</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <validationRules>
+        <errorMessage><!-- ロールを設定してください。 --></errorMessage>
+        <name>RoleNotSetting</name>
+    </validationRules>
+</CustomObjectTranslation>

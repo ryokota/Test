@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>RFA Request Detail</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>RFA Request Details</value>
+    </caseValues>
+    <fields>
+        <label><!-- Automatic renewed --></label>
+        <name>CM_Automatic_Renewed__c</name>
+        <picklistValues>
+            <masterLabel>No</masterLabel>
+            <translation><!-- No --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Yes</masterLabel>
+            <translation><!-- Yes --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- CHIRASHI --></label>
+        <name>CM_CHIRASHI__c</name>
+        <picklistValues>
+            <masterLabel>No</masterLabel>
+            <translation><!-- No --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Yes</masterLabel>
+            <translation><!-- Yes --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Can --></label>
+        <name>CM_Can_Stand__c</name>
+    </fields>
+    <fields>
+        <label><!-- Channel of price guidelines --></label>
+        <name>CM_Chanel_Of_Price_Guidelines__c</name>
+        <picklistValues>
+            <masterLabel>L-CS</masterLabel>
+            <translation><!-- L-CS --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L-E&amp;D</masterLabel>
+            <translation><!-- L-E&amp;D --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L-Institutional SAKAYA</masterLabel>
+            <translation><!-- L-Institutional SAKAYA --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L-OtherOTC</masterLabel>
+            <translation><!-- L-OtherOTC --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Other</masterLabel>
+            <translation><!-- Other --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>R-CS</masterLabel>
+            <translation><!-- R-CS --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>R-E&amp;D</masterLabel>
+            <translation><!-- R-E&amp;D --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>R-Institutional SAKAYA</masterLabel>
+            <translation><!-- R-Institutional SAKAYA --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>R-OtherOTC</masterLabel>
+            <translation><!-- R-OtherOTC --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Contract condition（Price) / Description --></label>
+        <name>CM_Contract_Condition_Price_Description__c</name>
+    </fields>
+    <fields>
+        <help><!-- 単発時はfrom/toを同じ年月日入力します。 --></help>
+        <label><!-- Contract term (from) --></label>
+        <name>CM_Contract_term_from__c</name>
+    </fields>
+    <fields>
+        <label><!-- Contract term (to) --></label>
+        <name>CM_Contract_term_to__c</name>
+    </fields>
+    <fields>
+        <label><!-- Constractor --></label>
+        <name>CM_Contractor__c</name>
+    </fields>
+    <fields>
+        <label><!-- Cooler --></label>
+        <name>CM_Cooler_Stand__c</name>
+    </fields>
+    <fields>
+        <label><!-- Cup --></label>
+        <name>CM_Cup_Stand__c</name>
+    </fields>
+    <fields>
+        <help><!-- 単発時はfrom toを同じ年月日入力 --></help>
+        <label><!-- Delivery term (from) --></label>
+        <name>CM_Delivery_term_from__c</name>
+    </fields>
+    <fields>
+        <label><!-- Delivery term (to) --></label>
+        <name>CM_Delivery_term_to__c</name>
+    </fields>
+    <fields>
+        <label><!-- Description --></label>
+        <name>CM_Description__c</name>
+    </fields>
+    <fields>
+        <label><!-- Dis --></label>
+        <name>CM_Dispenser_Stand__c</name>
+    </fields>
+    <fields>
+        <label><!-- Execution due date --></label>
+        <name>CM_Execution_due_date__c</name>
+    </fields>
+    <fields>
+        <label><!-- Existing equipment --></label>
+        <name>CM_Existing_Equipment__c</name>
+    </fields>
+    <fields>
+        <label><!-- Description --></label>
+        <name>CM_Input__c</name>
+    </fields>
+    <fields>
+        <help><!-- If there is more than one described in the detailed description. --></help>
+        <label><!-- Model name --></label>
+        <name>CM_Model_Name__c</name>
+    </fields>
+    <fields>
+        <label><!-- Monthly amount（tax-exclusive price） --></label>
+        <name>CM_Monthly_amount_Tax_exclusive_price__c</name>
+    </fields>
+    <fields>
+        <label><!-- New Equipment --></label>
+        <name>CM_New_Equipment__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Sample cases --></label>
+        <name>CM_Number_of_SampleCase__c</name>
+    </fields>
+    <fields>
+        <help><!-- 単発時はfrom toを同じ年月日入力 --></help>
+        <label><!-- Order term (from) --></label>
+        <name>CM_Order_term_from__c</name>
+    </fields>
+    <fields>
+        <label><!-- Order term (to) --></label>
+        <name>CM_Order_term_to__c</name>
+    </fields>
+    <fields>
+        <label><!-- Ohter --></label>
+        <name>CM_Other_Stand__c</name>
+    </fields>
+    <fields>
+        <label><!-- Other payment methods --></label>
+        <name>CM_Other_payment_methods__c</name>
+    </fields>
+    <fields>
+        <help><!-- If there is more than one described in the detailed description. --></help>
+        <label><!-- Part name --></label>
+        <name>CM_Part_Name__c</name>
+        <picklistValues>
+            <masterLabel>Anti-theft parts</masterLabel>
+            <translation><!-- Anti-theft parts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Battery for disaster countermeasure</masterLabel>
+            <translation><!-- Battery for disaster countermeasure --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Card reader</masterLabel>
+            <translation><!-- Card reader --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Key switch for free</masterLabel>
+            <translation><!-- Key switch for free --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Others</masterLabel>
+            <translation><!-- Others --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Wattmeter</masterLabel>
+            <translation><!-- Wattmeter --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>cashless(single RW)</masterLabel>
+            <translation><!-- cashless(single RW) --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- Enter the total amount. --></help>
+        <label><!-- Payment amount（tax-exclusive price） --></label>
+        <name>CM_Payment_amount_Tax_exclusive_price__c</name>
+    </fields>
+    <fields>
+        <label><!-- Payment due date --></label>
+        <name>CM_Payment_due_date__c</name>
+    </fields>
+    <fields>
+        <label><!-- Payment method --></label>
+        <name>CM_Payment_method__c</name>
+        <picklistValues>
+            <masterLabel>Deferred payment</masterLabel>
+            <translation><!-- Deferred payment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Prepayment</masterLabel>
+            <translation><!-- Prepayment --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Payment timing --></label>
+        <name>CM_Payment_timing__c</name>
+        <picklistValues>
+            <masterLabel>Achieved</masterLabel>
+            <translation><!-- Achieved --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Bimonthly payment</masterLabel>
+            <translation><!-- Bimonthly payment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Monthly payment</masterLabel>
+            <translation><!-- Monthly payment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>One time payment</masterLabel>
+            <translation><!-- One time payment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Other</masterLabel>
+            <translation><!-- Other --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Quarterly payment</masterLabel>
+            <translation><!-- Quarterly payment --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- RFA No. --></label>
+        <name>CM_RFA__c</name>
+        <relationshipLabel><!-- RFA申請詳細 --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- RFA Stage --></label>
+        <name>CM_RFA_stage__c</name>
+    </fields>
+    <fields>
+        <label><!-- RecordType Name --></label>
+        <name>CM_RecordType_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- 単発時はfrom toを同じ年月日入力 --></help>
+        <label><!-- Special sales term (from) --></label>
+        <name>CM_Special_sales_term_from__c</name>
+    </fields>
+    <fields>
+        <label><!-- Special sales term (to) --></label>
+        <name>CM_Special_sales_term_to__c</name>
+    </fields>
+    <fields>
+        <label><!-- Target Dealer --></label>
+        <name>CM_Target_Dealer__c</name>
+        <picklistValues>
+            <masterLabel>All</masterLabel>
+            <translation><!-- All --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Individual</masterLabel>
+            <translation><!-- Individual --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Several</masterLabel>
+            <translation><!-- Several --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Old Equipment --></label>
+        <name>CM_Used_Equipment__c</name>
+    </fields>
+    <layouts>
+        <layout>CM_B.a_Equipment_RFA Details Outside Model Request Layout</layout>
+        <sections>
+            <label><!-- - New Section --></label>
+            <section>- New Section</section>
+        </sections>
+        <sections>
+            <label><!-- Number of --></label>
+            <section>Number of</section>
+        </sections>
+        <sections>
+            <label><!-- Request Details --></label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B.b_Equipment_RFA Details Equipment parts Request Layout</layout>
+        <sections>
+            <label><!-- - New Section --></label>
+            <section>- New Section</section>
+        </sections>
+        <sections>
+            <label><!-- Request Details --></label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B.c_Equipment_RFA Details Accompanying Construction Request Layout</layout>
+        <sections>
+            <label><!-- - New section --></label>
+            <section>- New section</section>
+        </sections>
+        <sections>
+            <label><!-- New and Old --></label>
+            <section>New and Old</section>
+        </sections>
+        <sections>
+            <label><!-- Request Details --></label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B.d/e_Equipment_RFA Details Layout</layout>
+        <sections>
+            <label><!-- Request Details --></label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_01_RFA Details Contract unit price Layout</layout>
+        <sections>
+            <label><!-- Request Details --></label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_02_RFA Details Sale/Promotion discount Layout</layout>
+        <sections>
+            <label><!-- - New Section --></label>
+            <section>- New Section</section>
+        </sections>
+        <sections>
+            <label><!-- Request Details --></label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_03/04_RFA Details FS_SalesPrice &amp; Commition(Change) Layout</layout>
+        <sections>
+            <label><!-- New Section - Request Details --></label>
+            <section>New Section - Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- Request Details --></label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_05_RFA Details FS Commision Fixation Layout</layout>
+        <sections>
+            <label><!-- - New Section --></label>
+            <section>- New Section</section>
+        </sections>
+        <sections>
+            <label><!-- New Section --></label>
+            <section>New Section</section>
+        </sections>
+        <sections>
+            <label><!-- Request Details --></label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_06-09_RFA Details Layout</layout>
+        <sections>
+            <label><!-- - New section --></label>
+            <section>- New section</section>
+        </sections>
+        <sections>
+            <label><!-- New Section --></label>
+            <section>New Section</section>
+        </sections>
+        <sections>
+            <label><!-- Request Details --></label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_10_RFA Details Layout</layout>
+        <sections>
+            <label><!-- - New section --></label>
+            <section>- New section</section>
+        </sections>
+        <sections>
+            <label><!-- New Section --></label>
+            <section>New Section</section>
+        </sections>
+        <sections>
+            <label><!-- Request Details --></label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>Request details No.</nameFieldLabel>
+    <recordTypes>
+        <label><!-- 01. Contract unit price --></label>
+        <name>CM_01_Contract_unit_price</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- 02. Special price / Promotion discount --></label>
+        <name>CM_02_Special_price_promotion_discount</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- 03. FS selling price --></label>
+        <name>CM_03_FS_selling_price</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- 04. FS commission (Variable) --></label>
+        <name>CM_04_FS_commission_Variable</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- 05. FS commission (Fixed) --></label>
+        <name>CM_05_FS_commission_Fixed</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- 06. Key money / Rebate / Spot / Other --></label>
+        <name>CM_06_KeyMoney_Rebate_Spot_Other</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- 07. Only in the case of Rebate --></label>
+        <name>CM_07_Only_in_the_case_of_Rebate</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- 08. Other support --></label>
+        <name>CM_08_Other_support</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- 09. Promotion / Other expense --></label>
+        <name>CM_09_Promotion_OtherExpense</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- 10. Promotion (Cooperation / Sampling) --></label>
+        <name>CM_10_Promotion_CooperationSample_Sampling</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- a. Non-standard Equipment --></label>
+        <name>CM_a_Nonstandard_Equipment</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- b. Vending Equipment parts --></label>
+        <name>CM_b_Vending_Equipment_parts</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- c. Incidental work --></label>
+        <name>CM_c_Incidental_work</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- d. Vending Equipment Lease --></label>
+        <name>CM_d_Vending_Equipment_Lease</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- e. Equipment retirement --></label>
+        <name>CM_e_Equipment_retirement</name>
+    </recordTypes>
+    <startsWith>Consonant</startsWith>
+    <validationRules>
+        <errorMessage><!-- There is an inconsistency in the contract term. --></errorMessage>
+        <name>CM_Contract_date_contradiction_rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- There is an inconsistency in the delivery term. --></errorMessage>
+        <name>CM_Delivery_date_contradiction_rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- You must enter the number of equipment --></errorMessage>
+        <name>CM_NumberOfStand_Input_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- You must enter the old and new classification. --></errorMessage>
+        <name>CM_OldAndNewClassification_Input_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- There is an inconsistency in the order term. --></errorMessage>
+        <name>CM_Order_date_contradiction_rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- You must enter the Other payment methods. --></errorMessage>
+        <name>CM_OtherPaymentMethod_Input_rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- You must enter the Payment due date. --></errorMessage>
+        <name>CM_PaymentAmount_Required_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Payment amount must match with what you have selected for &quot;06. Key money / Rebate / Spot / Other&quot; on the request. --></errorMessage>
+        <name>CM_PaymentAmount_Type06_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Payment amount must match with what you have selected for &quot;07. Only in the case of Rebate&quot; on the request. --></errorMessage>
+        <name>CM_PaymentAmount_Type07_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Payment amount must match with what you have selected for &quot;08. Other support&quot; on the request. --></errorMessage>
+        <name>CM_PaymentAmount_Type08_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Payment amount must match with what you have selected for &quot;09. Promotion / Other expense&quot; on the request. --></errorMessage>
+        <name>CM_PaymentAmount_Type09_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Payment amount（tax-exclusive price） or Number of Sample Case must match with what you have selected for &quot;10. Promotion (Cooperation/Sampling) &quot; on the request. --></errorMessage>
+        <name>CM_PaymentAmount_Type10_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- You can not set the past date. --></errorMessage>
+        <name>CM_Payment_due_date_past_date_rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Please enter a sample number of cases or Payment amount（tax-exclusive price）. --></errorMessage>
+        <name>CM_SampleCase_PaymentAmout_Required_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- You must enter the Execution due date. --></errorMessage>
+        <name>CM_SampleCase_Required_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- There is an inconsistency in the special sales term. --></errorMessage>
+        <name>CM_Special_sale_date_contradiction_rule</name>
+    </validationRules>
+</CustomObjectTranslation>

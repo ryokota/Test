@@ -1,0 +1,46 @@
+<apex:page id="CSOProfileEditPage" standardController="User" showHeader="false"  extensions="SOLXYZCSO001.CSOProfileSelectController" sidebar="false" action="{!init}">
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+
+
+<apex:outputPanel rendered="{!IF(authority == false && cso_userInfo.showErrPage == false, true, false)}">
+    <apex:messages styleClass="errorMsg" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(authority == true && cso_userInfo.showErrPage == false, true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+    <script type="text/javascript">
+    var execedFlag = {!execedFlag};
+    if(execedFlag){
+        top.window.close();
+    }
+    $(document).ready(function(){
+        var options = $('.profile_select').children();
+        $.each(options, function(){
+            $('#dummyArea').html($(this).text());
+            $(this).text($('#dummyArea').text());
+        });
+        //$('.profile_select').html(options);
+        $('.profile_select').show();
+    });
+    </script>
+    <apex:form id="theForm">
+        <apex:messages styleClass="errorMsg" />
+        <apex:pageBlock title="{!$Label.solxyzcso001__label_10299}" id="theBlock" tabStyle="setting__tab" >
+            <apex:pageBlockButtons location="bottom" >
+                <apex:commandButton value="{!$Label.solxyzcso001__label_00076}" action="{!save}" />
+                <apex:commandButton value="{!$Label.solxyzcso001__label_00058}"  onClick="top.window.close(); return false;"/>
+            </apex:pageBlockButtons>
+            <apex:pageblockSection >
+                <apex:pageBlockSectionItem id="theBlockSectionItemBaseProfileId">
+                    <apex:outputLabel >{!$Label.solxyzcso001__label_10028}</apex:outputLabel>
+                    <apex:pageBlockSectionItem id="theBlockSectionItemBaseProfileIdList">
+                        <apex:selectList value="{!baseProfileId}" size="1" id="BaseProfileId" style="width:320px;display:none" styleClass="profile_select" >
+                        <apex:selectOptions value="{!LISTBASE}"/>
+                        </apex:selectList>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSectionItem>
+            </apex:pageblockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:outputPanel>
+<div id="dummyArea" style="display:none"/>
+</apex:page>

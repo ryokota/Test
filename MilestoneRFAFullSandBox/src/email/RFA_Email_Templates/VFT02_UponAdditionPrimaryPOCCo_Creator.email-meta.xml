@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>true</available>
+    <description>Send Email communication to Primary Point of Contact related to an RFA when they are added to it.</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>VFT02 Upon Addition Primary POC &amp; Co Creator</name>
+    <style>none</style>
+    <subject>Information Only:  -</subject>
+    <type>visualforce</type>
+</EmailTemplate>

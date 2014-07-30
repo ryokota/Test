@@ -1,0 +1,34 @@
+<!-- 
+    Email template for notifying RFA Locationn coordinator when the RFA is pushed to Pre-Circulation Stage.
+    Related To : RFAUserRole__c
+ -->
+ <!--
+<messaging:emailTemplate subject="要確認（Action Required）: {!relatedTo.Name} –  {!relatedTo.Stage__c}" recipientType="User" relatedToType="RFA__c">
+--> 
+<messaging:emailTemplate subject="要確認（Action Required）: {!relatedTo.Name}" recipientType="User" relatedToType="RFA__c"> 
+ <messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = "font-size:14px">
+                    <!--<p>以下の承認申請が提出されました。
+                    下のリンクをクリックして、この承認申請を検討の上、ご対応ください。<BR/>-->
+                    <p>以下の承認申請が提出されました。
+                    下記リンクより申請内容を確認の上、ご対応ください。<BR/>
+                    This RFA has been submitted. 
+                    Use the link below to review and take action on this RFA.
+                    </p>
+                    <BR/>
+                    <c:RFA_C02_EmailTemplateBodyRFA rfaObj="{!relatedTo}"/>
+                    <BR/>
+                    <p><B>下記リンクをクリックし、承認申請リクエストの文書をご確認ください:<BR/>
+                    Click this link to open the RFA Request Document: <BR/>
+                    <a href="{!$Label.RFA_CL026}/{!relatedTo.Id}">{!relatedTo.Name}</a></B></p>
+                    <BR/>
+                    <p>ご質問がございましたら、<a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a> へご連絡ください。<BR/>
+                    If you have any inquiries kindly contact <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a>.
+                    </p>
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

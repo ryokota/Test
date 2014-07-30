@@ -1,0 +1,964 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.DeliveryListController" tabStyle="delivery__tab" action="{!init}">
+<apex:iframe src="{!$Page.SOLXYZCSO001__CSO_Error}?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == false,false,true)}">
+
+<apex:outputPanel rendered="{!IF(CSOAuthority == false && cso_userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(CSOAuthority == true, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/delivery.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/contextMenu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<style type="text/css">
+.addressValueText{
+    left: 30px;
+    min-width: 200px;
+    padding: 5px 5px 0px 5px
+}
+.icon{
+    width: 18px;
+    height: 18px;
+    border: none;
+}
+#targetCount{
+    margin-bottom: 5px;
+}
+#addresses{
+    overflow-y: auto;
+}
+
+#allDeliveryAddress{
+    display: none;
+    width: 300px;
+    height: 75px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: solid 1px gray;
+    z-index: 1100;
+    position: absolute;
+    top: 0px;
+    right: 165px;
+    border:1px solid #c0c0c0;
+    border-radius:1px;
+    -moz-border-radius:1px;
+    -webkit-border-radius:1px;
+    -moz-box-shadow:1px 1px 3px #c0c0c0;
+    -webkit-box-shadow:1px 1px 3px #c0c0c0;
+    box-shadow:1px 1px 3px #c0c0c0;
+    float:left;
+    background-color:#FFFFFF;
+    margin:5px;
+    padding:5px 10px 10px 10px;
+    max-width:400px;
+}
+
+.delivery-stop{
+    background-color: #e50000;
+    padding: 8px 10px;
+    color: #FFFFFF;
+}
+
+.delivery-expired{
+    background-color: #808080;
+    padding: 8px 10px;
+    color: #FFFFFF;
+}
+
+.delivery-active{
+    background-color: #2e8b57;
+    padding: 8px 10px;
+    color: #FFFFFF;
+}
+
+.pathIcon{
+    width: 18px;
+    height: 18px;
+    margin-top: -3px;
+}
+
+#settingBtn {
+    white-space: nowrap;
+}
+
+</style>
+
+<script type="text/javascript">
+var query;
+var imageId = null;
+var addressCount = 0;
+var mailContentImg = '<img src="{!URLFOR($Resource.cso, "image/contents.png")}" style="width:17px;height:17px;"/>';
+/*
+ * 画面読込処理
+ */
+jQuery.event.add(window, "load", function(){
+    readyForSync();
+    var saveObjectInLocalStorage = function (storageItemName, object) {
+            if ('localStorage' in window && window['localStorage'] !== null && typeof window.localStorage !== 'undefined') {
+                window.localStorage.setItem(storageItemName, JSON.stringify(object));
+            }
+        },
+        removeObjectFromLocalStorage = function (storageItemName) {
+            if ('localStorage' in window && window['localStorage'] !== null && typeof window.localStorage !== 'undefined') {
+                window.localStorage.removeItem(storageItemName);
+            }
+        },
+        getObjectFromLocalStorage = function (storageItemName) {
+            if ('localStorage' in window && window['localStorage'] !== null && typeof window.localStorage !== 'undefined') {
+                return jQuery.parseJSON(window.localStorage.getItem(storageItemName));
+            }
+        },
+        gridStateName = 'DeliveryList.grid_delivery.state',
+        saveDeliveryGridState = function(grid) {
+            var gridState = {
+                rowNum: grid.jqGrid('getGridParam', 'rowNum')
+            };
+            saveObjectInLocalStorage(gridStateName, gridState);
+        },
+        restoreDeliveryGridState = function (grid) {
+            var gridState = getObjectFromLocalStorage(gridStateName);
+
+            if (gridState) {
+                try {
+                    grid.jqGrid('setGridParam', gridState);
+                } catch (e) {
+                    removeObjectFromLocalStorage(gridStateName);
+                }
+            } else {
+                gridState = {};
+            }
+            return gridState;
+        },
+        oldDeliveryGridState = restoreDeliveryGridState($("#deliveryList"));
+
+
+
+    var browserType = getBrowserType();
+    $("#searchform").show();
+    $("#searchform").submit(function(e){
+        search(null);
+        e.preventDefault();
+    });
+    var status = "";
+
+/***********************************************
+    var str = location.href.split("#");
+    if (str.length >= 2) {
+        var s = str[1].split(":")
+        if (s.length == 2 && s[1] == "search") {
+            status = "search";
+            var searchstr = s[0];
+            $("#keywords").val(searchstr);
+        }
+    }
+***********************************************/
+
+    if ("{!status}" != "") {
+        status = "{!status}";
+    }
+
+    // 検索文字セット
+    if ("{!status}" == "search") {
+        if ("{!searchstr}" != "") {
+            $("#keywords").val("{!searchstr}");
+        }
+    }
+
+
+    $("#deliveryList").jqGrid({
+        url:_apiUrl + "/deliverymanagement/DeliveryListV2Get.json",
+        postData : {
+            status : status,
+            searchstr : $("#keywords").val()
+        },
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id         : "id"
+        },
+        colNames:['',
+                  '',
+                  '{!$Label.label_10454}',
+                  '',
+                  '{!$Label.label_10455}',
+                  '{!$Label.label_10456}',
+                  '{!$Label.label_11102}',
+                  '',
+                  '{!$Label.label_10457}',
+                  '{!$Label.label_10458}',
+                  '{!$Label.label_10459}',
+                  '{!$Label.label_11103}',
+                  '{!$Label.label_10460}'],
+        colModel:[
+                    {name:'id',index:'id', width:60, hidden:true},
+                    {name:'statuscode',index:'statuscode', width:60, hidden:true},
+                    {name:'title',index:'title',classes:'deliverytitle', width:{!IF(status == 'admin', '187', '247')}},
+                    {name:'simple_title',index:'simple_title', hidden:true},
+                    {name:'display_id', index:'display_id', hidden:true},
+                    {name:'mailaddress', index:'mailaddress', width:{!IF(status == 'admin', '210', '245')}},
+                    {name:'downloadStatus', index:'downloadStatus', width:100,align:"center"},
+                    {name:'dispAddresses', index:'dispAddresses', hidden:true},
+                    {name:'name',index:'name', width:95, align:"center", hidden:{!IF(status == 'admin', 'false', 'true')}},
+                    {name:'send_date',index:'send_date', width:120, align:"center"},
+                    {name:'fromToDate',index:'to_date', width:160,align:"center", hidden:true},
+                    {name:'status',index:'status', width:110,align:"center"},
+                    {name:'passwd',index:'password', width:100,align:"center", hidden:true}
+                ],
+        rowNum: oldDeliveryGridState.rowNum || 50,
+        height: 400,
+        autowidth: true,
+        rowList:[50,100,300],
+        sortname: 'send_date',
+        sortorder: 'desc',
+        pager: '#deliveryPager',
+        viewrecords: true,
+        //gridComplete:function(){hideContextMenu("#contextMenulist"); resizeGrid();},
+        //onSortCol: function(name,index){ hideContextMenu("#contextMenulist");},
+        //onCellSelect:function(rowid,icol,cellcontent){
+        //    switchOneclickMenu();
+        //},
+        multiselect: true,
+        multiboxonly: true,
+        shrinkToFit : true,
+        onSelectRow: function(id, status) {
+            var grid = $("#deliveryList").jqGrid("getRowData",id);
+            var dispDeliveryId = grid.display_id;
+            if (imageId != null){
+                if (imageId.replace("expand_","").replace("#","") != dispDeliveryId) {
+                    hideDeliveryAddressWindow();
+                }
+            }
+        },
+        onSelectAll: function(ids, status) {
+//            switchOneclickMenu();
+            if (imageId != null){
+                hideDeliveryAddressWindow();
+            }
+        },
+        onPaging: function(btn) {
+            if (imageId != null){
+                hideDeliveryAddressWindow();
+            }
+        },
+        onHeaderClick: function(status) {
+            if (imageId != null){
+                hideDeliveryAddressWindow();
+            }
+        },
+        onSortCol: function(idx, icol, order) {
+//            switchOneclickMenu();
+            if (imageId != null){
+                hideDeliveryAddressWindow();
+            }
+        },
+        loadComplete : function(data) {
+            saveDeliveryGridState($(this));
+            if(!data.result){
+                alert(data.message);
+                return;
+            }
+            $('span .mail-contents').html(mailContentImg);
+            if(data["search"]){
+                if(data["records"] == 0){
+                    alert('{!$Label.msg_00054}');
+                }
+                $("#caption").html('{!$Label.label_10461}');
+            }
+            resizeGrid();
+        }
+    });
+    $("#deliveryList").jqGrid('navGrid','#deliveryPager',{edit:false,add:false,del:false,refresh:false,search:false});
+    createAndAssignColumnModelNameMap($("#deliveryList"));
+
+    $(window).resize(resizeGrid);
+    resizeGrid();
+
+    $("#deliveryList").click(function(event){})
+
+    $(".ui-jqgrid-bdiv").scroll(function(){
+        if(imageId != null){
+            var offset = $(imageId).offset();
+            if (offset.top + 70 > $(window).height() || offset.top < 140) {
+                hideDeliveryAddressWindow();
+            } else {
+                setAllAddressViewPosition();
+                $("#allDeliveryAddress").show();
+            }
+        }
+    });
+
+    $(window).bind("resize",function(){
+        if (imageId != null) {
+            hideDeliveryAddressWindow();
+        }
+    });
+});
+
+function createAndAssignColumnModelNameMap(jqgridObj) {
+    var colModel = jqgridObj.getGridParam('colModel');
+    var colModelNameMap = [];
+    for (var i=0; i<colModel.length; ++i) {
+        colModelNameMap[colModel[i].name] = i;
+    }
+    jqgridObj.data('colModelNameMap', colModelNameMap);
+}
+
+function getColumnModelNameMap(jqgridObj) {
+    return jqgridObj.data('colModelNameMap');
+}
+
+//function switchOneclickMenu(){
+//    var list = new Array();
+//    list = getSelectedList();
+//
+//    if(list.length > 0){
+//        oneclickMenuEnable(list);
+//        showContextMenu("#contextMenulist");
+//        updateContextMenuHeader(list[0].simple_title,list.length,"#contextMenuHeader","#onclickMenutitleTemp");
+//    }else{
+//        hideContextMenu("#contextMenulist");
+//    }
+//}
+//
+//function oneclickMenuEnable(list){
+//    var disable = false;
+//    itemEable("#oneclickMenuStopDelivery");
+//    itemEable("#oneclickMenuDelete");
+//
+//    for ( var i = 0; i < list.length; i++){
+//        if (list[i].statuscode != 0){
+//            disable = true;
+//        }
+//    }
+//
+//    if(disable == true){
+//        itemDisable("#oneclickMenuStopDelivery");
+//    }
+//
+//}
+
+function getSelectedList() {
+    var ids = jQuery("#deliveryList").jqGrid('getGridParam', 'selarrrow');
+    var list = new Array();
+    for (var i in ids) {
+        var ret = $("#deliveryList").jqGrid('getRowData', ids[i]);
+        var rowId = parseInt(ret.id)+1;
+        var obj = {
+            'id' : ret.id,
+            'simple_title': ret.simple_title,
+            'statuscode': ret.statuscode
+        };
+        list.push(obj);
+    }
+    return list;
+}
+/*
+ * グリッドのリサイズ
+ */
+function resizeGrid(){
+    var browserWidth = getBrowserWidth();
+    var browserHeight = getBrowserHeight();
+
+    $("#deliveryList").setGridHeight(Math.max(browserHeight - 217, 300));
+
+    if((browserWidth - 340) < 700){
+        $("#deliveryList").setGridWidth(713);
+    } else {
+        if(getBrowserType() != 'IE8'){
+            $("#deliveryList").setGridWidth(browserWidth - 340);
+        } else {
+            $("#deliveryList").setGridWidth(browserWidth - 324);
+        }
+    }
+}
+
+/*
+ * 配信停止
+ */
+var stopDelivery = function(){
+
+//    if ($("#oneclickMenuStopDelivery").attr("disabled") == "true"){return false;};
+
+    // クエリパラメータを初期化
+    query = new Object();
+    // 配信IDリスト
+    var deliveryIdList = new Array();
+    var ids = jQuery("#deliveryList").jqGrid('getGridParam','selarrrow');
+    var isDeStop = false;
+    for(var i=0; i<ids.length; i++) {
+        isDeStop = true;
+        var ret = jQuery("#deliveryList").jqGrid('getRowData',ids[i]);
+        if (ret.statuscode != "2") {
+            deliveryIdList.push(ret.id);
+        }
+    }
+
+    query["deliveryIdList"] = deliveryIdList.toString();
+
+    if (deliveryIdList.length==0 && !isDeStop) {
+        alert('{!$Label.msg_00209}');
+    } else if (deliveryIdList.length==0 && isDeStop) {
+        alert('{!$Label.msg_00200}');
+    }else if(confirm('{!$Label.msg_00199}')){
+       var callback = function(data){
+                CsoScript_loadingStop();
+                if(!data.result){
+                    alert(data.message);
+                }
+                $('#deliveryList').trigger('reloadGrid');
+            };
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+
+        CsoScript_loadingStart();
+
+        // 配信停止
+        securePostAsync('/deliverymanagement/deliveryStop.json',
+            {"deliveryIdList":deliveryIdList.toString()},
+            callback, callerror);
+    }
+}
+
+/*
+ * 配信削除
+ */
+function deleteDelivery() {
+    // クエリパラメータを初期化
+    query = new Object();
+    // 配信IDリスト
+    var ids = jQuery("#deliveryList").jqGrid('getGridParam', 'selarrrow');
+    var r = false;
+
+    for (var i in ids) {
+        var ret = jQuery("#deliveryList").jqGrid('getRowData', ids[i]);
+        if (ret.statuscode != "2") {
+            r = true;
+        }
+    }
+
+    var msg = r ? '{!$Label.msg_00201}' : '{!$Label.msg_00203}';
+
+    if (ids.length == 0) {
+        alert('{!$Label.msg_00198}');
+    } else if (confirm(msg)) {
+
+       var callback = function(data){
+                CsoScript_loadingStop();
+                if(!data.result){
+                    alert(data.message);
+                }
+                $('#deliveryList').trigger('reloadGrid');
+            };
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+
+        CsoScript_loadingStart();
+
+        // 配信詳細情報削除
+        securePostAsync('/deliverymanagement/deliveryDetailDelete.json', {"deliveryIdList":ids.toString()}, callback, callerror);
+    }
+}
+
+/*
+ * 検索
+ */
+function search(str){
+
+    if(str){ $("#keywords").val(str) }
+
+    var searchstr = $.trim($("#keywords").val());
+
+    if (searchstr == "") {
+        alert(getMsg(new Array("1"), '{!$Label.msg_00055}'));
+        return false;
+    }
+    var limit = 32;
+    if (searchstr.length > limit) {
+        alert(getMsg(new Array(limit + ""), '{!$Label.msg_00056}'));
+        return false;
+    }
+    if (searchstr.match(/[\\\*\+\.\?\{\}\(\)\[\]\^\$\-\|\&]/)) {
+        alert(getMsg(new Array("\\ * + . ? { } ( ) [ ] ^ $ - |"), '{!$Label.msg_00202}'));
+        return false;
+    }
+    $("#deliveryList").setGridParam({
+        postData : {
+            status : "search",
+            searchstr : searchstr,
+        }
+    });
+    $("#deliveryList").trigger("reloadGrid");
+    location.href = "#" + searchstr + ":search";
+    $('#c_headLeftSubTitle').text('{!$Label.label_10461}');
+}
+
+/*
+ * 複数配信先表示
+ */
+function changeAllAddressView(dispDeliveryId, deliveryId, count) {
+
+    //setTimeout(function(){hideContextMenu("#contextMenulist");},0);
+
+    var targetImageId = "#atag_" + deliveryId;
+
+    if (imageId != null && imageId != targetImageId) {
+        hideDeliveryAddressWindow();
+    }
+
+    imageId = targetImageId;
+
+    var isDispNow = ($(imageId).attr('class') == "collapse_class");
+    if (!isDispNow) {
+/*
+        $(imageId).attr("class", "collapse_class");
+        $(imageId).attr("src", _apiUrl + "/image/collapse.png");
+*/
+        var dispAddressHtml = $(($("#deliveryList").find("#" + deliveryId + " td")[getColumnModelNameMap($("#deliveryList"))["dispAddresses"]])).html();
+
+        addressCount = count;
+        setAddressList(count, dispAddressHtml);
+        setAllAddressViewPosition();
+
+        $("#allDeliveryAddress").show();
+
+    } else {
+        hideDeliveryAddressWindow();
+    }
+}
+
+/*
+ * 複数配信先表示位置設定
+ */
+function setAllAddressViewPosition() {
+
+    var height;
+    if (addressCount == 2) {
+        height = 70;
+    } else if (addressCount >=3 && addressCount <= 8) {
+        height = 70 + 20 * (addressCount - 2);
+    } else if (addressCount > 8) {
+        height = 225;
+    }
+
+    var offset = $(imageId).offset();
+    var posX = offset.left;
+    var posY = offset.top;
+    var aLinkWidth = $(imageId).width();
+    var windowHeight = $(window).height();
+    var upHeight = 0;
+
+    if (posY + height + 90 > windowHeight) {
+        upHeight = height;
+    }
+
+
+    $("#allDeliveryAddress").css("height", height + "px");
+//    $("#allDeliveryAddress").css("left", (posX + 10) + "px");
+//    $("#allDeliveryAddress").css("top", (posY - 60 - upHeight) + "px");
+    $("#allDeliveryAddress").css("left", (posX + 1 + aLinkWidth) + "px");
+    $("#allDeliveryAddress").css("top", (posY - 105 - upHeight) + "px");
+
+    $("#addresses").css("height", (height - 25) + "px");
+}
+
+/*
+ * 複数配信先非表示
+ */
+function hideDeliveryAddressWindow() {
+/*
+    $(imageId).attr("class", "expand_class");
+    $(imageId).attr("src", _apiUrl + "/image/expand.png");
+*/
+    $("#allDeliveryAddress").hide();
+    imageId = null;
+    addressCount = 0;
+}
+
+/*
+ * 複数配信先設定
+ */
+function setAddressList(addressCount, addressHtml) {
+
+    var strTitle = "{!$Label.label_10462}";
+    var strClose = "{!$Label.label_00071}";
+
+    var targetCountHtml = "";
+    targetCountHtml += "<div id=\"targetCount\"><img src=\"{!URLFOR($Resource.cso, 'image/delivery.png')}\" class=\"icon\"/>&nbsp" + addressCount + " " + strTitle + "</div>";
+    $("#targetCount").html(targetCountHtml);
+
+    // divタグを除いてエスケープ処理
+/*
+    if(!jQuery.support.opacity){
+        // IE8
+        addressHtml = addressHtml.replace(/<DIV class=addressValueText>/g, "{_S_T_A_R_T_}");
+        addressHtml = addressHtml.replace(/<\/DIV>/g, "{_E_N_D_}");
+        addressHtml = addressHtml.replace(/</g, "&lt;").replace(/>/g, "&gt");
+        addressHtml = addressHtml.replace(/\{_S_T_A_R_T_\}/g, "<div class=\"addressValueText\">");
+        addressHtml = addressHtml.replace(/\{_E_N_D_\}/g, "</div>");
+    }else{
+        addressHtml = addressHtml.replace(/<div class="addressValueText">/g, "{_S_T_A_R_T_}");
+        addressHtml = addressHtml.replace(/<\/div>/g, "{_E_N_D_}");
+        addressHtml = addressHtml.replace(/</g, "&lt;").replace(/>/g, "&gt");
+        addressHtml = addressHtml.replace(/\{_S_T_A_R_T_\}/g, "<div class=\"addressValueText\">");
+        addressHtml = addressHtml.replace(/\{_E_N_D_\}/g, "</div>");
+    }
+*/
+    $("#addresses").html(addressHtml);
+}
+
+/*
+ * 配信メール本文表示
+ */
+function viewContents(id){
+    //hideContextMenu("#contextMenulist");
+    hideDeliveryAddressWindow();
+    secureGetAsync('/deliverymanagement/deliveryMailContentsGet.json', {delivId:id, returnType:'html'}, function(data){
+        $("#mailContents p").html(data["contents"]);
+        $("#mailContents").dialog({
+            title:"{!$Label.label_10126}",
+            modal: true,
+            width: 450
+        });
+    });
+}
+
+
+function disableClickEvent(sectionID){
+    $(sectionID).mousedown(function () {
+        if("true" ==  $(this).attr("disabled")){return;}
+    });
+}
+
+function hideContextMenu(menuID){
+    $(menuID).hide();
+}
+
+function showContextMenu(menuID){
+    $(menuID).show();
+}
+
+function itemDisable(sectionID){
+     $(sectionID).removeClass("contextMenuEnable").addClass("contextMenuDisable").attr("disabled","true");
+}
+
+function itemEable(sectionID){
+    $(sectionID).removeClass("contextMenuDisable").addClass("contextMenuEnable").removeAttr("disabled");
+}
+
+function updateContextMenuHeader(itemName,itemNum,dsplayArea,tempArea){
+
+    if (itemNum > 1){
+        $(".contextMenuHeader").text(itemNum +" " + "{!$Label.label_10234}");
+    }else if (itemNum == 1){
+        $(tempArea).text(itemName);
+
+        ajustTitleLength(dsplayArea,tempArea,itemName);
+    }
+
+}
+
+function ajustTitleLength(dsplayArea,tempArea,itemName){
+
+    var dsplayAreaWidth,tmpAreaWidth;
+    var work;
+    var pathCut = false;
+    var terminator =0;
+    var itemNameCut = false;
+
+    $(dsplayArea).css("title",itemName);
+    $(tempArea).text(itemName);
+
+    dsplayAreaWidth =  $(dsplayArea).width() - 0;
+    tmpAreaWidth = $(tempArea).width() - 0;
+
+    //do untill the title fits in.
+    work = itemName;
+    while (dsplayAreaWidth < tmpAreaWidth) {
+        //remove the last letter.
+        work = itemName.substring(0, work.length -1);
+
+        $(tempArea).text(work);
+        tmpAreaWidth = $(tempArea).width() - 0;
+
+        itemNameCut = true;
+
+        //just in case
+        if(terminator >= 130){
+            break;
+        }
+        terminator++;
+    }
+
+    //put "..." if the item name has been changed.
+    if(itemNameCut == true){
+        work = itemName.substring(0, work.length -2);
+        work = work + "...";
+    }
+
+    //set item name
+    $(dsplayArea).text(work);
+
+}
+
+function jumpToDetail(id, type, locale){
+    var titleName = "";
+    var linkDom = $(this);
+    $("#divAddress").text("-");
+    $("#divTelNumber").text("-");
+    $("#divCompName").text("-");
+    $("#divSectionName").text("-");
+    if(type == 0){
+    // ECMアドレス帳の場合
+        var param = {
+            "id" : id,
+            "isGroup" : false
+        }
+
+        var callback = function(data){
+            if(data.result){
+                var addressUserInfo = data.userInfo;
+                if(locale == "en"){
+                    titleName = escapeHTML2(addressUserInfo.fname) + " " + escapeHTML2(addressUserInfo.sname) + " [ {!$Label.label_13287} ]";
+                }else{
+                    titleName = escapeHTML2(addressUserInfo.sname) + " " + escapeHTML2(addressUserInfo.fname) + " [ {!$Label.label_13287} ]";
+                }
+                $("#divAddress").text(addressUserInfo.mail);
+                $("#divTelNumber").text(addressUserInfo.tel);
+                $("#divCompName").text(addressUserInfo.company);
+                $("#divSectionName").text(addressUserInfo.section);
+                $("#addresssDiv").dialog({ width : 350, height : 160, title: titleName, resizable: true, position: [200, 300]});
+                $("#allDeliveryAddress").css("z-index", "500");
+            }else{
+                $("#addresssDiv").dialog({ width : 350, height : 160, title: titleName, resizable: true, position: [200, 300]});
+                $("#allDeliveryAddress").css("z-index", "500");
+            }
+        };
+
+        var callerror =  function(data){
+            alert(data);
+                $("#addresssDiv").dialog({ width : 350, height : 160, title: titleName, resizable: true, position: [200, 300]});
+            $("#allDeliveryAddress").css("z-index", "500");
+        };
+
+        secureGetAsync('/deliverymanagement/DeliveryAddressGet.json', param, callback, callerror);
+        $("#informationLink").attr("href", '{!$Page.DeliveryAddressInfo}?id='+ id +'&isGroup=false');
+        $("#informationLink").show();
+    }else if(type == 1){
+    // リードor取引先責任者orSFユーザの場合
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.DeliveryListController.getObjectInfo}', id,
+            function(data, event){
+                var res = JSON.parse($('#decodeWork').html(data).text());
+                var idStart = id.substr(0, 3);
+                if(idStart == "003"){
+                    titleName = escapeHTML2(res.Name) + " [ {!$Label.label_13288} ]";
+                    $("#divAddress").text(res.Email);
+                    if(res.Phone != null){
+                        $("#divTelNumber").text(res.Phone);
+                    }
+                    if(res.Account.Name != null){
+                        $("#divCompName").text(res.Account.Name);
+                    }
+                    var sectionNameStr = "-";
+                    if(res.Department != null){
+                        sectionNameStr = res.Department;
+                        if(res.Title != null){
+                            sectionNameStr = sectionNameStr + " " + res.Title;
+                        }
+                    }else if(res.Title != null){
+                        sectionNameStr = res.Title;
+                    }
+                    $("#divSectionName").text(sectionNameStr);
+                }else if(idStart == "005"){
+                    titleName = escapeHTML2(res.Name) + " [ {!$Label.label_13292} ]";
+                    $("#divAddress").text(res.Email);
+                    if(res.Phone != null){
+                        $("#divTelNumber").text(res.Phone);
+                    }
+                    if(res.CompanyName != null){
+                        $("#divCompName").text(res.CompanyName);
+                    }
+                    var sectionNameStr = "-";
+                    if(res.Department != null){
+                        sectionNameStr = res.Department;
+                        if(res.Title != null){
+                            sectionNameStr = sectionNameStr + " " + res.Title;
+                        }
+                    }else if(res.Title != null){
+                        sectionNameStr = res.Title;
+                    }
+                    $("#divSectionName").text(sectionNameStr);
+                }else if(idStart == "00Q"){
+                    titleName = escapeHTML2(res.Name) + " [ {!$Label.label_13289} ]";
+                    $("#divAddress").text(res.Email);
+                    if(res.Phone != null){
+                        $("#divTelNumber").text(res.Phone);
+                    }
+                    if(res.CompanyName != null){
+                        $("#divCompName").text(res.Company);
+                    }
+                    if(res.Title != null){
+                        $("#divSectionName").text(res.Title);
+                    }
+                }
+                $("#addresssDiv").dialog({ width : 350, height : 160, title: titleName, resizable: true, position: [200, 300]});
+                $("#allDeliveryAddress").css("z-index", "500");
+            },
+                {escape: true}
+        );
+        $("#informationLink").attr("href", '/'+ id);
+        $("#informationLink").show();
+    }else{
+        $("#informationLink").hide();
+        $("#addresssDiv").dialog({ width : 350, height : 160, title: titleName, resizable: true, position: [200, 300]});
+        $("#allDeliveryAddress").css("z-index", "500");
+    }
+}
+
+function escapeHTML2(html) {
+  return jQuery('<div>').text(html).html();
+}
+
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__DeliveryMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/mail-box.png')}" alt="{!$Label.solxyzcso001__label_10441}" title="{!$Label.solxyzcso001__label_10441}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10441}</h1><br/>
+                <h2 id="c_headLeftSubTitle" style="display:{!IF(status == '', 'block', 'none')}">{!$Label.label_10442}</h2>
+                <h2 id="c_headLeftSubTitle" style="display:{!IF(status == 'admin', 'block', 'none')}">{!$Label.label_10443}</h2>
+                <h2 id="c_headLeftSubTitle" style="display:{!IF(status == 'open', 'block', 'none')}">{!$Label.label_10444}</h2>
+                <h2 id="c_headLeftSubTitle" style="display:{!IF(status == 'close', 'block', 'none')}">{!$Label.label_10445}</h2>
+                <h2 id="c_headLeftSubTitle" style="display:{!IF(status == 'search', 'block', 'none')}">{!$Label.label_10461}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight" style="width:400px">
+                <div id="c_headSearchBox">
+                    <input name="keywords" id="keywords" value="" type="text" style="margin-top:2px" maxlength="255" />
+                    <button onclick="search($('#keywords').val()); return false;" >{!$Label.label_00069}</button>
+                </div>
+                <apex:include pageName="SOLXYZCSO001__OperationLinksDelivery"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:pageBlock >
+                    <!-- コマンドボタン -->
+                    <div class="c_command_l" id="listViewCommand">
+                        <ul class="c_command_pipe">
+                            <li class="item">
+                                <!-- 配信停止ボタン -->
+                                <button class="c_commandButton btn" id="settingBtn" style="width:80px;" onclick="stopDelivery()">
+                                    {!$Label.label_10463}
+                                </button>
+                            </li>
+                            <li class="last">
+                                <!-- 削除ボタン -->
+                                <button class="c_commandButton btn" id="refreshButton" style="width:50px;" onclick="return deleteDelivery();">
+                                    {!$Label.label_00072}
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <table id="deliveryList" style="overflow:auto;" oncontextmenu="return false;"></table>
+
+                    <div id="allDeliveryAddress" style="display:none; overflow:hidden;">
+                        <div id="targetCount"></div>
+                        <div id="addresses"></div>
+                    </div>
+
+                    <table id="deliveryList" style="overflow:auto;"/>
+
+                    <div id="deliveryPager"/>
+                    <div id="mailContents" style="display:none">
+                        <p></p>
+                        <div style="text-align:center;margin-top:30px;">
+                            <input type="button" class="btn" onclick="$('#mailContents').dialog('close');" value="OK"/>
+                        </div>
+                    </div>
+<!--
+                    <div id="contextMenulist" style="display:none;">
+                        <div class = "contextMenuHeader" id="contextMenuHeader" ></div>
+                        <div id="oneclickMenuStopDelivery" onclick="stopDelivery();"><img src="{!URLFOR($Resource.cso, 'image/stop.png')}" class="contextMenuImg"/>{!$Label.label_10463}</div>
+                        <div id="oneclickMenuDelete" onclick="return deleteDelivery();" ><img src="{!URLFOR($Resource.cso, 'image/001_05.png')}"  class="contextMenuImg"/> {!$Label.label_00072}</div>
+                    </div>
+-->
+                </apex:pageBlock>
+            </td>
+        </tr>
+    </table>
+
+    <!-- 宛先情報モーダル -->
+    <div id="addresssDiv" style="display: none;" title="{!$Label.label_13277}">
+        <table id="searchTable" cellspacing="5">
+            <tr>
+                <th>{!$Label.label_13278}</th>
+                <td id="divAddress"></td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_13279}</th>
+                <td id="divTelNumber"></td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_13280}</th>
+                <td id="divCompName"></td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_13284}</th>
+                <td id="divSectionName"></td>
+            </tr>
+        </table>
+        <div style="text-align: right; margin-top: 5px;">
+            <a id="informationLink" href="#">{!$Label.label_13281}</a>
+        </div>
+    </div>
+
+    <div id="copyright" >{!$Label.label_00001}</div>
+    <div id="decodeWork" style="display:none;"></div>
+</div>
+<apex:form >
+<apex:actionFunction name="readyForSync" action="{!readyForSync}" rerender="dummy"/>
+</apex:form>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == false,true,false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

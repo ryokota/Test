@@ -1,0 +1,1137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Project Member</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Project Member</value>
+    </caseValues>
+    <fields>
+        <label><!-- Expected Roles --></label>
+        <name>RM_Expected_Roles__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function --></label>
+        <name>RM_Function__c</name>
+        <picklistValues>
+            <masterLabel>BI</masterLabel>
+            <translation><!-- BI --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Commercial</masterLabel>
+            <translation><!-- Commercial --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Finance</masterLabel>
+            <translation><!-- Finance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>HR</masterLabel>
+            <translation><!-- HR --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>IT</masterLabel>
+            <translation><!-- IT --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Legal</masterLabel>
+            <translation><!-- Legal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>PAC</masterLabel>
+            <translation><!-- PAC --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Procurement</masterLabel>
+            <translation><!-- Procurement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Supply Chain</masterLabel>
+            <translation><!-- Supply Chain --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Name --></label>
+        <name>RM_Name__c</name>
+        <relationshipLabel><!-- プロジェクトメンバー --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Access Level --></label>
+        <name>RM_Project_Role__c</name>
+        <picklistValues>
+            <masterLabel>Editable(Non-Members)</masterLabel>
+            <translation><!-- Editable(Non-Members) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Modify All</masterLabel>
+            <translation><!-- Modify All --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Read Only</masterLabel>
+            <translation><!-- Read Only --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- RFA Approved --></label>
+        <name>RM_RFA_Approved__c</name>
+        <relationshipLabel><!-- プロジェクトメンバー --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Sub Function --></label>
+        <name>RM_Sub_Function__c</name>
+        <picklistValues>
+            <masterLabel>Account Payable Management</masterLabel>
+            <translation><!-- Account Payable Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Accounting</masterLabel>
+            <translation><!-- Accounting --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Application Development / Management</masterLabel>
+            <translation><!-- Application Development / Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Application Development / Service Operations 1: CCCJ</masterLabel>
+            <translation><!-- Application Development / Service Operations 1: CCCJ --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Application Development / Service Operations 2: Tokyo</masterLabel>
+            <translation><!-- Application Development / Service Operations 2: Tokyo --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Application Development / Service Operations 3: Tone</masterLabel>
+            <translation><!-- Application Development / Service Operations 3: Tone --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Application Development / Service Operations 4: Mikuni</masterLabel>
+            <translation><!-- Application Development / Service Operations 4: Mikuni --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Application Development / Service Operations 5: CCEJP</masterLabel>
+            <translation><!-- Application Development / Service Operations 5: CCEJP --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Architecture &amp; Engineering</masterLabel>
+            <translation><!-- Architecture &amp; Engineering --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Area Field Sales Chiba Region</masterLabel>
+            <translation><!-- Area Field Sales Chiba Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Area Field Sales Gunma Region</masterLabel>
+            <translation><!-- Area Field Sales Gunma Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Area Field Sales Ibaraki Region</masterLabel>
+            <translation><!-- Area Field Sales Ibaraki Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Area Field Sales Niigata Region</masterLabel>
+            <translation><!-- Area Field Sales Niigata Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Area Field Sales Saitama Region</masterLabel>
+            <translation><!-- Area Field Sales Saitama Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Area Field Sales Tochigi Region</masterLabel>
+            <translation><!-- Area Field Sales Tochigi Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>BI</masterLabel>
+            <translation><!-- BI --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Business Analysis and Reporting</masterLabel>
+            <translation><!-- Business Analysis and Reporting --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Business Planning</masterLabel>
+            <translation><!-- Business Planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Business Planning and Analysis</masterLabel>
+            <translation><!-- Business Planning and Analysis --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Business Process / Relationship Management</masterLabel>
+            <translation><!-- Business Process / Relationship Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Business Process Management / Deployment</masterLabel>
+            <translation><!-- Business Process Management / Deployment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCCJ Audit Office</masterLabel>
+            <translation><!-- CCCJ Audit Office --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCCMC Alignment</masterLabel>
+            <translation><!-- CCCMC Alignment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>COGS &amp; Production Controllership</masterLabel>
+            <translation><!-- COGS &amp; Production Controllership --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CS Sales</masterLabel>
+            <translation><!-- CS Sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CS Sales Metropolitan Dept</masterLabel>
+            <translation><!-- CS Sales Metropolitan Dept --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CS Sales Wide Area 1 Dept</masterLabel>
+            <translation><!-- CS Sales Wide Area 1 Dept --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CS Sales Wide Area 2 Dept</masterLabel>
+            <translation><!-- CS Sales Wide Area 2 Dept --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CS Sales Wide Area 3 Dept</masterLabel>
+            <translation><!-- CS Sales Wide Area 3 Dept --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CS Sales Wide Area 4 Dept</masterLabel>
+            <translation><!-- CS Sales Wide Area 4 Dept --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CS Sales Wide Area Dept</masterLabel>
+            <translation><!-- CS Sales Wide Area Dept --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Capital Management</masterLabel>
+            <translation><!-- Capital Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Category Management &amp; Customer Marketing</masterLabel>
+            <translation><!-- Category Management &amp; Customer Marketing --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Center of Operational Excellence</masterLabel>
+            <translation><!-- Center of Operational Excellence --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Change Management</masterLabel>
+            <translation><!-- Change Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Cold Drink Equipment</masterLabel>
+            <translation><!-- Cold Drink Equipment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Commercial</masterLabel>
+            <translation><!-- Commercial --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Commercial Contract Support</masterLabel>
+            <translation><!-- Commercial Contract Support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Commercial Coordination</masterLabel>
+            <translation><!-- Commercial Coordination --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Commercial Finance</masterLabel>
+            <translation><!-- Commercial Finance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Commercial Integration</masterLabel>
+            <translation><!-- Commercial Integration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Compensation &amp; Benefits</masterLabel>
+            <translation><!-- Compensation &amp; Benefits --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Contract Packer QA</masterLabel>
+            <translation><!-- Contract Packer QA --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Controller&apos;s Group</masterLabel>
+            <translation><!-- Controller&apos;s Group --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate Administration</masterLabel>
+            <translation><!-- Corporate Administration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate Finance</masterLabel>
+            <translation><!-- Corporate Finance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate Governance</masterLabel>
+            <translation><!-- Corporate Governance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate Key Account</masterLabel>
+            <translation><!-- Corporate Key Account --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate Key Accounts Support</masterLabel>
+            <translation><!-- Corporate Key Accounts Support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate Management</masterLabel>
+            <translation><!-- Corporate Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate QM / Risk Management</masterLabel>
+            <translation><!-- Corporate QM / Risk Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate Sales</masterLabel>
+            <translation><!-- Corporate Sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate Sales Dept 1</masterLabel>
+            <translation><!-- Corporate Sales Dept 1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate Sales Dept 2</masterLabel>
+            <translation><!-- Corporate Sales Dept 2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Corporate Social Responsibility</masterLabel>
+            <translation><!-- Corporate Social Responsibility --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Credit Management</masterLabel>
+            <translation><!-- Credit Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>DME Controllership</masterLabel>
+            <translation><!-- DME Controllership --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Demand planning</masterLabel>
+            <translation><!-- Demand planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Distribution</masterLabel>
+            <translation><!-- Distribution --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Distribution Operation Management</masterLabel>
+            <translation><!-- Distribution Operation Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Distribution（CCCJ）</masterLabel>
+            <translation><!-- Distribution（CCCJ） --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Distribution（Mikuni）</masterLabel>
+            <translation><!-- Distribution（Mikuni） --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Distribution（Tokyo）</masterLabel>
+            <translation><!-- Distribution（Tokyo） --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Distribution（Tone）</masterLabel>
+            <translation><!-- Distribution（Tone） --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Ebina Plant</masterLabel>
+            <translation><!-- Ebina Plant --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Employee Relations – Union Relationship</masterLabel>
+            <translation><!-- Employee Relations – Union Relationship --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Engineering</masterLabel>
+            <translation><!-- Engineering --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Environment Performance Control</masterLabel>
+            <translation><!-- Environment Performance Control --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Environment Strategy</masterLabel>
+            <translation><!-- Environment Strategy --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Environment and Occupational Safety and Health</masterLabel>
+            <translation><!-- Environment and Occupational Safety and Health --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Equip &amp; Production Line Design</masterLabel>
+            <translation><!-- Equip &amp; Production Line Design --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Equipment Demand Flow</masterLabel>
+            <translation><!-- Equipment Demand Flow --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Equipment Integration</masterLabel>
+            <translation><!-- Equipment Integration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Equipment Management</masterLabel>
+            <translation><!-- Equipment Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Equipment Management Support</masterLabel>
+            <translation><!-- Equipment Management Support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Event Support / New Equipment Development</masterLabel>
+            <translation><!-- Event Support / New Equipment Development --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Execution &amp; Business Process COE</masterLabel>
+            <translation><!-- Execution &amp; Business Process COE --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>FV Division</masterLabel>
+            <translation><!-- FV Division --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field RED Execution</masterLabel>
+            <translation><!-- Field RED Execution --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Aichi Region</masterLabel>
+            <translation><!-- Field Sales Aichi Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Aichi/Gifu/Mie Food Region</masterLabel>
+            <translation><!-- Field Sales Aichi/Gifu/Mie Food Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Chainstore Metropolitan 2 Channel</masterLabel>
+            <translation><!-- Field Sales Chainstore Metropolitan 2 Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Chainstore Tokyo Channel</masterLabel>
+            <translation><!-- Field Sales Chainstore Tokyo Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Chainstore Tokyo1 Region</masterLabel>
+            <translation><!-- Field Sales Chainstore Tokyo1 Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Chainstore Tokyo2 Region</masterLabel>
+            <translation><!-- Field Sales Chainstore Tokyo2 Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Food Kanagawa Region</masterLabel>
+            <translation><!-- Field Sales Food Kanagawa Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Gifu/Mie Region</masterLabel>
+            <translation><!-- Field Sales Gifu/Mie Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Kanagawa Channel</masterLabel>
+            <translation><!-- Field Sales Kanagawa Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Kanagawa Region</masterLabel>
+            <translation><!-- Field Sales Kanagawa Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Metropolitan 2 Channel</masterLabel>
+            <translation><!-- Field Sales Metropolitan 2 Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Metropolitan1</masterLabel>
+            <translation><!-- Field Sales Metropolitan1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Metropolitan2</masterLabel>
+            <translation><!-- Field Sales Metropolitan2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales North Kanto</masterLabel>
+            <translation><!-- Field Sales North Kanto --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales North Kanto Channel</masterLabel>
+            <translation><!-- Field Sales North Kanto Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Operation</masterLabel>
+            <translation><!-- Field Sales Operation --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Operation Integration (CSS+RTM)</masterLabel>
+            <translation><!-- Field Sales Operation Integration (CSS+RTM) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Operations Support</masterLabel>
+            <translation><!-- Field Sales Operations Support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Shizu/Yama Food Region</masterLabel>
+            <translation><!-- Field Sales Shizu/Yama Food Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Shizu/Yama Region</masterLabel>
+            <translation><!-- Field Sales Shizu/Yama Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Tokai</masterLabel>
+            <translation><!-- Field Sales Tokai --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Tokai Channel</masterLabel>
+            <translation><!-- Field Sales Tokai Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Tokyo Channel</masterLabel>
+            <translation><!-- Field Sales Tokyo Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Tokyo1 Region</masterLabel>
+            <translation><!-- Field Sales Tokyo1 Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales Tokyo2 Region</masterLabel>
+            <translation><!-- Field Sales Tokyo2 Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales VM Aichi Region</masterLabel>
+            <translation><!-- Field Sales VM Aichi Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales VM Gifu/Mie Region</masterLabel>
+            <translation><!-- Field Sales VM Gifu/Mie Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales VM Shizu/Yama Region</masterLabel>
+            <translation><!-- Field Sales VM Shizu/Yama Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Sales VM Tokai Channel</masterLabel>
+            <translation><!-- Field Sales VM Tokai Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Field Service</masterLabel>
+            <translation><!-- Field Service --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Finance</masterLabel>
+            <translation><!-- Finance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Finance Integration</masterLabel>
+            <translation><!-- Finance Integration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Finance Shared Service</masterLabel>
+            <translation><!-- Finance Shared Service --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Financial Communication &amp; Marketing</masterLabel>
+            <translation><!-- Financial Communication &amp; Marketing --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Financial Impact Management</masterLabel>
+            <translation><!-- Financial Impact Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Fixed Assets Management</masterLabel>
+            <translation><!-- Fixed Assets Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Fleet Management</masterLabel>
+            <translation><!-- Fleet Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Food Sales</masterLabel>
+            <translation><!-- Food Sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Government Relations</masterLabel>
+            <translation><!-- Government Relations --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>GtM Quality / Consumer Complain</masterLabel>
+            <translation><!-- GtM Quality / Consumer Complain --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>HR</masterLabel>
+            <translation><!-- HR --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>HR Administration</masterLabel>
+            <translation><!-- HR Administration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>HR Business Partner Commercial</masterLabel>
+            <translation><!-- HR Business Partner Commercial --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>HR Business Partner Corporate</masterLabel>
+            <translation><!-- HR Business Partner Corporate --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>HR Business Partner Supply Chain</masterLabel>
+            <translation><!-- HR Business Partner Supply Chain --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>HR Integration</masterLabel>
+            <translation><!-- HR Integration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>HR Shared Services</masterLabel>
+            <translation><!-- HR Shared Services --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Hakushu Plant</masterLabel>
+            <translation><!-- Hakushu Plant --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>IT</masterLabel>
+            <translation><!-- IT --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Ibaraki Plant</masterLabel>
+            <translation><!-- Ibaraki Plant --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Information Security / Regulatory Compliance</masterLabel>
+            <translation><!-- Information Security / Regulatory Compliance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Internal Audit</masterLabel>
+            <translation><!-- Internal Audit --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Internal Communication</masterLabel>
+            <translation><!-- Internal Communication --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Internal Control Compliance/J-SOX</masterLabel>
+            <translation><!-- Internal Control Compliance/J-SOX --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Internal Control/ J-SOX Enhancement</masterLabel>
+            <translation><!-- Internal Control/ J-SOX Enhancement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Internal Rules &amp; COA Control</masterLabel>
+            <translation><!-- Internal Rules &amp; COA Control --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Inventory planning</masterLabel>
+            <translation><!-- Inventory planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Investor Relations</masterLabel>
+            <translation><!-- Investor Relations --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Iwatsuki Plant</masterLabel>
+            <translation><!-- Iwatsuki Plant --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>KAM</masterLabel>
+            <translation><!-- KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>KAM Integration</masterLabel>
+            <translation><!-- KAM Integration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>KBI &amp; Market Analysis Lead</masterLabel>
+            <translation><!-- KBI &amp; Market Analysis Lead --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Key Account Support</masterLabel>
+            <translation><!-- Key Account Support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Labor and Employment Legal</masterLabel>
+            <translation><!-- Labor and Employment Legal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Legal</masterLabel>
+            <translation><!-- Legal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Legal Administration</masterLabel>
+            <translation><!-- Legal Administration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Logistics</masterLabel>
+            <translation><!-- Logistics --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Logistics &amp; Distribution Controllership</masterLabel>
+            <translation><!-- Logistics &amp; Distribution Controllership --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Logistics / Distribution Safety &amp; Health</masterLabel>
+            <translation><!-- Logistics / Distribution Safety &amp; Health --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Logistics Controllership</masterLabel>
+            <translation><!-- Logistics Controllership --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Logistics Improvement</masterLabel>
+            <translation><!-- Logistics Improvement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Logistics Operation Management</masterLabel>
+            <translation><!-- Logistics Operation Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Logistics（CCCJ）</masterLabel>
+            <translation><!-- Logistics（CCCJ） --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Logistics（Mikuni）</masterLabel>
+            <translation><!-- Logistics（Mikuni） --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Logistics（Tokyo）</masterLabel>
+            <translation><!-- Logistics（Tokyo） --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Logistics（Tone）</masterLabel>
+            <translation><!-- Logistics（Tone） --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>M&amp;A</masterLabel>
+            <translation><!-- M&amp;A --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>MRO &amp; DME</masterLabel>
+            <translation><!-- MRO &amp; DME --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Maintenance</masterLabel>
+            <translation><!-- Maintenance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manufacturing</masterLabel>
+            <translation><!-- Manufacturing --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manufacturing &amp; Logistics QA</masterLabel>
+            <translation><!-- Manufacturing &amp; Logistics QA --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manufacturing Control</masterLabel>
+            <translation><!-- Manufacturing Control --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manufacturing Safety &amp; Health</masterLabel>
+            <translation><!-- Manufacturing Safety &amp; Health --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Marketing &amp; Commercial Leadership</masterLabel>
+            <translation><!-- Marketing &amp; Commercial Leadership --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Marketing &amp; Commercial Leadership Support</masterLabel>
+            <translation><!-- Marketing &amp; Commercial Leadership Support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Master Data Management</masterLabel>
+            <translation><!-- Master Data Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Media Relations</masterLabel>
+            <translation><!-- Media Relations --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Mikuni Aseptic</masterLabel>
+            <translation><!-- Mikuni Aseptic --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Mikuni Audit Office</masterLabel>
+            <translation><!-- Mikuni Audit Office --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Mikuni Service</masterLabel>
+            <translation><!-- Mikuni Service --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Mikuni Wine</masterLabel>
+            <translation><!-- Mikuni Wine --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Nagoya Plant</masterLabel>
+            <translation><!-- Nagoya Plant --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Non KO Subsidiaries and M&amp;A</masterLabel>
+            <translation><!-- Non KO Subsidiaries and M&amp;A --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Non-KO Business</masterLabel>
+            <translation><!-- Non-KO Business --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Operational Excellence</masterLabel>
+            <translation><!-- Operational Excellence --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Operational Excellence &amp; Package Strategy</masterLabel>
+            <translation><!-- Operational Excellence &amp; Package Strategy --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Organizational Development</masterLabel>
+            <translation><!-- Organizational Development --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>PAC</masterLabel>
+            <translation><!-- PAC --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Package Strategy</masterLabel>
+            <translation><!-- Package Strategy --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Payroll Management</masterLabel>
+            <translation><!-- Payroll Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Placement / Removal</masterLabel>
+            <translation><!-- Placement / Removal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Planning</masterLabel>
+            <translation><!-- Planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Planning &amp; SC Integration</masterLabel>
+            <translation><!-- Planning &amp; SC Integration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Process Management</masterLabel>
+            <translation><!-- Process Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Procurement</masterLabel>
+            <translation><!-- Procurement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Procurement Control</masterLabel>
+            <translation><!-- Procurement Control --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Procurement Integration</masterLabel>
+            <translation><!-- Procurement Integration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Project Management</masterLabel>
+            <translation><!-- Project Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Projects Management</masterLabel>
+            <translation><!-- Projects Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Property &amp; Stock Management</masterLabel>
+            <translation><!-- Property &amp; Stock Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>QC</masterLabel>
+            <translation><!-- QC --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Quality Assurance</masterLabel>
+            <translation><!-- Quality Assurance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>RGM &amp; Pricing Lead</masterLabel>
+            <translation><!-- RGM &amp; Pricing Lead --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>RGM &amp; Pricing Lead　VM RGM Lead</masterLabel>
+            <translation><!-- RGM &amp; Pricing Lead　VM RGM Lead --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Refurbishment</masterLabel>
+            <translation><!-- Refurbishment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Regional Plant Management East</masterLabel>
+            <translation><!-- Regional Plant Management East --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Regional Plant Management West</masterLabel>
+            <translation><!-- Regional Plant Management West --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Risk Management</masterLabel>
+            <translation><!-- Risk Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Rolling Forecasting</masterLabel>
+            <translation><!-- Rolling Forecasting --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>SAKAYA KAM Development</masterLabel>
+            <translation><!-- SAKAYA KAM Development --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>SAKAYA KAM Metropolitan1</masterLabel>
+            <translation><!-- SAKAYA KAM Metropolitan1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>SC Capability Development</masterLabel>
+            <translation><!-- SC Capability Development --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>SC Integration</masterLabel>
+            <translation><!-- SC Integration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>SC Strategy</masterLabel>
+            <translation><!-- SC Strategy --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>SC Strategy / Shared Service</masterLabel>
+            <translation><!-- SC Strategy / Shared Service --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Saitama Plant</masterLabel>
+            <translation><!-- Saitama Plant --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Sales Capability</masterLabel>
+            <translation><!-- Sales Capability --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Sales Planning &amp; Promotion Lead</masterLabel>
+            <translation><!-- Sales Planning &amp; Promotion Lead --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Sales Planning &amp; Promotion Lead　CS Sales Planning</masterLabel>
+            <translation><!-- Sales Planning &amp; Promotion Lead　CS Sales Planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Sales Planning &amp; Promotion Lead　Food Planning &amp; Support</masterLabel>
+            <translation><!-- Sales Planning &amp; Promotion Lead　Food Planning &amp; Support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Sales Planning &amp; Promotion Lead　RS/HORECA Sales Planning</masterLabel>
+            <translation><!-- Sales Planning &amp; Promotion Lead　RS/HORECA Sales Planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Sales Planning &amp; Promotion Lead　VM Sales Planning</masterLabel>
+            <translation><!-- Sales Planning &amp; Promotion Lead　VM Sales Planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Shared Service (CCCJ Products)</masterLabel>
+            <translation><!-- Shared Service (CCCJ Products) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Shared Service (CJ Logistics)</masterLabel>
+            <translation><!-- Shared Service (CJ Logistics) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Shared Service (Hakushu Plant)</masterLabel>
+            <translation><!-- Shared Service (Hakushu Plant) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Shared Service (Mikuni Aseptic)</masterLabel>
+            <translation><!-- Shared Service (Mikuni Aseptic) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Shared Service (Mikuni Logistics Operation)</masterLabel>
+            <translation><!-- Shared Service (Mikuni Logistics Operation) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Shared Service (Tone Logistics Service)</masterLabel>
+            <translation><!-- Shared Service (Tone Logistics Service) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Shareowner Service</masterLabel>
+            <translation><!-- Shareowner Service --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Shizuoka Plant</masterLabel>
+            <translation><!-- Shizuoka Plant --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Strategic Infrastructure Planning</masterLabel>
+            <translation><!-- Strategic Infrastructure Planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Strategic Planning &amp; Trade Marketing　Strategic Planning</masterLabel>
+            <translation><!-- Strategic Planning &amp; Trade Marketing　Strategic Planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Strategic Planning &amp; Trade Marketing　Trade Marketing</masterLabel>
+            <translation><!-- Strategic Planning &amp; Trade Marketing　Trade Marketing --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Strategic Planning &amp; Trade Marketing　Trade Marketing 1</masterLabel>
+            <translation><!-- Strategic Planning &amp; Trade Marketing　Trade Marketing 1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Strategic Planning &amp; Trade Marketing　Trade Marketing 2</masterLabel>
+            <translation><!-- Strategic Planning &amp; Trade Marketing　Trade Marketing 2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Supply Chain</masterLabel>
+            <translation><!-- Supply Chain --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Supply Chain Analysis and Reporting</masterLabel>
+            <translation><!-- Supply Chain Analysis and Reporting --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Supply Chain Finance</masterLabel>
+            <translation><!-- Supply Chain Finance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Supply Chain Project Controllership</masterLabel>
+            <translation><!-- Supply Chain Project Controllership --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Supply planning</masterLabel>
+            <translation><!-- Supply planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Systems Integration</masterLabel>
+            <translation><!-- Systems Integration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Tama Plant</masterLabel>
+            <translation><!-- Tama Plant --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Tax Management</masterLabel>
+            <translation><!-- Tax Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Technology Management / Service Operations</masterLabel>
+            <translation><!-- Technology Management / Service Operations --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Tokai North Plant</masterLabel>
+            <translation><!-- Tokai North Plant --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Tokai South Plant</masterLabel>
+            <translation><!-- Tokai South Plant --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Tokyo Audit Office</masterLabel>
+            <translation><!-- Tokyo Audit Office --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Tone Audit Office</masterLabel>
+            <translation><!-- Tone Audit Office --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Training</masterLabel>
+            <translation><!-- Training --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Transportation</masterLabel>
+            <translation><!-- Transportation --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Treasury</masterLabel>
+            <translation><!-- Treasury --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Area Sales</masterLabel>
+            <translation><!-- VM Area Sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Corporate Sales</masterLabel>
+            <translation><!-- VM Corporate Sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Corporate Sales Metropolitan2</masterLabel>
+            <translation><!-- VM Corporate Sales Metropolitan2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Corporate Sales North Kanto</masterLabel>
+            <translation><!-- VM Corporate Sales North Kanto --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Corporate Sales Tokai</masterLabel>
+            <translation><!-- VM Corporate Sales Tokai --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Corporate Sales＆Hunter</masterLabel>
+            <translation><!-- VM Corporate Sales＆Hunter --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Div Corporate Sales</masterLabel>
+            <translation><!-- VM Div Corporate Sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Hunter</masterLabel>
+            <translation><!-- VM Hunter --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Kanagawa Region</masterLabel>
+            <translation><!-- VM Kanagawa Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Metropolitan 1</masterLabel>
+            <translation><!-- VM Metropolitan 1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Metropolitan2 Div Channel</masterLabel>
+            <translation><!-- VM Metropolitan2 Div Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM North Kanto Div Channel</masterLabel>
+            <translation><!-- VM North Kanto Div Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Tokai Div Channel</masterLabel>
+            <translation><!-- VM Tokai Div Channel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM Tokyo Region</masterLabel>
+            <translation><!-- VM Tokyo Region --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VM VOT</masterLabel>
+            <translation><!-- VM VOT --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Vending</masterLabel>
+            <translation><!-- Vending --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Vending Integration</masterLabel>
+            <translation><!-- Vending Integration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Vending Support</masterLabel>
+            <translation><!-- Vending Support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Warehouse</masterLabel>
+            <translation><!-- Warehouse --></translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Project Member Layout</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>RFA_Project_Memberレイアウト</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>RFA_Project_Member No</nameFieldLabel>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

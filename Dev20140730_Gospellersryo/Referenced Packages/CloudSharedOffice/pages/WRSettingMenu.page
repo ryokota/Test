@@ -1,0 +1,426 @@
+<apex:page cache="false" sidebar="false" showHeader="false">
+<style type="text/css">
+/*--------------*/
+/*  全体の定義  */
+/*--------------*/
+.setting_menu{
+    font-size: 8pt;
+}
+/*------------*/
+/*  DTの定義  */
+/*------------*/
+.setting_menu_dt{
+    margin-top: 8px;
+}
+/*------------*/
+/*  DDの定義  */
+/*------------*/
+.setting_menu_dd{
+    margin-top: 8px;
+}
+/*---------------*/
+/*  imageの定義  */
+/*---------------*/
+.setting_menu_image{
+    cursor:pointer;
+    cursor:hand;
+}
+/*------------------*/
+/*  アンカーの定義  */
+/*------------------*/
+.setting_menu_anchor{
+    text-decoration: none;
+}
+.setting_menu_anchor:hover {
+    text-decoration:underline;
+    padding-bottom:1px;
+}
+</style>
+<script type="text/javascript">
+    //========//
+    //  定数  //
+    //========//
+    //  機能数
+    var SettingMenu_menuTotal = 6;
+
+    //  機能種類
+    var SettingMenu_WR_UserManager = 0;  //  ユーザ管理
+    var SettingMenu_WR_ReportSetting = 1;  //  帳票設定
+    var SettingMenu_WR_Service = 2;  //  サービス
+    var SettingMenu_WR_Support = 3;  //  サポート
+    var SettingMenu_SoshikiSpace = 4;  //組織設定
+    var SettingMenu_Application = 5;  //アプリ設定
+
+    //  項目種類
+    var SettingMenu_Item_WR_AddUser = 1;
+    var SettingMenu_Item_WR_Sync = 2;
+
+    var SettingMenu_Item_WR_OutputObject = 11;
+    var SettingMenu_Item_WR_Number = 12;
+
+    var SettingMenu_Item_WR_Riyou = 21;
+
+    var SettingMenu_Item_WR_SupportRireki = 31;
+    var SettingMenu_Item_WR_SupportSettei = 32;
+
+    var SettingMenu_Item_Alert = 41;
+
+    var SettingMenu_Item_CSOUpgrade    = 51;
+
+
+    //  Cookie
+    var SettingMenu_WR_OpenMenuList = "SettingMenu_WR_OpenMenuList"   //  メニューの開閉
+    var SettingMenu_WR_SelectedItem = "SettingMenu_WR_SelectedItem"   //  選択項目
+
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+
+        //   初期化処理
+        menuSetting_initialize();
+
+        $("#setting_menu_div * .setting_menu_anchor").each(function(){
+            var before = $(this).attr("href");
+            if(before == "#"){
+                return;
+            }
+            var search = window.location.search;
+            var hash   = window.location.hash;
+            var after = before + search + hash;
+            $(this).attr("href", after);
+        });
+    });
+
+    //==============//
+    //  初期化処理  //
+    //==============//
+    function menuSetting_initialize(){
+        //--------//
+        //  権限  //
+        //--------//
+        var menuAuthArray = new Array(SettingMenu_menuTotal);
+        // ユーザ管理
+        var user = {};
+        user.menu = true;
+        user.user_manage = true;
+        menuAuthArray[SettingMenu_WR_UserManager] = user;
+        // 帳票管理
+        var reportSetting = {};
+        reportSetting.menu = true;
+        reportSetting.output_object = true;
+        reportSetting.report_number = true;
+        menuAuthArray[SettingMenu_WR_ReportSetting] = reportSetting;
+        // サービス
+        var serviceSetting = {};
+        serviceSetting.menu = true;
+        serviceSetting.service_situation = true;
+        menuAuthArray[SettingMenu_WR_Service] = serviceSetting;
+        // サポート
+        var supportSetting = {};
+        supportSetting.menu = true;
+        supportSetting.output_object = true;
+        supportSetting.report_number = true;
+        menuAuthArray[SettingMenu_WR_Support] = supportSetting;
+        //  組織管理
+        var corp = {};
+        corp.menu = true;
+        corp.corp_alert = true;
+        menuAuthArray[SettingMenu_SoshikiSpace] = corp;
+        //  アプリ
+        var app = {};
+        app.menu = true;
+        app.app_CSOUpgrade = true;
+        menuAuthArray[SettingMenu_Application] = app;
+
+        //------------//
+        //  初期表示  //
+        //------------//
+        menuSetting_initDisplay(menuAuthArray);
+    }
+
+
+    //============//
+    //  初期表示  //
+    //============//
+    function menuSetting_initDisplay(menuAuthArray){
+        //------------------------------------
+        //  cookieを取得
+        //------------------------------------
+        //  cookieの名前
+        var name = SettingMenu_WR_OpenMenuList;
+        //  cookieの値を変数に代入
+        var cookVal = $.cookie(name);
+        if(cookVal == null){
+            cookVal = "";
+        }
+
+        var list = cookVal.split(":");
+        //------------------------------------
+        //  開閉処理
+        //------------------------------------
+        for(var idx=0; idx<SettingMenu_menuTotal; idx++){
+            // 小項目の表示制御
+            for (var o in menuAuthArray[idx]) {
+                if(!eval('menuAuthArray[idx].' + o)){
+                    $('#' + o).remove();
+
+                    if(o=='user_manage'){
+                        $('#' + 'user_sync').remove();
+                    }
+                }
+            }
+
+            // 中区分非表示または、表示すべき子要素が存在しない場合は中区分を表示しない
+            if(menuAuthArray[idx].menu != true || $("#menuId-open-" + idx + ' dd').size() == 0){
+                continue;
+            }
+
+            //  閉じていた場合
+            if ($.inArray(String(idx), list) < 0) {
+                $("#menuId-close-" + idx).show();
+            }
+            //  開いていた場合
+            else{
+                $("#menuId-open-" + idx).show();
+            }
+        }
+    }
+
+
+    //=========================//
+    //  メニュー項目のOnClick  //
+    //=========================//
+    function mainMenuOnClick(menuIndex){
+        //  何番目の機能なのかを変数に代入
+        var index = menuIndex / 2;
+        index = parseInt(index);
+        //  開いていた(1) or 閉じていた(0)
+        var openclose = menuIndex % 2;
+
+        //------------//
+        //  開閉処理  //
+        //------------//
+        //  閉じていた場合
+        if(openclose == 0){
+            $("#menuId-close-" + index).hide();
+            $("#menuId-open-" + index).show();
+        }
+        //  開いていた場合
+        else{
+            $("#menuId-open-" + index).hide();
+            $("#menuId-close-" + index).show();
+        }
+
+        //--------------------------//
+        //  開閉状態をcookieに保存  //
+        //--------------------------//
+        //  cookieの名前
+        var name = SettingMenu_WR_OpenMenuList;
+        //  cookieの値を変数に代入
+        var cookVal = $.cookie(name);
+        if(cookVal == null){
+            cookVal = "";
+        }
+        //  cookieがない場合
+        if (cookVal == "") {
+            //  cookieを新たにセットする
+            $.cookie(name, index);
+            return;
+        }
+
+        var list = cookVal.split(":");
+
+        //  開いていた場合
+        var pos = $.inArray(String(index), list);
+        if (pos != -1) {
+            //  １つしかなかった場合はcookie自体を削除
+            if ((list.length) == 1) {
+                $.cookie(name, null);
+                return;
+            }
+
+            //  pos番目をリストから削除
+            list.splice(pos, 1);
+        }
+        // 閉じていた場合
+        else{
+            //  リストに追加
+            list.push(index);
+        }
+        //  リストを連結
+        cookVal = list.join(":");
+        //  cookieに保存
+        $.cookie(name, cookVal);
+    }
+
+
+    //=============================//
+    //  サブメニュー項目のOnClick  //
+    //=============================//
+    function itemOnClick(itemIndex){
+        //  Cookieに項目番号を保存
+        $.cookie(SettingMenu_WR_SelectedItem, itemIndex);
+    }
+
+</script>
+
+
+<div class="setting_menu" id="setting_menu_div">
+<dl>
+    <!-- ---------------- -->
+    <!--  ユーザ管理（閉）  -->
+    <!-- ---------------- -->
+    <div style="display:none" id="menuId-close-0">
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_plus.gif')}" onclick="mainMenuOnClick(0);return false;" alt="{!$Label.solxyzcso001__label_wr_report_20008}" title="{!$Label.solxyzcso001__label_wr_report_20008}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(0);return false;">{!$Label.label_wr_report_20007}</a>
+        </dt>
+    </div>
+    <!-- ---------------- -->
+    <!--  ユーザ管理（開）  -->
+    <!-- ---------------- -->
+    <div style="display:none" id="menuId-open-0" >
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_minus.gif')}" onclick="mainMenuOnClick(1);return false;" alt="{!$Label.solxyzcso001__label_wr_report_20009}" title="{!$Label.solxyzcso001__label_wr_report_20009}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(1);return false;">{!$Label.label_wr_report_20007}</a>
+        </dt>
+        <dd class="setting_menu_dd" id="user_manage">
+            <a class="setting_menu_anchor" href="{!$Page.WRUserAdmin}" onclick="itemOnClick(SettingMenu_Item_WR_AddUser);">
+              {!$Label.label_wr_report_20013}
+            </a>
+        </dd>
+        <!--dd class="setting_menu_dd" id="user_sync">
+            <a class="setting_menu_anchor" href="SettingWRGrpRoleSync" onclick="itemOnClick(SettingMenu_Item_WR_Sync);">
+                {!$Label.label_wr_report_20016}
+            </a>
+        </dd -->
+    </div>
+    <!-- -------------------- -->
+    <!--  組織管理（閉）  -->
+    <!-- -------------------- -->
+    <div style="display:none" id="menuId-close-4">
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_plus.gif')}" onclick="mainMenuOnClick(8);return false;" alt="{!$Label.solxyzcso001__label_10346}" title="{!$Label.solxyzcso001__label_10346}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(8);return false;">{!$Label.label_10345}</a>
+        </dt>
+    </div>
+    <!-- -------------------- -->
+    <!--  組織管理（開）  -->
+    <!-- -------------------- -->
+    <div style="display:none" id="menuId-open-4" >
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_minus.gif')}" onclick="mainMenuOnClick(9);return false;" alt="{!$Label.solxyzcso001__label_10347}" title="{!$Label.solxyzcso001__label_10347}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(9);return false;">{!$Label.label_10345}</a>
+        </dt>
+        <dd class="setting_menu_dd" id="corp_alert">
+            <a class="setting_menu_anchor" href="{!$Page.WRAlert}" onclick="itemOnClick(SettingMenu_Item_Alert);">
+                {!$Label.label_13122}
+            </a>
+        </dd>
+    </div>
+    <!-- -------------------- -->
+    <!--  帳票設定（閉）  -->
+    <!-- -------------------- -->
+    <div style="display:none" id="menuId-close-1">
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_plus.gif')}" onclick="mainMenuOnClick(2);return false;" alt="{!$Label.solxyzcso001__label_wr_report_20011}" title="{!$Label.solxyzcso001__label_wr_report_20011}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(2);return false;">{!$Label.label_wr_report_20010}</a>
+        </dt>
+    </div>
+    <!-- -------------------- -->
+    <!--  帳票設定（開）  -->
+    <!-- -------------------- -->
+    <div style="display:none" id="menuId-open-1" >
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_minus.gif')}" onclick="mainMenuOnClick(3);return false;" alt="{!$Label.solxyzcso001__label_wr_report_20012}" title="{!$Label.solxyzcso001__label_wr_report_20012}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(3);return false;">{!$Label.label_wr_report_20010}</a>
+        </dt>
+        <dd class="setting_menu_dd" id="output_object">
+            <a class="setting_menu_anchor" href="{!$Page.WROutputObject}" onclick="itemOnClick(SettingMenu_Item_WR_OutputObject);">
+                {!$Label.label_wr_report_20014}
+            </a>
+        </dd>
+        <dd class="setting_menu_dd" id="report_number">
+            <a class="setting_menu_anchor" href="{!$Page.WRNumbering}" onclick="itemOnClick(SettingMenu_Item_WR_Number);">
+                {!$Label.label_wr_report_20015}
+            </a>
+        </dd>
+    </div>
+    <!-- ---------------- -->
+    <!--  サービス（閉）  -->
+    <!-- ---------------- -->
+    <div style="display:none" id="menuId-close-2">
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_plus.gif')}" onclick="mainMenuOnClick(4);return false;" alt="{!$Label.solxyzcso001__label_10269}" title="{!$Label.solxyzcso001__label_10269}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(4);return false;">{!$Label.label_10085}</a>
+        </dt>
+    </div>
+    <!-- ---------------- -->
+    <!--  サービス（開）  -->
+    <!-- ---------------- -->
+    <div style="display:none" id="menuId-open-2" >
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_minus.gif')}" onclick="mainMenuOnClick(5);return false;" alt="{!$Label.solxyzcso001__label_10270}" title="{!$Label.solxyzcso001__label_10270}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(5);return false;">{!$Label.label_10085}</a>
+        </dt>
+        <dd class="setting_menu_dd" id="service_situation">
+            <a class="setting_menu_anchor" href="{!$Page.WRServiceUsage}" onclick="itemOnClick(SettingMenu_Item_WR_Riyou);">
+                {!$Label.label_10100}
+            </a>
+        </dd>
+    </div>
+    <!-- ---------------- -->
+    <!--  サポート（閉）  -->
+    <!-- ---------------- -->
+    <div style="display:none" id="menuId-close-3">
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_plus.gif')}" onclick="mainMenuOnClick(6);return false;" alt="{!$Label.solxyzcso001__label_10271}" title="{!$Label.solxyzcso001__label_10271}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(6);return false;">{!$Label.label_10181}</a>
+        </dt>
+    </div>
+    <!-- ---------------- -->
+    <!--  サポート（開）  -->
+    <!-- ---------------- -->
+    <div style="display:none" id="menuId-open-3" >
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_minus.gif')}" onclick="mainMenuOnClick(7);return false;" alt="{!$Label.solxyzcso001__label_10272}" title="{!$Label.solxyzcso001__label_10272}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(7);return false;">{!$Label.label_10181}</a>
+        </dt>
+        <dd class="setting_menu_dd" id="support_history">
+            <a class="setting_menu_anchor" href="{!$Page.WRInquiryHistory}" onclick="itemOnClick(SettingMenu_Item_WR_SupportRireki);">
+                {!$Label.label_10129}
+            </a>
+        </dd>
+        <dd class="setting_menu_dd" id="support_setting">
+            <a class="setting_menu_anchor" href="{!$Page.WRSupportSetting}" onclick="itemOnClick(SettingMenu_Item_WR_SupportSettei);">
+                {!$Label.label_10103}
+            </a>
+        </dd>
+    </div>
+    <!-- ------------------------------ -->
+    <!--  アプリアプリケーション（閉）  -->
+    <!-- ------------------------------ -->
+    <div style="display:none" id="menuId-close-5">
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_plus.gif')}" onclick="mainMenuOnClick(10);return false;" alt="{!$Label.solxyzcso001__label_13158}" title="{!$Label.solxyzcso001__label_13158}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(10);return false;">{!$Label.solxyzcso001__label_13158}</a>
+        </dt>
+    </div>
+    <!-- ------------------------------ -->
+    <!--  アプリアプリケーション（開）  -->
+    <!-- ------------------------------ -->
+    <div style="display:none" id="menuId-open-5" >
+        <dt class="setting_menu_dt">
+            <span  class="setting_menu_image"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting_menu_minus.gif')}" onclick="mainMenuOnClick(11);return false;" alt="{!$Label.solxyzcso001__label_13158}" title="{!$Label.solxyzcso001__label_13158}"/></span>
+            <a class="setting_menu_anchor" href="#" onclick="mainMenuOnClick(11);return false;">{!$Label.solxyzcso001__label_13158}</a>
+        </dt>
+        <dd class="setting_menu_dd" id="app_CSOUpgrade">
+            <a class="setting_menu_anchor" href="{!$Page.SOLXYZCSO001__CSOUpgrade}" onclick="itemOnClick(SettingMenu_Item_CSOUpgrade);">
+               {!$Label.solxyzcso001__label_13255}
+            </a>
+        </dd>
+    </div>
+</dl>
+</div>
+</apex:page>

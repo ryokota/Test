@@ -1,0 +1,672 @@
+<apex:page id="CSOUserGroupDisplay" standardController="User" showHeader="false"  extensions="SOLXYZCSO001.CSOUserGroupDisplayController" sidebar="false" action="{!init}">
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.undertab.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.undertab.js')}" />
+<!-- CSO共通スクリプト -->
+<c:CsoScriptComp id="csoScript"/>
+
+
+<style type="text/css">
+.subLabelHeight{
+    height: 21px;
+}
+.list-name-top a {
+    font-size: 16px;
+}
+.list-name-bottom {
+    color: #666;
+}
+.modal {
+    display: none;
+}
+.input-area {
+    padding: 20px 0 0 20px;
+}
+.search-txt {
+    width: 230px;
+}
+#searchTable {
+    padding : 5px;
+}
+#searchTable th {
+    padding-right : 5px;
+    text-align: right;
+}
+.selected {
+    color: #F00 !important;
+}
+.treeview a {
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.under-area {
+    display: none;
+}
+.ui-tabs {
+    background : none;
+    border:none;
+    padding: 0;
+}
+.ui-tabs .ui-tabs-nav {
+    background: none;
+    border: none;
+}
+.ui-tabs .ui-tabs-panel {
+    background : none;
+    border:none;
+    padding: 0;
+}
+.ui-widget-header .ui-state-default {
+    background : none;
+    border: 2px solid #DFEFFC;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+    background: #11579c;
+}
+.ui-tabs .ui-tabs-nav a {
+    font-weight: bold;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a{
+    color: #FFFFFF;
+}
+
+.tab-inner {
+    overflow: auto;
+}
+#tabManager, #tabUsers {
+    padding: 10px 0 10px 10px;
+}
+#groupTreeView{
+    height: 418px;
+    overflow: auto;
+}
+.target {
+    color: red;
+}
+.nontarget {
+    color: black;
+}
+#gbox_usersTable {
+    width: 510px;
+    height: 396px
+}
+</style>
+
+<apex:outputPanel layout="none" rendered="{!IF(authority == true && cso_userInfo.showErrPage == false && targetCSOUserId != null, true, false)}">
+
+<script type="text/javascript">
+
+var _b_managerGridLoaded = false;
+var _b_usersGridLoaded = false;
+
+var displayJSONData;
+var loadGidList = new Array();
+var gidMap = new Object();
+var orgGidMap;
+var firstList = [];    // 初期状態
+var maxGroupCount = 100000000;    // タイムアウト用制限
+
+// 初期読み込み
+jQuery.event.add(window, "load", function(){
+    clearVal();
+    loadGroupTree();
+
+    loadUsers();
+
+    setResize();
+//    initModal();
+
+    $(".under-area").css("display", "block");
+});
+
+function setResize(){
+    $("#gbox_usersTable").css("height", "396px");
+    $("#gview_usersTable").css("height", "374px");
+    $("#c_container").css("width", "auto");
+    $("#c_wrapper").css("width", "555px");
+    $("#body").css("min-width", "auto");
+
+
+    $("#usersTable").resizeJqGrid_SF({
+        "margin-bottom" : 50,
+        "margin-right"  : 10,
+    });
+
+    $("#tabUnderDiv").undertab({
+        resizeFunc  : resizeJqGrid_SF,
+    });
+
+    $(window).resize(function(){
+        resizeJqGrid_SF();
+    });
+    resizeJqGrid_SF();
+
+    setTimeout(function(){
+        resizeJqGrid_SF();
+    }, 50);
+}
+
+// ツリー表示変換用
+function buildNestedList(treeNodes, rootId) {
+  var nodesBypid = {};
+
+  $.each(treeNodes, function(i, node) {
+    if (!(node.pid in nodesBypid)) nodesBypid[node.pid] = [];
+    nodesBypid[node.pid].push(node);
+  });
+
+  function buildTree(children) {
+    var $container = $("<ul>");
+
+    if (!children) return;
+    $.each(children, function(i, child) {
+        var targetstr;
+        if(child.deco == "target"){
+            targetstr = $("<li>", {text: child.name}).addClass("target");
+        }else{
+            targetstr = $("<li>", {text: child.name}).addClass("nontarget");
+        }
+        targetstr.appendTo($container)
+      .append( buildTree(nodesBypid[child.cid]) );
+    });
+    return $container;
+  }
+  return buildTree(nodesBypid[rootId]);
+}
+
+// 所属グループツリー表示
+function loadGroupTree(){
+    var param = {
+        id         : '{!targetCSOUserId}'
+    }
+    var callback =  function(data){
+        if(data.result){
+            $("#groupTreeView").append(buildNestedList(data.data, 0));
+
+            $("#groupTreeView").treeview({});
+        } else {
+        }
+    }
+    secureGetAsync('/setup/groupTree.json', param, callback);
+}
+
+// TODO 使用調査
+function reloadTree(tree){
+    var branches = $("#groupTreeView").html(tree);
+    $("#groupTreeView").treeview({
+        animated    : "fast",
+        unique      : false,
+        persist     : "cookie",
+        cookieId    : "wfcategory",
+        add         : branches,
+        toggle      : function() {
+        }
+    });
+}
+
+// 初期表示データ取得用 表示はしない
+function loadUsers(){
+    var param = {
+        id          : '{!targetCSOUserId}',
+        sord        : 'asc',
+        rows        : 100000,
+        sidx        : 'name',
+        page        : 1,
+        nd          : 0,
+        _search     : 0
+    }
+    var callback =  function (data) {
+        var groups = data.rows;
+        displayJSONData = data.rows;
+
+        for (var i = 0; i < groups.length; i++){
+            gidMap[groups[i].id] = true;
+            firstList.push(groups[i].id);       // 初期状態値を保存
+        }
+
+        var gl = new Array();
+
+        for(var g in gidMap){
+            if(gidMap[g]){
+                gl.push(g);
+            }
+        }
+
+        initModal();    // 初期表示データを使い、 Gridを表示
+    }
+    secureGetAsync('/manage/user/groupList.json', param, callback);
+}
+
+function initModal(){
+    var gl = new Array();
+
+    for(var g in gidMap){
+        if(gidMap[g]){
+            gl.push(g);
+        }
+    }
+
+// 現在の所属グループ一覧
+    $("#usersTable").jqGrid({
+        data:displayJSONData,
+        datatype:"local",
+        colNames:[
+            '',
+            '',
+            '{!$Label.solxyzcso001__label_10022}'
+        ],
+        colModel:[
+            {name:'id',index:'id', width:60, hidden:true},
+            {name:'editable',index:'editable', width:60, hidden:true},
+            {name:'name',index:'name', width:250},
+        ],
+        rowNum:30,
+        height: 350,
+        width: 500,
+        rowList: [10,30,50],
+        sortname: 'name',
+        sortorder: 'asc',
+        pager: $('#usersTablePager'),
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true
+    });
+
+// 追加グループ選択用モーダル定義
+        $("#groupModal").dialog({
+        autoOpen: false,
+        bgiframe: true,
+        modal: true,
+        resizable: false,
+        closeText: "Close",
+        width: 500,
+        height: 500/*,
+        buttons: {
+            '{!$Label.solxyzcso001__field_common_cancel}': function() {
+                gidMap = $.cloneObject(orgGidMap, true);
+                $(this).dialog('close');
+            },
+            '{!$Label.solxyzcso001__field_common_ok}': function() {
+                loadUserGroupGrid();
+            }
+        }*/
+    });
+
+// 追加グループ選択用モーダルグリッド
+    $("#managerGroupTable").jqGrid({
+        datatype:'jsonp',
+        url : _apiUrl + "/common/coloradoSearchApi.json",
+        postData : {
+            empty : "true",
+            withoutsf: "true",
+            gid : "ninEVERYONE"
+        },
+        colNames:[
+            '',
+            '{!$Label.solxyzcso001__label_13051}'
+        ],
+        colModel:[
+            {name:'id',index:'id', width:60, hidden:true},
+            {name:'name',index:'name', width:424},
+        ],
+        rowNum:10,
+        height: 305,
+        width: 450,
+        autowidth: false,
+        rowList:[10,50,100],
+        sortname: 'name',
+        pager: '#managerGroupTablePager',
+        viewrecords: true,
+        shrinkToFit : false,
+        multiselect: true,
+        multiboxonly: true,
+        onSelectRow : function(rowid, status, ev){
+            selRow();
+        },
+        onSelectAll : function(aRowids, status){
+            selRow();
+        },
+        loadComplete : function(data){
+            loadGidList = new Array();
+            for(var i = 0; i < data.rows.length; i++){
+                if(gidMap[data.rows[i].id] == null){
+                    gidMap[data.rows[i].id] = false;
+                }
+                loadGidList.push(data.rows[i].id);
+                if(gidMap[data.rows[i].id]){
+                    $(this).setSelection(data.rows[i].id);
+                }
+            }
+
+        }
+    });
+}
+
+// 行選択時処理
+function selRow(){
+    var rows;
+    rows = $("#managerGroupTable").jqGrid('getGridParam','selarrrow');
+    for(var i = 0; i < loadGidList.length; i++){
+        if($.inArray(loadGidList[i], rows) >= 0){
+            gidMap[loadGidList[i]] = true;
+        }else{
+            gidMap[loadGidList[i]] = false;
+        }
+    }
+}
+
+function resizeJqGrid_SF(){
+}
+
+(function($){
+    $.fn.resizeJqGrid_SF=function(options){
+        var options = $.extend({
+            "margin-bottom" : 0,
+            "margin-right"  : 0,
+            "isJqGrid"      : 1,
+        }, options);
+
+        if($(this).attr("resize-jqgrid") != 1){
+            $(this).attr({
+                "resize-jqgrid" : "1",
+                "bottom"        : options["margin-bottom"],
+                "right"         : options["margin-right"],
+                "isjqgrid"      : options["isJqGrid"],
+            });
+        }
+
+        return $(this);
+    }
+})($);
+
+// グループ追加モーダル表示
+function selectGroup(){
+    $("#managerGroupTable").trigger("reloadGrid");
+    orgGidMap = $.cloneObject(gidMap, true);
+    $("#groupModal").dialog("open");
+}
+
+// 削除ボタン押下時処理
+/*
+function delGroup(){
+    var rows = $("#usersTable").jqGrid('getGridParam','selarrrow');
+    if(rows.length == 0){
+        return;
+    }
+
+    for(var i = 0; i < rows.length; i++){
+        if(gidMap[rows[i]] != null){
+            gidMap[rows[i]] = false;
+        }
+    }
+
+    loadUserGroupGrid();
+}
+*/
+
+// 削除ボタン押下時処理 (公開グループ対応版)
+function delGroup() {
+    // システムプロファイルかどうかの判定
+    var allIds = $("#usersTable").jqGrid('getGridParam', 'selarrrow');
+    var delIds = new Array();
+    $.each(allIds, function (n, id) {
+        if ($("#usersTable").getRowData(id).editable != 'false') {
+            delIds.push(id);
+        }
+    });
+    // ダイアログ表示
+    if (allIds.length == 0) {
+        alert("{!$Label.solxyzcso001__msg_01123}");
+        return false;
+    } else if (delIds.length != allIds.length) {
+        alert("{!$Label.solxyzcso001__msg_01124}");
+        return false;
+    } else if (confirm('{!$Label.solxyzcso001__msg_00049}')) {
+        for(var i = 0; i < delIds.length; i++){
+            if(gidMap[delIds[i]] != null){
+                gidMap[delIds[i]] = false;
+            }
+        }
+
+        loadUserGroupGrid();
+    }
+}
+
+// グループ検索
+function searchgroup(){
+    var _s = $("#group-search-txt").val();
+    $("#managerGroupTable").jqGrid("setGridParam", {
+        page : 1,
+        postData : {
+            search : _s,
+            type : 1
+        }
+    });
+
+    $("#managerGroupTable").trigger("reloadGrid");
+}
+
+// クリアボタン動作
+function cleargroup(){
+    $("#group-search-txt").val("");
+
+    var _s = $("#group-search-txt").val();
+    $("#managerGroupTable").jqGrid("setGridParam", {
+        page : 1,
+        postData : {
+            search : _s,
+            type : 1
+        }
+    });
+
+    $("#managerGroupTable").trigger("reloadGrid");
+}
+
+// 所属グループリスト再表示
+function loadUserGroupGrid(){
+    var gl = new Array();
+
+    for(var g in gidMap){
+        if(gidMap[g]){
+            gl.push(g);
+        }
+    }
+
+    var param = {
+        gid : gl.join(","),
+        sord        : 'asc',
+        rows        : 100000,
+        sidx        : 'name',
+        page        : 1,
+        nd          : 0,
+        _search     : 0
+    }
+    var callback =  function (returnData) {
+        $("#usersTable").jqGrid('clearGridData').setGridParam({
+            data: returnData.rows
+        }).trigger("reloadGrid");
+        $("#groupModal").dialog('close');
+    }
+    securePostAsync('/common/coloradoSearchApi.json', param, callback);
+}
+
+// グループ変更時処理(グループ変更決定時)
+function editGroup(){
+    CsoScript_loadingStart();
+    var insertGidList = [];
+    var deleteGidList = [];
+    var changeList = [];
+
+    // 差分抽出
+    for(var g in gidMap){
+        if(g != "EVERYONE"){
+            if(gidMap[g]){
+                changeList.push(g);    // 変更後のリスト
+            }
+        }
+    }
+
+    insertGidList = extractDifference(changeList, firstList);    // 増加分割り出し
+    deleteGidList = extractDifference(firstList, changeList);    // 減少分割り出し
+
+    var groupCount = insertGidList.length + deleteGidList.length;
+
+    // 登録処理
+    var param = {
+        user_ids              : '{!targetCSOUserId}',
+        add_group_ids         : insertGidList.join(","),
+        del_group_ids         : deleteGidList.join(",")
+    }
+
+    var callback = null;
+
+    if(groupCount < maxGroupCount){    // タイムアウト制限に引っかからない場合はコールバックを設定する
+        callback =  function(data){
+            if(data.result){
+                CsoScript_loadingStop();
+                top.window.close();
+            } else {
+                alert('error');
+            }
+        }
+    } else {    // タイムアウト制限に引っかかる場合はコールバックを設定せずにそのまま閉じる
+        CsoScript_loadingStop();
+        top.window.close();
+    }
+    securePostAsync('/setup/groupMemberModify.json', param, callback);
+}
+
+//===================================================================//
+//  差分抽出用function                                               //
+//  firstListにあってsecondListに無いものの一覧をListにして抽出する  //
+//===================================================================//
+function extractDifference(firstList, secondList){
+
+    var resultList = [];
+    for(var p=0; p<firstList.length; p++){
+        if(secondList.length == 0){
+            resultList = firstList;
+            break;
+        }
+        for(var q=0; q<secondList.length; q++){
+            if(firstList[p] == secondList[q]){
+                break;
+            }
+            if(q == secondList.length-1){
+                // 合致するものが無かった場合、Listに追加
+                resultList.push(firstList[p]);
+            }
+        }
+    }
+    return resultList;
+}
+
+function clearVal(){
+    var _b_managerGridLoaded = false;
+    var _b_usersGridLoaded = false;
+
+    var loadGidList = new Array();
+    var gidMap = new Object();
+    var orgGidMap;
+    var firstList = [];    // 初期状態
+}
+function cancelOnClick(){
+    gidMap = $.cloneObject(orgGidMap, true);
+    $("#groupModal").dialog('close');
+}
+</script>
+
+</apex:outputPanel>
+
+<body id="body">
+
+<div id="groupModal" title="{!$Label.label_10022}" style="display: none;">
+    <form onsubmit="searchgroup(); return false;">
+        <input type="text" id="group-search-txt" class="search-txt" placeholder="" />
+        <input type="button" class="btn" value="{!$Label.label_00070}" onclick="cleargroup();" />
+        <input type="submit" class="btn" value="{!$Label.label_00069}" />
+    </form>
+    <div style="padding-top: 10px;">
+        <table id="managerGroupTable"></table>
+        <div id="managerGroupTablePager"></div>
+        <div align="center" style="padding-top: 15px;">
+            <input type="button" class="btn" value="{!$Label.field_common_cancel}" onclick="cancelOnClick();" />
+            <input type="button" class="btn" value="{!$Label.solxyzcso001__field_common_ok}" onclick="loadUserGroupGrid();" />
+        </div>
+    </div>
+</div>
+
+<apex:outputPanel rendered="{!IF((authority == false && cso_userInfo.showErrPage == false) || targetCSOUserId == null, true, false)}">
+    <apex:messages styleClass="errorMsg" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(authority == true && cso_userInfo.showErrPage == false && targetCSOUserId != null, true, false)}">
+    <!-- warapper -->
+    <div id="c_wrapper">
+        <!-- content container -->
+        <table id="c_container" cellspacing="0" border="0">
+            <tr>
+                <!-- right content container -->
+                <td id="c_right" colspan="2">
+                    <apex:form >
+                        <apex:pageBlock title="{!$Label.solxyzcso001__label_13052}" id="theBlock" tabStyle="setting__tab">
+
+                            <apex:pageBlockButtons location="bottom">
+                               <apex:commandButton id="btnEditB" value="{!$Label.solxyzcso001__field_common_ok}" onclick="editGroup(); return false;"/>
+                            </apex:pageBlockButtons>
+
+                            <div class="under-area">
+                                <div id="tabUnderDiv">
+                                    <div id="tabManager">
+                                        <!-- <table id="managerTable"></table> -->
+                                        <ul id="groupTreeView"></ul>
+                                        <div id="managerTablePager"></div>
+                                    </div>
+                                    <div id="tabUsers">
+                                        <button class="btn icon-btn btn_monseout" onclick="delGroup(); return false;">{!$Label.field_common_remove}</button>
+                                        <button class="btn icon-btn btn_monseout" onclick="selectGroup(); return false;">{!$Label.label_10020}</button>
+                                        <table id="usersTable"></table>
+                                        <div id="usersTablePager"></div>
+                                    </div>
+                                    <ul>
+                                        <li><a href="#tabManager">{!$Label.label_13053}</a></li>
+                                        <li><a href="#tabUsers">{!$Label.label_13054}</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </apex:pageBlock>
+                    </apex:form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</apex:outputPanel>
+
+</body>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:page>

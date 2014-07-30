@@ -1,0 +1,20 @@
+<apex:page controller="SOLXYZCSO001.CSO_WR_ErrorController" showHeader="false" sidebar="false" id="CSO_WR_errorPage">
+
+	<apex:outputPanel rendered="{!IF(noBorder != 'true', true, false)}">
+	    <apex:iframe src="{!$Label.solxyzcso001__field_CSO_WR_Maintenance_URL}" scrolling="true" id="maintenancePageFrame" rendered="{!IF(errorCode == $Label.solxyzcso001__field_CSO_WR_Maintenance_Code,true,false)}"/>
+	</apex:outputPanel>
+
+	<apex:outputPanel rendered="{!IF(noBorder == 'true', true, false)}">
+	    <apex:iframe src="{!$Label.solxyzcso001__field_CSO_WR_Maintenance_URL_MIN}" scrolling="true" id="maintenancePageFrame2" rendered="{!IF(errorCode == $Label.solxyzcso001__field_CSO_WR_Maintenance_Code,true,false)}"/>
+	</apex:outputPanel>
+
+
+    <apex:outputPanel rendered="{!IF(errorCode == $Label.solxyzcso001__field_CSO_Maintenance_Code,false,true)}">
+        <div style = "margin-left : 20px;">
+            <p>{!$Label.label_11104}</p>
+            <p>{!errorMessage}</p>
+            <p>Error Code : {!errorCode}</p>
+        </div>
+    </apex:outputPanel>
+
+</apex:page>

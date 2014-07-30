@@ -1,0 +1,300 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingWorkflowController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_workflow_definition == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_workflow_definition == 'true' && userInfo.showErrPage == false, true, false)}">
+
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<script type="text/javascript">
+$(function(){
+    $(window).resize(resizeGrid);
+
+    $("#deleteButton").attr("disabled", "disabled").addClass("btn-disable");
+    $("#modifyButton").attr("disabled", "disabled").addClass("btn-disable");
+
+    $("#definitionTable").jqGrid({
+        url         : _apiUrl + "/workflowmanagement.setting/WorkflowDefinitionList.json",
+        postData    : {
+            search_txt  : $("#searchText").val()
+        },
+        datatype    :"jsonp",
+        jsonReader  : {
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames    : [
+                '',
+                '',
+                '{!$Label.label_00083}',
+                '{!$Label.label_10123}',
+                '{!$Label.label_10678}',
+                '{!$Label.label_10684}',
+        ],
+        colModel    : [
+                {name:"id",         index:"id",         hidden:true},
+                {name:"is_manager", index:"is_manager", hidden:true},
+                {name:"is_valid",   index:"is_valid",   width:40,  align:"center"},
+                {name:"name",       index:"name",       width:430},
+                {name:"category",   index:"category",   width:200},
+                {name:"used",       index:"used",       width:100, align:"right"},
+        ],
+        onSelectRow : function(id, b_check){
+            var row = $("#definitionTable").getRowData(id);
+            if(row.is_manager == "1"){
+                $("#deleteButton").attr("disabled", "").removeClass("btn-disable");
+                $("#modifyButton").attr("disabled", "").removeClass("btn-disable");
+            }else{
+                $("#deleteButton").attr("disabled", "disabled").addClass("btn-disable");
+                $("#modifyButton").attr("disabled", "disabled").addClass("btn-disable");
+            }
+        },
+        rowNum      : 30,
+        height      : getBrowserHeight() - 206,
+        width       : $("#definitionDiv").width() - 2,
+        autowidth   : false,
+        rowList     : [10,30,50],
+        sortname    : 'name',
+        sortorder   : 'asc',
+        pager       : $('#definitionTablePager'),
+        viewrecords : true,
+        multiselect : false,
+        onPaging    : function(b) {
+            $(this).setGridParam({
+                postData : {
+                    useCache : "true"
+                }
+            });
+        },
+        loadComplete: function(data){
+            var rows = $("td[aria-describedby=definitionrTable_name]");
+            for(var i=0; i<rows.length; i++){
+                $(rows[i]).attr("title", $(rows[i]).find("#name").html());
+            }
+        }
+    });
+    $("#definitionTable").jqGrid('navGrid','#definitionTablePager',{edit:false,add:false,del:false,search:false,refresh:false});
+
+    var callback =  function(data){
+        if(data.result){
+            $("#selCategory").html(data.options);
+            $("#selCategory").change(function(){
+                searchClick();
+            });
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowCategoryInfoForSelect.json', {}, callback);
+
+    resizeGrid();
+});
+
+function resizeGrid(){
+    var height = getBrowserHeight() - 370;
+    $("#definitionTable").setGridWidth(1);
+    $("#definitionTable").setGridWidth($("#definitionDiv").innerWidth());    
+
+    if (height >= 270) {
+        $("#definitionTable").setGridHeight(height);
+    }
+}
+
+function execSearch(){
+    $("#definitionTable").setGridParam({
+        postData:{
+            search_txt  : $("#searchText").val(),
+            cat_id      : $("#selCategory").val(),
+        }
+    }).trigger("reloadGrid");
+}
+
+function onSearchDialog(){
+    $("#searchDiv").dialog({
+        width : 370
+    });
+}
+
+function onRemoveClicked(){
+    var selID = $("#definitionTable").jqGrid("getGridParam", "selrow");
+    if(selID == null){
+        return
+    }
+
+    if(!confirm("{!$Label.msg_00304}")){
+        return;
+    }
+
+    var callback =  function(data){
+        if(data.result){
+            $("#definitionTable").trigger("reloadGrid");
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowDefinitionDelete.json', {id : selID}, callback);
+}
+
+function onEditClicked(){
+    var selID = $("#definitionTable").jqGrid("getGridParam", "selrow");
+    if(selID == null){
+        return
+    }
+
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionEdit))}?id=' + selID;
+}
+
+function onTitleClicked(id){
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionInfo))}?id=' + id;
+}
+
+function onNewClicked(){
+    var selCatId = $("#selCategory").val();
+    if(selCatId == "all"){
+        window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionEdit))}';
+    }else{
+        window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionEdit))}?catId=' + selCatId;
+    }
+}
+
+function clearClick(){
+    $("#searchText").val("");
+    execSearch();
+}
+
+function cancelClick(){
+    $("#searchDiv").dialog("close");
+    return false;
+}
+
+function searchClick(){
+    execSearch();
+}
+
+</script>
+
+<style type="text/css">
+.subLabelHeight{
+    height: 21px;
+}
+.list-name-top a {
+    font-size: 12px;
+}
+.list-name-bottom {
+    font-size: 11px;
+    color: #666;
+}
+.modal {
+    display: none;
+}
+.input-area {
+    padding: 20px 0 0 20px;
+}
+.search-txt {
+    width: 230px;
+}
+#searchTable {
+    padding : 5px;
+}
+
+#searchTable th {
+    padding-right : 5px;
+    text-align: right;
+}
+.btn-disable {
+    color: silver !important;
+}
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/flow_defined.png')}" alt="{!$Label.solxyzcso001__label_10647}" title="{!$Label.solxyzcso001__label_10647}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10673}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10647}</h2>
+            </td>
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <div class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="item">
+                                    {!$Label.label_10678}
+                                    <select id="selCategory"></select>
+                                </li>
+                                <li class="item">
+                                    <input class="btn" type="button" value="{!$Label.label_00069}" onclick="onSearchDialog();return false;"/>
+                                </li>
+                                <li class="item">
+                                    <input class="btn" type="button" id="deleteButton" value="{!$Label.label_00072}" onclick="onRemoveClicked();return false;"/>
+                                </li>
+                                <li class="item">
+                                    <input class="btn" type="button" id="modifyButton" value="{!$Label.label_00073}" onclick="onEditClicked(); return false;" />
+                                </li>
+                                <li class="last">
+                                    <input class="btn" type="button" value="{!$Label.label_00074}" onclick="onNewClicked(); return false;" />
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="definitionDiv">
+                            <table id="definitionTable"></table>
+                            <div id="definitionTablePager"></div>
+                        </div>
+                        <div id="searchDiv" class="searchDiv" style="display: none;" title="{!$Label.label_00069}">
+                            <table id="searchTable" style="padding : 5px">
+                                <tr>
+                                    <th>{!$Label.label_10685}</th>
+                                    <td><input type="text" id="searchText" class="search-txt" maxlength="255" /></td>
+                                </tr>
+                            </table>
+                            <p style="width: 100%; text-align: right;">
+                                <input type="button" class="btn" value="{!$Label.label_00069}"  onclick="searchClick();"/>
+                                <input type="button" class="btn" value="{!$Label.label_00070}"  onclick="clearClick();" />
+                                <input type="button" class="btn" value="{!$Label.label_00058}"  onclick="cancelClick();"/>
+                            </p>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

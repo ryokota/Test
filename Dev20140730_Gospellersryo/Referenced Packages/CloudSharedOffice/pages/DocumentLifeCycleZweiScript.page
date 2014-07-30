@@ -1,0 +1,1319 @@
+<apex:page >
+    <script type="text/javascript">
+        var LC_spaceID = "";
+        var filters= [];
+        var LC_filters=[];
+        var mailUsers = [];
+        var resizeFlg = true;
+        var mailUsers = [];
+        var selectedTabIndex = 0;
+        var selected = {};
+        var LC_existChild = false;
+
+        //ラジオボタンテスト用
+        var testradio;
+
+        (function(utils, $, undefined) {
+
+        $.extend($.fn.fmatter, {
+            htmlEscapeFormatter: function(cellvalue, options, rowdata) {
+                if (cellvalue !== null) {
+                    return $.jgrid.htmlEncode(cellvalue);
+                }
+
+                return "";
+            }
+        });
+
+        utils.createAndAssignColumnModelNameMap = function (jqgridObj) {
+            var colModel = jqgridObj.getGridParam('colModel');
+            var colModelNameMap = [];
+            for (var i=0; i<colModel.length; ++i) {
+                colModelNameMap[colModel[i].name] = i;
+            }
+            jqgridObj.data('colModelNameMap', colModelNameMap);
+        };
+
+        utils.getColumnModelNameMap = function (jqgridObj) {
+            return jqgridObj.data('colModelNameMap');
+        };
+
+        utils.constructObjectFromRowData = function (cellArray, columnModelNameMap, format) {
+            var obj = {};
+            if (format === 'text') {
+                for (var name in columnModelNameMap) {
+                    obj[name] = $(cellArray[columnModelNameMap[name]]).text();
+                }
+            } else {
+                for (var name in columnModelNameMap) {
+                    obj[name] = $(cellArray[columnModelNameMap[name]]).html();
+                }
+            }
+            return obj;
+        };
+
+        })(ECM.utils = ECM.utils || {}, jQuery);
+
+          // 初期ロード時処理開始
+          function getInitLifeCycleZwei(spaceID){
+            clearVal();
+            LC_spaceID = spaceID;
+            if(LC_spaceID == ""){
+                hideRegisterInfo();
+            }
+            switchTab('basicinfo');
+
+            /*
+             * 編集時の値セット
+             */
+            var callback =  function(data){
+                if(data.result){
+                    // 画面タイトル・パスセット
+                    $('#c_headLeftSubTitle').html(data.spaceName);
+                    setPathList(data.path);
+
+                    if(data.mail_users){
+                        for(var i=0; i<data.mail_users.length; i++){
+                            var mailUserInfo = {
+                                id        :    data.mail_users[i].id,
+                                name:    data.mail_users[i].name,
+                                info:    data.mail_users[i].info
+                            };
+
+                            mailUsers.push(mailUserInfo);
+                        }
+                        // 選択状態用
+                        for (var i in mailUsers) {
+                            var obj = mailUsers[i];
+                            selected[obj.id] = obj;
+                        }
+                    }else{
+                        mailUsers = [];
+                    }
+
+                    initLiftCycleMailUserList();
+/*
+                    // ユーザ検索絞り込み用プルダウン(組織)
+                    for(var i=0; i<data.corpOptions.length; i++){
+                        var opt = $("<option>").val(data.corpOptions[i].value).text(data.corpOptions[i].text);
+                        $("#user-search-corp").append(opt);
+                    }
+
+                    // ユーザ検索絞り込み用プルダウン(部署・役職)
+                    for(var i=0; i<data.postOptions.length; i++){
+                        var opt = $("<option>").val(data.postOptions[i].value).html(data.postOptions[i].text);
+                        $("#user-search-post").append(opt);
+                    }
+*/
+                    $('#LC_enabled').attr('checked', eval(data.enabled));
+
+                    if(data.filters){
+                        var filtersHolder=data.filters;
+                        for (var i = 0; i < filtersHolder.length; i++) {
+                            var actions = [];
+                            for(var ii=0; ii  <filtersHolder[i].actions.length; ii++){
+                                var action = {
+                                    action : filtersHolder[i].actions[ii].action,
+                                    date_unit :  filtersHolder[i].actions[ii].date_unit,
+                                    time :  filtersHolder[i].actions[ii].time
+                                };
+                                actions.push(action);
+                            }
+
+                            var obj = {
+                                name : filtersHolder[i].name,
+                                condition : filtersHolder[i].condition,
+                                type : filtersHolder[i].type,
+                                value : filtersHolder[i].value,
+                                actions: actions
+                            };
+                            LC_filters.push(obj);
+                        }
+
+                        LC_filters = convertFiltersSvToCl(LC_filters);
+                    }else{
+                        LC_filters=[];
+                    }
+                    $("#filters option").remove();
+
+
+                  //  $("#tab_basic").show();
+                  //  $("#tab_mail").hide();
+                    $("#filterDetail").empty();
+                    $(LC_filters).each(function(i, filter) {
+                        var name = filter.name;
+                        var opt = $("<option>").val(i).text(filter.name);
+                        $("#filters").append(opt);
+                    });
+                    $("input[name='Content_Unit']").val([data.settable_per_contents]);
+                    $('#settablePerContents').attr('checked', eval(data.settable_per_contents));
+                    if(eval(data.reminder_enabled)){
+                        $('#reminder_enabled').attr('checked', eval(data.reminder_enabled));
+                        $("#reminder_time").removeAttr("disabled").addClass("c_require");
+                    }else{
+                        $("#reminder_enabled").removeAttr("checked");
+                        $("#reminder_time").attr("disabled", "disabled").val("");
+                    }
+
+                    var remindtime=data.reminder_time;
+                    if(remindtime==0){
+                        $('#reminder_time').val("");
+                    }else{
+                        $('#reminder_time').val(remindtime);
+                    }
+                    if(data.existChild){
+                        LC_existChild = true;
+                    }else{
+                        LC_existChild = false;
+                    }
+
+// 9714 無効状態での編集を許可 TSANDO 140327
+//                    disableradio();
+                } else {
+                    alert(data.message);
+                }
+            }
+            secureGetAsync('/contentsmanagement/spaceLifecycleDetail.json?spaceId=' + LC_spaceID ,"", callback);
+
+            /*-- [下位スペースにも適用する]確認ダイアログの初期化 --*/
+            $("#lifecycleApplyModal").dialog({
+                autoOpen: false,
+                bgiframe: true,
+                modal: true,
+                resizable: false,
+                closeText: "Close",
+                width : 300,
+                height: 120
+            });
+            checkUncheck();
+            resizeGrid();
+            $(window).resize(resizeGrid);
+/*
+            $("#user-search-corp").change(function(e){
+                var v = $("#user-search-corp").val();
+                if(v == "" || v.indexOf("PARTNER_") != 0){
+                    $("#user-search-post").show();
+                }else{
+                    $("#user-search-post").hide();
+                    $("#user-search-post").val("");
+                }
+            });
+*/
+            /* グループ検索対応 */
+            $("#user-search-option-1").change(function(e){
+                if($(this).val() != 0){
+                    secureGetAsync("/setup/CategoryListGet.json",
+                        {
+                            company : "0",
+                            category : $(this).val(),
+                            returnType : "html"
+                        },
+                        function(data){
+                            $("#user-search-option-2").html(data["category_select"]);
+                            $("#user-search-option-2").show();
+                        }
+                    );
+                }else{
+                    $("#user-search-option-2").hide();
+                }
+            });
+          }
+        // 初期ロード時処理終了
+
+
+        function checkUncheck() {
+            $("#conditionCheck").change(function(){
+                if($(this).attr("checked")){
+                    $("#conditionDetail").hide();
+                }else{
+                    $("#conditionDetail").show();
+                }
+            });
+        }
+        function resizeGrid(){
+//            $("#lcUserList").css("width", getBrowserWidth() - 390);
+//            $("#mailUserPart").css("width", getBrowserWidth() - 390);
+
+            $("#mailUserList").setGridWidth(1);
+            $("#mailUserList").setGridWidth($("#mailUserList-container").innerWidth());
+
+//            $("#mailUserList").setGridWidth(getBrowserWidth() - 390);
+
+        //    $("#spaceList").setGridHeight(getBrowserHeight() - 450);
+            $(".onviewdiv").height(getBrowserHeight() - 300);
+          //  $('.onviewdiv').height($(window).height() -390 );
+        }
+
+        function hideRegisterInfo(){
+            $("#PS_HeaderCreator").text("");
+            $("#PS_HeaderCreateDate").text("");
+            $("#PS_HeaderUpdator").text("");
+            $("#PS_HeaderUpdateDate").text("");
+        }
+        /*
+         * 通知先ユーザ編集用初期設定
+         */
+        function initLiftCycleMailUserList(){
+
+            var mailUserRows = 50;
+            $("#mailUserList").jqGrid({
+                data : mailUsers,
+                datatype: "local",
+                jsonReader :{
+                    repeatitems: false,
+                    id : "id"
+                },
+                colNames:['',
+                          '{!$Label.label_13058}',
+                          ''],
+                colModel:[
+                            {name:'id',index:'id', hidden:true},
+                            {name:'info',index:'info', width:650},
+                            {name:'name',index:'name', hidden:true, formatter: 'htmlEscapeFormatter' }
+                        ],
+                rowNum : mailUserRows,
+                height: 250,
+                //width: $("#c_right").width() - 30,
+                rowList:[10,50,100],
+                sortname: 'name',
+                pager: '#mailUserPager',
+                viewrecords: true,
+                multiselect: true,
+                multiboxonly: true,
+                //shrinkToFit:true,
+                loadComplete: function(data){
+                    var r = $(this).getGridParam("rowNum");
+                    localStorage.setItem("mailUserRows", r);
+                    resizeGrid();
+                },
+            });
+            $("#mailUserList").clearGridData().setGridParam({data : mailUsers}).trigger("reloadGrid");
+            $("#addUserModal").dialog({
+                autoOpen: false,
+                bgiframe: true,
+                modal: true,
+                resizable: false,
+                title : '{!$Label.label_10682}',
+                width: 770,
+                height: 530,
+            });
+            $("#filterDialog").dialog({
+                autoOpen: false,
+                bgiframe: true,
+                modal: true,
+                resizable: false,
+                width: 550,
+                minWidth: 460,
+                height: 550,
+                close: function(){ $(this).csoBalloonHide(); }
+            });
+            $('#user-search-post').show();
+        }
+
+        /*
+         * 保存
+         */
+        function saveLifeCycleZwei(){
+
+            $(".btn").attr("disabled", "disabled");
+
+            PS_err = false;
+
+            /*- ライフサイクル未設定の場合 --*/
+            if($("#filters").children().length <= 0){
+                PS_err = true;
+                alert('{!$Label.msg_01120}');
+            }
+
+             validateMailUser();
+
+             $(".btn").removeAttr("disabled");
+
+            /*
+             *　エラーがある場合
+             */
+            if (PS_err == true){
+                $(".btn").removeAttr("disabled");
+                return false;
+            }
+
+            if(LC_existChild){
+                $("#lifecycleApplyModal").dialog("open");
+            }
+            else{
+                saveSpaceLifecycle(false);
+            }
+        }
+
+        function saveSpaceLifecycle(apply){
+            $("#lifecycleApplyModal").dialog("close");
+
+
+            /*
+             *　パラメータ生成
+             */
+
+            $("#mailUserSelected option").each(function() {
+                var opt = $(this);
+                mailUsers.push(opt.val());
+            });
+            var mailUserIDs = [];
+            for (var id in selected) {
+                var id = selected[id].id;
+                mailUserIDs.push(id);
+            }
+
+            var query = {
+                   spaceId              : LC_spaceID,                                             // スペースID
+                   apply                : apply,                                                  // 下位スペース適用
+                   enabled              : $("#LC_enabled").attr("checked"),                       // 有効化
+                   settable_per_contents: $("#settablePerContents").attr("checked"),              // コンテンツごと設定許可
+                   filters              : JSON.stringify(convertFiltersClToSv(LC_filters)),       // フィルタ条件
+                   mail_users           : JSON.stringify(mailUserIDs),                            // メール送信先
+                   reminder_enabled     : $("#reminder_enabled").attr("checked"),                 // リマインダー
+                   reminder_time        : $("#reminder_time").val(),                              // リマインダー時間
+            }
+
+            /*-- -------- --*/
+            /*-- 登録処理 --*/
+            /*-- -------- --*/
+            var callback = function(data){
+                if(!data.result){
+                    CsoScript_loadingStop();
+                    if((data.userMsg != null) && (data.userMsg != "")){
+                        alert('userMsg: ' + data.userMsg);
+                    }
+                    if((data.message != null) && (data.message != "")){
+                        alert('message: ' + data.message);
+                    }
+                    $(".btn").removeAttr("disabled");
+                    return false;
+                }
+                CsoScript_loadingStop();
+                $(".btn").removeAttr("disabled");
+        changeHashToCurrentSpace();
+                $('#listView1').trigger('reloadGrid');
+                reloadTree();
+                displayList();
+            };
+            var callerror =  function(data){
+                CsoScript_loadingStop();
+                alert("lifecycleEdit:" + data);
+                $(".btn").removeAttr("disabled");
+            };
+
+            CsoScript_loadingStart();
+
+            onClearClicked();
+
+            securePostAsync('/contentsmanagement/spaceLifecycleEdit.json', query, callback, callerror);
+
+            return true;
+
+        }
+        // ユーザ追加モーダル開
+        function openAddUserModal() {
+
+            var postData = {};
+
+        // スペースIDを入れる(スペース毎の設定用)
+            if((LC_spaceID != null)||(LC_spaceID != "")){
+                postData.spaceId = LC_spaceID;
+            }
+
+            $("#managerUserTable").jqGrid({
+              url : _apiUrl + "/setup/LifecycleUserList.json",
+        //        url : '',
+                postData : postData,
+                colNames:[
+                    '',
+                    '',
+                    '{!$Label.label_00039}',
+                    '{!$Label.label_10097}',
+                ],
+                colModel:[
+                    {name:'id',index:'id', width:60, hidden:true},
+                    {name:'name',index:'name', hidden:true},
+                    {name:'info',index:'userid', width:850},
+                    {name:'corporation',index:'corporation', width:180},
+                ],
+                rowNum:10,
+                rowList:[10,50,100],
+                sortname: 'userid',
+                pager: '#managerUserTablePager',
+                viewrecords: true,
+                shrinkToFit : false,
+                multiselect: true,
+                height:300,
+                multiboxonly: true,
+                shrinkToFit: true,
+                onSelectRow : function(rowid, status, ev){
+                    selRow();
+                },
+                onSelectAll : function(aRowids, status){
+                    selRow();
+                },
+                loadComplete : function(data){
+                    for (var id in selected) {
+                        $(this).setSelection(id, false);
+                    }
+                }
+            }).setGridWidth(735).setGridHeight(325);
+            ECM.utils.createAndAssignColumnModelNameMap($("#managerUserTable"));
+            $("#managerUserTable").setGridParam({url : _apiUrl + "/setup/LifecycleUserList.json", page : 1}).trigger("reloadGrid");
+            $("#ugtab").css("height", "30");
+            $("#addUserModal").dialog("open");
+        }
+
+        function selRow() {
+            var rawData, obj;
+            var managerUserTable = $("#managerUserTable");
+            var allRows = managerUserTable.getRowData();
+            var rows = managerUserTable.jqGrid('getGridParam', 'selarrrow');
+            var columnModelNameMap = ECM.utils.getColumnModelNameMap(managerUserTable);
+
+            for (var i in allRows) {
+                var r = allRows[i];
+                if ($.inArray(r.id, rows) >= 0) {
+                    rawData = managerUserTable.find("#" + r.id + " td");
+                    obj = ECM.utils.constructObjectFromRowData(rawData, columnModelNameMap);
+                    addUserid(r.id, obj);
+                } else {
+                    removeUserid(r.id);
+                }
+            }
+        }
+
+        function addUserid(id, obj) {
+            if (!(id in selected)) {
+                selected[id] = obj;
+            }
+        }
+
+        function removeUserid(id) {
+            if (id in selected) {
+                delete selected[id];
+            }
+        }
+
+        function validateMailUser() {
+            if ($("#reminder_enabled").attr("checked")) {
+                var time = $("#reminder_time").val();
+                if (time == "") {
+                    PS_err = true;
+                    alert("{!$Label.msg_01115}");
+                } else {
+                    time = parseInt(time);
+                    if (time <= 0) {
+                        PS_err = true;
+                        alert("{!$Label.msg_01116}");
+                    }
+                }
+                if($.isEmptyObject(selected)){
+                    PS_err = true;
+                    alert("{!$Label.msg_01086}");
+                }
+            }
+        }
+
+        // ユーザ追加モーダル閉
+        function closeAddUserModal() {
+            $("#addUserModal").dialog("close");
+        }
+
+        // 検索動作
+        function onSearchClicked() {
+            var group = "";
+            var post = "";
+            var name = $("#user-search-txt").val();
+            if(name == "{!$Label.label_10448}"){
+                name ="";
+            }
+            var opt = $("#user-search-option-1").val();
+
+            var postData = $("#managerUserTable").getGridParam("postData");
+
+            if(postData != null){
+                if("1" == opt){
+                    group = $("#user-search-option-2").val();
+                }else if("2" == opt){
+                    post = $("#user-search-option-2").val();
+                }
+
+                delete postData.corp;
+
+                if (group && group != "") {
+                    postData.group = group;
+                } else {
+                    delete postData.group;
+                }
+
+                if (post && post != "") {
+                    postData.post = post;
+                } else {
+                    delete postData.post;
+                }
+
+                if (name && name != "") {
+                    postData.name = name;
+                } else {
+                    delete postData.name;
+                }
+
+                $("#managerUserTable").setGridParam({url : _apiUrl + "/setup/LifecycleUserList.json", postData : postData, page : 1}).trigger("reloadGrid");
+            }
+        }
+
+        // クリア動作
+        function onClearClicked() {
+            $("#user-search-option-1").val("0");
+            $("#user-search-option-2").val("");
+            $("#user-search-option-2").hide();
+            $("#user-search-txt").val("");
+
+            onSearchClicked();
+        }
+
+        // ユーザ追加
+        function addUserInfo() {
+            $("#mailUserList").clearGridData();
+            for (var id in selected) {
+                var obj = selected[id];
+                $("#mailUserList").addRowData(id, obj);
+            }
+
+            var k = $("#mailUserList").getGridParam("data");
+            selected = {};
+            for (var i in k) {
+                var id = k[i].id
+                selected[id] = k[i];
+            }
+
+            closeAddUserModal();
+        }
+
+        // ユーザ削除
+        function removeUserInfo() {
+            var ids = $("#mailUserList").getGridParam("selarrrow");
+
+            if (ids.length == 0) {
+                alert('{!$Label.msg_01086}');
+                return false;
+            }
+
+            if (!confirm('{!$Label.msg_01087}')) {
+                return false;
+            }
+
+            var newIds = $.merge([], ids);
+            for (var i in newIds) {
+                var id = newIds[i];
+                $("#mailUserList").delRowData(id);
+            }
+
+            var k = $("#mailUserList").getGridParam("data");
+            selected = {};
+            for (var i in k) {
+                var id = k[i].id
+                selected[id] = k[i];
+            }
+        }
+
+        /*
+         * タブ切り替え
+         */
+        function switchTab(tabName) {
+            if (tabName == 'basicinfo') {
+                $("#tab_basic").show();
+                $("#evidence_tab_basic").removeClass("evidence_tab_deactive").addClass("evidence_tab_active");
+
+                $("#tab_mail").hide();
+                $("#evidence_tab_mail").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+            }else if (tabName == 'mail') {
+                $("#tab_mail").show();
+                $("#evidence_tab_mail").removeClass("evidence_tab_deactive").addClass("evidence_tab_active");
+
+                $("#tab_basic").hide();
+                $("#evidence_tab_basic").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                resizeGrid();
+            }
+        }
+        /*
+         * メール送信先を追加
+         */
+        function addMailUser() {
+            $("#mailUser option:selected").each(function() {
+                var opt = $(this);
+                var value = opt.val();
+                var text = opt.text();
+
+                var newOpt = $("<option>").val(value).text(text);
+                $("#mailUserSelected").append(newOpt);
+                opt.remove();
+            });
+        }
+        /*
+         * メール送信先を削除
+         */
+        function removeMailUser() {
+            $("#mailUserSelected option:selected").each(function() {
+                var opt = $(this);
+                var value = opt.val();
+                var text = opt.text();
+
+                var newOpt = $("<option>").val(value).text(text);
+                $("#mailUser").append(newOpt);
+                opt.remove();
+            });
+        }
+
+
+        /*
+         * ラジオボタンを無効
+         */
+// 9714 無効状態での編集を許可 TSANDO 140327
+/*
+        function disableradio(){
+            var selected=document.getElementById('LC_enabled').checked;
+            var items=document.getElementsByTagName('input');
+
+            for (i=0; i<items.length; i++) {
+                if (items[i].type == 'radio'){
+
+                    if(selected==false){
+                        items[i].setAttribute("disabled", true);
+                    }else{
+                        items[i].removeAttribute("disabled");
+                    }
+                }
+            }
+            if(selected==false){
+                $(".lcparts").attr("disabled", true);
+            } else {
+                $(".lcparts").removeAttr("disabled");
+            }
+            $("#reminder_enabled").trigger("change");
+        }
+*/
+
+        //フィルタ追加ボタン処理
+        var add = false;
+        var change = false;
+        function addSpaceCondition(){
+
+            // 初期化
+            filterDialogInit();
+
+            $("#lifecycleview2").lifecycle({
+                mode : 1,
+                actSelect : "lifecycleviewSelector2",
+                data : null,
+                resource : {
+                    Store   : "{!$Label.label_13019}",
+                    Archive : "{!$Label.label_00055}",
+                    Trash   : "{!$Label.label_00056}",
+                    Delete  : "{!$Label.label_13012}",
+                    Day     : "{!$Label.label_13064}",
+                    Week    : "{!$Label.label_13065}",
+                    Month   : "{!$Label.label_13066}",
+                    Year    : "{!$Label.label_13067}",
+                }
+            });
+
+            //ダイアログを開く
+            $(".ui-widget-header").css("height", "auto");
+            $("#filterDialog").dialog("open");
+            $("#filterDialog").css("height", "auto");
+          //  $("#filterDialog").dialog({ width: 550, minWidth: 460 });
+            //追加ボタンが押された時の判定
+            add = true;
+            change = false;
+        }
+
+        //ダイアログ内のデータを初期化
+        function filterDialogInit(){
+            $("#LC_filterName").val("");
+            $("#contents").attr("checked", "checked");
+            $("#LC_Condition").val("");
+            $("#DialogError").empty();
+            $("#lifecycleview2").empty();
+  //          $("#filterDialog").dialog({ width: 550, minWidth: 460, height: 550,close: function(){ $(this).csoBalloonHide(); }});
+            //クリア
+            var styleClass = "error";
+            $("." + styleClass).each(function(){
+                $(this).removeClass(styleClass);
+            });
+        }
+
+        <!-- フィルタ編集ボタン -->
+        function editButton(){
+            var len = $('#filters option:selected').length;
+            if(len <= 0){
+                return;
+            }
+            if(len > 1){
+                alert('{!$Label.msg_01109}');
+                return;
+            }
+
+            <!-- 初期化 -->
+            filterDialogInit();
+
+            <!-- 編集ボタン押された -->
+            change = true;
+            add = false;
+
+            <!-- 編集情報設定 -->
+            var filterObj = LC_filters[$("select[id='filters']").val()];
+
+            <!-- フィルタ名をセット -->
+            $("#LC_filterName").val(filterObj.name);
+
+            <!-- コンテンツ名orタグ名をセット -->
+            if(filterObj.type == "CONTENTS"){
+                $("#contents").attr("checked", "checked");
+            }else{
+                $("#tag").attr("checked", "checked");
+            }
+
+            <!-- 条件をセット -->
+            $("#LC_Condition").val(filterObj.value);
+
+            $("#lifecycleview2").lifecycle({
+                mode : 1,
+                actSelect : "lifecycleviewSelector2",
+                data : filterObj.actions,
+                resource : {
+                    Store   : "{!$Label.label_13019}",
+                    Archive : "{!$Label.label_00055}",
+                    Trash   : "{!$Label.label_00056}",
+                    Delete  : "{!$Label.label_13012}",
+                    Day     : "{!$Label.label_13064}",
+                    Week    : "{!$Label.label_13065}",
+                    Month   : "{!$Label.label_13066}",
+                    Year    : "{!$Label.label_13067}",
+                }
+            });
+            if(filterObj.condition == "CONTAINS") {
+                $("#conditionCheck").removeAttr("checked");
+                $("#conditionDetail").show();
+            } else if(filterObj.condition == "NO_CONDITION"){
+                $("#conditionCheck").attr("checked","checked");
+                $("#conditionDetail").hide();
+            }
+            <!-- ダイアログを開く -->
+            $("#filterDialog").dialog("open");
+            $("#filterDialog").css("height", "auto");
+        }
+
+        <!--フィルタ削除-->
+        function removeButton(){
+            <!-- 配列から削除 -->
+            $('#filters option:selected').each(function(idx){
+                LC_filters.splice($(this).val() - idx, 1);
+            });
+
+            <!-- selectから削除 -->
+            $("#filters").find("option:selected").remove();
+
+            <!-- valueを振り直す -->
+            $('#filters option').each(function(idx){
+                $(this).val(idx);
+            });
+        }
+
+        // フィルタ編集画面OKボタン処理
+        function clickFilterOkButton() {
+
+            //クリア
+            var styleClass = "error";
+            $("." + styleClass).each(function(){
+                $(this).removeClass(styleClass);
+            });
+
+            //エラーチェック
+
+            checkInputData();
+
+            //エラーがあった場合
+            if (LCF_err.length != 0){
+                $("#DialogError").show();
+                viewErr("#DialogError", LCF_err);
+                resizeGrid();
+                return false;
+            }
+
+            //設定値の取得
+            <!-- フィルタ名 -->
+            var FilterName = $("#LC_filterName").val();
+
+            <!-- 条件定義名の取得 -->
+            var DefinitionName = $("#LC_Condition").val();
+            var ContStatus = "";
+            var ContStatus = "";
+            if($("#conditionCheck").attr("checked") || DefinitionName == "*") {
+                ContStatus = "NO_CONDITION";
+              //  DefinitionName = $("#LC_Condition").val("");
+            } else {
+                ContStatus = "CONTAINS";
+            }
+
+            <!-- 条件タイプの取得 -->
+            var ContType = "";
+            var DefinitionType = document.getElementsByName("terms");
+            for (var i = 0; i < DefinitionType.length; i++) {
+                if(DefinitionType[i].checked) {
+                    var Result = DefinitionType[i].id;
+                    break;
+                }
+            }
+            if(Result == "contents") {
+                ContType = "CONTENTS";
+            } else if(Result == "tag") {
+                ContType = "TAG";
+            }
+
+            var obj = {
+                name      : FilterName,
+                type      : ContType,
+                value     : DefinitionName,
+                condition : ContStatus,
+                actions   : getLcData()
+            }
+
+            <!-- 設定 -->
+            var selIdx = $("#filters").find("option").length;
+            var Idx = $("#filters").val();
+
+            if(add == true) {
+                $("#filters").append($("<option>").attr({value : selIdx}).text(FilterName));
+
+                LC_filters.push(obj);
+
+                $('#filterDialog').dialog('close');
+                $("#sectionHeader").hide();
+                $("#filters").val(selIdx);
+                $("#filters").change();
+
+            } else if(change == true) {
+
+                LC_filters.splice(Idx, 1, obj);
+                document.getElementById("filters").options[Idx].text = FilterName;
+                $('#filterDialog').dialog('close');
+                $("#sectionHeader").hide();
+                $("#filters").val(Idx[0]);
+                $("#filters").change();
+            }
+            $(".btn").removeAttr("disabled");
+
+            return true;
+        }
+
+         /*フィルタ編集キャンセル */
+         function cancelFilterEdit(){
+            $('#DialogError').hide();
+            $('#filterDialog').dialog('close');
+         }
+
+        /*フィルタ編集画面入力チェック */
+        var LCF_err = [];
+
+        function checkInputData(){
+           // var styleClass = "error";
+            LCF_err = [];
+
+            <!-- フィルタ名 -->
+            <!-- 未入力チェック -->
+            if($.trim($("#LC_filterName").val()) == "") {
+                //$("#LC_filterName").addClass(styleClass);
+                LCF_err.push('{!$Label.label_13027}');
+            }
+
+            <!-- フィルタ名重複チェック -->
+            var Idx = $("#filters").val();
+            for (i = 0; i < document.getElementById("filters").length; i++) {
+                <!-- リストにあるか検索 -->
+                if($("#LC_filterName").val() == document.getElementById("filters").options[i].text) {
+                    <!-- 編集した項目は除外 -->
+                    if($("#LC_filterName").val() !=  document.getElementById("filters").options[Idx].text) {
+                     //   $("#LC_filterName").addClass(styleClass);
+                        LCF_err.push('{!$Label.msg_01089}');
+                    }
+                }
+            }
+
+            <!-- 条件 -->
+            <!-- 未入力チェック -->
+            if($("#conditionCheck").is(':checked')==false){
+                if ($.trim($("#LC_Condition").val()) == "") {
+                    //$("#LC_Condition").addClass(styleClass);
+                    LCF_err.push('{!$Label.msg_01090}');
+                }
+            }
+
+            <!-- ライフサイクル -->
+            var actions = $(this).getLcData();
+
+            for(var i = 0; i < actions.length; i++){
+                var actionObj = actions[i];
+                <!-- 未入力の場合 -->
+                if(($.trim(actionObj.time) == "") && (!actionObj.action)){
+                    <!-- 1段階目が未入力の場合 -->
+                    if(i == 0){
+                   //     $(this).getTimeObject(i).addClass(styleClass);
+                        LCF_err.push(getMsg([(i + 1)], '{!$Label.msg_01091}'));
+                    //    $(this).getActionObject(i).addClass(styleClass);
+                        LCF_err.push(getMsg([(i + 1)], '{!$Label.msg_01092}'));
+                    }
+                    break;
+                }
+
+                <!-- 日数 -->
+                if ($.trim(actionObj.time) == "") {
+                  //  $(this).getTimeObject(i).addClass(styleClass);
+                    LCF_err.push(getMsg([(i + 1)], '{!$Label.msg_01091}'));
+                }
+                <!-- 半角数字以外入力不可 -->
+                else if(actionObj.time.match(/[^0-9]/)) {
+                  //  $(this).getTimeObject(i).addClass(styleClass);
+                    LCF_err.push(getMsg([(i + 1)], '{!$Label.msg_01093}'));
+                }
+                <!-- 1以上 -->
+                else if(actionObj.time - 0 == 0){
+                  //  $(this).getTimeObject(i).addClass(styleClass);
+                    LCF_err.push(getMsg([(i + 1), 1], '{!$Label.msg_01094}'));
+                }
+                <!-- 365以下 -->
+                else if(actionObj.time - 0 > 365){
+                  //  $(this).getTimeObject(i).addClass(styleClass);
+                    LCF_err.push(getMsg([(i + 1), 365], '{!$Label.msg_01095}'));
+                }
+
+                <!-- アクション -->
+                if(!actionObj.action){
+                //    $(this).getActionObject(i).addClass(styleClass);
+                    LCF_err.push(getMsg([(i + 1)], '{!$Label.msg_01092}'));
+                }
+            }
+        }
+
+        function getLcData(){
+            var actions = $(this).getLcData();
+
+            var retActions = [];
+
+            for(var i = 0; i < actions.length; i++){
+                var actionObj = actions[i];
+                <!-- 未入力の場合 -->
+                if(($.trim(actionObj.time) == "") && (!actionObj.action)){
+                    break;
+                }
+                retActions[i] = actionObj;
+            }
+
+            return retActions;
+        }
+
+        <!-- エラーメッセージ表示用 -->
+        function viewErr(element, array){
+
+            $(element).empty();
+
+            if (array.length == 0) {
+                $(element).hide();
+                return;
+            }
+
+            var dom = "<ul class='err'>"
+            for(var i = 0; i < array.length; i++){
+            dom += "<li>" + array[i] + "</li>";
+
+            }
+            dom += "</ul>";
+            $(element).append(dom);
+            $(element).show();
+        }
+          /*フィルタ編集画面入力チェック End */
+
+          /**フィルタ情報処理**/
+        function convertFiltersClToSv(datas){
+            var retData = [];
+
+            for(var  i = 0; i < datas.length; i++){
+                var actions = [];
+                var data = datas[i];
+                for(var j = 0; j < data.actions.length; j++){
+                    var actionObj = data.actions[j];
+                    if(actionObj.action == "1") {
+                        actionObj.action = "ARCHIVE";
+                    }else if(actionObj.action == "2") {
+                        actionObj.action = "TRASH";
+                    }else if(actionObj.action == "3") {
+                        actionObj.action = "WIPE";
+                    }
+
+                    if(actionObj.date_unit == "0") {
+                        actionObj.date_unit = "DAY";
+                    }else if(actionObj.date_unit == "1") {
+                        actionObj.date_unit = "WEEK";
+                    }else if(actionObj.date_unit == "2") {
+                        actionObj.date_unit = "MONTH";
+                    }else if(actionObj.date_unit == "3") {
+                        actionObj.date_unit = "YEAR";
+                    }
+
+                    actionObj.time = actionObj.time - 0;
+
+                    actions[j] = actionObj;
+                }
+                var after =
+                {
+                    name      : data.name,
+                    condition : data.condition,
+                    type      : data.type,
+                    value     : data.value,
+                    actions   : actions
+                };
+
+                retData[i] = after;
+            }
+
+            return retData;
+        }
+
+        function convertFiltersSvToCl(datas){
+            var retData = [];
+
+            for(var  i = 0; i < datas.length; i++){
+                var actions = [];
+                var data = datas[i];
+                for(var j = 0; j < data.actions.length; j++){
+                    var actionObj = data.actions[j];
+                    if(actionObj.action == "ARCHIVE") {
+                        actionObj.action = "1";
+                    }else if(actionObj.action == "TRASH") {
+                        actionObj.action = "2";
+                    }else if(actionObj.action == "WIPE") {
+                        actionObj.action = "3";
+                    }
+
+                    if(actionObj.date_unit == "DAY") {
+                        actionObj.date_unit = "0";
+                    }else if(actionObj.date_unit == "WEEK") {
+                        actionObj.date_unit = "1";
+                    }else if(actionObj.date_unit == "MONTH") {
+                        actionObj.date_unit = "2";
+                    }else if(actionObj.date_unit == "YEAR") {
+                        actionObj.date_unit = "3";
+                    }
+
+                    actionObj.time = actionObj.time + "";
+                    actions[j] = actionObj;
+                }
+                var after =
+                {
+                    name      : data.name,
+                    condition : data.condition,
+                    type      : data.type,
+                    value     : data.value,
+                    actions   : actions
+                };
+
+                retData[i] = after;
+            }
+
+            return retData;
+        }
+
+        function resizeStr(strSrc, maxLength){
+            len = 0;
+            actLen = 0;
+            var escStrSrc = escape(strSrc);
+            for(i = 0; i < escStrSrc.length; i++, len++){
+                if(escStrSrc.charAt(i) == "%"){
+                    if(escStrSrc.charAt(++i) == "u"){
+                        i += 3;
+                        len++;
+                    }
+                    i++;
+                }
+                actLen++;
+                if(len > maxLength){
+                    return strSrc.substring(0, actLen) + '...';
+                }
+            }
+            return strSrc;
+        }
+
+        // WILLIE start
+        ECM.lifeCycleZwei = ECM.lifeCycleZwei || { loaded: $.Deferred() };
+        ECM.lifeCycleZwei.loaded.then(function() {
+            $("#filters").change(function(){
+                $("#filterDetail").empty();
+
+                var selIdx = $(this).val();
+
+                var filterObj = LC_filters[selIdx];
+
+                var $header = $("<div>").css({
+                    "padding-bottom" : "10px"
+                });
+
+                var CondMsg = filterObj.condition;
+                var TypeMsg = filterObj.type;
+
+                if(filterObj.type == "CONTENTS") {
+                    <!-- コンテンツ -->
+                    TypeMsg = getMsg([], '{!$Label.label_10081}');
+                } else if(filterObj.type == "TAG") {
+                    <!-- タグ -->
+                    TypeMsg = getMsg([], '{!$Label.label_10763}');
+                }
+
+                if(filterObj.condition == "CONTAINS") {
+                    var value = $(div).text(filterObj.value).html();
+                    $header.append(getMsg([TypeMsg, value], '{!$Label.msg_01096}'));
+                    value = resizeStr(value, 25);
+                    $("#conditionCheck").removeAttr("checked");
+                    $("#conditionDetail").show();
+                } else if(filterObj.condition == "NO_CONDITION"){
+                    $("#conditionCheck").attr("checked","checked");
+                    $("#conditionDetail").hide();
+                    $header.append(getMsg([], '{!$Label.msg_01097}'));
+                }
+
+                var $actions = $("<div>").css({
+                    "padding-left" : "10px"
+                });
+
+                for(var i = 0; i < filterObj.actions.length; i++){
+                    var actionObj = filterObj.actions[i];
+
+                    if(!actionObj.action){
+                        break;
+                    }
+
+                    var $action = $("<div>");
+                    var $arrowImg = $("<img src='{!URLFOR($Resource.cso, 'image/arrow_down_black.png')}' style='width:16px; height:16px;' />");
+
+                    if(i > 0) {
+                        $actions.append($arrowImg);
+                    }
+
+                    <!-- メッセージ変換用変数 -->
+                    var ActMsg = actionObj.action;
+                    var DateMsg = actionObj.date_unit;
+
+                    if(actionObj.action == "1") {
+                        <!-- アーカイブ保管 (アーカイブ化) -->
+                        ActMsg = getMsg([], '{!$Label.msg_01098}');
+                    }else if(actionObj.action == "2") {
+                        <!-- 削除 (ゴミ箱に移動) -->
+                        ActMsg = getMsg([], '{!$Label.msg_01099}');
+                    }else if(actionObj.action == "3") {
+                        <!-- 消去 (完全削除) -->
+                        ActMsg = getMsg([], '{!$Label.msg_01100}');
+                    }
+
+                    if(actionObj.date_unit == "0") {
+                        <!-- 日 -->
+                        DateMsg = getMsg([], '{!$Label.label_13111}');
+                    }else if(actionObj.date_unit == "1") {
+                        <!-- 週 -->
+                        DateMsg = getMsg([], '{!$Label.msg_01101}');
+                    }else if(actionObj.date_unit == "2") {
+                        <!-- 月 -->
+                        DateMsg = getMsg([], '{!$Label.msg_01102}');
+                    }else if(actionObj.date_unit == "3") {
+                        <!-- 年 -->
+                        DateMsg = getMsg([], '{!$Label.label_13112}');
+                    }
+
+                    $actions.append($action);
+                        <!-- アクション -->
+                    $action.append(getMsg([ActMsg, actionObj.time ,DateMsg], '{!$Label.label_13062}'));
+                }
+
+                $("#filterDetail").append($header);
+                $("#filterDetail").append($actions);
+
+                $("#filterStatus").show();
+
+                return true;
+            });
+
+            // リマインダON・OFF
+            $("#reminder_enabled").change(function() {
+                var disabled = $(this).attr("disabled");
+                var isDisabled = typeof disabled !== "undefined" && disabled !== false;
+                var c = $(this).attr("checked") && !isDisabled;
+                if (c) {
+                    $("#reminder_time").removeAttr("disabled").addClass("c_require");
+                } else {
+                    $("#reminder_time").attr("disabled", "disabled");
+                    if (!isDisabled) {
+                        $("#reminder_time").val("");
+                    }
+                }
+            });
+        });
+        // WILLIE end
+
+        <!-- （フィルタ）▲▼ボタン処理 -->
+        function changePriority(isUp){
+            $.fn.reverse = [].reverse;
+
+            var $opt = $("#filters option:selected");
+            if (!$opt.length) return;
+            if (!isUp) $opt.reverse();
+            $opt.each(function(i) {
+                var $src = $(this);
+                var $dst = $src[isUp ? "prev" : "next"]();
+                if ($dst.length && $dst[0].selected){
+                    return;
+                }
+
+                var index = $(this).val() - 0;
+                if(isUp == true){
+                    index = index -1;
+                }
+                if((index < 0) || (index >= LC_filters.length - 1)){
+                    return;
+                }
+                <!-- 配列を入れ替える -->
+                changeArray(LC_filters, index);
+
+                <!-- optionを入れ替える -->
+                $dst[isUp ? "before" : "after"]($src);
+
+                <!-- valueを振り直す -->
+                $('#filters option').each(function(idx){
+                    $(this).val(idx);
+                });
+            });
+        }
+
+        function changeArray(array, index){
+            array.splice(index, 2, array[index+1], array[index]);
+        }
+
+        function singleSelect(){
+            if($("#filters").val().length > 1){
+                $("#filters").find("option").attr("selected", "");
+            }
+        }
+
+        function clearVal(){
+            LC_spaceID = "";
+            filters= [];
+            LC_filters=[];
+            mailUsers = [];
+            resizeFlg = true;
+            mailUsers = [];
+            selectedTabIndex = 0;
+            selected = {};
+        }
+    </script>
+</apex:page>

@@ -1,0 +1,487 @@
+<apex:page sidebar="false" cache="false" controller="SOLXYZCSO001.SpacePortalController">
+
+<script type="text/javascript">
+    //  初期化フラグ
+    var spaceUserManager_initializeExec = false;
+    var spaceUserManager_spaceId;
+
+    // チェック保持用変数
+    var _invUserListSelected = new Object();
+    var _invUserListLoading = false;
+
+    //==============//
+    //  初期化処理  //
+    //==============//
+    function spaceUserManager_initialize(spaceId){
+        spaceUserManager_InvitedGuestListGetInit(spaceId, false);
+//        spaceUserManager_SearchInvitedGuestInit(spaceId);
+    }
+
+    //==========================//
+    //  招待者一覧取得準備処理  //
+    //==========================//
+    function spaceUserManager_InvitedGuestListGetInit(spaceId, reload){
+        //グリッドクリア
+        $("#spaceUserManager_inv_space_user_list").jqGrid("clearGridData", true);
+        //検索条件クリア
+        onInvUserSearchClearClicked();
+
+        // スペースIDを保持
+        spaceUserManager_spaceId = spaceId;
+
+        var callback =  function(data, status){
+            if(status != "success"){
+                alert("{!$Label.msg_00101}");
+                return;
+            }
+
+            //  初期化処理が未実施だった場合
+            if(spaceUserManager_initializeExec == false){
+                //  初期化フラグを更新
+                spaceUserManager_initializeExec = true;
+                //  招待者一覧の生成
+                spaceUserManager_createSpaceUserList();
+                //  ロールの取得
+                spaceUserManager_search_user_role();
+                //  スペースIDを初期化
+                spaceUserManager_spaceId = null;
+
+                ECM.spaceUserManager.initialized.resolve();
+            } else {
+                $('#c_headLeftSubTitle').html(data["title"]);
+
+                //  リロードが必要な場合
+                if(reload == true){
+                    spaceUserManager_invUserListReload_local();
+                }
+            }
+        };
+
+        var param = null;
+        if(spaceId != null && spaceId != ""){
+            param = {"spaceId":spaceId};
+        }
+
+        //  招待者一覧取得準備処理の呼び出し
+        secureGetAsync('/contentsmanagement/InvitedGuestListGetInit.json', param, callback);
+    }
+
+
+        //==================//
+        //  招待ユーザ検索  //
+        //==================//
+    function spaceUserManager_SearchInvitedGuestInit(spaceId){
+
+        $("#invUserSearchSelectRole").empty();
+        var optNoSelect = $("<option>");
+        optNoSelect.attr("value", "0");
+        optNoSelect.html("{!$Label.label_10431}");
+        $("#invUserSearchSelectRole").append(optNoSelect);
+
+        var callback =  function(data){
+            for(var key in data.role_names){
+                var optRole = $("<option>");
+                optRole.attr("value", key);
+                optRole.text(data.role_names[key]);
+                $("#invUserSearchSelectRole").append(optRole);
+            }
+        };
+
+        var param = null;
+        if(spaceId != null && spaceId != ""){
+            param = {"space_id": spaceId};
+        }
+
+        secureGetAsync('/contentsmanagement/roleListForSelect.json', param, callback);
+
+        $("#invUserSearchInputText").keydown(function(e){
+            if(e.keyCode == 13){
+                onInvUserSearchOkClicked();
+            }
+        });
+    }
+
+
+    //========================//
+    //  招待者一覧のリロード  //
+    //========================//
+    //  SpacePortalからの呼び出しを想定
+    function spaceUserManager_invUserListReload(spaceId){
+        spaceUserManager_InvitedGuestListGetInit(spaceId, true);
+        spaceUserManager_SearchInvitedGuestInit(spaceId);
+    }
+    //  SpaceUserManagerからの呼び出しを想定
+    function spaceUserManager_invUserListReload_local(){
+        // グリッドの内容が変更される場合は選択リストを初期化
+        _invUserListSelected = new Object();
+        $("#spaceUserManager_inv_space_user_list").trigger("reloadGrid");
+        spaceUserManager_SearchInvitedGuestInit(spaceUserManager_spaceId);
+    }
+
+
+    //====================//
+    //  招待者一覧の生成  //
+    //====================//
+    function spaceUserManager_createSpaceUserList(){
+        $("#spaceUserManager_inv_space_user_list").jqGrid({
+            url: _apiUrl + '/contentsmanagement/InvitedGuestListV2Get.json',
+            datatype: "jsonp",
+            jsonReader :{
+                repeatitems: false,
+                id         : "id"
+            },
+            colNames:[
+                '',
+                '{!$Label.label_10174}',
+                '{!$Label.label_00039}',
+                '{!$Label.label_10119}',
+                '{!$Label.label_10003}',
+                '{!$Label.label_10276}'
+            ],
+            colModel:[
+                {name:'id',index:'id', width:175, hidden:true},
+                {name:'action',index:'action', width:100, align:"center", resizable:false, sortable:false},
+                {name:'name',index:'name', width:500, align:"left"},
+                {name:'userasrt',index:'userasrt', width:50, align:"center", sortable:false, hidden:true},
+                {name:'userid_show',index:'userid_show', width:175, align:"left",hidden:true},
+                {name:'role',index:'role', width:150, align:"center"}
+            ],
+            rowNum: {!cso_userInfo.documentSpaceUserRows},
+            height: getBrowserHeight() - 286,
+            width: getBrowserWidth() - 250,
+            rowList:[10,50,100],
+            sortname: 'id',
+            pager: '#spaceUserManager_inv_space_user_pager',
+            shrinkToFit : false,
+            viewrecords: true,
+            multiselect: true,
+            multiboxonly: true,
+            loadComplete : function(data) {
+                try{
+                    _invUserListLoading = true;
+                    for(var id in _invUserListSelected){
+                        $(this).setSelection(id);
+                    }
+                    _invUserListLoading = false;
+
+                    if(spaceUserManager_spaceId != null){
+                        setPathList(data.spacePath);
+                    }
+                    if (data.invSpace) {
+                        $('.invspace').show();
+                    } else {
+                        $('.invspace').hide();
+                    }
+
+                    if(recordscnt > data["records"]){
+                        CsoScript_loadingStop();
+                        clearTimeout(timerID);
+                    }
+                    recordscnt = data["records"];
+                }catch(e){
+                }
+            },
+            onSelectRow: function(id, b_check){
+                if(!_invUserListLoading){
+                    onSelectInvUserListRow();
+                }
+            },
+            onSelectAll: function(id, b_check){
+                if(!_invUserListLoading){
+                    onSelectInvUserListRow();
+                }
+            },
+        });
+    }
+
+    function onSelectInvUserListRow(){
+        var gridUserIDs = $("#spaceUserManager_inv_space_user_list").getDataIDs();
+        for(var i=0; i<gridUserIDs.length; i++){
+            var row = $("#spaceUserManager_inv_space_user_list").getRowData(gridUserIDs[i]);
+            if($("#spaceUserManager_inv_space_user_list").find("input[type=checkbox][id=jqg_" + row.id + "]").attr("checked")){
+                _invUserListSelected[row.id] = row.id;
+            }else{
+                delete _invUserListSelected[row.id];
+            }
+        }
+    }
+
+
+    //==============//
+    //  ロール取得  //
+    //==============//
+    function spaceUserManager_search_user_role(){
+        var callback =  function(data, status){
+            if (data == null) return false;
+
+            var rows = data["role_select"];
+            var count = rows.length;
+
+            //  ロール一覧をクリア
+            var roleList = $("#spaceUserManager_roleList");
+            roleList.empty();
+
+            //  ロール一覧に追加
+            for(var i = 0; i < count; i++){
+                var option = $(spaceUserManager_createOptionTagString(rows[i].code));
+                option.attr("class", "item");
+                option.text(rows[i].name);
+                roleList.append(option);
+            }
+        };
+
+        //  ロール取得処理の呼び出し
+        secureGetAsync('/common/RoleSelectListGet.json', null, callback);
+    }
+    function spaceUserManager_createOptionTagString(id){
+        var str = "<option id='spaceUserManager_" + id + "' value='" + id + "'></option>";
+
+        return str;
+    }
+
+
+    //========================//
+    //  役割の変更画面の表示  //
+    //========================//
+    function mdfy_user(userName, userId, role){
+        //  ユーザID
+        $("#spaceUserManager_mdfyUserId").val(userId);
+        //  ユーザ／グループ
+        $("#spaceUserManager_mdfyUserName").val(unescape(userName));
+        //  現在の役割
+        $("#spaceUserManager_nowRole").val($("#spaceUserManager_" + role).text());
+        //  役割
+        $("#spaceUserManager_" + role).attr("selected", "selected");
+        $('#spaceUserManager_allModfy').attr('checked', 'checked');
+
+        //  役割の変更画面の表示
+        $("#spaceUserManager_modalDialogDiv").dialog({modal:true, width:450, title: "{!$Label.label_10277}"});
+    }
+
+
+    //============================//
+    //  役割の変更画面のクローズ  //
+    //============================//
+    function spaceUserManager_modalDialogDivClose(){
+        $('#spaceUserManager_modalDialogDiv').dialog('close');
+    }
+
+
+    //==============//
+    //  役割の変更  //
+    //==============//
+    function spaceUserManager_editUserRole(){
+        var callback =  function(data, status){
+            if(data["result"]){
+                //  招待者一覧の再描画
+                spaceUserManager_invUserListReload_local();
+                //  役割の変更画面をクローズ
+                spaceUserManager_modalDialogDivClose();
+            }
+            else{
+                var errMsg = data["message"];
+                if((errMsg == null) || (errMsg == "")){
+                    errMsg = "{!$Label.msg_00102}";
+                }
+                alert(errMsg);
+            }
+
+            //  [キャンセル][OK]を有効化
+            $("#spaceUserManager_mdfy_cancel").removeAttr("disabled");
+            $("#spaceUserManager_mdfy_ok").removeAttr("disabled");
+        };
+
+
+        var query = new Object();
+        query["userId"]   = $("#spaceUserManager_mdfyUserId").val();
+        query["userRole"] = $("#spaceUserManager_roleList").val();
+        query["allModfy"] = $("#spaceUserManager_allModfy").attr("checked") ? "on" : "off";
+
+        //  [キャンセル][OK]を無効化
+        $("#spaceUserManager_mdfy_cancel").attr({"disabled":"disabled"});
+        $("#spaceUserManager_mdfy_ok").attr({"disabled":"disabled"});
+
+        //  役割変更処理の呼び出し
+        secureGetAsync('/contentsmanagement/InvitedGuestRoleChange.json', query, callback);
+    }
+
+
+    //================//
+    //  招待者の削除  //
+    //================//
+    function del_user(userName, userId){
+        if(confirm("{!$Label.msg_00103}" + decodeURIComponent(userName) + "{!$Label.msg_00104}") == false){
+            return;
+        }
+
+        var callback =  function(data, status){
+            if(!data["result"]){
+                var errMsg = data["message"];
+                if((errMsg == null) || (errMsg == "")){
+                    errMsg = "{!$Label.msg_00105}";
+                }
+                alert(errMsg);
+            }
+            // グリッドの内容が変更される場合は選択リストを初期化
+            _invUserListSelected = new Object();
+
+            CsoScript_loadingStop();
+            delFlg = true;
+
+            //  招待者一覧の再描画
+            spaceUserManager_invUserListReload_local();
+        };
+
+        CsoScript_loadingStart();
+        delFlg = false;
+
+        //  削除処理の呼び出し
+        securePostAsync('/contentsmanagement/InvitedGuestDelete.json', {"delUserId" : userId}, callback);
+
+//        timerID = setTimeout('deltimer()',60000);
+    }
+
+    //==================//
+    //  招待者の一括削除   //
+    //==================//
+    function deleteInvUsers(){
+        var ids = [];
+        for(var id in _invUserListSelected){
+            ids.push(id);
+        }
+//        var ids = $("#spaceUserManager_inv_space_user_list").jqGrid("getGridParam","selarrrow");
+        if(ids.length == 0){
+            return;
+        }
+        if(confirm("{!$Label.msg_00049}") == false){
+            return;
+        }
+
+        var callback =  function(data, status){
+            if(!data["result"]){
+                var errMsg = data["message"];
+                if((errMsg == null) || (errMsg == "")){
+                    errMsg = "{!$Label.msg_00105}";
+                }
+                alert(errMsg);
+            }
+            // グリッドの内容が変更される場合は選択リストを初期化
+            _invUserListSelected = new Object();
+
+            CsoScript_loadingStop();
+            delFlg = true;
+
+            //  招待者一覧の再描画
+            spaceUserManager_invUserListReload_local();
+        };
+
+        CsoScript_loadingStart();
+        delFlg = false;
+
+        //  削除処理の呼び出し
+        securePostAsync('/contentsmanagement/InvitedGuestDelete.json', {"delUserId" : ids.join(",")}, callback);
+
+//        timerID = setTimeout('deltimer()',60000);
+    }
+
+    var timerID;
+    var recordscnt = 0;
+    var delFlg = false;
+    //========================//
+    //  削除タイムアウト      //
+    //========================//
+/*
+    function deltimer() {
+        if(delFlg){
+            clearTimeout(timerID);
+        }
+        spaceUserManager_invUserListReload_local();
+        timerID = setTimeout('deltimer()',5000);
+    }
+*/
+    //========================//
+    //  招待者登録画面の表示  //
+    //========================//
+    function spaceUserManager_spaceUserWizardWinOpen(){
+        window.open('{!$Page.SpaceUserWizard}?ecmSessionId=' + __ecmSessionId + '&spaceId=' + spaceUserManager_spaceId, 'SpaceUserWizard', 'width=775, height=710, menubar=no, toolbar=no, scrollbars=yes');
+    }
+
+    //========================//
+    //  検索画面クリアボタン  //
+    //========================//
+    function onInvUserSearchClearClicked(){
+        // グリッドの内容が変更される場合は選択リストを初期化
+        _invUserListSelected = new Object();
+        $("#spaceUserManager_inv_space_user_list").setGridParam({
+            postData : {
+                search_role : "0",
+                search_text : "",
+            },
+        }).trigger("reloadGrid");
+        $("#invUserSearchSelectRole").val("0");
+        $("#invUserSearchInputText").val("");
+    }
+
+    //======================//
+    //  検索画面検索ボタン  //
+    //======================//
+    function onInvUserSearchOkClicked(){
+        // グリッドの内容が変更される場合は選択リストを初期化
+        _invUserListSelected = new Object();
+        $("#spaceUserManager_inv_space_user_list").setGridParam({
+            postData : {
+                search_role : $("#invUserSearchSelectRole").val(),
+                search_text : $("#invUserSearchInputText").val(),
+            },
+        }).trigger("reloadGrid");
+    }
+
+    ECM.spaceUserManager = ECM.spaceUserManager || { loaded: $.Deferred() };
+    (function() {
+        $.extend(ECM.spaceUserManager, {
+            initialized: $.Deferred()
+        });
+        ECM.spaceUserManager.loaded.resolve();
+    })();
+
+</script>
+
+
+<div id ="spaceUserManager_invSpaceBody">
+    <table id="spaceUserManager_inv_space_user_list"></table>
+    <div id="spaceUserManager_inv_space_user_pager"></div>
+</div>
+
+<!-- ポップアップ -->
+<div id="spaceUserManager_modalDialogDiv" style="display: none;">
+    <table style="width:100%;">
+        <tr>
+            <th style="text-align:right; padding-right:5px;">{!$Label.label_10075}</th>
+            <td>
+                <input id="spaceUserManager_mdfyUserId" type="hidden"/>
+                <input id="spaceUserManager_mdfyUserName" type="text" disabled="disabled" readonly="readonly" class="middleWidth" />
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:right; padding-right:5px;">{!$Label.label_10278}</th>
+            <td><input id="spaceUserManager_nowRole" name="spaceUserManager_nowRole" type="text" disabled="disabled" readonly="readonly"  class="middleWidth"  /></td>
+        </tr>
+        <tr>
+            <th style="text-align:right; padding-right:5px;">{!$Label.label_10276}</th>
+            <td><select id="spaceUserManager_roleList" name="spaceUserManager_roleList" size="10" style="width:100%;"></select></td>
+        </tr>
+        <tr>
+            <th></th>
+            <td><label><input type="checkbox" id="spaceUserManager_allModfy" name="spaceUserManager_allModfy" checked="checked"/>{!$Label.label_10076}</label></td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: center; padding-top: 10px;">
+                <hr/>
+                <input type="button" class="btn" id="spaceUserManager_mdfy_ok"     value="{!$Label.label_00075}" onclick="spaceUserManager_editUserRole();" />
+                <input type="button" class="btn" id="spaceUserManager_mdfy_cancel" value="{!$Label.label_00058}" onclick="spaceUserManager_modalDialogDivClose();" />
+            </td>
+        </tr>
+    </table>
+</div>
+
+</apex:page>

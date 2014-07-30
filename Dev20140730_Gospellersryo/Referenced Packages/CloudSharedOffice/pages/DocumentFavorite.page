@@ -1,0 +1,236 @@
+<apex:page sidebar="false" cache="false">
+<script type="text/javascript">
+
+var favoriteActFlg = false;
+var favoriteType;
+var favoriteFileIDs = new Array();
+var hasPdfFile = false;
+
+function openFavorite(){
+    $("#SearchFavoriteText").val("");
+    $("#favoriteListDiv").empty();
+    $("#favoriteDiv").dialog({
+        autoOpen: false,
+        closeOnEscape: false,
+        draggable: false,
+        height: getBrowserHeight() - 200,
+        width: '90%',
+        modal: true,
+        resizable: false,
+        open: function(event,ui){
+            addOverflowClass();
+            $("#preview-area").addClass("preview-on-top");
+        },
+        close: function(event,ui){
+            $("html").removeClass("overflow-auto-impt");
+            $("#preview-area").removeClass("preview-on-top");
+            $("#csopreview-close").unbind("click" , addOverflowClass);
+        }
+    });
+    $("#favoriteListDiv").height(getBrowserHeight() - 360);
+    $("#favoriteDiv").dialog("open");
+
+    selectFavorite(-1, null, "");
+}
+
+function favorite(spaceId, o){
+    if(!favoriteActFlg){
+        favoriteActFlg = true;
+        $.get(_apiUrl+"/space/spaceFavorite.json", {spaceId: spaceId, ope: $(o).attr("act")}, function(data){
+            if(getBrowserType() == 'Firefox'){
+                $("#contextMenulist").hide();
+            }
+            if(data.favorite == 0){
+                $(o).children().removeClass("favorite-on").addClass("favorite-off");
+                $(o).attr("title", "{!$Label.label_13203}");
+            }else{
+                $(o).children().removeClass("favorite-off").addClass("favorite-on");
+                $(o).attr("title", "{!$Label.label_13204}");
+            }
+            $(o).attr("act", data.favorite);
+            favoriteActFlg = false;
+        },'jsonp');
+    }
+    window.event.cancelBubble = true;
+}
+
+function getFavListEl(t, o){
+    $div = $("<div>");
+    $innerDiv = $("<div>").addClass("fav-subSection").text(t);
+    var escaper = $("<div>");
+    var $ul = $("<ul style='list-style: none;'>");
+    hasPdfFile = false;    
+    favoriteFileIDs = new Array();
+    for(var i = 0; i < o.length; i++){
+        var $li = $("<li style='list-style: none;'>");
+        var $checkbox = $("<input type='checkbox' value='" + o[i].id + "'>");
+        var $img;
+        var $name;
+        var $path;
+        if(o[i].type != undefined){
+            switch(o[i].type){
+            case 1:
+                $img = $("<img src='{!URLFOR($Resource.cso, '/image/folder-lock.png')}' style='width: 16px; height: 16px; border: none; vertical-align: -2px;'>");
+                break;
+            case 2:
+                $img = $("<img src='{!URLFOR($Resource.cso, '/image/folder-share.png')}' style='width: 16px; height: 16px; border: none; vertical-align: -2px;'>");
+                break;
+            default:
+                $img = $("<img src='{!URLFOR($Resource.cso, '/image/folder.png')}' style='width: 16px; height: 16px; border: none; vertical-align: -2px;'>");
+                break;
+            }
+            $name = $("<a>").attr("href", "javascript:spaceLocation('" + o[i].id + ":" + o[i].asrt.toLowerCase() + "');").append(escaper.text(o[i].name).html());
+        }else{
+            favoriteFileIDs.push(o[i].id);
+            $img = $("<img src='{!URLFOR($Resource.cso, '/image/txt.png')}' style='width: 16px; height: 16px; border: none; vertical-align: -3px;'>") // TODO 画像用意
+            $name = $("<a>").attr("href", "javascript:clickFavFile('" + o[i].id + "', '" + o[i].spaceID + "');").append(escaper.text(o[i].name).html());
+            if(getFileExtension(escaper.text(o[i].name).html()) == "pdf"){
+                hasPdfFile = true;
+            }
+        }
+        $path = $("<span>").css({"font-size":"10px", "color":"gray"}).append(escaper.text(o[i].path).html());
+        $li.append($checkbox).append($img).append($name).append($path);
+        $ul.append($li);
+    }
+    $div.append($innerDiv).append($ul);
+    return $div;
+}
+
+function addOverflowClass(){
+    $("html").addClass("overflow-auto-impt");
+}
+var favConSpace = '';
+function clickFavFile(f, s){
+    favConSpace = s;
+    $("html").removeClass("overflow-auto-impt");
+    var param = {
+        fileId : f,
+        spaceId : null,
+        version : "",
+        sort : $("#listView1").getGridParam("sortname"),
+        order : $("#listView1").getGridParam("sortorder"),
+        search : ""
+    };
+    if(navigator.appVersion.toLowerCase().indexOf("msie 9.") >= 0 ? true : false){
+        if(hasPdfFile){
+            window.open("{!$Page.ContentsFileviewer}?fileId="+ param.fileId +"&spaceId="+ param.spaceId +"&version="+ param.version +"&sort="+ param.sort +"&order="+ param.order +"&search="+ param.search +"&favorite=true", "fileviewerWindow",'menubar=no, toolbar=no, scrollbars=yes, resizable=yes');
+        }else{  
+            $("#preview-area").loadPreview(param.fileId, null, param.version, param.sort, param.order, param.search, favoriteFileIDs);
+        }
+    }else{
+         $("#preview-area").loadPreview(param.fileId, param.spaceId, param.version, param.sort, param.order, param.search, favoriteFileIDs);
+   }
+    $("#csopreview-close").bind("click" , addOverflowClass);
+}
+
+function selectFavorite(type, o, searchstr){
+    favoriteType = type;
+
+    $("#favoriteLoadingGif").show();
+
+        var callback = function(data){
+            $("#favoriteListDiv").empty();
+            var favEmpty = true;
+            if(data.favoriteSpace.my.length > 0){
+                $("#favoriteListDiv").append(getFavListEl("{!$Label.label_00051}", data.favoriteSpace.my));
+                favEmpty = false;
+            }
+            if(data.favoriteSpace.collabo.length > 0){
+                $("#favoriteListDiv").append(getFavListEl("{!$Label.label_00052}", data.favoriteSpace.collabo));
+                favEmpty = false;
+            }
+            if(data.favoriteSpace.company.length > 0){
+                $("#favoriteListDiv").append(getFavListEl("{!$Label.label_00053}", data.favoriteSpace.company));
+                favEmpty = false;
+            }
+            if(data.favoriteFile.length > 0){
+                $("#favoriteListDiv").append(getFavListEl("{!$Label.label_10011}", data.favoriteFile));
+                favEmpty = false;
+            }
+
+            if(favEmpty){
+                $("#favoriteListDiv").append($("<span>").css({
+                    "font-size" : "12px",
+                    "color" : "gray"
+                }).append("{!$Label.label_13205}"));
+            }
+            $("#favoriteLoadingGif").fadeOut("fast");
+        };
+
+    secureGetAsync('/space/spaceFavoriteList.json', {type : -1, searchstr: searchstr}, callback);
+}
+
+function spaceLocation(url){
+    location.href = "#" + url;
+    $("#favoriteDiv").dialog("close");
+}
+
+function removeFavorite(){
+    var idList = new Array();
+    $("#favoriteListDiv input").each(function(){
+        if($(this).attr("checked")){
+            idList.push($(this).val());
+        }
+    });
+    var callback = function(data){
+        searchFavorite();
+    };
+
+    secureGetAsync('/space/spaceFavorite.json', {spaceId: idList.join(","), ope: 1}, callback);
+}
+
+function searchFavorite(){
+    var searchstr = $.trim($("#SearchFavoriteText").val());
+    selectFavorite(favoriteType, null, searchstr);
+}
+
+function searchClearFavorite(){
+    $("#SearchFavoriteText").val("");
+    selectFavorite(favoriteType, null, "");
+}
+
+function getFileExtension(filename){
+    var a = filename.split(".");
+    if( a.length === 1 || ( a[0] === "" && a.length === 2 ) ) {
+        return "";
+    }
+    return a.pop();
+}
+</script>
+
+<div id="favoriteDiv" style="height: 90%; display: none;">
+    <table style="width: 100%;" cellpadding="0" cellspacing="0">
+        <tr id="favoriteDivTable">
+            <td colspan="2" style="padding-top: 10px; padding: 10px;" id="favoriteHeaderArea">
+                <div class="favoriteTitle">
+                    <span style="font-size: 20px;" id="favoriteTitle">
+                        {!$Label.label_13206}</span>
+                </div>
+                <div class="favoriteSearch">
+                    <!--form onsubmit="return false;"-->
+                        <span style="position: relative;">
+                            <input type="text" id="SearchFavoriteText" class="favoriteSearchText csoCloseIcon" clr-act="searchClearFavorite();" name="SearchFavoriteText" maxlength="255" />
+                        </span>
+                        <input type="button" class="btn" value="{!$Label.label_00069}" onclick="searchFavorite();" />
+                    <!--/form-->
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td id="favoriteMainArea" style="">
+                <img src="{!URLFOR($Resource.cso, '/image/loading2.gif')}" style="position: absolute; left: 50%; top: 50%;" id="favoriteLoadingGif" />
+                <div style="overflow-y:auto; word-break:break-all; word-wrap:break-word;" id="favoriteListDiv">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" id="favoriteFooterArea">
+            <div style="text-align: right; border-top: solid 1px silver; padding: 10px;">
+                <input type="button" value="{!$Label.field_common_remove}" class="btn" onclick="removeFavorite();" />
+                <input type="button" value="{!$Label.label_00071}" onclick='reloadGrid(); $("#favoriteDiv").dialog("close");' class="btn" />
+            </div>
+            </td>
+        </tr>
+    </table>
+</div>
+</apex:page>

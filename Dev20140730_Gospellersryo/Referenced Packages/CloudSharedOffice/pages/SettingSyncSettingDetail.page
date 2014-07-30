@@ -1,0 +1,325 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingSyncSettingController" tabStyle="setting__tab" >
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_sync_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_sync_manage == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<script type="text/javascript">
+$(function(){
+
+    // 設定情報取得
+    var param = {
+    }
+
+    var callback =  function(data){
+        if(data.result){
+            displayInit(data);
+        }else{
+            // データの読み込みに失敗しました。
+        }
+    };
+
+    var callerror =  function(data){
+    };
+
+    secureGetAsync('/setup/sync/SyncSettingDetail.json', param, callback, callerror);
+
+    $("#newVersionInfomation").dialog({
+        width       : 370,
+        height      : 145,
+        autoOpen    : false,
+        resizable   : false,
+        modal       : true,
+    });
+
+});
+
+function releaseConfirm(){
+    if(confirm("{!$Label.label_13183}")){
+        var param = {
+        }
+
+        var callback =  function(data){
+            if(data.result){
+                alert("{!$Label.label_13184}");
+                $("#newVersionInfomation").dialog("close");
+                $("#verupLink").remove();
+                $("#releaseVersion").text("${app.version }");
+            }else{
+                alert("Failed to Release.");
+            }
+        };
+
+        var callerror =  function(data){
+        };
+
+        secureGetAsync('/setup/sync/SyncClientRelease.json', param, callback, callerror);
+    }
+}
+
+function confirmDialog(){
+    $("#newVersionInfomation").dialog("open");
+}
+
+function editJump() {
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingSyncSettingEdit))}';
+
+}
+
+function displayInit(data){
+    var setting = data.setting;
+    var app = data.app;
+    var regUpDate = data.regUpDate;
+
+    if(setting.versionUpType == "1"){
+        $('#versionValue').text(app.version);
+    }else{
+        $('#versionValue').text(setting.releaseVersion);
+    }
+
+    if(data.isNewVersion){
+        $("#releaseInfoURL").attr("href", app.url);
+        $("#verUpComment").text(data.comment);
+        $('#updateLink').show();
+    }else{
+        $('#updateLink').hide();
+    }
+
+    var vUT = setting.versionUpType;
+    if(vUT == 0){
+        $("#versionupType").text("{!$Label.label_13185}");
+    }else if(vUT == 1){
+        $("#versionupType").text("{!$Label.label_13186}");
+    }else if(vUT == 2){
+        $("#versionupType").text("{!$Label.label_13187}");
+    }
+
+    var timing = '';
+    if(setting.notifyCheckType == "month"){
+        // 毎月
+        timing = '{!$Label.label_13188}' + ' ' + setting.notifyCheckValue;
+    }else if(setting.notifyCheckType == "week"){
+        // 毎週
+        timing = '{!$Label.label_13189}' + ' ' + getDayString(setting.notifyCheckValue);
+    }else{
+        // 毎日
+        timing = '{!$Label.label_13190}';
+    }
+    // 時間情報を追加
+    timing = timing + ' ' + setting.notifyCheckTime;
+    // タイムゾーン情報を足す
+//    timing = timing + ' (' + setting.timezone + ') ';
+    $('#notifyCheck').text(timing);
+
+    show_checkbox('notifyAdmin', setting.notifyAdmin);
+    show_checkbox('notifyUser', setting.notifyUser);
+
+    $('#registUserName').text(setting.registUserName);
+    $('#registDate').text(regUpDate.regDate);
+    var updateUserName = setting.updateUserName;
+    var updateDate     = regUpDate.upDate;
+    if(updateUserName == null || updateUserName.length <= 0) updateUserName = "-";
+    if(updateDate == null || updateDate == -1 || updateDate == 0) updateDate = "-";
+    $('#updateUserName').text(updateUserName);
+    $('#updateDate').text(updateDate);
+
+}
+
+function getDayString(value) {
+    var dayString = "";
+    switch(value) {
+        case "0":   dayString = "{!$Label.label_common_00022}";
+                    break;
+        case "1":   dayString = "{!$Label.label_common_00023}";
+                    break;
+        case "2":   dayString = "{!$Label.label_common_00024}";
+                    break;
+        case "3":   dayString = "{!$Label.label_common_00025}";
+                    break;
+        case "4":   dayString = "{!$Label.label_common_00026}";
+                    break;
+        case "5":   dayString = "{!$Label.label_common_00027}";
+                    break;
+        case "6":   dayString = "{!$Label.label_common_00028}";
+                    break;
+    }
+    return dayString;
+}
+
+function show_checkbox(id, check){
+    if(eval(check)){
+        $('#' + id).attr('checked', 'checked');
+    } else {
+        $('#' + id).attr('checked', '');
+    }
+}
+
+</script>
+
+<style type="text/css">
+
+.syncSettingTable th{
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+    height: 3em;
+}
+
+.checkbox {
+    height: 20px;
+    width: 20px;
+}
+
+.updateTable{
+    color: #0000CD;
+}
+
+.updateTable th{
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+    height: 2em;
+}
+
+.updateTable td{
+    text-align: center;
+    padding: 0px 20px 0px 20px;
+}
+
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/u_32.png')}" alt="{!$Label.solxyzcso001__label_10621}" title="{!$Label.solxyzcso001__label_10621}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_13170}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_13172}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <!-- コマンドボタン表示 -->
+                        <div class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="last">
+                                    <!-- 編集ボタン -->
+                                    <input class="btn" type="button" value="{!$Label.label_00073}" onclick="editJump();" />
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="padding: 20px 40px;">
+                            <table class="syncSettingTable">
+                                <tr>
+                                    <th>{!$Label.label_13191}</th>
+                                    <td>
+                                        <span id="versionValue"></span>&nbsp;&nbsp;<a id="updateLink" href="javascript:confirmDialog();" style="font-weight: bold; color: blue; display: none;">[{!$Label.label_13225}]</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_13192}</th>
+                                    <td>
+                                        <span id="versionupType"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_13193}</th>
+                                    <td><span id="notifyCheck"></span></td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <input type="checkbox" id="notifyAdmin" disabled="disabled"/>
+                                        <span style="vertical-align: 5px;">{!$Label.label_13194}</span><br/>
+                                        <input type="checkbox" id="notifyUser" disabled="disabled"/>
+                                        <span style="vertical-align: 5px;">{!$Label.label_13195}</span>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table class="updateTable" style="padding: 40px;">
+                                <tr>
+                                    <th>{!$Label.label_10015}</th>
+                                    <td><span id="registUserName"></span></td>
+                                    <th>{!$Label.label_10005}</th>
+                                    <td><span id="registDate"></span></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10024}</th>
+                                    <td><span id="updateUserName"></span></td>
+                                    <th>{!$Label.label_10006}</th>
+                                    <td><span id="updateDate"></span></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- 隠しフィールド -->
+                        <input type="hidden" id="deleteIds" name="deleteIds" />
+
+                        <!-- バージョンアップダイアログ -->
+                        <div id="newVersionInfomation" style=" display: none; margin: 10px;" title="{!$Label.label_10026}">
+                            <div>
+                                <span id="verUpComment"></span>
+                                <a href="{!$Label.label_application_url}" target="blank" style="font-weight: bold; color: blue;" id="releaseInfoURL">[{!$Label.label_13196}]</a><br/><br/>
+                                {!$Label.label_13197}
+                            </div>
+                            <div style="text-align: right; margin-top: 10px;">
+                                <input type="button" value="{!$Label.label_13198}" onclick="releaseConfirm();" class="btn"/>
+                            </div>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

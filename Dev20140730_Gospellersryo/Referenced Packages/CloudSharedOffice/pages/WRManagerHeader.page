@@ -1,0 +1,65 @@
+<apex:page sidebar="false" cache="false">
+<script type="text/javascript">
+/*
+ * スペース名を設定する
+ */
+function setSpaceName(name){
+    
+    if(name==null || name == "") name = '{!$Label.label_wf_00002}';
+
+    var nameLength, moji, moji2;
+    nameLength=name.length;
+    $("#c_headLeftSubTitle").attr("title",name);
+    name = replaceLongName(name, 18);
+    $("#c_headLeftSubTitle").html(name);
+}
+</script>
+<!-- ヘッダー -->
+<table width="100%">
+    <tr>
+        <td id="c_headLeft" nowrap="nowrap">
+            <div id="folder_image">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'image/folder.png')}" alt="{!$Label.solxyzcso001__label_wf_00001}" title="{!$Label.solxyzcso001__label_wf_00001}"/>
+            </div>
+            <!--
+            <div id="tag_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.WRCSO, 'image/tag_title.png')}" alt="{!$Label.label_00057}" title="{!$Label.label_00057}"/>
+            </div>
+            <div id="edit_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.WRCSO, 'image/online_edit.png')}" alt="{!$Label.label_10180}" title="{!$Label.label_10180}"/>
+            </div>
+            <div id="spaceManage_image" style="display:none">
+                <apex:image url="{!URLFOR($Resource.WRCSO, 'image/001_57.gif')}" alt="{!$Label.label_10035}" title="{!$Label.label_10035}"/>
+            </div>
+            -->
+            <h1 id="c_headLeftTitle" style="display:block;">{!$Label.solxyzcso001__label_wf_00001}</h1>
+            <h2 id="c_headLeftSubTitle" style="display:block;font-size:16px; font-weight:bold;margin-top:10px;">  </h2>
+        </td>
+        <!--
+        <td width="60px" style="vertical-align:top;">
+            <div id="infoChatter" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.WRCSO, 'image/chatter_icon.png')}" alt="Chatter" title="{!$Label.label_10368}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoShare" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.WRCSO, 'image/sp_group.png')}" alt="Share" title="{!$Label.label_10369}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+            <div id="infoSpaceRule" class="c_setting_icon">
+                <apex:image url="{!URLFOR($Resource.WRCSO, 'image/space-rule.png?20120427')}" alt="SpaceRule" title="{!$Label.label_10370}" styleClass="spaceInfoIcon spaceInfoIconPointer"/>
+            </div>
+        </td>
+        -->
+        <!-- 操作ボックス -->
+        <td id="c_headRight">
+        <!--
+            <div id="c_headSearchBox">
+                <form name="searchform" id="searchform" method="get" action="#" onsubmit="search($('#keywords').val()); return false;" style="margin-bottom:3px;display:inline;">
+                    <input name="keywords" id="keywords" value="" type="text" style="margin-top:2px" />
+                    <button onclick="search($('#keywords').val()); return false;" >{!$Label.label_wf_00029}</button>
+                </form>
+            </div>
+        -->
+            <apex:include pagename="SOLXYZCSO001__WROptionsLink"/>
+        </td>
+    </tr>
+</table>
+</apex:page>

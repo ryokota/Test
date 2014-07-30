@@ -1,0 +1,17 @@
+<apex:page id="page" showHeader="false" sidebar="false">
+<!-- ChatterデスクトップからでもSpacePortalにジャンプできるようにする -->
+<script type="text/javascript">
+//Chatterデスクトップのリンクから遷移してきた場合は、アンカータグを生成して開きなおす
+function openSpacePortal(){
+    var spaceLink = '';
+    spaceLink = "{!JSENCODE($CurrentPage.parameters.spaceLink)}";
+    
+    if(spaceLink != '' && spaceLink != null && spaceLink != undefined){
+        window.open('{!$Page.SOLXYZCSO001__SpacePortal}#' + spaceLink,'_self');
+    }
+}
+
+//SpacePortalを開く
+openSpacePortal();
+</script>
+</apex:page>

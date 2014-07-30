@@ -1,0 +1,817 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>ActiveEndDate__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>利用終了日</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>ActiveEndTime__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>利用終了時間</label>
+        <picklist>
+            <picklistValues>
+                <fullName>00:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>01:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>02:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>03:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>04:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>05:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>06:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>07:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>08:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>09:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>10:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>11:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>12:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>13:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>14:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>15:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>16:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>17:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>18:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>19:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>20:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>21:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>22:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>23:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>ActiveStartDate__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>利用開始日</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>ActiveStartTime__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>利用開始時間</label>
+        <picklist>
+            <picklistValues>
+                <fullName>00:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>01:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>02:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>03:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>04:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>05:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>06:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>07:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>08:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>09:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>10:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>11:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>12:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>13:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>14:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>15:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>16:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>17:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>18:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>19:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>20:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>21:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>22:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>23:00</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CSOActive__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>ECM有効</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>CSOChatter__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>ECM Chatter連携</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>CSOProfileName_Label_c__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>CSOProfileName__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>ECMプロファイル名称</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CSOProfileName__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>ECMプロファイル名称(非表示対象)</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DiscSize__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Input -1 when no limit.</inlineHelpText>
+        <label>ディスク容量(GB)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DistributionSize__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Input -1 when no limit.</inlineHelpText>
+        <label>配信容量(GB)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DistributionUsedLabel__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>DistributionUsedText__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>配信使用量</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DistributionUsedText__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>配信使用量(非表示対象)</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DistributionUsed__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>配信使用量(非表示対象NUM)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>EmailAfter__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>EmailAfter</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>FristFuriganaName__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>名(フリガナ)</label>
+        <length>120</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>HomeSpace__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>ホームスペース</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>LastFuriganaName__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>姓(フリガナ)</label>
+        <length>240</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Locked__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>ロック</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>PersonalChangeRolsFlg__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>PersonalChangeRolsFlg</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>PersonalChangeRols__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>PersonalChangeRols</label>
+        <length>32768</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>UseDiskSizeLabel__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>UseDiskSize__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>ディスク使用量</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>UseDiskSize__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>ディスク使用量(非表示対象)</label>
+        <length>30</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>WRActive__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>WebReport有効</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>availabledelivery__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>配信容量閾値有効</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>availabledisk__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>ディスク容量閾値有効</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>deliverythreshold__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>配信容量閾値</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>deliverythresholdunit__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>配信容量閾値単位</label>
+        <picklist>
+            <picklistValues>
+                <fullName>GB</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>％</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>diskthreshold__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>ディスク容量閾値</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>diskthresholdunit__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>ディスク容量閾値単位</label>
+        <picklist>
+            <picklistValues>
+                <fullName>GB</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>％</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Picklist</type>
+    </fields>
+    <validationRules>
+        <fullName>DisableCurrentUserEditEndDate</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND( ISCHANGED( ActiveEndDate__c ) , Id  =  $User.Id)</errorConditionFormula>
+        <errorDisplayField>ActiveEndDate__c</errorDisplayField>
+        <errorMessage>自分自身の終了日を編集することはできません。</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>DisableCurrentUserEditEndTime</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND( ISCHANGED( ActiveEndTime__c ) , Id  =  $User.Id)</errorConditionFormula>
+        <errorDisplayField>ActiveEndTime__c</errorDisplayField>
+        <errorMessage>自分自身の終了時間を編集することはできません。</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>DisableCurrentUserEditLock</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND( ISCHANGED( Locked__c  ) , Id  =  $User.Id)</errorConditionFormula>
+        <errorDisplayField>Locked__c</errorDisplayField>
+        <errorMessage>ログイン中のユーザは自分をロックまたはアンロックすることはできません。</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>DisableCurrentUserEditStartDate</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND( ISCHANGED( ActiveStartDate__c ) , Id  =  $User.Id)</errorConditionFormula>
+        <errorDisplayField>ActiveStartDate__c</errorDisplayField>
+        <errorMessage>自分自身の開始日を編集することはできません。</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>DisableCurrentUserEditStartTime</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND( ISCHANGED( ActiveStartTime__c ) , Id  =  $User.Id)</errorConditionFormula>
+        <errorDisplayField>ActiveStartTime__c</errorDisplayField>
+        <errorMessage>自分自身の開始時間を編集することはできません。</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>EndDateBeforeCurrentDateValidation</fullName>
+        <active>false</active>
+        <errorConditionFormula>(DATEVALUE(TEXT(ActiveEndDate__c))  &lt; DATEVALUE(TEXT(NOW())))</errorConditionFormula>
+        <errorDisplayField>ActiveEndDate__c</errorDisplayField>
+        <errorMessage>利用終了日時は、現在よりも後の日時を設定してください。</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>EndDateIsCurrentDateTimeValidation</fullName>
+        <active>false</active>
+        <errorConditionFormula>DATETIMEVALUE(
+				RPAD(
+					TEXT(ActiveEndDate__c), 
+					19, 
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;&quot;),&quot; 00:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;00:00&quot;),&quot; 00:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;01:00&quot;),&quot; 01:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;02:00&quot;),&quot; 02:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;03:00&quot;),&quot; 03:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;04:00&quot;),&quot; 04:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;05:00&quot;),&quot; 05:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;06:00&quot;),&quot; 06:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;07:00&quot;),&quot; 07:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;08:00&quot;),&quot; 08:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;09:00&quot;),&quot; 09:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;10:00&quot;),&quot; 10:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;11:00&quot;),&quot; 11:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;12:00&quot;),&quot; 12:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;13:00&quot;),&quot; 13:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;14:00&quot;),&quot; 14:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;15:00&quot;),&quot; 15:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;16:00&quot;),&quot; 16:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;17:00&quot;),&quot; 17:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;18:00&quot;),&quot; 18:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;19:00&quot;),&quot; 19:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;20:00&quot;),&quot; 20:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;21:00&quot;),&quot; 21:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;22:00&quot;),&quot; 22:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;23:00&quot;),&quot; 23:00:00 &quot;, &quot;NO DATE&quot;)))))))))))))))))))))))))
+				)
+			)	
+			&lt;	
+			NOW()</errorConditionFormula>
+        <errorDisplayField>ActiveEndTime__c</errorDisplayField>
+        <errorMessage>利用終了日時は、現在よりも後の日時を設定してください。</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>ExpiredUserEditLockValidation</fullName>
+        <active>false</active>
+        <errorConditionFormula>AND(Locked__c = FALSE, (OR((DATEVALUE(TEXT(ActiveEndDate__c))  &lt; DATEVALUE(TEXT(NOW()))),(DATETIMEVALUE(
+				RPAD(
+					TEXT(ActiveEndDate__c), 
+					19, 
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;&quot;),&quot; 00:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;00:00&quot;),&quot; 00:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;01:00&quot;),&quot; 01:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;02:00&quot;),&quot; 02:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;03:00&quot;),&quot; 03:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;04:00&quot;),&quot; 04:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;05:00&quot;),&quot; 05:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;06:00&quot;),&quot; 06:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;07:00&quot;),&quot; 07:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;08:00&quot;),&quot; 08:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;09:00&quot;),&quot; 09:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;10:00&quot;),&quot; 10:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;11:00&quot;),&quot; 11:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;12:00&quot;),&quot; 12:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;13:00&quot;),&quot; 13:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;14:00&quot;),&quot; 14:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;15:00&quot;),&quot; 15:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;16:00&quot;),&quot; 16:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;17:00&quot;),&quot; 17:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;18:00&quot;),&quot; 18:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;19:00&quot;),&quot; 19:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;20:00&quot;),&quot; 20:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;21:00&quot;),&quot; 21:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;22:00&quot;),&quot; 22:00:00 &quot;,
+					IF(ISPICKVAL(ActiveEndTime__c, &quot;23:00&quot;),&quot; 23:00:00 &quot;, &quot;NO DATE&quot;)))))))))))))))))))))))))
+				)
+			)	
+			&lt;	
+			NOW()))))</errorConditionFormula>
+        <errorDisplayField>Locked__c</errorDisplayField>
+        <errorMessage>Cannot Unlock User After End Date. JA</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>NewUserEndDateBeforeCurrentDate</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND( ISNEW(), ActiveEndDate__c &lt; DATEVALUE(NOW()))</errorConditionFormula>
+        <errorDisplayField>ActiveEndDate__c</errorDisplayField>
+        <errorMessage>利用終了日時は、現在よりも後の日時を設定してください。</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>SameDayTimeValidation</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(
+				DATEVALUE(TEXT(ActiveStartDate__c)) = DATEVALUE(TEXT(ActiveEndDate__c)),
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;&quot;),0,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;00:00&quot;),0,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;01:00&quot;),1,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;02:00&quot;),2,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;03:00&quot;),3,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;04:00&quot;),4,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;05:00&quot;),5,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;06:00&quot;),6,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;07:00&quot;),7,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;08:00&quot;),8,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;09:00&quot;),9,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;10:00&quot;),10,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;11:00&quot;),11,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;12:00&quot;),12,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;13:00&quot;),13,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;14:00&quot;),14,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;15:00&quot;),15,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;16:00&quot;),16,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;17:00&quot;),17,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;18:00&quot;),18,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;19:00&quot;),19,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;20:00&quot;),20,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;21:00&quot;),21,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;22:00&quot;),22,
+				IF(ISPICKVAL(ActiveStartTime__c, &quot;23:00&quot;),23, 24)))))))))))))))))))))))))
+				&gt;=
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;&quot;),0,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;00:00&quot;),0,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;01:00&quot;),1,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;02:00&quot;),2,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;03:00&quot;),3,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;04:00&quot;),4,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;05:00&quot;),5,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;06:00&quot;),6,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;07:00&quot;),7,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;08:00&quot;),8,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;09:00&quot;),9,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;10:00&quot;),10,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;11:00&quot;),11,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;12:00&quot;),12,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;13:00&quot;),13,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;14:00&quot;),14,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;15:00&quot;),15,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;16:00&quot;),16,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;17:00&quot;),17,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;18:00&quot;),18,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;19:00&quot;),19,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;20:00&quot;),20,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;21:00&quot;),21,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;22:00&quot;),22,
+				IF(ISPICKVAL(ActiveEndTime__c, &quot;23:00&quot;),23, 24)))))))))))))))))))))))))
+			)</errorConditionFormula>
+        <errorDisplayField>ActiveEndTime__c</errorDisplayField>
+        <errorMessage>利用終了日時は、利用開始日時より後の日付を入力してください。</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>StartDateAfterEndDateValidation</fullName>
+        <active>true</active>
+        <errorConditionFormula>DATEVALUE(TEXT(ActiveStartDate__c))  &gt; DATEVALUE(TEXT(ActiveEndDate__c))</errorConditionFormula>
+        <errorDisplayField>ActiveEndDate__c</errorDisplayField>
+        <errorMessage>利用終了日時は、利用開始日時より後の日付を入力してください。</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>UnstartedUserEditLockValidation</fullName>
+        <active>false</active>
+        <errorConditionFormula>AND(Locked__c = FALSE,(OR((DATEVALUE(TEXT(ActiveStartDate__c))  &gt; DATEVALUE(TEXT(NOW()))),(DATETIMEVALUE(
+				RPAD(
+					TEXT(ActiveStartDate__c), 
+					19, 
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;&quot;),&quot; 00:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;00:00&quot;),&quot; 00:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;01:00&quot;),&quot; 01:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;02:00&quot;),&quot; 02:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;03:00&quot;),&quot; 03:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;04:00&quot;),&quot; 04:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;05:00&quot;),&quot; 05:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;06:00&quot;),&quot; 06:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;07:00&quot;),&quot; 07:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;08:00&quot;),&quot; 08:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;09:00&quot;),&quot; 09:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;10:00&quot;),&quot; 10:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;11:00&quot;),&quot; 11:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;12:00&quot;),&quot; 12:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;13:00&quot;),&quot; 13:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;14:00&quot;),&quot; 14:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;15:00&quot;),&quot; 15:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;16:00&quot;),&quot; 16:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;17:00&quot;),&quot; 17:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;18:00&quot;),&quot; 18:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;19:00&quot;),&quot; 19:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;20:00&quot;),&quot; 20:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;21:00&quot;),&quot; 21:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;22:00&quot;),&quot; 22:00:00 &quot;,
+					IF(ISPICKVAL(ActiveStartTime__c, &quot;23:00&quot;),&quot; 23:00:00 &quot;, &quot;NO DATE&quot;)))))))))))))))))))))))))
+				)
+			)	
+			&gt;	
+			NOW()))))</errorConditionFormula>
+        <errorDisplayField>Locked__c</errorDisplayField>
+        <errorMessage>Cannot Unlock User Before Start Date. JA</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>CSOProFileLink</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>250</height>
+        <isResizable>true</isResizable>
+        <linkType>page</linkType>
+        <masterLabel>ECMプロファイル</masterLabel>
+        <openType>newWindow</openType>
+        <page>CSOProfileSelect</page>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <width>500</width>
+    </webLinks>
+    <webLinks>
+        <fullName>CSOTokenSet</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>250</height>
+        <isResizable>true</isResizable>
+        <linkType>page</linkType>
+        <masterLabel>ECMセキュリティトークン設定</masterLabel>
+        <openType>newWindow</openType>
+        <page>CSOTokenSet</page>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <width>500</width>
+    </webLinks>
+    <webLinks>
+        <fullName>CSOUserGroupDisplay</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>false</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>650</height>
+        <isResizable>true</isResizable>
+        <linkType>page</linkType>
+        <masterLabel>ECMグループ</masterLabel>
+        <openType>newWindow</openType>
+        <page>CSOUserGroupDisplay</page>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <width>560</width>
+    </webLinks>
+    <webLinks>
+        <fullName>EcmChatterActive</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>ECM Chatter</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>window.open(&apos;/apex/solxyzcso001__OriginalChatterActive&apos;, &apos;OriginalChatterActive&apos;, &apos;width=800, height=550, menubar=no, toolbar=no, scrollbars=no, location=no, resizable=no, center=yes&apos;);</url>
+    </webLinks>
+</CustomObject>

@@ -1,0 +1,16 @@
+<apex:page tabStyle="setting__tab" controller="SOLXYZCSO001.CSOTrialController" action="{!initEntry}" sidebar="false">
+
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:form >
+    <apex:sectionHeader subtitle="{!$Label.solxyzcso001__label_10407}" title="{!$Label.solxyzcso001__label_00002}"/>
+    <apex:pagemessages />
+    <apex:pageBlock >
+        <apex:pageBlockButtons dir="RTL">
+            <apex:commandButton value="{!$Label.solxyzcso001__label_00067}" action="{!NextStep}"/>
+        </apex:pageBlockButtons>
+            <apex:selectRadio value="{!Entrycheckeoption}" id="range">
+                <apex:selectOptions value="{!EntrycheckOptions}"/>
+            </apex:selectRadio>
+    </apex:pageBlock>
+</apex:form>
+</apex:page>

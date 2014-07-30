@@ -1,0 +1,79 @@
+<apex:page standardController="RFA__c" showheader="false">
+	<apex:includeScript value="{!URLFOR($Resource.jQueryGantt, 'jquery.min.js')}"   />
+	
+	<script type="text/javascript">
+	window.onload = function(){
+
+	
+		var a = document.getElementsByClassName("btn");
+		for (var i = 0; i < a.length; i++) { a[i].style.display = 'none' };
+		var b  = document.getElementsByClassName("detailList")[0].getElementsByClassName("data2Col")[0].style.display = 'none';
+		
+ /* node に含まれるテキストを連結して返す */
+    var getText = function(node) {
+        var f =  function(n, strs) {
+            if (n.nodeType == 3 /* Node.TEXT_NODE */) {
+                strs.push(n.data);
+            } else if(n.nodeType == 1 /* Node.ELEMENT_NODE */){
+                /* テキストノードを再帰的に探す */
+                for (var m = n.firstChild; m !== null; m = m.nextSibling) {
+                    f(m, strs);
+                }
+            }
+        };
+        var strings = [];
+        f(node, strings);
+        return strings.join('');
+    };
+
+    /*
+     * replace オブジェクト
+     * 'a': HTMLAnchorElement
+     * 't': TextNode, 'a' に含まれるテキストをdataとして持つ
+     */
+    var reps = [];
+    var anchors = document.getElementsByTagName('a');
+    for(var i = 0; i < anchors.length; i++) {
+        var a = anchors[i];
+        var text = getText(a);
+        
+        if (text != 'Close Window') {
+        	if(text != 'Print This Page'){
+            	reps.push({'a':a, 't':document.createTextNode(text)});
+            }
+        }
+    }
+
+    /* a要素をTextNodeで置き換える */
+    for (var j = 0; reps.length; j++) {
+        reps[j]['a'].parentNode.replaceChild(
+            reps[j]['t'], reps[j]['a']);
+    }
+    
+    var l = document.getElementsByClassName('actionColumn');
+	for (var i = 0; i < l.length; i++) { l[i].style.display = 'none' };
+
+	var l = document.getElementsByTagName('a');
+	for (var i = 0; i < l.length; i++) { if (l[i].text == "[変更]") { l[i].style.display = 'none' } ; };
+	    
+	};
+	</script>
+		
+	
+    <table width="100%">
+        <tr>
+        <td>
+               <!-- <img src="{!$Resource.coke_RFA_logo}" width="240" height="60"/> -->
+               <img src="{!$Resource.CCEJ_Logo}" width="240" height="60"/> 
+        </td>
+        <td align="left">
+                <a id="Close" href="javascript:self.close();">Close Window</a><br/>
+                <a id="Print" href="javascript:window.print();">Print This Page</a>
+        </td>
+        </tr>
+    </table>
+    
+    <apex:detail subject="{!RFA__c}" relatedList="true" title="true"/> 
+	<script type="text/javascript">
+	</script>
+</apex:page>

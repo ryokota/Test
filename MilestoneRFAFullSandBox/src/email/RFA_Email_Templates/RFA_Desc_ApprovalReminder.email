@@ -1,0 +1,16 @@
+<div style = " font-size:14px;">
+<p> Outlined are the detailed instructions to modify the APPROVAL REMINDER email body</p>
+
+<p> Change Email Subject </p>
+<ul>
+<li> Navigate to Custom Label : Setup > App Setup > Create > Custom Label</li>
+<li> Open Custom Label : RFA CL123 and update the content</li> 
+</ul>
+<p> Change Email Body</p>
+<ul>
+<li> Navigate to Custom Label : Setup > App Setup > Create > Custom Label</li>
+<li> Open Custom Label : RFA CL124 and update the content</li> 
+</ul>
+<span style='font-size:9pt;font-family:"Arial","sans-serif";color:red'>Note: THE STRING FOR THE CUSTOM LABELS SHOULD BE IN A PROPER HTML FORMAT TO PREVENT BATCH FAILURES. </span>
+
+</div>

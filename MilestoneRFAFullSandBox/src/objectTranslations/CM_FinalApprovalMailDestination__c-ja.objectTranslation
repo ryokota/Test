@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>最終承認メール送信先</value>
+    </caseValues>
+    <fields>
+        <label>最終承認メール送信グループ</label>
+        <name>CM_FinalApprovalMailGroup__c</name>
+        <relationshipLabel>最終承認メール送信先</relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Group Name --></label>
+        <name>CM_Group_Name__c</name>
+    </fields>
+    <fields>
+        <label>RFA承認申請</label>
+        <name>CM_RFA__c</name>
+        <relationshipLabel>最終承認メール送信先</relationshipLabel>
+    </fields>
+    <layouts>
+        <layout>Final Approval Mail Destination Layout</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>No.</nameFieldLabel>
+</CustomObjectTranslation>

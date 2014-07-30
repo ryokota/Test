@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>取締役会</value>
+    </caseValues>
+    <fields>
+        <label>補足(英)</label>
+        <name>Addition_EN__c</name>
+    </fields>
+    <fields>
+        <label>補足(日)</label>
+        <name>Addition_JP__c</name>
+    </fields>
+    <fields>
+        <label>Emailフッターコメント(英)</label>
+        <name>Comment_In_Email__c</name>
+    </fields>
+    <fields>
+        <label>Emailフッターコメント(日)</label>
+        <name>Email_Comment_JP__c</name>
+    </fields>
+    <fields>
+        <label>Emailヘッダーコメント(英)</label>
+        <name>Header_Email_Comment_EN__c</name>
+    </fields>
+    <fields>
+        <label>Emailヘッダーコメント(日)</label>
+        <name>Header_Email_Comment_JP__c</name>
+    </fields>
+    <fields>
+        <label>会議内容</label>
+        <name>Meeting_Description__c</name>
+    </fields>
+    <fields>
+        <label>取締役会名(日)</label>
+        <name>Name_JP__c</name>
+    </fields>
+    <fields>
+        <label>開始日時</label>
+        <name>Start_Time__c</name>
+    </fields>
+    <fields>
+        <label><!-- Text (Encrypted) --></label>
+        <name>Text_Encrypted__c</name>
+    </fields>
+    <fields>
+        <label>会議形態</label>
+        <name>Type__c</name>
+        <picklistValues>
+            <masterLabel>Paper Resolution</masterLabel>
+            <translation>書面</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Physical</masterLabel>
+            <translation>実会</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>開催場所(日)</label>
+        <name>Venue_JP__c</name>
+    </fields>
+    <fields>
+        <label>開催場所(英)</label>
+        <name>Venue__c</name>
+    </fields>
+    <layouts>
+        <layout>BOD Meeting Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- Email --></label>
+            <section>Email</section>
+        </sections>
+        <sections>
+            <label><!-- New Section --></label>
+            <section>New Section</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>取締役会名(英)</nameFieldLabel>
+    <sharingReasons>
+        <label><!-- Admin --></label>
+        <name>Admin</name>
+    </sharingReasons>
+    <sharingReasons>
+        <label><!-- Advisor --></label>
+        <name>Advisor</name>
+    </sharingReasons>
+    <sharingReasons>
+        <label><!-- Guest --></label>
+        <name>Guest</name>
+    </sharingReasons>
+    <sharingReasons>
+        <label><!-- Member --></label>
+        <name>Member</name>
+    </sharingReasons>
+    <sharingReasons>
+        <label><!-- Secretary --></label>
+        <name>Secretary</name>
+    </sharingReasons>
+    <webLinks>
+        <label><!-- PDF --></label>
+        <name>PDF</name>
+    </webLinks>
+    <webLinks>
+        <label>会議案内送信</label>
+        <name>Send_Agenda</name>
+    </webLinks>
+</CustomObjectTranslation>

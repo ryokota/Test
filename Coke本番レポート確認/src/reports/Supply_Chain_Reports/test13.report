@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <filter>
+        <criteriaItems>
+            <column>Milestone1_Project__c$Priority__c</column>
+            <operator>notEqual</operator>
+            <value>B</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>Milestone1_Project__c$Priority__c</column>
+            <operator>notEqual</operator>
+            <value>C</value>
+        </criteriaItems>
+        <language>ja</language>
+    </filter>
+    <format>Matrix</format>
+    <groupingsAcross>
+        <dateGranularity>Day</dateGranularity>
+        <field>Milestone1_Project__c$Project_Status_View__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsAcross>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Milestone1_Project__c$Conductor__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Milestone1_Project__c$Status__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>SC Matrix Report (Conductor&amp;Status)</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Milestone1_Projects__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>Milestone1_Project__c$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

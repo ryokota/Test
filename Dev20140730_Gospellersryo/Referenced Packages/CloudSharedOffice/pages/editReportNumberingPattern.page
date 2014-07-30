@@ -1,0 +1,79 @@
+<apex:page showHeader="true" Controller="SOLXYZCSO001.AppConfigController">
+
+<script>
+
+  function confirmCancel() {
+      var isCancel = confirm("{!$Label.solxyzcso001__msg_010006}");
+      if (isCancel)
+          return true;
+      return false;
+  }
+
+</script>
+
+<apex:sectionHeader title="Cloud Shared Office" subtitle="{!$Label.solxyzcso001__field_010041}" help="/apex/CSO_HELP"/>
+    <apex:form >
+      <apex:pageBlock title="{!$Label.solxyzcso001__field_010042}" mode="edit">
+      <apex:pageMessages />
+
+      <apex:pageBlockButtons >
+          <apex:commandButton action="{!saveReportNumberingPattern}" value="{!$Label.solxyzcso001__field_common_save}" onclick="return confirmSave();"/>
+          <apex:commandButton action="{!cancel}" value="{!$Label.solxyzcso001__field_common_cancel}" onclick="return confirmCancel()" immediate="true"/>
+      </apex:pageBlockButtons>
+      <apex:pageBlockSection title="">
+
+          <apex:outputLabel value="{!$Label.solxyzcso001__msg_010007}"/>
+          <apex:outputLabel />
+
+          <apex:inputField id="EstimateNumberingPattern" value="{!settings.SOLXYZCSO001__EstimateNumberingPattern__c}" style="width:200px;"/>
+          <apex:inputField id="InvoiceNumberingPattern" value="{!settings.SOLXYZCSO001__InvoiceNumberingPattern__c}" style="width:200px;"/>
+          <apex:inputField id="OrderNumberingPattern" value="{!settings.SOLXYZCSO001__OrderNumberingPattern__c}" style="width:200px;"/>
+          <apex:inputField id="DeliverNumberingPattern" value="{!settings.SOLXYZCSO001__DeliverNumberingPattern__c}" style="width:200px;"/>
+          <script>
+            function $(id){
+                return document.getElementById(id).value;
+            }
+            function confirmSave(){
+                var e = $("{!$Component.EstimateNumberingPattern}");
+                var o = $("{!$Component.OrderNumberingPattern}");
+                var i = $("{!$Component.InvoiceNumberingPattern}");
+                var d = $("{!$Component.DeliverNumberingPattern}");
+
+                e = x_regex(e);
+                o = x_regex(o);
+                i = x_regex(i);
+                d = x_regex(d);
+
+                var warning = "";
+                if(e!= null && e[0].length < 9){
+                    warning += "{!$Label.solxyzcso001__field_010187}";
+                }
+                if(o!= null && o[0].length < 9){
+                    warning += "{!$Label.solxyzcso001__field_010188}";
+                }
+                if(i!= null && i[0].length < 9){
+                    warning += "{!$Label.solxyzcso001__field_010189}";
+                }
+                if(d!= null && d[0].length < 9){
+                    warning += "{!$Label.solxyzcso001__field_010190}";
+                }
+
+                if(warning.length != 0){
+                    warning += "{!$Label.solxyzcso001__msg_010018}";
+                    warning += "{!$Label.solxyzcso001__msg_010019}";
+                    return confirm(warning);
+                }
+                return true;
+            }
+            function x_regex(s){
+                return s.match(/\{0*\}/g);
+            }
+          </script>
+      </apex:pageBlockSection>
+    </apex:pageBlock>
+  </apex:form>
+
+<br/><hr/>
+<apex:outputpanel style="width:100%; text-align:center;" layout="block"><apex:outputlabel >{!$Label.solxyzcso001__field_CSO_copyright}</apex:outputlabel></apex:outputpanel>
+
+</apex:page>

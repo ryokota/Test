@@ -1,0 +1,8 @@
+<apex:page standardController="Opportunity" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Opportunity">
+  <apex:variable var="Sf_type" value="Opportunity" />
+  <apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Opportunity}" />
+<!-- 
+  <apex:include pageName="RelatedContentsEdit"/>
+-->
+  <c:RelatedContentsEditComp id="relatedContentsEditComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

@@ -1,0 +1,694 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingSyncLicenseController" tabStyle="setting__tab">
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_sync_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_sync_manage == 'true' && userInfo.showErrPage == false, true, false)}">
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.csoBalloon.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+
+var isEdit = false;
+
+$(function(){
+    updateOptionInfo();
+
+    var callback_partnerlist = function(data) {
+        if(!data.result) {
+            alert(data.message);
+        } else {
+            $("#syncLicenseSelectCorp").html(data.options);
+            $("#syncLicenseAddUserModalSelectCorp").html(data.options);
+        }
+    };
+    secureGetAsync("/setup/creators/partnerList.json", {}, callback_partnerlist);
+
+    var callback_postlist = function(data) {
+        if(!data.result) {
+            alert(data.message);
+        } else {
+            $("#syncLicenseSelectPost").html(data.options);
+            $("#syncLicenseAddUserModalSelectPost").html(data.options);
+        }
+    };
+    secureGetAsync("/setup/creators/postList.json", {}, callback_postlist);
+
+    $("#syncLicenseUserList").jqGrid({
+        url         : _apiUrl + "/setup/sync/SyncLicenseList.json",
+        datatype    : "jsonp",
+        jsonReader  : {
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames    : [
+                "",
+                "{!$Label.label_10131}",
+                "{!$Label.label_10097}",
+                "{!$Label.label_13261}",
+                "{!$Label.label_13262}",
+                "",
+                "",
+        ],
+        colModel    : [
+                {name : "id",   index : "id",   hidden  : true },
+                {name : "name", index : "name", width   : 350 },
+                {name : "corp", index : "corp", width   : 250 },
+                {name : "license",  index : "license", align:"center"},
+                {name : "option",   index : "option", align:"center"},
+                {name : "license_id",   index : "license_id", hidden : true },
+                {name : "option_id",    index : "option_id", hidden : true },
+        ],
+        onSelectRow : function(id, b_check){
+        },
+        rowNum      : 30,
+        height      : getBrowserHeight() - 450,
+        width       : $("#syncLicenseUserListDiv").width(),
+        autowidth   : false,
+        rowList     : [30,50,100],
+        sortname    : 'name',
+        sortorder   : 'asc',
+        pager       : $('#syncLicenseUserListPager'),
+        viewrecords : true,
+        multiselect : true,
+        shrinkToFit : true,
+        multiboxonly: true,
+        loadComplete: function(data){
+            resizeForSyncLicense();
+        }
+    });
+    $("#syncLicenseUserList").jqGrid('navGrid','#syncLicenseUserListPager',{edit:false,add:false,del:false,search:false,refresh:false});
+
+    $("#syncLicenseTypeModal").dialog({
+        autoOpen    : false,
+        bgiframe    : true,
+        modal       : true,
+        draggable   : true,
+        resizable   : false,
+        closeText   : "Close",
+        width       : 300,
+        buttons     : {}
+    });
+
+    $("#syncLicenseAddUserModal").dialog({
+        autoOpen    : false,
+        bgiframe    : true,
+        modal       : true,
+        draggable   : true,
+        resizable   : false,
+        closeText   : "Close",
+        width       : 770,
+        height      : 480,
+        buttons     : {}
+    });
+
+    $("#syncLicenseType").change(function(e){
+        searchUserList();
+    });
+
+    $(window).resize(resizeForSyncLicense);
+});
+
+function resizeForSyncLicense(){
+    var height = getBrowserHeight() - 450;
+    $("#syncLicenseUserListDiv").width(getBrowserWidth() - 360);
+    $("#syncLicenseUserList").setGridWidth($("#syncLicenseUserListDiv").innerWidth());
+    if (height >= 270) {
+        $("#syncLicenseUserList").setGridHeight(height);
+    }
+}
+
+function makeRow(licenseInfo){
+    var leftNum = licenseInfo.max - licenseInfo.used;
+    var rowString = '<tr><td style="text-align: left;">' + licenseInfo.name + '</td><td>' + licenseInfo.max + '</td><td><a href="javascript:quickSearch(\'' + licenseInfo.id + '\');" class="' + licenseInfo.id + '">' + licenseInfo.used + '</a></td><td><span class="' + licenseInfo.id + '_rem">' + leftNum + '</span></td></tr>';
+    console.info(rowString);
+    return rowString;
+}
+
+function makeRadio(licenseInfo){
+    var radioString = '<div><label><input type="radio" name="license" value="' + licenseInfo.id + '"/>' + licenseInfo.name + '( <span class="' + licenseInfo.id + '">' + licenseInfo.used + '</span> / ' + licenseInfo.max + ' )</label></div>';
+    console.info(radioString);
+    return radioString;
+}
+
+function makeChkBox(licenseInfo){
+    var chkboxString = '<div><label><input type="checkbox" name="externalStorage" id="externalStorage"/>' +licenseInfo.name + '( <span class="' + licenseInfo.id + '">' + licenseInfo.used + ' </span> / ' + licenseInfo.max + ' )</label></div>';
+    console.info(chkboxString);
+    return chkboxString;
+}
+
+function onSearchClearClicked(){
+    clearUserList();
+}
+
+function onSearchOkClicked(){
+    searchUserList();
+}
+
+function clearUserList(){
+    $("#syncLicenseSelectCorp").val(0);
+    $("#syncLicenseSelectPost").val(0);
+    $("#syncLicenseInputUsername").val("");
+    $("#syncLicenseType").val(-1);
+    searchUserList();
+}
+
+function searchUserList(){
+    var postID = $("#syncLicenseSelectPost").is(":disabled") ? "0" : $("#syncLicenseSelectPost").val();
+    $("#syncLicenseUserList").setGridParam({
+        page : 1,
+        postData : {
+            partner_id : $("#syncLicenseSelectCorp").val(),
+            post_id : postID,
+            post_id : $("#syncLicenseSelectPost").val(),
+            search : $("#syncLicenseInputUsername").val(),
+            type : $.trim($("#syncLicenseType").val()),
+            quickSearch : false,
+        }
+    }).trigger("reloadGrid");
+}
+
+function quickSearch(v){
+    if(v == "ALL"){
+        $("#syncLicenseUserList").setGridParam({
+            page : 1,
+            postData : {
+                quickSearch : false,
+            }
+        });
+        clearUserList();
+        return;
+    }
+    $("#syncLicenseUserList").setGridParam({
+        page : 1,
+        postData : {
+            quickSearch : true,
+            target      : v
+        }
+    }).trigger("reloadGrid");
+}
+
+function onUserAddClicked(){
+    if($("#syncLicenseAddUserModalUserList").getGridParam("url") == undefined){
+        setAddUserModalUserList();
+    }else{
+        $("#syncLicenseAddUserModalUserList").clearGridData();
+        clearAddUserModalUserList();
+    }
+    $("#syncLicenseAddUserModal").dialog("open");
+    $("#syncLicenseAddUserModalInputUsername").focus();
+}
+
+function clearAddUserModalUserList(){
+    $("#syncLicenseAddUserModalSelectCorp").val(0);
+    $("#syncLicenseAddUserModalSelectPost").val(0);
+    $("#syncLicenseAddUserModalInputUsername").val("");
+    searchAddUserModalUserList();
+}
+
+function searchAddUserModalUserList(){
+    $("#syncLicenseAddUserModalUserList").setGridParam({
+        page : 1,
+        postData : {
+            partner_id : $("#syncLicenseAddUserModalSelectCorp").val(),
+            post_id : $("#syncLicenseAddUserModalSelectPost").val(),
+            search : $.trim($("#syncLicenseAddUserModalInputUsername").val()),
+        }
+    }).trigger("reloadGrid");
+}
+
+function setAddUserModalUserList(){
+    $("#syncLicenseAddUserModalUserList").jqGrid({
+        url         : _apiUrl + "/setup/sync/SyncLicenseUserList.json",
+        datatype    :"jsonp",
+        jsonReader  : {
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames    : [
+                "",
+                "{!$Label.label_10131}",
+                "{!$Label.label_10097}",
+        ],
+        colModel    : [
+                {name : "id",   index : "id",   hidden  : true },
+                {name : "name", index : "name", width   : 350 },
+                {name : "corp", index : "corp", width   : 250 },
+        ],
+        onSelectRow : function(id, b_check){
+        },
+        rowNum      : 30,
+        height      : 300,
+        width       : 725,
+        autowidth   : false,
+        rowList     : [30,50,100],
+        sortname    : 'name',
+        sortorder   : 'asc',
+        pager       : $('#syncLicenseAddUserModalUserListPager'),
+        viewrecords : true,
+        multiselect : true,
+        shrinkToFit : true,
+        multiboxonly: true,
+        onPaging    : function(b) {
+            $(this).setGridParam({
+                postData : {
+                    useCache : "true"
+                }
+            });
+        },
+        loadComplete: function(data){
+        }
+    });
+    $("#syncLicenseAddUserModalUserList").jqGrid('navGrid','#syncLicenseAddUserModalUserListPager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function onAddUserModalCancelClicked(){
+    $("#syncLicenseAddUserModal").dialog("close");
+}
+
+function onAddUserModalOkClicked(){
+    isEdit = false;
+    var selIds = $("#syncLicenseAddUserModalUserList").getGridParam("selarrrow");
+    if(selIds.length == 0){
+        alert("{!$Label.msg_01107}");
+        return;
+    }
+    $("#freeType").attr("checked","checked");
+    $("#syncLicenseTypeModal").dialog("open");
+}
+
+function onAddUserExecute(){
+    if(!$("input:radio[name='license']:checked").val()){
+        alert("{!$Label.label_13257}");
+        return;
+    }
+
+    var param;
+    var url;
+    if(isEdit){
+        var selIds = $("#syncLicenseUserList").getGridParam("selarrrow");
+        param = {
+            id      : selIds[0],
+            license : $("input:radio[name='license']:checked").val(),
+            option  : $("#externalStorage").attr("checked"),
+        };
+        url = "/setup/sync/SyncLicenseEdit.json";
+    }else{
+        var selIds = $("#syncLicenseAddUserModalUserList").getGridParam("selarrrow");
+        param = {
+            ids     : selIds.join(","),
+            license : $("input:radio[name='license']:checked").val(),
+            option  : $("#externalStorage").attr("checked"),
+        };
+        url = "/setup/sync/SyncLicenseAdd.json";
+    }
+    var callback = function(data) {
+        if(!data.result) {
+            var msg;
+            if(data["code"] == "C61-0SLE-XE-0004"){
+                msg = "{!$Label.label_13271}";
+            }else if(data["code"] == "C61-0SLE-XE-0002"){
+                msg = "{!$Label.label_13272}";
+            }else if(data["code"] == "C61-0SLE-XE-0005"){
+                msg = "{!$Label.label_13273}";
+            }else{
+                msg = "{!$Label.msg_01153}";
+            }
+            alert(msg);
+        } else {
+            clearUserList();
+            $("#syncLicenseTypeModal").dialog("close");
+            $("#syncLicenseAddUserModal").dialog("close");
+        }
+        updateOptionInfo();
+    };
+    securePostAsync(url, param, callback);
+}
+
+function updateOptionInfo(){
+    var callback_LicenseTable = function(data) {
+        if(!data.result) {
+            alert(data.message);
+        } else {
+            $('#syncLicenseStatusTable').empty();
+            $('#syncLicenseStatusTable').append('<tr><th style="text-align: left; width: 200px;">{!$Label.label_00039}</th><th>{!$Label.label_10162}</th><th><a href="javascript:quickSearch(\'ALL\');"  style="font-weight: bold;">{!$Label.label_13267}</a></th><th>{!$Label.label_13268}</th></tr>');
+            $('#syncLicensesType').empty();
+            $('#syncOptionLicenseType').empty();
+            $('#trialMessageDiv').empty();
+            var licenses = data.license;
+            if(licenses.royalty.length != 0){
+                for(var i=0; i<licenses.royalty.length; i++){
+                    $('#syncLicenseStatusTable').append(makeRow(licenses.royalty[i]));
+                    $('#syncLicensesType').append(makeRadio(licenses.royalty[i]));
+                }
+            }
+            if(licenses.free.max > 0){
+                $('#syncLicenseStatusTable').append(makeRow(licenses.free));
+                $('#syncLicensesType').append(makeRadio(licenses.free));
+            }
+            if(licenses.trial.max > 0){
+                $('#syncLicenseStatusTable').append(makeRow(licenses.trial));
+                $('#syncLicensesType').append(makeRadio(licenses.trial));
+                if(data.trial <= 0){
+                    $('#trialMessageDiv').append('{!$Label.label_13256}');
+                }else{
+                    $('#trialMessageDiv').append(getMsg(new Array(data.trial), "{!$Label.label_13258}"));
+
+                }
+                $('#trialMessage').show();
+            }
+            if(licenses.externalStorage.max > 0){
+                $('#syncLicenseStatusTable').append(makeRow(licenses.externalStorage));
+                $('#syncOptionLicenseType').append(makeChkBox(licenses.externalStorage));
+                $('.syncOptionLicense').show();
+            }
+        }
+    };
+    secureGetAsync("/setup/sync/SyncLicense.json", {}, callback_LicenseTable);
+}
+
+function onAddUserModalSearchOkClicked(){
+    searchAddUserModalUserList();
+}
+
+function onUserDelClicked(){
+    var selIds = $("#syncLicenseUserList").getGridParam("selarrrow");
+    if(selIds.length == 0){
+        alert("{!$Label.msg_01106}");
+        return;
+    }
+    if(!confirm("{!$Label.msg_01108}")){
+        return;
+    }
+    var params = {
+        ids     : selIds.join(",")
+    };
+    var callback = function(data) {
+        if(!data.result){
+            alert(data.message);
+        }else{
+            searchUserList();
+        }
+        updateOptionInfo();
+    };
+    securePostAsync("/setup/sync/SyncLicenseDelete.json", params, callback);
+}
+
+function onUserEditClicked(){
+    isEdit = true;
+    var selIds = $("#syncLicenseUserList").getGridParam("selarrrow");
+    if(selIds.length == 0){
+        alert("{!$Label.label_13270}");
+        return;
+    }else if(selIds.length > 1){
+        alert("{!$Label.label_13259}");
+        return;
+    }
+
+    var row = $("#syncLicenseUserList").getRowData(selIds[0]);
+
+    $("#externalStorage").removeAttr("checked");
+    $("input[name='license']").val([row.license_id]);
+    var options = row.option_id.split(",");
+    for(var i in options){
+        if(options[i] == "EXTERNAL_STORAGE"){
+            $("#externalStorage").attr("checked", "checked");
+        }
+    }
+
+    $("#syncLicenseTypeModal").dialog("open");
+}
+
+function showSearchBalloon(o){
+    $("#searchBalloon").csoBalloon({
+        width : 420,
+        height : 120,
+        posX : $(o).position().left + 35,
+        posY : $(o).position().top + 128,
+        udlr : 1,
+        align : 2,
+        zIndex:1000
+    });
+    $("#syncLicenseSelectCorp").change(function(){
+        if($(this).val() == "0" || $(this).val().indexOf("PARTNER_CORP_") == -1){
+            $("#syncLicenseSelectPost").removeAttr("disabled");
+        }else{
+            $("#syncLicenseSelectPost").attr("disabled", "disabled");
+        }
+    });
+}
+</script>
+<style type="text/css">
+.syncLicense-statusTableTitle {
+    margin: 10px 0 5px 10px;
+}
+.syncLicense-statusTableTitle span {
+    font-weight: bold;
+}
+.syncLicense-statusTable {
+    border: 1px solid gray;
+    border-collapse: collapse;
+    margin: 10px;
+}
+.syncLicense-statusTable th {
+    font-weight: bold;
+    text-align: right;
+    height: 16px;
+    padding: 2px 5px;
+    width: 70px;
+    border-bottom: 1px solid gray;
+    background-color: #dcdcdc;
+}
+.syncLicense-statusTable td {
+    text-align: right;
+    padding: 2px 5px;
+    height: 16px;
+}
+.syncLicense-statusTable td span {
+    margin: 0 3px 0 0;
+}
+.syncLicense-separator {
+    margin: 0 10px 0 10px;
+}
+.syncLicense-grantLicenseTitle {
+    margin: 10px 0 10px 10px;
+}
+.syncLicense-grantLicenseTitle span {
+    font-size: 24px;
+}
+.syncLicense-selectCorp {
+	width: 100%;
+    max-width: 250px;
+    margin: 0 10px 0 0;
+}
+.syncLicense-selectPost {
+    width: 120px;
+    margin: 0 10px 0 0;
+}
+.syncLicense-inputUsername {
+    width: 240px;
+    padding: 5px; /* TODO 必要ない？ */
+}
+.syncLicenseOperateBox {
+    margin: 15px 10px 0 10px;
+    text-align: right;
+}
+.syncLicense-userListDiv {
+    margin: 10px 10px 10px 10px;
+}
+.syncLicense-userList-name-top {
+    margin-left: 48px;
+}
+.syncLicense-userList-name-bottom {
+    margin-left: 48px;
+}
+.syncLicense-addUserModal {
+    display: hidden;
+}
+.syncLicense-addUserModal-searchBox {
+    margin: 0 0 0 10px;
+}
+.syncLicense-addUserModal-selectCorp {
+    width: 120px;
+    margin: 0 10px 0 0;
+}
+.syncLicense-addUserModal-selectPost {
+    width: 120px;
+    margin: 0 10px 0 0;
+}
+.syncLicense-addUserModal-inputUsername {
+    width: 170px;
+}
+.syncLicense-addUserModal-userListDiv {
+    margin: 15px 10px 10px 10px;
+}
+.syncLicense-addUserModal-userList-name-top {
+    margin-left: 48px;
+}
+.syncLicense-addUserModal-userList-name-bottom {
+    margin-left: 48px;
+}
+.syncLicense-addUserModal-buttonBox {
+    float: right;
+    margin: 0 10px 10px 0;
+}
+.jqGridIcon {
+    margin: 2px 0 2px 4px;
+}
+.type-free {
+    background-color: silver;
+    padding: 5px 0px;
+    margin: 0px 5px;
+    font-size: 150%;
+}
+.type-pay {
+    background-color: green;
+    color: white;
+    padding: 5px 0px;
+    margin: 0px 5px;
+    font-size: 150%;
+}
+
+.syncLicense-searchBox table th{
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.syncOptionLicense {
+    display: none;
+}
+</style>
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/license36.png')}" alt="{!$Label.solxyzcso001__label_13230}" title="{!$Label.solxyzcso001__label_13230}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_13170}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_13230}</h2>
+            </td>
+            <td id="trialMessage" style="display: none;">
+                <div style="color: red; font-size: 30px; margin-left: 50px; float: left;" id="trialMessageDiv"></div>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <table class="syncLicense-statusTable" id="syncLicenseStatusTable"></table>
+                        <hr class="syncLicense-separator" />
+                        <div class="syncLicense-grantLicenseTitle" style="float: left;">
+                            <span>{!$Label.label_13231}</span>
+                        </div>
+                        <div class="syncLicenseOperateBox">
+                        	<button class="btn c_commandButton" onclick="showSearchBalloon(this); return false;">{!$Label.label_00069}</button>
+                        	<button class="btn c_commandButton" onclick="onUserDelClicked(); return false;">{!$Label.field_common_remove}</button>
+                        	<button class="btn c_commandButton" onclick="onUserEditClicked(); return false;">{!$Label.field_common_edit}</button>
+                            <button class="btn c_commandButton" onclick="onUserAddClicked(); return false;">{!$Label.label_10020}</button>
+                        </div>
+                        <div id="syncLicenseUserListDiv" class="syncLicense-userListDiv">
+                            <table id="syncLicenseUserList"></table>
+                            <div id="syncLicenseUserListPager"></div>
+                        </div>
+                        <div id="syncLicenseAddUserModal" class="syncLicense-addUserModal" style="display: none;" title="{!$Label.label_13234}">
+                            <div class="syncLicense-addUserModal-searchBox">
+                                <form onsubmit="onAddUserModalSearchOkClicked(); return false;">
+                                    <span>{!$Label.label_10097}</span>
+                                    <select id="syncLicenseAddUserModalSelectCorp" class="syncLicense-addUserModal-selectCorp"></select>
+                                    <span>{!$Label.label_10317}</span>
+                                    <select id="syncLicenseAddUserModalSelectPost" class="syncLicense-addUserModal-selectPost"></select>
+                                    <span>{!$Label.label_10021}</span>
+                                    <input id="syncLicenseAddUserModalInputUsername" type="text" class="syncLicense-addUserModal-inputUsername"/>
+                                    <button class="btn c_commandButton" onclick="onAddUserModalSearchOkClicked(); return false;">{!$Label.label_00069}</button>
+                                    <button class="btn c_commandButton" onclick="clearAddUserModalUserList(); return false;">{!$Label.label_00070}</button>
+                                </form>
+                            </div>
+                            <div id="syncLicenseAddUserModalUserListDiv" class="syncLicense-addUserModal-userListDiv">
+                                <table id="syncLicenseAddUserModalUserList"></table>
+                                <div id="syncLicenseAddUserModalUserListPager"></div>
+                            </div>
+                            <div class="syncLicense-addUserModal-buttonBox">
+                                <button class="btn c_commandButton" onclick="onAddUserModalCancelClicked(); return false;">{!$Label.field_common_cancel}</button>
+                                <button class="btn c_commandButton" onclick="onAddUserModalOkClicked(); return false;">{!$Label.label_13039}</button>
+                            </div>
+                        </div>
+
+                        <div id="searchBalloon" style="display: none;">
+                            <div class="syncLicense-searchBox">
+                                <form onsubmit="onSearchOkClicked(); return false;">
+                                    <table style="float: right;">
+                                        <tr>
+                                            <th>{!$Label.label_10097}</th>
+                                            <td><select id="syncLicenseSelectCorp" class="syncLicense-selectCorp"></select></td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_11071}</th>
+                                            <td><select id="syncLicenseSelectPost" class="syncLicense-selectCorp"></select></td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_10021}</th>
+                                            <td><input id="syncLicenseInputUsername" type="text" class="syncLicense-inputUsername"></input></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" style="text-align: right; padding-top: 5px;">
+                                                <button class="btn c_commandButton" type="button" onclick="onSearchClearClicked();">{!$Label.label_00070}</button>
+                                                <button class="btn c_commandButton" onclick="onSearchOkClicked();">{!$Label.label_00069}</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <span></span>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="syncLicenseTypeModal" class="syncLicense-typeModal" style="display: none;" title="{!$Label.label_10119}">
+                            <div>{!$Label.msg_01154}</div>
+                            <div style="margin: 10px 0px 5px 10px;" id="syncLicensesType"></div>
+                            <div class="syncOptionLicense">{!$Label.label_13260}</div>
+                            <div style="margin: 10px 0px 5px 10px;" id="syncOptionLicenseType" class="syncOptionLicense"></div>
+                            <div style="float: right; margin-bottom: 10px;">
+                                <input type="button" class="btn c_commandButton" value="{!$Label.field_common_cancel}" onclick="$('#syncLicenseTypeModal').dialog('close');"/>
+                                <input type="button" class="btn c_commandButton" value="{!$Label.field_common_ok}" onclick="onAddUserExecute();"/>
+                            </div>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight"/>
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.uid == null && userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

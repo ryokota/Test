@@ -1,0 +1,434 @@
+<apex:page showHeader="false" sidebar="false" controller="SOLXYZCSO001.WRManagerHomeController">
+<script type="text/javascript">
+/*
+ * Initializing context menu for CSO
+ */
+function grdContextMenuInit(){
+
+    //hiding CSO context menu
+    hideCsoContextMenu();
+
+    //hiding original context menu
+
+     $("#listView1").bind("contextmenu", function(){
+        return false;
+    });
+    $("#contextMenulist").bind("contextmenu", function(){
+        return false;
+    });
+
+
+    csoBindClickEvent();
+    contextMenuEnable();
+
+}
+
+/**
+ * バインド
+ */
+function csoBindClickEvent(){
+
+    $("#contextMenuDownload").bind("click", function(){
+        if("true" ==  $("#contextMenuDownload").attr("disabled")){return;}
+        contextMenuDownload();
+    });
+
+    $("#contextMenuEdit").bind("click", function(){
+        if("true" ==  $("#contextMenuEdit").attr("disabled")){return;}
+        contextMenuEdit(true);
+    });
+
+    $("#contextMenuDelete").bind("click", function(){
+        contextMenuDelete();
+    });
+
+    hideCsoContextMenu();
+}
+
+/////////////////////////////////////////////
+// ContextMenuの内容
+/////////////////////////////////////////////
+
+function contextMenuEdit(flg){
+    //alert('edit.');
+
+    //選択中のものを参照する。
+    var _list = getSelectedList();
+
+    if(_list.length == 1) {
+        if(_list[0].type == "dir"){
+            // open directory info.
+            //2012.12.18 #4419 add
+            //displayDirectoryInfo(_list[0]._id, _list[0].name, _list[0].comment);
+            registOverlayFloder(_list[0]._id, _list[0].name, _list[0].comment);
+        }else if(typeof(_list[0].ovlId) == "undefined" || _list[0].ovlId == null || _list[0].ovlId == '') {
+
+        }else{
+            openOverlayInfo(_list[0].ovlId);
+        }
+    }else{
+
+    }
+    hideCsoContextMenu();
+}
+
+function contextMenuDelete(){
+    deleteOverlays();
+}
+
+/*
+ * showContextMenu
+ *
+ * chose context menu for the space
+ *
+ *
+ * space:space id
+ *
+ */
+function showCsoContextMenu(space, flgSecurityStatus){
+
+    $('#contextMenuEdit').show();
+    $('#contextMenuDelete').show();
+    $('#contextMenuDownload').show();
+
+    $(".separatorBar").show();
+
+
+    $("#contextMenulist").show();
+    $(".contextMenuHeader").css("background-color","#eaf4fd");
+
+}
+
+
+function hideCsoContextMenu(){
+    $("#contextMenulist").hide();
+    $("#invUserFloatDiv").hide();
+    $("#spaceRuleFloatDiv").hide();
+}
+
+function itemDisable(sectionName){
+     $(sectionName).removeClass("contextMenuEnable").addClass("contextMenuDisable").attr("disabled","true");
+}
+
+function itemEable(sectionName){
+
+    $(sectionName).removeClass("contextMenuDisable").addClass("contextMenuEnable").removeAttr("disabled");
+
+}
+
+
+function contextMenuEnable(){
+
+    if(getSelectedList().length == 1)
+        itemEable("#contextMenuEdit");
+    else
+        itemDisable("#contextMenuEdit");
+
+    itemEable("#contextMenuDelete");
+    itemEable("#contextMenuDownload");
+    //itemDisable("#contextMenuDownload");
+
+}
+
+function switchCsoContextMenu(){
+    var list = new Array();
+    list = getSelectedList();
+    if(list.length > 0){
+        showCsoContextMenu('');
+    }else{
+        hideCsoContextMenu();
+    }
+}
+
+function ajustTitleLength(dsplayArea,tempArea,itemName){
+
+    var dsplayAreaWidth,tmpAreaWidth;
+    var work;
+    var pathCut = false;
+    var terminator =0;
+    var itemNameCut = false;
+
+
+    $(dsplayArea).css("title",itemName);
+    $(tempArea).text(itemName);
+
+    dsplayAreaWidth =  $(dsplayArea).width() - 0;
+    tmpAreaWidth = $(tempArea).width() - 0;
+
+    //do untill the title fits in.
+    work = itemName;
+    while (dsplayAreaWidth < tmpAreaWidth) {
+        //remove the last letter.
+        work = itemName.substring(0, work.length -1);
+
+        $(tempArea).text(work);
+        tmpAreaWidth = $(tempArea).width() - 0;
+
+        itemNameCut = true;
+
+        //just in case
+        if(terminator >= 130){
+            break;
+        }
+        terminator++;
+    }
+
+    //put "..." if the item name has been changed.
+    if(itemNameCut == true){
+        work = itemName.substring(0, work.length -2);
+        work = work + "...";
+    }
+
+    //set item name
+    $(dsplayArea).text(work);
+
+}
+
+function updateCsocontextMenuHeader(itemName,itemNum){
+
+    if (itemNum > 1){
+        $('.contextMenuHeader').text(itemNum + ' ' + '{!$Label.label_wf_00044}');
+    }else if (itemNum == 1){
+        $("#titleTemp").text(itemName);
+        ajustTitleLength("#contextMenuHeader", "#titleTemp",itemName);
+    }
+}
+
+function contextMenuDownload(){
+    hideCsoContextMenu();
+    var ids = "";
+    var _list = getSelectedList();
+
+    if(_list.length <= 0) return;
+    for(var i in _list){
+        ids = ids + _list[i]._id + "-" + _list[i].type+",";
+    }
+
+    if(ids.length > 1) ids = ids.substring(0, ids.length -1 );
+
+    showDlg(0,"{!$Label.label_wf_00138}");
+
+    var contextCallback = function(data){
+        if ($("#zipMakeingDialog").dialog("isOpen") == true) {
+            $("#zipMakeingDialog").dialog("close");
+            $("image[id$='#rt_loading']").css("display","none");
+            if(data){
+                if(data["errMsg"]){
+                    showDlg(3,data["errMsg"]);
+                }else if(data["mode"] == "chk"){
+                    showDlg(1,data["msg"]);
+                }else if(data["mode"] == "down"){
+                    $("#overlayDownlaodFrame").attr("src", "{!$Label.field_csowebreportSf_url}"+data["path"]);
+                }
+            }
+        }
+
+    }
+
+    var contextError = function(data){
+
+    }
+    secureGetAsync("/api/OverlayDownload.json?id="+ids,{'userid' : '{!$User.UserName}', 'credential' : '{!credential}'},contextCallback,contextError);
+    reloadNow();
+}
+
+/**
+ * JSONデータの取得
+ */
+function getJsonData(){
+    var setTime = 500;
+
+    var _gotJson = function (data,status,xhr) {
+            var json = data;
+            if (json["status"] == 1) {
+                // エラー終了
+
+            }else if(json["status"] == 0){
+                // 正常終了
+                $("#zipMakeingDialog").dialog("close");
+                //alert("path : "+"{!$Label.field_csowebreport_url}"+json["prevPath"]);
+                $("#overlayDownlaodFrame").attr("src", "{!$Label.field_csowebreportSf_url}"+json["prevPath"]);
+            } else if(json["status"] == 2){
+                // 処理中
+                if(json["message"] != null){
+                    var msg = json["message"];
+                    $("#zipMsg").text(msg);
+                }
+                setTimeout("getJsonData()", setTime);
+            }else  if(json["status"] == 4){
+                // キャンセル
+                $("#zipMakeingDialog").dialog("close");
+                //showDlg(3,json["message"]);
+
+            }else  if(json["status"] == 5){
+                // データ送信中。
+                setTimeout("getJsonData()", setTime);
+            }
+    };
+    secureGetAsync("/manager/overlay/ZipBuildStatus.json",{}, _gotJson );
+
+    /*
+    $.get(
+        "/manager/overlay/ZipBuildStatus.json",
+        function (data,status,xhr) {
+            var json = data;
+            if (json["status"] == 1) {
+                // エラー終了
+
+            }else if(json["status"] == 0){
+                // 正常終了
+                $("#zipMakeingDialog").dialog("close");
+                $("#overlayDownlaodFrame").css("src","{!$Label.field_csowebreport_url}"+json["prevPath"]);
+            } else if(json["status"] == 2){
+                // 処理中
+                if(json["message"] != null){
+                    var msg = json["message"];
+                    $("#zipMsg").text(msg);
+                }
+                setTimeout("getJsonData()", setTime);
+            }else  if(json["status"] == 4){
+                // キャンセル
+                $("#zipMakeingDialog").dialog("close");
+                showDlg(3,json["message"]);
+            }else  if(json["status"] == 5){
+                // データ送信中。
+                setTimeout("getJsonData()", setTime);
+            }
+        }
+    );
+    */
+}
+
+/**
+ * ダイアログの表示
+ */
+function showDlg(n,msg){
+    var btns = {};
+    var ok = "{!$Label.label_wf_00035}";
+    var cancel = "{!$Label.label_wf_00021}";
+    switch(n){
+        case 0:
+            $("image[id$='#rt_loading']").css("display","");
+            $("#zipMsg").text(msg);
+            btns = {};
+            break;
+        case 1:
+                btns[ok] = function(){
+                    $("#zipMakeingDialog").dialog("close");
+
+                    var _gotResponce = function(data) {
+                            $("#zipMakeingDialog").dialog("close");
+                            $("image[id$='#rt_loading']").css("display","none");
+                            getJsonData();
+                            if(data){
+                                showDlg(2,data["msg"]);
+                            }else{
+
+                            }
+                    }
+                    secureGetAsync("/file/OneClickDownload.json", {}, _gotResponce);
+
+                    /*
+                    $.ajax({
+                        type: "GET",
+                        url: "{!$Label.field_csowebreport_url}/file/OneClickDownload.json",
+                        success: function(data) {
+                            $("#zipMakeingDialog").dialog("close");
+                            $("image[id$='#rt_loading']").css("display","none");
+                            getJsonData();
+                            if(data){
+                                showDlg(2,data["msg"]);
+                            }else{
+
+                            }
+                        }
+                    })
+                    */
+                },
+                btns[cancel] = function(){
+
+                    $("#zipMakeingDialog").dialog("close");
+                };
+
+            break;
+        case 2:
+            btns = {};
+            $("#zipMsg").text(msg);
+            btns[cancel] = function(){
+                var _gotResponse2 = function(data) {
+                        $("#zipMakeingDialog").dialog("close");
+                        $("image[id$='#rt_loading']").css("display","none");
+                        if(data){
+                            showDlg(2,data["msg"]);
+                        }else{
+
+                        }
+                }
+                secureGetAsync("/OverlayDownloadCancel",{}, _gotResponse2);
+                /*
+                $.ajax({
+                    type: "GET",
+                    url: "{!$Label.field_csowebreport_url}/OverlayDownloadCancel",
+                    success: function(data) {
+                        $("#zipMakeingDialog").dialog("close");
+                        $("image[id$='#rt_loading']").css("display","none");
+                        if(data){
+                            showDlg(2,data["msg"]);
+                        }else{
+
+                        }
+                    }
+                })
+                */
+                $("#zipMakeingDialog").dialog("close");
+            };
+            break;
+        case 3:
+            btns = {};
+            $("#zipMsg").text(msg);
+            btns[ok] = function(){
+                $("#zipMakeingDialog").dialog("close");
+            };
+            break;
+    }
+
+    $('#zipMsg').text(msg);
+
+    setButtonsModal(btns);
+
+    //$('#zipMakeingDialog').dialog({modal:true,buttons:btns});
+    $('#zipMakeingDialog').dialog({modal:true});
+    //$('#zipMakeingDialog').dialog({modal:true, width:500, height:400});
+    //$('#zipMakeingDialog').dialog('option','buttons',btns);
+    //$('#zipMakeingDialog').dialog('open');
+
+};
+
+function setButtonsModal(btns){
+
+    $("#downButtonArea").empty();
+
+    for(var btn in btns){
+
+        var button = document.createElement("button");
+        button.onclick = btns[btn];
+        $(button).text(btn);
+        $("#downButtonArea").append(button);
+        $("#downButtonArea").append("&nbsp;");
+
+        button = null;
+
+    }
+}
+
+</script>
+<div id="zipMakeingDialog" style="display: none; margin: 10px; text-align:center;">
+    <div id="zipMsg" style="font-weight: bold;"></div>
+    <div>
+        <apex:image id="rt_loading" url="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'image/loading.gif')}" style="display: none; padding-top : 30px;"/>
+    </div>
+    <br />
+    <div id="downButtonArea" style="display:inline;"></div>
+</div>
+<iframe id="overlayDownlaodFrame" style="display:none;"/>
+</apex:page>

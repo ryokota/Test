@@ -1,0 +1,1733 @@
+<apex:page sidebar="false" showHeader="false" controller="SOLXYZCSO001.AddContentController" tabStyle="ContentTab__tab" id="contentsAddPage" action="{!init}">
+<apex:iframe src="/apex/CSO_Error?code={!csouserinfo.code}&massage={!csouserinfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(csouserinfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(csouserinfo.showErrPage == false, true, false)}">
+<!-- CSO認証共通モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.plupload.queue.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.tagit.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/colorado.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/tag-it.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.customfields.css')}" />
+<apex:include pageName="SOLXYZCSO001__CustomFieldsPlugin"/>
+<!-- CSOスクリプト共通モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:include rendered="{!IF(BrowserName=='ie',true,false)}" pageName="SOLXYZCSO001__CSOSirverlight"/>
+ <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.csoBalloon.js')}" />
+<style type="text/css">
+#uploader_container {
+    padding: 0px;
+}
+
+#uploader_filelist > li > .plupload_file_name {
+    width:300px !important;
+}
+.plupload_scroll .plupload_filelist{
+    height: 150px;
+}
+
+.dataRow {
+    margin-top:5px;
+    margin-bottom:5px;
+
+}
+#tooltip {
+    background-color: #F7F7F7;
+    border: 1px solid #C0C0C0;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 1px 1px 3px #C0C0C0;
+    display: none;
+    float: left;
+    height: 40px;
+    margin: 10px;
+    max-width: 1000px;
+    padding: 10px;
+    position: absolute;
+    width: 250px;
+    z-index: 1100;
+}
+
+.tag-container ul {
+    width: 320px;
+}
+
+.tag-container li > span {
+    font-size: 80%;
+}
+
+#evidence_tab {
+    margin-top: -10px;
+}
+
+#evidence_tab li {
+    list-style: none;
+    line-height: 10px;
+    float: left;
+    margin-right: 5px;
+    border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    display: block;
+    text-decoration: none;
+    padding: 0px 15px 3px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#evidence_tab a {
+    display: block;
+    text-decoration: none;
+    padding: 9px 17px;
+    font-weight: bold;
+}
+
+.evidence_tab_active {
+    background-color: #F8F8F8;
+    color: #445566 !important;
+}
+
+.evidence_tab_active a {
+    color: #445566 !important;
+}
+.evidence_tab_active a:hover {
+    color: #445566 !important;
+}
+
+.evidence_tab_deactive {
+    background-color: #0033ff;
+    filter:alpha(opacity=50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    color: white;
+}
+
+.evidence_tab_deactive a {
+    color: white;
+}
+
+.evidence_tab_deactive a:hover {
+    color: white;
+}
+
+        .lc-hover-icon{
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .lc-hover-icon:hover{
+            background-color: #b2ffe5;
+            filter:alpha(opacity=80);
+            -moz-opacity: 0.8;
+            opacity: 0.8;
+            border-radius: 10px;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+        }
+
+        .lc-icon{
+            width: 48px;
+            height: 48px;
+            border: none;
+        }
+
+        .lc-icon-disabled{
+            padding: 10px;
+            background-color: #a9a9a9;
+            filter:alpha(opacity=80);
+            -moz-opacity: 0.8;
+            opacity: 0.8;
+            border-radius: 10px;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            cursor: default;
+        }
+.tab-div{
+    min-height: 350px;
+    overflow: auto;
+    position: relative;
+}
+
+.disclose-table {
+    margin: 10px 0 0 50px;
+}
+.disclose-table th {
+    text-align: right;
+    font-weight: bold;
+    height: 40px;
+    padding: 0 10px 0 0;
+}
+.disclose-table td label {
+    margin: 0 10px 0 0;
+}
+.disclose-contents-explanation {
+    margin: 25px 0 40px 50px;
+}
+.disclose-space-title {
+    margin: 30px 0 0 50px;
+    font-weight: bold;
+}
+.disclose-contents-explanation {
+    margin: 0 0 35px 50px;
+}
+
+</style>
+<script type="text/javascript">
+String.prototype.replaceAll  = function(s1,s2){
+    return this.replace(new RegExp(s1, 'gm'),s2);
+}
+var docInfoList = new Array();
+var updateFile = false;
+var space = '';
+var defaultusedspace = '9223372036854775807';
+var usedspace = defaultusedspace;
+var chunksize = 50 * 1024 * 1024; // 50MB
+var uploadedfiles = new Array();
+var upload_token = '';
+var noncopyStatus_yes = 1;
+var spaceSercurity = '';
+var uid = '<%=session.getAttribute(SessionKey.UID)%>';
+var cid = '<%=session.getAttribute(SessionKey.CID)%>';
+var refSpaceId = '';
+var noncopyStatus = '<%=session.getAttribute(SessionKey.NON_COPY_STATUS)%>';
+var policyVersion = '<%=session.getAttribute(SessionKey.NON_COPY_POLICY_VERSION)%>';
+var noticeNoncopyStatus = 0 ;//default notice noncopy failure
+var doSetNCSpace = true;
+var tagNameArray=new Array();
+var current_runtime = '';
+var detailSelector = '{!$Component.contentsAddPage.contentsAddPageBlock.contentsAddDetailBlockSection.contentsAddDetailBlockSectionItem}';
+var toResultSelector = '{!$Component.contentsAddPage.contentsAddToResultForm}';
+var explanation = '';
+var comment = '';
+var currentTab = 'basicinfo';
+var disclose_display = false;
+$(document).ready(function(){
+
+    $("#detailsVersionInput_specify").attr("title","{!$Label.msg_01046}{!$Label.msg_01047}");
+
+                $("#lifecycleview").lifecycle({
+                mode : 1,
+                actSelect : "lifecycleviewSelector",
+                data : null,
+        resource : {
+            Store   : "{!$Label.label_13019}",
+            Archive : "{!$Label.label_00055}",
+            Trash   : "{!$Label.label_00056}",
+            Delete  : "{!$Label.label_13012}",
+            Day     : "{!$Label.label_13064}",
+            Week    : "{!$Label.label_13065}",
+            Month   : "{!$Label.label_13066}",
+            Year    : "{!$Label.label_13067}",
+        }
+            });
+            var isMSIE = /*@cc_on!@*/false;
+            if (isMSIE) {
+                $(".tab-div").height(getBrowserHeight() - 195);
+            } else {
+                $(".tab-div").height(getBrowserHeight() - 190);
+            }
+
+    //  カスタム項目
+    $("#customfieldsTbl").customfields({
+        obj_id  : "",
+        attach  : "contents",
+        edit    : true,
+    });
+
+});
+
+$(load_handler).bind('change', function(){
+    var callback = function(data){
+        // アップロードトークン設定
+        upload_token = data.upload_token;
+        // スペース容量設定
+        space = data.space;
+        // 使用済みスペースサイズ設定
+        defaultusedspace = data.usedspace;
+        // 使用済みサイズ
+        usedspace = defaultusedspace;
+        // スペースセキュリティ
+        spaceSercurity = data.spaceSercurity;
+        // アップロード先スペースID設定
+        refSpaceId = data.refSpaceId;
+        // 追加先ブレッドクラム設定
+        $('#tmpPathArea').text(data.spacePath);
+        setPathListText();
+        // マイスペース以外の場合、「保存期間が過ぎた場合」を表示
+        if(!data.ismy){
+            $(getId(detailSelector + ':expireLabelPanel')).show();
+            $('#expireDataPanel').show();
+        }
+        // コンテンツ毎のライフサイクル設定が許可されていない場合、ライフサイクル設定のタブを表示しない
+        if(!data.lifecycle_per_contents){
+            $('#evidence_tab_cycle').hide();
+        } else {
+            $('#evidence_tab_cycle').show();
+        }
+        // コンテンツ公開情報設定
+        disclose_display = data.disclose_display;
+        if(disclose_display){
+            $("#discloseTermTimeZone").text(data.timezone_text);
+            $("#spaceDiscloseTermTimeZone").text(data.timezone_text);
+            if(data.disclose_space_mode == '0'){
+                if(data.disclose_space_enable){
+                    $("#spaceDiscloseType").text("{!$Label.label_13126}");
+                } else {
+                    $("#spaceDiscloseType").text("{!$Label.label_10431}");
+                }
+            } else if(data.disclose_space_mode == '1') {
+                $("#spaceDiscloseType").text("{!$Label.label_13127}");
+            } else if(data.disclose_space_mode == '2') {
+                $("#spaceDiscloseType").text("{!$Label.label_13128}");
+            }
+            if((data.disclose_space_mode == '0')&&(data.disclose_space_enable)){
+                $("#spaceDiscloseTerm").text(data.disclose_space_start_date + " {!$Label.label_10316} " + data.disclose_space_end_date);
+                $("#spaceDiscloseTermTimeZone").show();
+            } else {
+                $("#spaceDiscloseTerm").text("{!$Label.label_10431}");
+                $("#spaceDiscloseTermTimeZone").hide();
+            }
+            $("[name=discloseModeRadio][value=0]").attr("checked", "checked");
+            discloseEnableChecked();
+            discloseModeSelected();
+            $("#discloseStartDate, #discloseEndDate").datepicker({dateFormat : "yy/mm/dd"});
+            $('#evidence_tab_disclose').show();
+        } else {
+            $('#evidence_tab_disclose').hide();
+        }
+        $(getId(toResultSelector + ':ecmSessionId')).val(__ecmSessionId);
+
+        // カウントイベント実行
+        $("#explanation").keyup();
+        $("#comment").keyup();
+    };
+    // アップロード初期化処理
+    if(current_runtime == 'silverlight'){
+        secureGetAsync('/contentsmanagement/contentsAddInit.json?spaceId={!spaceId}', '', callback);
+    } else {
+        secureGetAsync('/contentsmanagement/contentsAddInitUseToken.json?spaceId={!spaceId}', '', callback);
+    }
+
+    //バージョン入力エリア制御
+    $("#checkNewVersion").click(function(){
+        if(this.checked){
+            $(".verNew input").attr("disabled", false);
+        }else{
+            $(".verNew input").attr("disabled", true);
+        }
+    });
+    $(".verNew input").attr("disabled", true);
+
+    $('input[name="verUpType"]:radio').change(function(){
+        if($('input[name="verUpType"]:radio:checked').val() == "auto") {
+            $("#versionkind").attr("disabled", false);
+            $(".typeManual input").attr("disabled", true);
+        } else if($('input[name="verUpType"]:radio:checked').val() == "manual") {
+            $("#versionkind").attr("disabled", true);
+            $(".typeManual input").attr("disabled", false);
+        }
+    });
+    $('input[name="verUpType"]:radio[value="auto"]').attr("checked", "checked");
+    $("#versionkind").attr("disabled", false);
+    $(".typeManual input").attr("disabled", true);
+
+    // 文字数カウンター定義
+    $("#explanation").keyup(function(){
+        viewCommentLength("explanation", "remainder", 512);
+    });
+    $("#comment").keyup(function(){
+        viewCommentLength("comment", "commentRemainder", 512);
+    });
+
+    // バージョン管理イベント
+    $("#verUp").click(function(){
+        if(!this.checked) { $(".versionup").hide(); }
+        else { $(".versionup").show(); }
+    });
+
+    // カレンダー定義
+    $("#pdate").datepicker({ dateFormat: 'yy/mm/dd', numberOfMonths: 1, minDate:new Date() });
+
+    $("#tagNames").tagit({
+        allowSpaces: true
+    });
+
+    // plupload言語処理
+    plupload.addI18n({
+        'Filename' : '{!$Label.label_10081}',
+        'Status' : '{!$Label.label_10017}',
+        'Size' : '{!$Label.label_10140}',
+        'Add files' : '{!$Label.label_10050}',
+        'Uploaded %d/%d files': '{!$Label.msg_00032}',
+        'Drag files here.' : '{!$Label.label_10064}',
+        'Start upload': '{!$Label.label_10141}',
+    });
+
+    var retArr = new Array();
+
+    // Force IE to use the silverlight runtime
+    var uploadRuntime = '';
+    if(navigator.userAgent.indexOf('MSIE') !== -1) {
+        uploadRuntime = 'silverlight';
+    } else {
+        uploadRuntime = 'html5,silverlight';
+    }
+
+    // plupload定義
+    $("#uploader").pluploadQueue({
+        runtimes : uploadRuntime, //,html5,flash,gears,browserplus',
+        url : _apiUrl + '/contentsmanagement/contentsAddUseToken.json',
+//        max_file_size : '5000mb',
+        chunk_size : chunksize,
+        unique_names : true,
+        flash_swf_url : '{!$Resource.pluploadflash}',
+        silverlight_xap_url : '{!$Resource.pluploadsilverlight}',
+        dragdrop : true,
+        preinit : {
+                Init : function(uploader) {
+                    if(uploader.runtime == 'silverlight'){
+                        current_runtime = 'silverlight';
+                    } else {
+                        current_runtime = 'html5';
+                    }
+                    $('.plupload_header').hide();
+
+                    $('.plupload_start').after('{!$Label.label_10030} : <span id="totalcount"></span>');
+                    $('.plupload_start').unbind().click(function(){if(!$(this).hasClass("plupload_disabled"))validate(uploader)});
+                    $('#totalcount').text('0');
+
+                    $('#uploading').dialog({
+                            autoOpen: false,
+                            modal: true,
+                            resizable: false,
+                            width: "400px"
+                    });
+                    $('#upload_stop').unbind().click(function(){uploader.stop()});
+                },
+        },
+        init : {
+                FilesAdded : function (uploader, files) {
+                        for (var i = uploader.files.length - 1; i >= 0; i--) {
+                            var name = uploader.files[i].name;
+                            var duplicate = false;
+                            if(files[i] && files[i].office){
+                                alert('{!$Label.msg_00167}');
+                                duplicate = true;
+                            }else{
+                                for (var j = 0; j < i; j++) {
+                                    if (name == uploader.files[j].name) {
+                                        duplicate = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (duplicate) {
+                                uploader.removeFile(uploader.files[i]);
+                            }
+                        }
+                },
+                QueueChanged : function (uploader) {
+                        $('#totalcount').text(uploader.files.length.toString());
+
+                        // 容量オーバー
+                        if (defaultusedspace + uploader.total.size > space) {
+                            alert('{!$Label.msg_00034}');
+                            //return false;
+                        }
+                },
+
+                BeforeUpload : function(uploader, file) {
+                        if (file.size == 0) {
+                            delete uploader.settings.chunk_size;
+                        } else {
+                            uploader.settings.chunk_size = chunksize;
+                        }
+                        var lifecycleData = {};
+
+                        if(true){ // ライフサイクルデータが存在する場合に通過
+                            lifecycleData = $(this).getLcData();
+                        }
+
+                        // silverlightか？
+                        if(current_runtime == 'silverlight'){
+                            // silverlightランタイムの場合には通常アップロードを行う
+                            uploader.settings.url = _apiUrl + '/contentsmanagement/contentsAdd.json';
+                        } else {
+                            // html5ランタイムの場合にはトークン式でアップロードを行う
+                            if(uploader.settings.url.indexOf('?upload_token=' + upload_token) < 0){
+                                uploader.settings.url = uploader.settings.url + '?upload_token=' + upload_token;
+                            }
+                        }
+                        
+                        //  カスタム項目
+                        var customFieldsVal = $("#customfieldsTbl").cfValues();
+                        
+                        if (getBrowserType().indexOf("IE") != -1) {
+                            explanation = explanation.replace(/\\/g, "\\\\");
+                            comment = comment.replace(/\\/g, "\\\\");
+                        }
+
+                        uploader.settings.multipart_params = {
+                            // 新規バージョン 値を指定するか
+                            checkNewVersion : $("#checkNewVersion").attr("checked") ? 1 : 0,
+                            // 新規バージョン メジャー
+                            verNewMajor : $("#verNewMajor").val() ? jQuery.trim($("#verNewMajor").val()) : 0,
+                            // 新規バージョン マイナー
+                            verNewMinor : $("#verNewMinor").val() ? jQuery.trim($("#verNewMinor").val()) : 0,
+                            // 新規バージョン リビジョン
+                            verNewRevision : $("#verNewRevision").val() ? jQuery.trim($("#verNewRevision").val()) : 0,
+                            // 新規バージョン ビルド
+                            verNewBuild : $("#verNewBuild").val() ? jQuery.trim($("#verNewBuild").val()) : 0,
+                            // 保存期間
+                            pdate : jQuery.trim($("#pdate").val()),
+                            // 更新バージョン 簡易バージョンか指定するか
+                            verUpType : $("input[name=verUpType]:checked").val(),
+                            // 簡易Verアップ
+                            verUp : jQuery.trim($("input[name=verUp]:checked").val()),
+                            // 更新バージョン メジャー
+                            verUpMajor : $("#verUpMajor").val() ? jQuery.trim($("#verUpMajor").val()) : 0,
+                            // 更新バージョン マイナー
+                            verUpMinor : $("#verUpMinor").val() ? jQuery.trim($("#verUpMinor").val()) : 0,
+                            // 更新バージョン リビジョン
+                            verUpRevision : $("#verUpRevision").val() ? jQuery.trim($("#verUpRevision").val()) : 0,
+                            // 更新バージョン ビルド
+                            verUpBuild : $("#verUpBuild").val() ? jQuery.trim($("#verUpBuild").val()) : 0,
+                            // 説明
+                            explanation : explanation,
+                            // 更新理由
+                            comment : comment,
+                            // バージョン
+                            versionkind : $("#versionkind").val(),
+                            // タグ
+                            tagNames : tagNameArray.toString(),
+                            // アップロードトークン
+                            upload_token : upload_token,
+                            // 有効期限
+                            expire : $('#expire').val(),
+                            // ファイル名
+                            filename : file.name,
+                            // ライフサイクルデータ
+                            lifeCycle : JSON.stringify(lifecycleData),
+                            //  カスタム項目
+                            customfields : customFieldsVal,
+                        };
+                        if(disclose_display){
+                            uploader.settings.multipart_params.discloseEnable = $("#discloseEnableCheck").attr("checked");
+                            uploader.settings.multipart_params.discloseMode = $("[name=discloseModeRadio]:checked").val();
+                            uploader.settings.multipart_params.discloseStartDate = $("#discloseStartDate").val();
+                            uploader.settings.multipart_params.discloseEndDate = $("#discloseEndDate").val();
+                        }
+
+                        var status = spaceSercurity=="true"?1:0;
+                        noticeNoncopyStatus =callNonCopyNotifyUpload(status,uid,cid,refSpaceId,file.name,policyVersion,retArr["passphrase"]);
+                },
+
+                //セキュアスペースにファイルをアップロードする際に、NonCopy稼働異常の場合は、アップロードを中止
+                UploadFile:function(uploader){
+                        if(spaceSercurity=='true'&&noncopyStatus!=noncopyStatus_yes){
+                            alert('{!$Label.msg_00080}');
+                            uploader.stop();
+                            $('.plupload_buttons').show();
+                            $('.plupload_upload_status').hide();
+                            return false;
+                        }
+                        if(spaceSercurity=='true'&&noticeNoncopyStatus!=0){
+                            alert('{!$Label.msg_00081}');
+                            uploader.stop();
+                            $('.plupload_buttons').show();
+                            $('.plupload_upload_status').hide();
+                            return false;
+                        }
+                },
+
+                FileUploaded : function (uploader, file, obj) {
+                        if (!('response' in obj)) {
+                            return false;
+                        }
+
+                        var resp = JSON.parse(obj.response);
+
+                        if (!('docId' in resp)) {
+                            return false;
+                        }
+
+                        var docInfo = new Object();
+                        docInfo["doc_id"] = resp.docId;
+                        docInfo["doc_name"] = resp.docName;
+                        docInfo["doc_path"] = resp.savePath;
+                        docInfo["size"] = resp.size;
+                        docInfo["error"] = resp.error;
+                        docInfo["errorMessage"] = resp.message;
+                        docInfo["contentType"] = resp.contentType;
+                        docInfo["saveDate"] = resp.saveDate;
+                        docInfo["explanation"] = resp.explanation;
+                        docInfo["comment"] = resp.comment;
+                        docInfo["version"] = resp.version;
+                        docInfo["updateuser"] = resp.updateuser;
+                        docInfo["updatedate"] = resp.updatedate;
+                        docInfo["registdate"] = resp.registdate;
+                        docInfoList.push(docInfo);
+
+                        docInfo = new Object();
+
+                        uploadedfiles.push(file);
+                        updateFile = resp.updateFile;
+                },
+                UploadComplete : function(uploader, files) {
+                        var query = new Object();
+
+                        // コンテンツ情報を登録
+                        query["doc_info_list"] = JSON.stringify(docInfoList);
+                        $(getId(toResultSelector + ':query')).val(JSON.stringify(docInfoList));
+                        $(getId(toResultSelector + ':updateFile')).val(updateFile);
+
+                        $(getId(toResultSelector + ':toResultSubmit')).click();
+
+                        //$('form').attr('method', 'post').attr('action', '/ContentsRegistConfirm').submit();
+                },
+                Error : function (uploader, error) {
+                },
+                StateChanged : function(uploader) {
+                        if (uploader.state == plupload.STOPPED) {
+                            $('#uploading').dialog('close');
+                            $('.plupload_buttons').show();
+                            $('.plupload_upload_status').hide();
+                        } else if (uploader.state == plupload.STARTED) {
+                            $('#uploading').dialog('open');
+                        }
+                }
+            }
+    });
+});
+
+/*
+ * 保存期間変更処理
+ */
+var period_change = function() {
+    if($("input[name=priod]:checked").val() == 'endless'){
+        $("#pdate").attr('disabled','disabled');
+        $("#pdate").val("");
+        $('#expire').attr('disabled', 'disabled');
+        $('#expire').val('0');
+    }else{
+        $("#pdate").removeAttr('disabled');
+        $("#expire").removeAttr('disabled');
+    }
+};
+
+/*
+ * 入力チェック
+ */
+function validate(uploader){
+    var filecount = uploader.files.length;
+    var size = uploader.total.size;
+    var err = new Array();
+
+    // ファイルが未選択
+    if (filecount == 0) {
+        err.push('{!$Label.msg_00037}');
+    }
+    /*
+    if($('input[name=priod]:checked').val() != 'endless'){
+        var flg = true;
+        if(!isDateFormat($('#pdate').val())){
+            flg = false;
+            err.push('{!$Label.msg_00035}');
+        }else if(flg){
+            var pdate = $('#pdate').val();
+            var saveDate = new Date(pdate);
+            var temp = new Date();
+            if (saveDate < new Date(temp.getFullYear() + '/' + (temp.getMonth()+1) + '/' + temp.getDate())){
+                err.push('{!$Label.msg_00025}');
+            }
+        }
+    }
+    */
+
+    // 容量オーバー
+    if (defaultusedspace + size > space) {
+        err.push('{!$Label.msg_00034}');
+    }
+
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    explanation = $("#explanation").val().replace(regexp, "\r\n");
+    if (explanation.length > 512) {
+        err.push('{!$Label.msg_00007}');
+    } else {
+        explanation = $.trim(explanation);
+    }
+    comment = $("#comment").val().replace(regexp, "\r\n");
+    if (comment.length > 512) {
+        err.push('{!$Label.msg_00041}');
+    } else {
+        comment = $.trim(comment);
+    }
+
+     /* 新規バージョン */
+     var validNewVer = true;
+     if($("#checkNewVersion").attr("checked") == true){
+        var verNewMajor = $("#verNewMajor").val();
+        var verNewMinor = $("#verNewMinor").val();
+        var verNewRevision = $("#verNewRevision").val();
+        var verNewBuild = $("#verNewBuild").val();
+        var regExpIsNOTNumeric = /[^0-9]+/;
+
+        if(verNewMajor.match(regExpIsNOTNumeric)){
+            validNewVer = false;
+            //$("#verNewMajor").addClass(styleClass);
+        }
+        if(verNewMinor.match(regExpIsNOTNumeric)){
+            validNewVer = false;
+            //$("#verNewMinor").addClass(styleClass);
+        }
+        if(verNewRevision.match(regExpIsNOTNumeric)){
+            validNewVer = false;
+            //$("#verNewRevision").addClass(styleClass);
+        }
+        if(verNewBuild.match(regExpIsNOTNumeric)){
+            validNewVer = false;
+            //$("#verNewBuild").addClass(styleClass);
+        }
+    }
+
+    /* バージョンアップ */
+    var validUpVer = true;
+    if($("#verUp").attr("checked") == true){
+        if($('input[name="verUpType"]:radio:checked').val() == "manual"){
+            var verUpMajor = $("#verUpMajor").val();
+            var verUpMinor = $("#verUpMinor").val();
+            var verUpRevision = $("#verUpRevision").val();
+            var verUpBuild = $("#verUpBuild").val();
+            var regExpIsNOTNumeric = /[^0-9]+/;
+
+            if(verUpMajor.match(regExpIsNOTNumeric)){
+                validUpVer = false;
+                //$("#verUpMajor").addClass(styleClass);
+            }
+            if(verUpMinor.match(regExpIsNOTNumeric)){
+                validUpVer = false;
+                //$("#verUpMinor").addClass(styleClass);
+            }
+            if(verUpRevision.match(regExpIsNOTNumeric)){
+                validUpVer = false;
+                //$("#verUpRevision").addClass(styleClass);
+            }
+            if(verUpBuild.match(regExpIsNOTNumeric)){
+                validUpVer = false;
+                //$("#verUpBuild").addClass(styleClass);
+            }
+        }
+    }
+
+    if(!validNewVer || !validUpVer){
+        err.push('{!$Label.msg_01015}');
+    }
+
+    // タグ入力チェック
+    var names = $('#tagNames').val();
+    names = $.trim(names);
+
+    tagNameArray = new Array();
+
+    if(names != null){
+        var blacklistCharacterValidationPattern = new RegExp("[\\\\|/|*|:|\"|\?|\||<|>]+");
+
+        $.each(names.replaceAll('，', ',').split(','), function(n, tagName){
+            tagName = $.trim(tagName);
+
+            if(tagName.length > 24) {
+                err.push('{!$Label.msg_00073}');
+            } else if(tagName.length == 0){
+                return;
+            }
+
+            if (blacklistCharacterValidationPattern.test(tagName)) {
+                err.push('{!$Label.msg_01079}');
+            }
+
+            if ($.inArray(tagName, tagNameArray) != -1) {
+                err.push('{!$Label.msg_01080}'.replace('{0}', tagName));
+            }
+
+            tagNameArray.push(tagName);
+
+        });
+    }
+    
+    var args = { "uploader" : uploader };
+    
+    //  カスタム項目
+    $("#customfieldsTbl").cfValidator({
+        "err"       : err,
+        "errClass"  : "",
+        "args"      : args,
+        "success"   : uploadContentSuccess,
+        "fail"      : uploadContentFail
+    });
+}
+
+var uploadContentSuccess = function(args) {
+    args.uploader.start();
+}
+
+var uploadContentFail = function(args) {
+    return false;
+}
+
+/*
+ * 要素リサイズ処理
+ */
+function resize(){
+    var browserType = getBrowserType();
+    var browserWindowHeight = getBrowserHeight();
+    var browserWidth = getBrowserWidth();
+
+    if (browserType.indexOf("IE") > -1){
+        $(".uploadhr").width(browserWidth -2);
+    }else if(browserType.indexOf("Chrom"  > -1 )){
+        $(".uploadhr").width(browserWidth -60);
+        if (browserWidth < 650){
+            $(".uploadhr").width(648);
+        }
+    }else{
+        $(".uploadhr").width(browserWidth-17);
+        if (browserWidth < 650){
+            $(".uploadhr").width(650);
+        }
+    }
+}
+
+/*
+ * ブレッドクラム作成・設定
+ */
+function setPathListText(){
+    var pathSpaceWidth, tmpPathAreaWidth, work;
+    var pathCut = false;
+    pathSpaceWidth =  $("#spacePath").width() - 200;
+    tmpPathAreaWidth = $("#tmpPathArea").width() - 0;
+
+    //do untill the path is fit in.
+    while (pathSpaceWidth < tmpPathAreaWidth) {
+        work = $("#tmpPathArea").html();
+        work = work.substring(work.indexOf('&gt') + 4, work.length);
+        $("#tmpPathArea").html(work);
+        tmpPathAreaWidth = $("#tmpPathArea").width();
+        pathCut = true;
+    }
+
+    if(pathCut){
+        work = ' &gt; ' + work;
+    } else {
+        work = $("#tmpPathArea").html();
+    }
+
+    $("#spacePath div div h3").html('{!$Label.label_10356}' + work);
+}
+function showTips(o, msgCodes) {
+    var obj = $(o);
+    var offset = obj.offset();
+
+    $(".tooltip").css("left", offset.left + 10)
+                 .css('top', offset.top)
+                 .css('position','absolute')
+                 .css('height','auto')
+                 .css('width','auto');
+
+    $('.tooltip').html('');
+    var massage = '';
+    for(var i=0; i<msgCodes.length; i++){
+        massage += msgCodes[i];
+    }
+    $('.tooltip').html(massage);
+
+    $(".tooltip").show();
+}
+
+/*
+ * コンテンツ公開設定有効化チェック
+ */
+function discloseEnableChecked() {
+    if ($("#discloseEnableCheck").attr("checked")) {
+        $("[name=discloseModeRadio], discloseStartDate, #discloseEndDate").attr("disabled", "");
+    } else {
+        $("[name=discloseModeRadio], discloseStartDate, #discloseEndDate").attr("disabled", "disabled");
+    }
+    discloseModeSelected();
+}
+
+/*
+ * コンテンツ公開設定モード変更
+ */
+function discloseModeSelected() {
+    if ($("#discloseEnableCheck").attr("checked") && $("[name=discloseModeRadio]:checked").val() == 0) {
+        $("#discloseStartDate, #discloseEndDate").attr("disabled", "");
+    } else {
+        $("#discloseStartDate, #discloseEndDate").attr("disabled", "disabled");
+    }
+}
+
+/*
+ * コンテンツ公開設定バリデーション
+ */
+function discloseValidation(){
+    if ($("#discloseEnableCheck").attr("checked") && $("[name=discloseModeRadio]:checked").val() == 0
+            && $("#discloseStartDate").val() == "" && $("#discloseEndDate").val() == "") {
+        $("#discloseStartDate").addClass("error");
+        $("#discloseEndDate").addClass("error");
+        alert("{!$Label.msg_01128}");
+        return false;
+    } else if ($("#discloseStartDate").val() != "" && $("#discloseEndDate").val() != ""
+        && $("#discloseStartDate").datepicker("getDate") > $("#discloseEndDate").datepicker("getDate")) {
+        $("#discloseStartDate").addClass("error");
+        $("#discloseEndDate").addClass("error");
+        alert("{!$Label.msg_01129}");
+        return false;
+    }
+    return true;
+}
+
+                                        /*
+                                         * タブ切り替え 2013/05/27 王
+                                         */
+                                        function switchTab(tabName) {
+                                            if(currentTab == 'cycle'){
+                                                if(!valicateWebTextLifeCycle()){
+                                                    alert("{!$Label.msg_01103}");
+                                                    return;
+                                                }
+                                            }
+                                            // 公開設定バリデーション
+                                            if(currentTab == 'disclose'){
+                                                if(!discloseValidation()){
+                                                    return;
+                                                }
+                                            }
+
+                                            currentTab = tabName;
+                                            if (tabName == 'basicinfo') {
+                                                $("#tab_basic").show();
+                                                $("#evidence_tab_basic").removeClass("evidence_tab_deactive").addClass("evidence_tab_active");
+
+                                                $("#tab_detail").hide();
+                                                $("#evidence_tab_detail").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                                $("#tab_cycle").hide();
+                                                $("#evidence_tab_cycle").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                                $("#tab_disclose").hide();
+                                                $("#evidence_tab_disclose").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                            } else if (tabName == 'detail') {
+                                                $("#tab_detail").show();
+                                                $("#evidence_tab_detail").removeClass("evidence_tab_deactive").addClass("evidence_tab_active");
+
+                                                $("#tab_basic").hide();
+                                                $("#evidence_tab_basic").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                                $("#tab_cycle").hide();
+                                                $("#evidence_tab_cycle").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                                $("#tab_disclose").hide();
+                                                $("#evidence_tab_disclose").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                            } else if (tabName == 'cycle') {
+                                                $("#tab_cycle").show();
+                                                $("#evidence_tab_cycle").removeClass("evidence_tab_deactive").addClass("evidence_tab_active");
+
+                                                $("#tab_basic").hide();
+                                                $("#evidence_tab_basic").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                                $("#tab_detail").hide();
+                                                $("#evidence_tab_detail").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                                $("#tab_disclose").hide();
+                                                $("#evidence_tab_disclose").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                            } else if (tabName == 'disclose') {
+                                                $("#tab_disclose").show();
+                                                $("#evidence_tab_disclose").removeClass("evidence_tab_deactive").addClass("evidence_tab_active");
+
+                                                $("#tab_basic").hide();
+                                                $("#evidence_tab_basic").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                                $("#tab_detail").hide();
+                                                $("#evidence_tab_detail").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                                $("#tab_cycle").hide();
+                                                $("#evidence_tab_cycle").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                                            }
+                                        }
+
+
+function valicateWebTextLifeCycle(){
+    lifecycleData = $(this).getLcData();
+    for(var j = 0; j < lifecycleData.length; j++){
+        var lcData = lifecycleData[j];
+        if(lcData.action){
+            var t = lcData.time - 0;
+            if(!(t > 0 && t < 366)){
+                return false;
+            }
+        }else{
+            break;
+        }
+    }
+    return true;
+}
+
+        /**ライフサイクル**/
+
+        (function(jQuery){
+
+            var data;
+            var actNum = 1;
+            var res;
+            var actSelectId;
+            var mode;
+            var objID;
+
+            // ID
+            var act_1;
+            var act_2;
+            var act_3;
+
+            var tran_num_1;
+            var tran_num_2;
+            var tran_num_3;
+
+            var tran_unit_1;
+            var tran_unit_2;
+            var tran_unit_3;
+
+            var tdIDList;
+
+            var elementIDObj;
+
+            $.fn.lifecycle = function(options){
+
+                act_1 = "LC_ACT_" + Math.floor(Math.random () * 10000000000);
+                act_2 = "LC_ACT_" + Math.floor(Math.random () * 10000000000);
+                act_3 = "LC_ACT_" + Math.floor(Math.random () * 10000000000);
+
+                tran_num_1 = "LC_TRN_NUM_" + Math.floor(Math.random () * 10000000000);
+                tran_num_2 = "LC_TRN_NUM_" + Math.floor(Math.random () * 10000000000);
+                tran_num_3 = "LC_TRN_NUM_" + Math.floor(Math.random () * 10000000000);
+
+                tran_unit_1 = "LC_TRN_UNIT_" + Math.floor(Math.random () * 10000000000);
+                tran_unit_2 = "LC_TRN_UNIT_" + Math.floor(Math.random () * 10000000000);
+                tran_unit_3 = "LC_TRN_UNIT_" + Math.floor(Math.random () * 10000000000);
+
+                tdIDList = new Array();
+
+                elementIDObj = {
+                    1 : {
+                        act : act_1,
+                        num : tran_num_1,
+                        unit : tran_unit_1,
+                    },
+                    2 : {
+                        act : act_2,
+                        num : tran_num_2,
+                        unit : tran_unit_2,
+                    },
+                    3 : {
+                        act : act_3,
+                        num : tran_num_3,
+                        unit : tran_unit_3,
+                    },
+                }
+
+                var r = {
+                    Store : "Store",
+                    Archive : "Archive",
+                    Trash : "Trash",
+                    Delete : "Delete",
+                    Day : "Day",
+                    Week : "Week",
+                    Month : "Month",
+                    Year : "Year",
+                }
+
+                var options = $.extend({
+                    data : null,
+                    resource : r,
+                    mode : 0,
+                    actSelect : "",
+                }, options);
+
+                data = options.data;
+                res = options.resource;
+                actSelectId = options.actSelect;
+                mode = options.mode;
+                objID = $(this).attr("id");
+
+                //createLifecycleSelecter(options.resource);
+
+                var $table = $("<table>").attr({
+                    "id" : "cso-lc-table"
+                }).css({
+                    width : "500px"
+                });
+
+                var $tr_row1 = $("<tr>");
+                var $tr_row2 = $("<tr>");
+                var $tr_row3 = $("<tr>");
+
+                var tdList = new Array();
+                for(var i = 0; i < 9; i++){
+                    var tdID = "LC_TD_" + i + Math.floor(Math.random () * 10000000000);
+                    tdIDList.push(tdID);
+                    tdList.push($("<td>").css({
+                        "text-align":"center",
+                        "width" : "100px",
+                        "height" : "100px",
+                        "padding" : "0px 30px 0px 30px",
+                    }).attr("id", tdID));
+                }
+
+                var $div;
+                var $actImg;
+                var $actText;
+
+                var $arrowImg;
+                var $arrowNum;
+                var $arrowUnit;
+
+                // 保管セル
+                $actImg = $("<img>").attr("src", "{!URLFOR($Resource.cso, 'image/lc-storeNew.png')}").css({
+                    width : "48px",
+                    height : "48px",
+                    border : "none"
+                });
+                $actText = $("<div>").css({
+                    "text-align" : "center"
+                }).html(res.Store);
+                tdList[1].append($actImg).append($actText);
+
+                // 1→2アクションへの矢印
+                $arrowNum = getNum(tran_num_1);
+                $arrowUnit = getUnit(tran_unit_1);
+                $arrowImg = $("<img>").attr("src", "{!URLFOR($Resource.cso, 'image/ActionArrow0.png')}").css({
+                    border : "none"
+                });
+                if(mode == 0){
+                    var $fixDateDiv = $("<div>").attr("id", tran_num_1);
+                    tdList[2].append($fixDateDiv).append($("<br>")).append($arrowImg);
+                }else{
+                    tdList[2].append($arrowNum).append($arrowUnit).append($("<br>")).append($arrowImg);
+                }
+
+                // 1アクション目
+                $actImg = addActDom(act_1, 1);
+                $actText = $("<div>");
+                $div = $("<div>");
+                if(mode != 0){
+                    $div.addClass("lc-hover-icon").css({
+                        "position" : "relative"
+                    })
+                }
+                $div.append($actImg).append($actText);
+                tdList[5].append($div);
+
+                $tr_row1.append(tdList[0]).append(tdList[1]).append(tdList[2]);
+                $tr_row2.append(tdList[3]).append(tdList[4]).append(tdList[5]);
+                $tr_row3.append(tdList[6]).append(tdList[7]).append(tdList[8]);
+                $table.append($tr_row1).append($tr_row2).append($tr_row3);
+                $(this).append($table);
+
+                // 編集モード
+                if(options.data){
+
+                    // データ展開
+                    for(var i = 0; i < data.length; i++){
+                        actNum = i + 1;
+                        if(mode == 0){
+                            $("#" + elementIDObj[actNum].num).html(data[i].time);
+                        }else{
+                            $("#" + elementIDObj[actNum].num).val(data[i].time);
+                            $("#" + elementIDObj[actNum].unit).val(data[i].date_unit);
+                        }
+
+                        selectAct(data[i].action);
+                    }
+                }
+
+                return this;
+            };
+
+            function getUnit(id){
+                $select = $("<select>").attr("id", id);
+
+                $select.append($("<option>").val("0").html(res.Day));
+                $select.append($("<option>").val("1").html(res.Week));
+                $select.append($("<option>").val("2").html(res.Month));
+                $select.append($("<option>").val("3").html(res.Year));
+
+                return $select;
+            }
+
+            function getNum(id){
+                var $arrowNum = $("<input>").attr({
+                    "type" : "text",
+                    "maxlength" : "3",
+                    "id" : id,
+                }).addClass("c_require").css({
+                    "width" : "30px",
+                    "margin-right" : "5px",
+                });
+                return $arrowNum;
+            }
+
+            function addActDom(act_id, act_num){
+                var $actImg = $("<img>").attr({
+                    "id" : act_id,
+                    "src" : "{!URLFOR($Resource.cso, 'image/ActionUndefinedNew.png')}",
+                }).css({
+                    width : "48px",
+                    height : "48px",
+                    border : "none"
+                }).click(function(e){
+
+                    if(mode == 0) return;
+
+                    actNum = act_num;
+
+                    switch(act_num){
+                    case 1:
+                        // 第1アクション
+                        actSelectStatus(true, true, true);
+                        break;
+                    case 2:
+                        // 第2アクション
+                        var actType = $("#" + act_1).attr("lcactval");
+                        if(actType == 1){
+                            actSelectStatus(false, true, true);
+                        }else if(actType == 2){
+                            actSelectStatus(false, false, true);
+                        }
+                        break;
+                    case 3:
+                        // 第3アクション
+                        actSelectStatus(false, false, true);
+                        break;
+                    }
+
+                    $("#lifecycleviewSelector").csoBalloon({
+                        width : 250,
+                        height : 100,
+                        posX : e.pageX + 90,
+                        posY : e.pageY - 70,
+                        show : true,
+                        udlr : -1,
+                        align : 2,
+                        zIndex : 10000,
+                    });
+
+                    if('{!asrt}' == 'my'){
+                        $(".selectArch").css("display", "none");
+                        $("#lifecycleviewSelectorTable").parent('div').css("width", "175px");
+                    } else {
+                        $(".selectArch").css("display", "block");
+                        $("#lifecycleviewSelectorTable").parent('div').css("width", "250px");
+                    }
+                });
+
+                return $actImg;
+            }
+
+            function actSelectStatus(isArc, isTrash, isDel){
+                // すべてのクラスを削除
+                $("#[lctype]").each(function(){
+                    $(this).removeClass("lc-hover-icon");
+                    $(this).removeClass("lc-icon-disabled");
+                });
+                // クラスを設定
+                $("#[lctype=1]").addClass(isArc ? "lc-hover-icon" : "lc-icon-disabled");
+                $("#[lctype=2]").addClass(isTrash ? "lc-hover-icon" : "lc-icon-disabled");
+                $("#[lctype=3]").addClass(isDel ? "lc-hover-icon" : "lc-icon-disabled");
+            }
+
+
+            function selectAct(val){
+                actClean(actNum);
+                switch(actNum){
+                case 1:
+                    // 選択したアクションに表示を変更
+                    $("#" + act_1).attr({
+                        "src" : getActImg(val),
+                        "lcactval" : val,
+                    });
+                    $("#" + act_1).next().html(getActText(val));
+
+                    if(mode != 0){
+                        // アクションの削除アイコンの追加
+                        $delImg = getDelImg(act_1, actNum);
+                        $("#" + act_1).parent().append($delImg);
+                    }
+
+                    if(val != 3){
+
+                        // 2番目のアクション矢印生成
+                        var $arrowNum = getNum(tran_num_2);
+                        var $arrowUnit = getUnit(tran_unit_2);
+                        var $arrowImg = $("<img>").attr("src", "{!URLFOR($Resource.cso, 'image/ActionArrow1.png')}").css({
+                            border : "none"
+                        });
+                        if(mode == 0){
+                            var $fixDateDiv = $("<div>").attr("id", tran_num_2);
+                            $("#" + tdIDList[8]).append($arrowImg).append($("<br>")).append($fixDateDiv);
+                        }else{
+                            $("#" + tdIDList[8]).append($arrowImg).append($("<br>")).append($arrowNum).append($arrowUnit);
+                        }
+
+                        // 2番目のアクションを追加表示にする
+                        var $actImg = addActDom(act_2, 2);
+                        var $actText = $("<div>");
+                        var $div = $("<div>");
+                        if(mode != 0){
+                            $div.addClass("lc-hover-icon").css({
+                                "position" : "relative"
+                            })
+                        }
+                        $div.append($actImg).append($actText);
+                        $("#" + tdIDList[7]).append($div);
+                    }
+
+                    break;
+                case 2:
+                    // 選択したアクションに表示を変更
+                    $("#" + act_2).attr({
+                        "src" : getActImg(val),
+                        "lcactval" : val,
+                    });
+                    $("#" + act_2).next().html(getActText(val));
+
+                    if(mode != 0){
+                        // アクションの削除アイコンの追加
+                        $delImg = getDelImg(act_2, actNum);
+                        $("#" + act_2).parent().append($delImg);
+                    }
+
+                    if(val != 3){
+                        // 3番目のアクション矢印生成
+                        var $arrowNum = getNum(tran_num_3);
+                        var $arrowUnit = getUnit(tran_unit_3);
+                        var $arrowImg = $("<img>").attr("src", "{!URLFOR($Resource.cso, 'image/ActionArrow2.png')}").css({
+                            border : "none"
+                        });
+                        if(mode == 0){
+                            var $fixDateDiv = $("<div>").attr("id", tran_num_3);
+                            $("#" + tdIDList[6]).append($arrowImg).append($("<br>")).append($fixDateDiv);
+                        }else{
+                            $("#" + tdIDList[6]).append($arrowImg).append($("<br>")).append($arrowNum).append($arrowUnit);
+                        }
+
+                        // 3番目のアクションを追加表示にする
+                        var $actImg = addActDom(act_3, 3);
+                        var $actText = $("<div>");
+                        var $div = $("<div>");
+                        if(mode != 0){
+                            $div.addClass("lc-hover-icon").css({
+                                "position" : "relative"
+                            })
+                        }
+                        $div.append($actImg).append($actText);
+                        $("#" + tdIDList[3]).append($div);
+                    }
+
+                    break;
+                case 3:
+                    // 選択したアクションに表示を変更
+                    $("#" + act_3).attr({
+                        "src" : getActImg(val),
+                        "lcactval" : val,
+                    });
+                    $("#" + act_3).next().html(getActText(val));
+
+                    if(mode != 0){
+                        // アクションの削除アイコンの追加
+                        $delImg = getDelImg(act_3, actNum);
+                        $("#" + act_3).parent().append($delImg);
+                    }
+                    break;
+                }
+
+                $(this).csoBalloonHide();
+            }
+
+            $.fn.lcSelectAct = function(val){
+                if($(this).hasClass("lc-icon-disabled")){
+                    // 選択不可項目なため、何もしない
+                    return;
+                }
+                selectAct(val);
+            }
+
+            function getDelImg(act_id, act_num){
+                var $delImg = $("<img>").attr("src", "{!URLFOR($Resource.cso, 'image/cancel.png')}").css({
+                    "position" : "absolute",
+                    "top" : "10px",
+                    "right" : "10px",
+                }).click(function(){
+                    actClean(act_num);
+                    $("#" + act_id).parent().html(addActDom(act_id, act_num));
+                    $("#" + act_id).parent().append($("<div>"));
+                });
+                return $delImg;
+            }
+
+            function actClean(val){
+                switch(val){
+                case 1:
+                    $("#" + tdIDList[3]).empty();
+                    $("#" + tdIDList[6]).empty();
+                    $("#" + tdIDList[7]).empty();
+                    $("#" + tdIDList[8]).empty();
+                    break;
+                case 2:
+                    $("#" + tdIDList[3]).empty();
+                    $("#" + tdIDList[6]).empty();
+                    break;
+                case 3:
+                    break;
+                }
+            }
+
+            function getActImg(val){
+                switch(val - 0){
+                case 1:
+                    return "{!URLFOR($Resource.cso, 'image/lc-archNew.png')}";
+                case 2:
+                    return "{!URLFOR($Resource.cso, 'image/lc-trashNew.png')}";
+                case 3:
+                    return "{!URLFOR($Resource.cso, 'image/lc-delNew.png')}";
+                }
+            }
+
+            function getActText(val){
+                switch(val){
+                case 1:
+                    return res.Archive;
+                case 2:
+                    return res.Trash;
+                case 3:
+                    return res.Delete;
+                }
+            }
+
+            $.fn.getLcData = function(){
+                var l = new Array();
+
+                for(var i = 0; i < 3; i++){
+                    var lcData = new Object();
+                    lcData.action = $("#" + elementIDObj[i + 1].act).attr("lcactval");
+                    lcData.time = $("#" + elementIDObj[i + 1].num).val();
+                    lcData.date_unit = $("#" + elementIDObj[i + 1].unit).val();
+                    l.push(lcData);
+                }
+
+                return l;
+
+            }
+
+            $.fn.getTimeObject = function(idx){
+                return $("#" + elementIDObj[idx + 1].num);
+            }
+
+            $.fn.getActionObject = function(idx){
+                return $("#" + elementIDObj[idx + 1].act);
+            }
+
+
+        })(jQuery);
+
+        /**ライフサイクル End**/
+
+</script>
+
+<!-- ヘッダー -->
+<div id="c_head">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/up.png')}"/>
+    <div id="c_headTitle">
+        {!$Label.solxyzcso001__label_00002}
+    </div>
+    <div id="c_headSubTitle">
+        {!$Label.solxyzcso001__label_10141}
+    </div>
+</div>
+<!-- ブレッドクラム -->
+<apex:pageBlock tabStyle="ContentTab__tab">
+    <div id="spacePath">
+        <apex:pageBlockSection title=""  collapsible="false"/>
+    </div>
+</apex:pageBlock>
+
+<apex:pageBlock tabStyle="ContentTab__tab" id="contentsAddPageBlock">
+    <!-- エラー／警告メッセージ表示エリア -->
+    <apex:pageMessages />
+    <div id="tab_basic" class="tab-div" >
+    <!-- ページボディー -->
+    <table id="customfieldsTbl" class="customfields">
+        <!-- コンテンツ -->
+        <tr>
+            <th>{!$Label.label_10011}</th>
+            <td>
+                <div id="uploader" style="width:580px;">
+                	{!$Label.msg_00043}<br /><a href='{!HTMLENCODE($Label.label_getsilverlight_url)}'>{!$Label.label_10232}</a>
+                </div>
+            </td>
+        </tr>
+        <!-- 説明 -->
+        <tr cfname="explanation">
+            <th>{!$Label.label_10012}</th>
+            <td>
+                <div>
+                    <table width="10%">
+                    <tr>
+                        <td align="right"><div id="remainder"/></td>
+                    </tr>
+                    <tr>
+                        <td align="left">
+                            <textarea id="explanation" class="c_textarea_m" style="resize: none;"></textarea>
+                        </td>
+                    </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <!-- タグ -->
+        <tr cfname="tag">
+            <th>{!$Label.label_00057}</th>
+            <td>
+                <div class="tag-container" style="margin-top:-10px;margin-bottom: -10px;">
+                    <input type="text" id="tagNames" style="height: 1.2em;width: 320px;"/>
+                </div>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div id="tab_detail" class="tab-div" style="display: none;">
+    <!-- 詳細設定パネル -->
+    <div style="position:absolute;height:100%;width:100%">
+    <apex:pageBlockSection collapsible="false" columns="1" id="contentsAddDetailBlockSection">
+
+        <!-- バージョン -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="version" value="{!$Label.solxyzcso001__label_10038}"/>
+                <div class="dataRow" style="white-space:nowrap;">
+                    <label><input id="checkNewVersion" name="verUp" type="checkbox" />{!$Label.label_11052}</label>
+                    <img src="{!URLFOR($Resource.cso, 'image/tooltip.png')}" style="vertical-align: middle;"
+                                                                                onmouseover="showTips(this, new Array('{!$Label.msg_01012}'));"
+                                                                                onmouseout="hideTips();"
+                                                                                onclick="showTips(this, new Array('{!$Label.msg_01012}'));" />
+                </div>
+                <div class="dataRow verNew" style="white-space:nowrap; margin-left:20px;">
+                    <input type="text" style="width: 40px;" id="verNewMajor" maxlength="4" />&nbsp;.
+                    <input type="text" style="width: 40px;" id="verNewMinor" maxlength="4" />&nbsp;.
+                    <input type="text" style="width: 40px;" id="verNewRevision" maxlength="4" />&nbsp;.
+                    <input type="text" style="width: 40px;" id="verNewBuild" maxlength="4" />
+                </div>
+        </apex:pageBlockSectionItem>
+
+        <!-- バージョン管理 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="version" value="{!$Label.solxyzcso001__label_10041}"/>
+            <div class="dataRow">
+                <label><input id="verUp" name="verUp" type="checkbox" checked="checked" />{!$Label.label_10044}</label>
+            </div>
+            <div class="dataRow">
+                <input type="radio" name="verUpType" value="auto" style="margin-left: 23px;"  checked="checked"/>{!$Label.label_11026}
+            </div>
+            <div class="dataRow" style="margin-left:40px;">
+                <select id="versionkind" name="versionkind">
+                    <option value="0">{!$Label.label_10043}</option>
+                    <option value="1" selected="selected">{!$Label.label_10042}</option>
+                    <option value="2">{!$Label.label_11028}</option>
+                    <option value="3">{!$Label.label_11029}</option>
+                </select>
+                <img src="{!URLFOR($Resource.cso, 'image/tooltip.png')}" style="vertical-align: middle;"
+                                                                            onmouseover="showTips(this, new Array('{!$Label.msg_01045}'));"
+                                                                            onmouseout="hideTips();"
+                                                                            onclick="showTips(this, new Array('{!$Label.msg_01045}'));" />
+            </div>
+            <div class="dataRow">
+                <input type="radio" name="verUpType" value="manual" style="margin-left: 23px;" />{!$Label.label_11027}
+                <img src="{!URLFOR($Resource.cso, 'image/tooltip.png')}" style="vertical-align: middle;"
+                                                                            onmouseover="showTips(this, new Array('{!$Label.msg_01046}','{!$Label.msg_01047}'));"
+                                                                            onmouseout="hideTips();"
+                                                                            onclick="showTips(this, new Array('{!$Label.msg_01046}','{!$Label.msg_01047}'));" />
+            </div>
+            <div class="dataRow typeManual" style="white-space:nowrap; margin-left:40px;">
+                <input type="text" style="width: 40px;" id="verUpMajor" maxlength="4" />&nbsp;.
+                <input type="text" style="width: 40px;" id="verUpMinor" maxlength="4" />&nbsp;.
+                <input type="text" style="width: 40px;" id="verUpRevision" maxlength="4" />&nbsp;.
+                <input type="text" style="width: 40px;" id="verUpBuild" maxlength="4" />
+            </div>
+
+
+        </apex:pageBlockSectionItem>
+        <!-- 更新理由 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel >{!$Label.solxyzcso001__label_10066}</apex:outputLabel>
+            <div>
+                <table width="10%">
+                <tr>
+                    <td align="right">
+                        <div id="commentRemainder"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <textarea id="comment" class="c_textarea_m" style="resize: none;">{!$Label.label_10046}</textarea>
+                    </td>
+                </tr>
+                </table>
+            </div>
+        </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+        </div>
+        </div>
+        <div id="tab_cycle" class="tab-div" style="display: none;">
+        <!--ライフサイクル画面定義 -->
+        <div id="filterDialog" title="{!$Label.label_13020}" style="max-height:600px;overflow:auto;width:550;z-index:-1;">
+            <div id="DialogError" style="background-color: white; padding-top:5px;padding-bottom:5px;">
+            </div>
+
+            <table id ="filterTable" cellspacing="5" border="0">
+                <tr>
+                    <th colspan="3" style="font-weight: bold; padding-top: 10px;">
+                        {!$Label.label_13017}
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div id="lifecycleview"></div>
+                        <div id="lifecycleviewSelector" style="display: none;">
+                            <table id="lifecycleviewSelectorTable">
+                                <tr>
+                                    <td class="selectArch" style="text-align: center;">
+                                        <div onclick="$(this).lcSelectAct(1);" lctype="1">
+                                            <img src="{!URLFOR($Resource.cso, 'image/lc-archNew.png')}" class="lc-icon"/>
+                                            <div style="padding-top: 5px;">{!$Label.label_00055}</div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div onclick="$(this).lcSelectAct(2);" lctype="2">
+                                            <img src="{!URLFOR($Resource.cso, 'image/lc-trashNew.png')}" class="lc-icon"/>
+                                            <div style="padding-top: 5px;">{!$Label.label_00056}</div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div onclick="$(this).lcSelectAct(3);" lctype="3">
+                                            <img src="{!URLFOR($Resource.cso, 'image/lc-delNew.png')}" class="lc-icon"/>
+                                            <div style="padding-top: 5px;">{!$Label.label_13012}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        </div>
+        <div id="tab_disclose" class="tab-div" style="display: none;">
+            <table class="disclose-table">
+                <tr>
+                    <th>{!$Label.label_00083}</th>
+                    <td><input type="checkbox" id="discloseEnableCheck" name="discloseEnableCheck" onclick="discloseEnableChecked();" /></td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_13125}</th>
+                    <td>
+                        <label>
+                            <input type="radio" name="discloseModeRadio" value="0" onchange="discloseModeSelected();" />
+                            {!$Label.label_13126}
+                        </label>
+                        <label>
+                            <input type="radio" name="discloseModeRadio" value="1" onchange="discloseModeSelected();" />
+                            {!$Label.label_13127}
+                        </label>
+                        <label>
+                            <input type="radio" name="discloseModeRadio" value="2" onchange="discloseModeSelected();" />
+                            {!$Label.label_13128}
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_13129}</th>
+                    <td>
+                        <input type="text" id="discloseStartDate" name="discloseStartDate" class="shortWidth" />
+                        ～
+                        <input type="text" id="discloseEndDate" name="discloseEndDate" class="shortWidth" />
+                    </td>
+                </tr>
+                <tr>
+                    <th style="height: 18px;"></th>
+                    <td><div id="discloseTermTimeZone" style="font-size: 15px; margin: 0 0 0 5px;" /></td>
+                </tr>
+            </table>
+            <p class="disclose-contents-explanation">{!$Label.label_13130}</p>
+            <hr />
+            <p class="disclose-space-title">{!$Label.label_13131}</p>
+            <table class="disclose-table">
+                <tr>
+                    <th>{!$Label.label_13125}</th>
+                    <td><div id="spaceDiscloseType" style="font-size: 15px; margin: 0 0 0 5px;"></div></td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_13129}</th>
+                    <td>
+                        <div id="spaceDiscloseTerm" style="font-size: 15px; margin: 0 0 0 5px;"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="height: 18px;"></th>
+                    <td><div id="spaceDiscloseTermTimeZone" style="font-size: 15px; margin: 0 0 0 5px; display:none;" /></td>
+                </tr>
+            </table>
+        </div>
+    <!-- タブ -->
+
+    <div style="background-color: #7593D7; height:40px; width:100%;">
+        <ul id="evidence_tab">
+            <li id="evidence_tab_basic" class="evidence_tab evidence_tab_active">
+            <a href="javascript:switchTab('basicinfo');">{!$Label.label_13008}</a>
+            </li>
+            <li id="evidence_tab_detail" class="evidence_tab evidence_tab_deactive">
+            <a href="javascript:switchTab('detail');">{!$Label.label_13060}</a>
+            </li>
+            <li id="evidence_tab_cycle" class="evidence_tab evidence_tab_deactive">
+            <a href="javascript:switchTab('cycle');">{!$Label.label_13017}</a>
+            </li>
+            <li id="evidence_tab_disclose" class="evidence_tab evidence_tab_deactive" style="display:none;">
+            <a href="javascript:switchTab('disclose');">{!$Label.label_13124}</a>
+            </li>
+         </ul>
+     </div>
+</apex:pageBlock>
+<div id="uploading" style="display: none; padding: 20px;" title="{!$Label.solxyzcso001__label_10026}">
+    <apex:image alt="uploading" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/uploading.gif')}" style="margin-right: 10px;"/>
+    {!$Label.msg_00044}
+    <div style="width:100%; text-align:center">
+        <input type="button" class="btn" id="upload_stop" value="{!$Label.label_00063}"/>
+    </div>
+</div>
+<apex:form id="contentsAddToResultForm" style="display:none;">
+    <apex:inputText id="query" value="{!query}" />
+    <apex:inputText id="updateFile" value="{!updateFile}" />
+    <apex:inputText id="ecmSessionId" value="{!ecmSessionId}" />
+    <apex:commandButton action="{!result}" value="test" id="toResultSubmit"/>
+</apex:form>
+<span id="tmpPathArea" style="padding-left:3px;display:none;white-space:nowrap;font-weight: bold;"></span>
+<div id="tooltip" class="tooltip"></div>
+</apex:outputPanel>
+</apex:page>

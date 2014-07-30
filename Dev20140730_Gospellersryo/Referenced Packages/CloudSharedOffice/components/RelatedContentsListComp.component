@@ -1,0 +1,818 @@
+<apex:component id="relatedContentsListComp" access="global" allowDML="true" controller="SOLXYZCSO001.RelatedContentsListCompController">
+<apex:outputText escape="false" value="</span>"/>
+<apex:attribute name="csoUserInfo" access="global" description="required" assignTo="{!userInfo}" type="SOLXYZCSO001.CSOUserInfo" required="false"/>
+
+<apex:iframe src="{!$Page.SOLXYZCSO001__CSO_Error}?code={!userInfo.code}&massage={!userInfo.message}&noBorder=true" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.uid != null && userInfo.showErrPage == false, true, false)}">
+
+<!-- CSO認証共通モジュール -->
+<c:CsoBridgeComp id="csoBridgeComp"/>
+<apex:includeScript value="{!$Resource.SOLXYZCSO001__jquery}"/>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css?20120828')}" />
+<apex:outputPanel rendered="{!IF(language == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(language == 'en_US', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(language == 'zh_CN', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+
+<c:CsoScriptComp id="csoScriptComp"/>
+
+<style type="text/css">
+.ui-jqgrid .loading{
+    display: block;
+}
+</style>
+
+<script type="text/javascript">
+var fileIdList='';     //選択したコンテンツのリスト
+var DATA_DELIM=',';
+var rc_thumb = '1';//デフォルトは2行表示※数値は本体側パラメータに併せた
+var rc_viewMode;
+
+var BATCH_IDS = '';
+var BATCH_SIZE = 100;
+var BATCH_CURRENT = 0;
+var BATCH_TOTAL;
+var BATCH_LIMIT;
+
+var ecmDocIDMap = {};
+var indexEcmDocID = '';
+var ecmDocIDArray = [];
+var ecmDocIDs = '';
+<apex:repeat var="csoAutoImage" value="{!csoAutoImagesList}">
+
+    ecmDocIDs = '{!JSENCODE(csoAutoImage.SOLXYZCSO001__ECMdocID__c)}';
+
+</apex:repeat>
+
+ecmDocIDArray = ecmDocIDs.split(',');
+
+for(var i=0;i<ecmDocIDArray.length;i++){
+    if(ecmDocIDArray[i] != '' && ecmDocIDArray[i] != undefined && ecmDocIDArray[i] != null){
+        ecmDocIDMap[ecmDocIDArray[i]] = i+1;
+    }
+}
+
+
+function initChangeViewMode(){
+
+    $('id$=["relatedContentsListComp\\:relatedContentsListComp"]').hide();
+
+    rc_viewMode = $.cookie('rc_viewMode') == null ? 'list' : $.cookie('rc_viewMode');
+
+
+    var browserType = getBrowserType();
+    if(rc_viewMode == 'flow' &&  browserType != 'IE8' ){
+        changeViewMode();
+
+        return;
+    }else{
+        $('id$=["relatedContentsListComp\\:relatedContentsListComp"]').show();
+
+        $.cookie('rc_viewMode', 'list',{domain:'.force.com', path:'/'});
+
+    }
+}
+
+initChangeViewMode();
+
+jQuery.event.add(window, "load", function(){
+
+
+    rc_thumb = $.cookie('rc_thumb') == null ? '1' : $.cookie('rc_thumb');
+
+    if(rc_thumb == '0'){
+        $('#displayLine').attr("checked", true);
+    }
+
+//    var hiddenReportImageNumber = true;
+    var reloadFlag = false;
+
+    var browserType = getBrowserType();
+    //----------------------------------//
+    //  関連付けされたコンテンツの一覧  //
+    //----------------------------------//
+    $("#relatedContentsListTable").jqGrid({
+        url : _apiUrl + '/contentsmanagement/contentsRelationListGet.json?thumb=' + rc_thumb + '&objid={!JSENCODE(URLENCODE(Sf_ID))}',
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            loadonce   : true,
+            id         : "id"
+        },
+        colNames : ['id',
+                    'byte_size',
+                    'spaceid',
+                    '{!$Label.label_10174}', //アクション
+                    '{!$Label.label_10081}', //コンテンツ名
+                    'name',
+                    '{!$Label.label_10476}', //パス
+                    'version',
+                    'size',
+                    'regist_uname',
+                    'regist_date',
+                    '{!$Label.label_10024}', //更新者
+                    '{!$Label.label_10006}', //更新日
+                    '{!$Label.label_wf_29037}' //帳票画像番号
+                    ],
+        colModel : [{name : "id", index : "id", hidden : true},
+                    {name : "byte_size", index : "byte_size", hidden : true},
+                    {name : "spaceid", index : "spaceid",  hidden : true},
+                    {name : "action", index : "action", width : 180, align : "center", sortable : false},
+                    {name : "linked_name", index : "name", width : 290, align : "left"},
+                    {name : "name", index : "name", hidden : true},
+                    {name : "path", index : "path", width : 300, align : "left", sortable : false, hidden : true},
+                    {name : "version", index : "version", hidden : true},
+                    {name : "size", index : "size", hidden : true},
+                    {name : 'regist_uname', index:'regist_uname', align:"center", hidden:true},
+                    {name : 'regist_date', index:'regist_uname', align:"center", hidden:true},
+                    {name : 'update_uname', index:'update_uname', width:100, align:"center"},
+                    {name : 'update_date', index:'update_date', width:100, align:"center"},
+                    {name : "number", index : "number",width:100, hidden : true, sortable : false }
+                   ],
+        width: 700,
+        height:100,
+        rowNum:10000,
+        sortname:'name',
+        sortorder:'asc',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        shrinkToFit : false,
+        //loadonce : true,
+/*
+        loadComplete : function(data) {
+            try{
+                if(!hiddenReportImageNumber){
+                    for(var i=0;i<data.rows.length;i++){
+
+                        if(ecmDocIDMap[data.rows[i]['id']] != undefined){
+                            data.rows[i]['number'] = ecmDocIDMap[data.rows[i]['id']].toString();
+                        }else{
+                            data.rows[i]['number'] = '';
+                        }
+
+                        $("#relatedContentsListTable").setRowData(data.rows[i].id, data.rows[i]);
+
+                    }
+                }
+                CsoScript_loadingStop();
+                //changeCurrentTreeColor(data.spaceId);function未定義のためコメントアウト
+            }catch(e){
+            }
+        },
+*/
+        loadComplete : function(data) {
+            try{
+                var IsWrImage = false;
+                if({!reportAutoImageDto.hasWR}){ // WR有効判定
+                    for(var i=0;i<data.rows.length;i++){
+
+                        if(ecmDocIDMap[data.rows[i]['id']] != undefined){
+                            data.rows[i]['number'] = ecmDocIDMap[data.rows[i]['id']].toString();
+                            IsWrImage = true;
+                        }else{
+                            data.rows[i]['number'] = '';
+                        }
+                        $("#relatedContentsListTable").setRowData(data.rows[i].id, data.rows[i]);
+                    }
+                }
+
+                // 帳票画像番号が設定されている場合は帳票画像番号を表示
+                if(IsWrImage&&!reloadFlag){
+                    reloadFlag = true;
+                    $("#relatedContentsListTable").jqGrid('showCol',"number").trigger('reloadGrid');
+                }else{
+                    CsoScript_loadingStop();
+                    reloadFlag = false;
+                }
+
+                $("#relatedContentsListTable").jqGrid('setGridWidth', $('#gview_relatedContentsListTable').width(), false);
+
+                //changeCurrentTreeColor(data.spaceId);function未定義のためコメントアウト
+            }catch(e){
+            }
+        },
+        onRightClickRow: function() {return false;}
+    });
+
+
+    $(window).resize(resizeBodySize);
+    resizeBodySize();
+
+    if('{!CSOUserInfo.locale}' == 'en' &&  browserType == 'IE9' ){
+        $('.ui-th-div-ie').css("line-height","26px");
+    }else{
+        $('.ui-th-div-ie').css("line-height","21px");
+    }
+
+    //クリエイターズオプションボタンの制御
+    /* 確認不要のためコメントアウト（2013/06/12時点で以下APIをコールすると、権限によりエラーが出る可能性あり）
+    $('.ThumbInfo').hide();
+    var callbackCo = function (data, status) {
+        if (data.result == true) {
+            $('.ThumbInfo').show();
+        }
+    };
+    var callerrorCo = function (data) {
+        alert("settingThumbInfo:" + data);
+    };
+
+    secureGetAsync('/setup/settingThumbInfo.json', '', callbackCo, callerrorCo);
+    */
+
+});
+
+function resizeBodySize() {
+    var browserWidth = getBrowserWidth();
+    var browserHeight = getBrowserHeight();
+
+    if((browserWidth - 40) < 493){
+        $("#relatedContentsListTable").setGridWidth(493);
+    } else {
+        $("#relatedContentsListTable").setGridWidth(browserWidth - 50);
+    }
+
+    if(browserHeight<200){
+        $("#relatedContentsListTable").setGridHeight(200);
+    } else {
+        $("#relatedContentsListTable").setGridHeight(browserHeight - 110);
+    }
+
+}
+
+//======================================//
+//  関連コンテンツ詳細画面に遷移        //
+//======================================//
+function onNameClicked(doc_id,spaceid){
+    CsoScript_loadingStart();
+    var sitePrefix = '';
+
+    if('{!$Site.prefix}'!=null || '{!$Site.prefix}' != ''){
+        sitePrefix = '{!$Site.prefix}';
+    }
+
+//    if('{!pagePrefix}' != 'false'){
+        top.location.href = '{!$Page.RelatedContentsFileViewer}?spaceid=' +spaceid+ '&fileId=' + doc_id + '&type=alive&security=&pageType=list_detail&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}&baseURL={!JSENCODE(URLENCODE(salesforceBaseUrl))}';
+//    }else{
+//        if(sitePrefix==''){
+//            top.location.href = '{!JSENCODE(salesforceBaseUrl)}/apex/RelatedContentsFileViewer?spaceid=' +spaceid+ '&fileId=' + doc_id + '&type=alive&security=&pageType=list_detail&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+//        }else{
+//            top.location.href = '{!JSENCODE(salesforceBaseUrl)}'+sitePrefix+'/RelatedContentsFileViewer?spaceid=' +spaceid+ '&fileId=' + doc_id + '&type=alive&security=&pageType=list_detail&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+//        }
+//    }
+}
+
+//======================================//
+//  action:編集                         //
+//======================================//
+function onModifyClicked(doc_id, spaceid){
+    var sitePrefix = '';
+
+    if('{!$Site.prefix}'!=null || '{!$Site.prefix}' != ''){
+        sitePrefix = '{!$Site.prefix}';
+    }
+
+    if('{!pagePrefix}' != 'false'){
+        top.location.href = '{!$Page.RelatedContentsEdit}{!JSENCODE(Sf_type)}?spaceId=' + spaceid + '&fileId=' + doc_id + '&type=alive&security=&pageType=list_edit&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&Sf_typeName={!JSENCODE(URLENCODE(Sf_typeName))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+    }else{
+        if(sitePrefix==''){
+            top.location.href = '{!JSENCODE(salesforceBaseUrl)}/apex/RelatedContentsEdit'+'{!Sf_type}?spaceId=' + spaceid + '&fileId=' + doc_id + '&type=alive&security=&pageType=list_edit&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&Sf_typeName={!JSENCODE(URLENCODE(Sf_typeName))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+        }else{
+            top.location.href = '{!JSENCODE(salesforceBaseUrl)}'+sitePrefix+'/RelatedContentsEdit'+'{!Sf_type}?spaceId=' + spaceid + '&fileId=' + doc_id + '&type=alive&security=&pageType=list_edit&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&Sf_typeName={!JSENCODE(URLENCODE(Sf_typeName))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+        }
+    }
+}
+
+
+//======================================//
+//  action:ジャンプ                     //
+//======================================//
+function onJumpClicked(doc_id, space_id, space_type){
+    var space_type_name=changeSpaceType(space_type);
+    if(space_type_name==''){
+        //error
+        alart("{!$Label.msg_01054}"); //ジャンプ先のスペース情報が取得できませんでした。
+        return null;
+    }
+    var sitePrefix = '';
+
+    if('{!$Site.prefix}'!=null || '{!$Site.prefix}' != ''){
+        sitePrefix = '{!$Site.prefix}';
+    }
+
+    if('{!pagePrefix}' != 'false'){
+        top.location.href='{!$Page.SpacePortal}'+'#'+space_id+':'+space_type_name+':doc_id='+doc_id;
+    }else{
+        if(sitePrefix==''){
+            //自動リダイレクトされないようにパッケージのドメインで遷移する
+            var nameSpace = '{!nameSpace}';
+            var csoPackageBaseUrl = '{!JSENCODE(salesforceBaseUrl)}';
+            if(nameSpace != null || nameSpace != ''){
+                csoPackageBaseUrl = csoPackageBaseUrl.replace('https://c.','https://' + nameSpace + '.');
+            }
+
+            top.location.href=csoPackageBaseUrl+'{!$Page.SpacePortal}'+'#'+space_id+':'+space_type_name+':doc_id='+doc_id;
+        }else{
+            top.location.href='{!$Page.SpacePortal}'+'#'+space_id+':'+space_type_name+':doc_id='+doc_id;
+        }
+    }
+
+}
+
+//======================================//
+//  スペースタイプの変換                //
+//======================================//
+function changeSpaceType(space_type){
+    var space_type_name='';
+    var mSpaceIdentifier=0;
+
+    switch (space_type){
+        case '11':  //MY_ROOT - 11:マイスペースのルートスペース
+        case '12':  //MY_CHILD - 12:マイスペースのチャイルドスペース
+        case '13':  //MY_COOP_ROOT - 13:「招待」スペース
+            space_type_name='my';
+            mSpaceIdentifier = 1;
+            break;
+        case '06':  //COLLABORATION - 06:コラボスペース
+        case '07':  //COLLABORATION_CHILD - 07:コラボスペースの子スペース
+            space_type_name='collaboration';
+            mSpaceIdentifier = 5;
+            break;
+        case '02':  //PUBLIC - 02:カンパニースペース
+        case '04':  //PUBLIC_CHILD - 04:カンパニースペースの子スペース
+            space_type_name='company';
+            mSpaceIdentifier = 2;
+            break;
+        case '08':  //ARCHIVE - 08:アーカイブルート
+        case '09':  //ARCHIVE_CHILD - 09:アーカイブスペースの子スペース
+            space_type_name='archive';
+            mSpaceIdentifier = 4;
+            break;
+        default:
+            //通常のスペース以外
+            break;
+    }
+    return space_type_name;
+}
+//======================================//
+//  action:ダウンロード                 //
+//======================================//
+function onDownloadClicked(doc_id, space_id, version){
+
+    var paramVersion = "[" + version.replace(/\./g, ",") + "]";
+
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '{!$Page.ShowReport}';
+        url = url + '?downloadType=standard';
+        url = url + '&spaceId=' + space_id;
+        url = url + '&fileId='  + doc_id;
+        url = url + '&version=' + encodeURIComponent(paramVersion);
+        url = url + '&type='    + "alive";
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync('/contentsmanagement/SingleContentsDownloadApi.json', {"spaceId" : space_id, "fileId" : doc_id, "ver" : paramVersion, "type" : "alive"}, callback, callerror);
+}
+function downloadExec(url){
+    top.location.href = url;
+//  window.open(url, 'contentsinfo', 'width=400, height=350, menubar=no, toolbar=no, scrollbars=yes');
+}
+
+
+
+//==============//
+//  配信ボタン  //
+//==============//
+function relatedDelivery(){
+    var ids = $("#relatedContentsListTable").jqGrid("getGridParam","selarrrow");
+    var idList = [];
+
+    var emptyError='{!$Label.msg_00037}';
+    if(ids.length <= 0){
+        alert(emptyError);
+        return;
+    }
+    window.open('about:blank', 'deliveryWindow', 'width=848, height=673, menubar=no, toolbar=no, scrollbars=yes');
+    $('#id').attr('value', ids.toString());
+    $('#ecmSessionId').attr('value', __ecmSessionId);
+    $('#sfId').attr('value', '{!JSENCODE(URLENCODE(Sf_ID))}');
+    $("#deliveryForm").submit();
+
+    return;
+}
+
+//==================//
+//  関連削除ボタン  //
+//==================//
+function relatedDelete(){
+    BATCH_IDS = $("#relatedContentsListTable").jqGrid("getGridParam","selarrrow");
+    BATCH_LIMIT = BATCH_IDS.length < BATCH_SIZE ? BATCH_IDS.length : BATCH_SIZE;
+
+    var emptyError='{!$Label.msg_00037}';
+    if(BATCH_IDS.length <= 0){
+        alert(emptyError);
+        return;
+    }
+
+    if(window.confirm('{!$Label.msg_01056}')){
+   		CsoScript_loadingStart();
+		BATCH_TOTAL = Math.ceil(BATCH_IDS.length/BATCH_SIZE);
+        deleteContentsList(getBatchIds);
+    } else {
+        return;
+    }
+}
+
+function getBatchIds() {
+	var idList = [];
+	for (var i=BATCH_CURRENT*BATCH_SIZE; i<(BATCH_CURRENT+1)*BATCH_LIMIT; i++) {
+		if ($("#relatedContentsListTable").getRowData(BATCH_IDS[i]).id != undefined) {
+			idList[idList.length] = $("#relatedContentsListTable").getRowData(BATCH_IDS[i]).id;
+		}
+	}
+	fileIdList = idList.join(DATA_DELIM);
+	return fileIdList;
+}
+
+//==========================//
+//  コンテンツの関連解除    //
+//==========================//
+function deleteContentsList(deleteFileIdList){
+    var params={
+        "objid"      : "{!JSENCODE(Sf_ID)}",
+        "objname"    : "{!JSENCODE(Sf_name)}",
+        "obj_catname": "{!JSENCODE(Sf_typeName)}",
+        "docids"     : deleteFileIdList,
+    };
+
+    var delete_callback = function(data){
+        var err_msg='{!$Label.msg_01055}';
+        var errorNames='';
+        for(var idx in data["failed"]){
+            errorNames+= '\n ' + data["failed"][idx];
+        }
+        err_msg += errorNames;
+
+        if(data["result"] == false){
+            alert('CallBackData = ' + data["message"]);
+			redirect();
+        }
+
+        var succeeded_msg='{!$Label.msg_01053}';
+        var succeededNames='';
+        for(var idx in data["succeeded"]){
+            succeededNames += '\n ' + data["succeeded"][idx];
+        }
+        succeeded_msg += succeededNames;
+
+        if(errorNames.length>0){
+            succeeded_msg += '\n' + err_msg;
+        }
+
+    	BATCH_CURRENT++;
+    	if (BATCH_CURRENT < BATCH_TOTAL) {
+    		deleteContentsList(getBatchIds);
+    	} else {
+    		if(BATCH_IDS.length > BATCH_SIZE) {
+		    	var get_callback = function(data){
+		    		if(data["result"] == false){
+			            alert('CallBackData = ' + data["message"]);
+						redirect();
+			        }
+		    		var idList = [];
+		    		for(var i=0; i<data.rows.length; i++){
+		    			if($.inArray(data.rows[i].id, BATCH_IDS) != -1) {
+		    				idList[idList.length] = data.rows[i].id;
+		    			}
+		    		}
+		    		if(idList.length > 0) {
+		    			fileIdList = idList.join(DATA_DELIM);
+		    			deleteContentsList(fileIdList);
+		    		} else {
+		    			redirect();
+	    			}
+		    	};
+
+		    	var get_callerror = function(data){
+		    		CsoScript_loadingStop();
+		        	alert('CallErrorData = ' + data);
+		        	return;
+		    	};
+
+		    	secureGetAsync("/contentsmanagement/contentsRelationListGet.json", { "objid":"{!JSENCODE(URLENCODE(Sf_ID))}", "sidx" : "name" }, get_callback, get_callerror);
+		    } else {
+		    	redirect();
+		    }
+    	}
+    };
+
+    var delete_callerror = function(data){
+        CsoScript_loadingStop();
+        alert('CallErrorData = ' + data);
+        return;
+    };
+
+    secureGetAsync("/contentsmanagement/contentsRelationDelete.json", params, delete_callback, delete_callerror);
+}
+
+function redirect(){
+	if('{!JSENCODE(retURL)}'==''||'{!JSENCODE(retURL)}'==null){
+	    top.location.href = '/{!JSENCODE(Sf_Id)}';
+	}else{
+	    top.location.href = '{!JSENCODE(salesforceBaseUrl)}{!JSENCODE(retURL)}';
+	}
+}
+
+//==================//
+//  関連コンテンツ選択ボタン  //
+//==================//
+function relatedSelect(){
+    var ids = $("#relatedContentsListTable").jqGrid("getGridParam","selarrrow");
+    var idList = [];
+
+    var emptyError='{!$Label.msg_00037}';
+    if(ids.length <= 0){
+        alert(emptyError);
+        return;
+    }
+
+    if(window.confirm('{!$Label.msg_01075}')){
+        for(var i=0; i<ids.length; i++){
+            idList[idList.length] = $("#relatedContentsListTable").getRowData(ids[i]).id;
+        }
+
+        fileIdList = idList.join(DATA_DELIM);
+
+        // 選択処理
+        selectContentsList(fileIdList);
+    } else {
+        return;
+    }
+}
+//==========================//
+//  関連コンテンツ選択   //
+//==========================//
+function selectContentsList(fileIdList){
+    var params={
+        "objid"      : "{!JSENCODE(Sf_ID)}",
+        "objname"    : "{!JSENCODE(Sf_name)}",
+        "obj_catname": "{!JSENCODE(Sf_typeName)}",
+        "docids"     : fileIdList,
+    };
+
+    var callback = function(data){
+        CsoScript_loadingStop();
+        alert('{!$Label.msg_01076}');
+        $("#relatedContentsListTable").trigger("reloadGrid");
+    };
+
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert('CallErrorData = ' + data);
+        return;
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync("/contentsmanagement/contentsRelationSelect.json", params, callback, callerror);
+}
+
+//==================//
+//  関連コンテンツ選択解除ボタン  //
+//==================//
+function relatedDeselect(){
+    var ids = $("#relatedContentsListTable").jqGrid("getGridParam","selarrrow");
+    var idList = [];
+
+    var emptyError='{!$Label.msg_00037}';
+    if(ids.length <= 0){
+        alert(emptyError);
+        return;
+    }
+
+    if(window.confirm('{!$Label.msg_01077}')){
+        for(var i=0; i<ids.length; i++){
+            idList[idList.length] = $("#relatedContentsListTable").getRowData(ids[i]).id;
+        }
+
+        fileIdList = idList.join(DATA_DELIM);
+
+        // 選択解除処理
+        deselectContentsList(fileIdList);
+    } else {
+        return;
+    }
+}
+//==========================//
+//  関連コンテンツ選択解除   //
+//==========================//
+function deselectContentsList(fileIdList){
+    var params={
+        "objid"      : "{!JSENCODE(Sf_ID)}",
+        "objname"    : "{!JSENCODE(Sf_name)}",
+        "obj_catname": "{!JSENCODE(Sf_typeName)}",
+        "docids"     : fileIdList,
+    };
+
+    var callback = function(data){
+        CsoScript_loadingStop();
+        alert('{!$Label.msg_01078}');
+        $("#relatedContentsListTable").trigger("reloadGrid");
+    };
+
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert('CallErrorData = ' + data);
+        return;
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync("/contentsmanagement/contentsRelationDeselect.json", params, callback, callerror);
+}
+
+function changeLine(){
+    //フラグ反転（0:1行表示/1:2行表示）
+    if(rc_thumb == '0'){
+        rc_thumb = '1' ;
+    } else {
+        rc_thumb = '0' ;
+    }
+
+    $.cookie('rc_thumb', rc_thumb,{domain:'.force.com', path:'/'});
+
+    CsoScript_loadingStart();
+    $("#relatedContentsListTable").setGridParam({url: _apiUrl + '/contentsmanagement/contentsRelationListGet.json?thumb=' + rc_thumb + '&objid={!JSENCODE(URLENCODE(Sf_ID))}'}).trigger("reloadGrid");
+}
+
+//モード切り替え
+function changeViewMode(){
+    var sitePrefix = '';
+
+    if('{!$Site.prefix}'!=null || '{!$Site.prefix}' != ''){
+        sitePrefix = '{!$Site.prefix}';
+    }
+
+    var url = '{!$Page.RelatedContentsViewerAccount}';//ベースURL
+    url = url.split('Account').join('{!JSENCODE(Sf_type)}');
+
+    $.cookie('rc_viewMode', 'flow',{domain:'.force.com', path:'/'});
+
+//    location.href= url + '?id={!JSENCODE(URLENCODE(Sf_ID))}';
+
+    if('{!JSENCODE(pagePrefix)}' != 'false'){
+        location.href = url + '?id={!JSENCODE(URLENCODE(Sf_ID))}';
+    }else{
+        if(sitePrefix==''){
+            location.href = '{!JSENCODE(salesforceBaseUrl)}/apex/RelatedContentsViewer'+'{!JSENCODE(Sf_type)}?id={!JSENCODE(URLENCODE(Sf_ID))}';
+        }else{
+            location.href = '{!JSENCODE(salesforceBaseUrl)}'+sitePrefix+'/RelatedContentsViewer'+'{!JSENCODE(Sf_type)}?id={!JSENCODE(URLENCODE(Sf_ID))}';
+        }
+    }
+    return false;
+}
+
+
+/**
+ * CSOコンテンツ連携画面に遷移する
+ */
+function openContentsSelect(){
+
+    var sitePrefix = '';
+
+    if('{!$Site.prefix}'!=null || '{!$Site.prefix}' != ''){
+        sitePrefix = '{!$Site.prefix}';
+    }
+
+    if('{!pagePrefix}' != 'false'){
+        top.location.href = '{!$Page.ContentsSelect}{!JSENCODE(Sf_type)}?id={!JSENCODE(URLENCODE(Sf_ID))}';
+    }else{
+        if(sitePrefix==''){
+            top.location.href = '{!JSENCODE(salesforceBaseUrl)}/apex/ContentsSelect'+'{!JSENCODE(Sf_type)}?id={!JSENCODE(URLENCODE(Sf_ID))}';
+        }else{
+            top.location.href = '{!JSENCODE(salesforceBaseUrl)}'+sitePrefix+'/ContentsSelect'+'{!JSENCODE(Sf_type)}?id={!JSENCODE(URLENCODE(Sf_ID))}';
+        }
+    }
+
+}
+
+
+/**
+ * 帳票画像設定画面に遷移する
+ */
+function openReportImageSelect(){
+
+    var sitePrefix = '';
+
+    if('{!$Site.prefix}'!=null || '{!$Site.prefix}' != ''){
+        sitePrefix = '{!$Site.prefix}';
+    }
+
+    if('{!pagePrefix}' != 'false'){
+        //top.location.href = '{!$Page.ReportImageSelect}{!JSENCODE(Sf_type)}?id={!JSENCODE(URLENCODE(Sf_ID))}';
+        top.location.href = '{!$Page.ReportImageSelect}?id={!JSENCODE(URLENCODE(Sf_ID))}';
+    }else{
+        if(sitePrefix==''){
+            //top.location.href = '{!JSENCODE(salesforceBaseUrl)}/apex/ReportImageSelect'+'{!JSENCODE(Sf_type)}?id={!JSENCODE(URLENCODE(Sf_ID))}';
+            top.location.href = '{!JSENCODE(salesforceBaseUrl)}{!$Page.ReportImageSelect}'+'?id={!JSENCODE(URLENCODE(Sf_ID))}';
+        }else{
+            //top.location.href = '{!JSENCODE(salesforceBaseUrl)}'+sitePrefix+'/ReportImageSelect'+'{!JSENCODE(Sf_type)}?id={!JSENCODE(URLENCODE(Sf_ID))}';
+            top.location.href = '{!JSENCODE(salesforceBaseUrl)}'+sitePrefix+'{!$Page.ReportImageSelect}'+'?id={!JSENCODE(URLENCODE(Sf_ID))}';
+        }
+    }
+
+}
+</script>
+
+<apex:variable var="Sf_ID"   id="Sf_ID"   value="{!Sf_ID}"/>
+<apex:variable var="Sf_name" id="Sf_name" value="{!Sf_name}"/>
+<apex:variable var="Sf_typeName" id="Sf_typeName" value="{!Sf_typeName}"/>
+<apex:variable var="pageType" id="pageType" value="{!pageType}"/>
+<apex:variable var="pagePrefix" id="pagePrefix" value="{!pagePrefix}"/>
+
+<apex:variable var="retURL" id="retURL" value="{!retURL}"/>
+<apex:variable var="nameSpace" id="nameSpace" value="{!nameSpace}"/>
+
+  <apex:pageBlock id="csolistblock" mode="" title="{!$Label.solxyzcso001__field_010196}">
+    <apex:pageBlockButtons location="top" >
+        <div align="left" style="float: left;">
+          <input type="button" class="btn" id="contentsselect" value="{!$Label.field_010198}" onclick="openContentsSelect();"/>
+          <input type="button" class="btn" id="contentsSelectModal_upload" value="{!$Label.field_010199}" onclick="relatedDelete();return false;"/>
+          <!--apex:outputText rendered="{!IsDelivery}"-->
+            <input type="button" class="btn ThumbInfo" id="move" value="{!$Label.field_010066}" onclick="relatedDelivery();" />
+          <!--/apex:outputText-->
+          <!-- お蔵入り　仕様再検討
+          <input type="button" class="btn ThumbInfo" id="contentsSelect" value="{!$Label.field_010300}" onclick="relatedSelect();return false;"/>
+          <input type="button" class="btn ThumbInfo" id="contentsUnSelect" value="{!$Label.field_010301}" onclick="relatedDeselect();return false;"/>
+       -->
+          <input type="button" class="btn ThumbInfo" id="move" value="{!$Label.field_010303}" onclick="changeViewMode();" />
+          <apex:outputText rendered="{!reportAutoImageDto.hasWR && reportAutoImageDto.hasPermissionWRAdmin}">
+            <input type="button" class="btn ThumbInfo" id="move" value="{!$Label.label_wf_29041}" onclick="openReportImageSelect();" />
+         </apex:outputText>
+        </div>
+
+      <div align="right">
+          <input type="checkbox" id="displayLine" value="1" onclick="this.blur();this.focus();" onchange="changeLine();"><label for="displayLine">{!$Label.field_010302}</label></input>
+      </div>
+  </apex:pageBlockButtons>
+
+  <!-- 関連付けされたコンテンツ一覧（ページ操作なし） -->
+    <table id="relatedContentsListTable"></table>
+
+  </apex:pageBlock>
+</apex:outputPanel>
+
+<apex:outputText escape="false" value="<span>"/>
+
+<form id="deliveryForm" method="post" target="deliveryWindow" action="{!$Page.beforeDelivery}">
+    <input type="hidden" id="id" name="id" value=""/>
+    <input type="hidden" id="ecmSessionId" name="ecmSessionId" value=""/>
+    <input type="hidden" id="spaceId" name="spaceId" value=""/>
+    <input type="hidden" id="sfId" name="sfId" value=""/>
+</form>
+<c:CSOSilverlightComp />
+</apex:component>

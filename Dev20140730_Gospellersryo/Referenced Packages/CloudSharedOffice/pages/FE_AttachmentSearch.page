@@ -1,0 +1,77 @@
+<apex:page standardStylesheets="true" showHeader="false" sidebar="false" Controller="SOLXYZCSO001.FE_AttachmentSearchtController" tabStyle="Opportunity" title="Create Report" Id="page1" action="{!serchAttachments}">
+<head>
+  <title>{!$Label.label_wf_00055}</title>
+  <link  href="/sCSS/24.0/sprites/1331837151000/Theme3/ja/common.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css" />
+  <link  href="/sCSS/24.0/sprites/1331837151000/Theme3/ja/extended.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="setup popupTab">
+    <div id="ieBrowserFix" style="display:none;">
+        <apex:sectionHeader title="IE" subtitle="BrowserFix" />
+    </div>
+    <apex:form id="Form1">
+        <apex:actionFunction name="Reflesh" rerender="Form1"/>
+        <br/>
+        <br/>
+        <br/>
+        <div class="bPageBlock secondaryPalette">
+            <div class="pbBody">
+                <apex:dataTable value="{!attachments}" var="mtList" id="mtList" styleClass="list" headerClass="headerRow" rowClasses="dataRow" columnClasses="dataCell" >
+                    <apex:column >
+                        <apex:facet name="header">{!$Label.solxyzcso001__label_wf_00056}</apex:facet>
+                        <apex:outputPanel >
+                            <apex:outputLink value="#" id="theLink" onclick="setAttachmentId({!attachmentCon},{!address},'{!mtList.id}')">
+                                <apex:outputtext value="{!mtList.name}" id="name"/>
+                            </apex:outputLink>
+                        </apex:outputPanel>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">{!$Label.solxyzcso001__label_wf_00057}</apex:facet>
+                        <apex:outputField value="{!mtList.LastModifiedDate}" id="lastModifiedDate"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">{!$Label.solxyzcso001__label_wf_00058}</apex:facet>
+                        <apex:outputtext value="{!mtList.CreatedBy.name}" id="createdBy" />
+                        <apex:inputHidden value="{!mtList.Id}" id="id" rendered="{!$ObjectType.Attachment.fields.Id.Accessible}" />
+                    </apex:column>
+                </apex:dataTable>
+            </div>
+        </div>
+    </apex:form>
+</body>
+
+<SCRIPT>
+
+    function setAttachmentId(con,no,name) {
+        var checkAttachment = "";
+        var checkName = "";
+        var mAttachment = "";
+        var mname = ""
+        var ua = navigator.userAgent;
+        for(i = 0; i < con; i++){
+          checkAttachment = "page1:Form1:mtList:" + i + ":id";
+          checkName = "page1:Form1:mtList:" + i + ":name";
+          if(ua.indexOf("Firefox") >= 0){
+            mAttachment = document.getElementById(checkAttachment).value;
+            mname = document.getElementById(checkName).textContent;
+            if(mAttachment == name){
+              window.opener.document.getElementById("STEP2:form1:block1:section1:section2:item1:repeat1:"+ no +":repeat2:0:input1").value = mname;
+              window.opener.document.getElementById("STEP2:form1:block1:section1:section2:item1:repeat1:"+ no +":repeat2:0:userInputTmp").value = name;
+            }
+          }else{
+            mAttachment = document.getElementById(checkAttachment).value;
+            mname = document.getElementById(checkName).innerText;
+            if(mAttachment == name){
+              window.opener.document.getElementById("STEP2:form1:block1:section1:section2:item1:repeat1:"+ no +":repeat2:0:input1").value = mname;
+              window.opener.document.getElementById("STEP2:form1:block1:section1:section2:item1:repeat1:"+ no +":repeat2:0:userInputTmp").value = name;
+            }
+          }
+        }
+        window.open("about:blank","_self").close();
+    }
+    function Action2(){
+        window.open("about:blank","_self").close();
+    }
+
+</SCRIPT>
+</apex:page>

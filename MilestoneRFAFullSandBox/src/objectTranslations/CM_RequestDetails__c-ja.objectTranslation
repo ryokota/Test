@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>RFA申請詳細</value>
+    </caseValues>
+    <fields>
+        <label>自動継続</label>
+        <name>CM_Automatic_Renewed__c</name>
+        <picklistValues>
+            <masterLabel>No</masterLabel>
+            <translation>なし</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Yes</masterLabel>
+            <translation>あり</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>チラシ</label>
+        <name>CM_CHIRASHI__c</name>
+        <picklistValues>
+            <masterLabel>No</masterLabel>
+            <translation>無し</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Yes</masterLabel>
+            <translation>有り</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>缶</label>
+        <name>CM_Can_Stand__c</name>
+    </fields>
+    <fields>
+        <label>価格ガイドラインのチャネル</label>
+        <name>CM_Chanel_Of_Price_Guidelines__c</name>
+        <picklistValues>
+            <masterLabel>L-CS</masterLabel>
+            <translation><!-- L-CS --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L-E&amp;D</masterLabel>
+            <translation><!-- L-E&amp;D --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L-Institutional SAKAYA</masterLabel>
+            <translation><!-- L-Institutional SAKAYA --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L-OtherOTC</masterLabel>
+            <translation><!-- L-OtherOTC --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Other</masterLabel>
+            <translation>その他</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>R-CS</masterLabel>
+            <translation><!-- R-CS --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>R-E&amp;D</masterLabel>
+            <translation><!-- R-E&amp;D --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>R-Institutional SAKAYA</masterLabel>
+            <translation><!-- R-Institutional SAKAYA --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>R-OtherOTC</masterLabel>
+            <translation><!-- R-OtherOTC --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>取引条件（価格）/ 詳細説明</label>
+        <name>CM_Contract_Condition_Price_Description__c</name>
+    </fields>
+    <fields>
+        <help>単発時はfrom/toを同じ年月日入力します。</help>
+        <label>契約期間（開始）</label>
+        <name>CM_Contract_term_from__c</name>
+    </fields>
+    <fields>
+        <label>契約期間（終了）</label>
+        <name>CM_Contract_term_to__c</name>
+    </fields>
+    <fields>
+        <label>施工業者</label>
+        <name>CM_Contractor__c</name>
+    </fields>
+    <fields>
+        <label>クーラー</label>
+        <name>CM_Cooler_Stand__c</name>
+    </fields>
+    <fields>
+        <label>カップ</label>
+        <name>CM_Cup_Stand__c</name>
+    </fields>
+    <fields>
+        <help>単発時はfrom/toを同じ年月日入力します。</help>
+        <label>納品期間（開始）</label>
+        <name>CM_Delivery_term_from__c</name>
+    </fields>
+    <fields>
+        <label>納品期間（終了）</label>
+        <name>CM_Delivery_term_to__c</name>
+    </fields>
+    <fields>
+        <label>詳細説明</label>
+        <name>CM_Description__c</name>
+    </fields>
+    <fields>
+        <label>ディスペンサー</label>
+        <name>CM_Dispenser_Stand__c</name>
+    </fields>
+    <fields>
+        <label>実施予定日</label>
+        <name>CM_Execution_due_date__c</name>
+    </fields>
+    <fields>
+        <label>既存機</label>
+        <name>CM_Existing_Equipment__c</name>
+    </fields>
+    <fields>
+        <label>説明</label>
+        <name>CM_Input__c</name>
+    </fields>
+    <fields>
+        <help>複数の場合は、詳細説明に記載</help>
+        <label>機種名</label>
+        <name>CM_Model_Name__c</name>
+    </fields>
+    <fields>
+        <label>月額（外税）</label>
+        <name>CM_Monthly_amount_Tax_exclusive_price__c</name>
+    </fields>
+    <fields>
+        <label>新品機</label>
+        <name>CM_New_Equipment__c</name>
+    </fields>
+    <fields>
+        <label>サンプルケース数</label>
+        <name>CM_Number_of_SampleCase__c</name>
+    </fields>
+    <fields>
+        <help>単発時はfrom/toを同じ年月日入力します。</help>
+        <label>発注期間（開始）</label>
+        <name>CM_Order_term_from__c</name>
+    </fields>
+    <fields>
+        <label>発注期間（終了）</label>
+        <name>CM_Order_term_to__c</name>
+    </fields>
+    <fields>
+        <label>その他</label>
+        <name>CM_Other_Stand__c</name>
+    </fields>
+    <fields>
+        <label>上記その他の場合</label>
+        <name>CM_Other_payment_methods__c</name>
+    </fields>
+    <fields>
+        <help>RW種類及びその他詳細は詳細説明欄に記載</help>
+        <label>部品名</label>
+        <name>CM_Part_Name__c</name>
+        <picklistValues>
+            <masterLabel>Battery for disaster countermeasure</masterLabel>
+            <translation>災害バッテリー取付</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Card reader</masterLabel>
+            <translation>その他カードリーダー取付</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Cashless unit (Single RW)</masterLabel>
+            <translation>キャッシュレス（シングルRW）取付</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Eneranger</masterLabel>
+            <translation>エネレンジャー取付</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Others</masterLabel>
+            <translation>その他</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>総額を入力します。</help>
+        <label>支払金額（外税）</label>
+        <name>CM_Payment_amount_Tax_exclusive_price__c</name>
+    </fields>
+    <fields>
+        <label>支払予定日</label>
+        <name>CM_Payment_due_date__c</name>
+    </fields>
+    <fields>
+        <label>前払 / 後払</label>
+        <name>CM_Payment_method__c</name>
+        <picklistValues>
+            <masterLabel>Deferred payment</masterLabel>
+            <translation>後払</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Prepayment</masterLabel>
+            <translation>前払</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>支払タイミング</label>
+        <name>CM_Payment_timing__c</name>
+        <picklistValues>
+            <masterLabel>Achieved</masterLabel>
+            <translation>達成時</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Bimonthly payment</masterLabel>
+            <translation>隔月支払い</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Monthly payment</masterLabel>
+            <translation>毎月支払い</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>One time payment</masterLabel>
+            <translation>一括払い</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Other</masterLabel>
+            <translation>その他</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Quarterly payment</masterLabel>
+            <translation>四半期</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>起案No.</label>
+        <name>CM_RFA__c</name>
+        <relationshipLabel>RFA申請詳細</relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- RFA Stage --></label>
+        <name>CM_RFA_stage__c</name>
+    </fields>
+    <fields>
+        <label>レコードタイプ名</label>
+        <name>CM_RecordType_Name__c</name>
+    </fields>
+    <fields>
+        <help>単発時はfrom/toを同じ年月日入力します。</help>
+        <label>特売期間（開始）</label>
+        <name>CM_Special_sales_term_from__c</name>
+    </fields>
+    <fields>
+        <label>特売期間（終了）</label>
+        <name>CM_Special_sales_term_to__c</name>
+    </fields>
+    <fields>
+        <label>対象店舗</label>
+        <name>CM_Target_Dealer__c</name>
+        <picklistValues>
+            <masterLabel>All</masterLabel>
+            <translation>全店対象</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Individual</masterLabel>
+            <translation>個店対象</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Several</masterLabel>
+            <translation>数店対象</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>中古機</label>
+        <name>CM_Used_Equipment__c</name>
+    </fields>
+    <layouts>
+        <layout>CM_B.a_Equipment_RFA Details Outside Model Request Layout</layout>
+        <sections>
+            <label><!-- - New Section --></label>
+            <section>- New Section</section>
+        </sections>
+        <sections>
+            <label>台数</label>
+            <section>Number of</section>
+        </sections>
+        <sections>
+            <label>申請詳細</label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B.b_Equipment_RFA Details Equipment parts Request Layout</layout>
+        <sections>
+            <label><!-- - New Section --></label>
+            <section>- New Section</section>
+        </sections>
+        <sections>
+            <label>申請詳細</label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B.c_Equipment_RFA Details Accompanying Construction Request Layout</layout>
+        <sections>
+            <label><!-- - New section --></label>
+            <section>- New section</section>
+        </sections>
+        <sections>
+            <label>新旧区分</label>
+            <section>New and Old</section>
+        </sections>
+        <sections>
+            <label>申請詳細</label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B.d/e_Equipment_RFA Details Layout</layout>
+        <sections>
+            <label>申請詳細</label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_01_RFA Details Contract unit price Layout</layout>
+        <sections>
+            <label>背景/目的/根拠他</label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_02_RFA Details Sale/Promotion discount Layout</layout>
+        <sections>
+            <label>背景/目的/根拠他</label>
+            <section>- New Section</section>
+        </sections>
+        <sections>
+            <label>申請詳細</label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_03/04_RFA Details FS_SalesPrice &amp; Commition(Change) Layout</layout>
+        <sections>
+            <label><!-- New Section - Request Details --></label>
+            <section>New Section - Request Details</section>
+        </sections>
+        <sections>
+            <label>申請詳細</label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_05_RFA Details FS Commision Fixation Layout</layout>
+        <sections>
+            <label>背景/目的/根拠他</label>
+            <section>- New Section</section>
+        </sections>
+        <sections>
+            <label><!-- New Section --></label>
+            <section>New Section</section>
+        </sections>
+        <sections>
+            <label>申請詳細</label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_06-09_RFA Details Layout</layout>
+        <sections>
+            <label>背景/目的/根拠他</label>
+            <section>- New section</section>
+        </sections>
+        <sections>
+            <label><!-- New Section --></label>
+            <section>New Section</section>
+        </sections>
+        <sections>
+            <label>申請詳細</label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>CM_B_10_RFA Details Layout</layout>
+        <sections>
+            <label>背景/目的/根拠他</label>
+            <section>- New section</section>
+        </sections>
+        <sections>
+            <label><!-- New Section --></label>
+            <section>New Section</section>
+        </sections>
+        <sections>
+            <label>申請詳細</label>
+            <section>Request Details</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>申請詳細No.</nameFieldLabel>
+    <recordTypes>
+        <label>01. 契約単価</label>
+        <name>CM_01_Contract_unit_price</name>
+    </recordTypes>
+    <recordTypes>
+        <label>02. 特売/プロモーション値引</label>
+        <name>CM_02_Special_price_promotion_discount</name>
+    </recordTypes>
+    <recordTypes>
+        <label>03. FS販売価格</label>
+        <name>CM_03_FS_selling_price</name>
+    </recordTypes>
+    <recordTypes>
+        <label>04. FSコミッション（変動）</label>
+        <name>CM_04_FS_commission_Variable</name>
+    </recordTypes>
+    <recordTypes>
+        <label>05. FSコミッション（固定）</label>
+        <name>CM_05_FS_commission_Fixed</name>
+    </recordTypes>
+    <recordTypes>
+        <label>06. キーマネー、リベート、スポット</label>
+        <name>CM_06_KeyMoney_Rebate_Spot_Other</name>
+    </recordTypes>
+    <recordTypes>
+        <label>07. 実績後払いリベートのみ</label>
+        <name>CM_07_Only_in_the_case_of_Rebate</name>
+    </recordTypes>
+    <recordTypes>
+        <label>08. その他協賛</label>
+        <name>CM_08_Other_support</name>
+    </recordTypes>
+    <recordTypes>
+        <label>09. プロモーション/その他費用</label>
+        <name>CM_09_Promotion_OtherExpense</name>
+    </recordTypes>
+    <recordTypes>
+        <label>10. プロモーション（サンプル協賛/サンプリング）</label>
+        <name>CM_10_Promotion_CooperationSample_Sampling</name>
+    </recordTypes>
+    <recordTypes>
+        <label>a. 採用外機種の申請</label>
+        <name>CM_a_Nonstandard_Equipment</name>
+    </recordTypes>
+    <recordTypes>
+        <label>b. 機材部品申請</label>
+        <name>CM_b_Vending_Equipment_parts</name>
+    </recordTypes>
+    <recordTypes>
+        <label>c. 附帯工事申請</label>
+        <name>CM_c_Incidental_work</name>
+    </recordTypes>
+    <recordTypes>
+        <label>d. 販売機材のリース取引</label>
+        <name>CM_d_Vending_Equipment_Lease</name>
+    </recordTypes>
+    <recordTypes>
+        <label>e. 取引先との販売機材の購入・売却申請</label>
+        <name>CM_e_Equipment_retirement</name>
+    </recordTypes>
+    <validationRules>
+        <errorMessage>契約期間に矛盾があります</errorMessage>
+        <name>CM_Contract_date_contradiction_rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>納品期間に矛盾があります</errorMessage>
+        <name>CM_Delivery_date_contradiction_rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>台数を入力してください</errorMessage>
+        <name>CM_NumberOfStand_Input_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>新旧区分をチェックしてください</errorMessage>
+        <name>CM_OldAndNewClassification_Input_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>発注期間に矛盾があります</errorMessage>
+        <name>CM_Order_date_contradiction_rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>支払方法を入力してください</errorMessage>
+        <name>CM_OtherPaymentMethod_Input_rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>支払予定日を入力してください</errorMessage>
+        <name>CM_PaymentAmount_Required_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>支払金額（外税）は、「06. キーマネー、リベート、スポット他」で選択した内容と一致している必要があります。</errorMessage>
+        <name>CM_PaymentAmount_Type06_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>支払金額（外税）は、「07. 実績後払いリベート」で選択した内容と一致している必要があります。</errorMessage>
+        <name>CM_PaymentAmount_Type07_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>支払金額（外税）は、「08. その他協賛」で選択した内容と一致している必要があります。</errorMessage>
+        <name>CM_PaymentAmount_Type08_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>支払金額（外税）は、「09. プロモーション/その他費用」で選択した内容と一致している必要があります。</errorMessage>
+        <name>CM_PaymentAmount_Type09_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>支払金額（外税）／サンプルケース数は、「10. プロモーション（サンプル協賛/サンプリング）」で選択した内容と一致している必要があります。</errorMessage>
+        <name>CM_PaymentAmount_Type10_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>支払予定日には過去日を設定できません</errorMessage>
+        <name>CM_Payment_due_date_past_date_rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>支払金額（外税）またはサンプルケース数を入力してください</errorMessage>
+        <name>CM_SampleCase_PaymentAmout_Required_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>実施予定日を入力してください</errorMessage>
+        <name>CM_SampleCase_Required_Rule</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>特売期間に矛盾があります</errorMessage>
+        <name>CM_Special_sale_date_contradiction_rule</name>
+    </validationRules>
+</CustomObjectTranslation>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>true</available>
+    <description>Visualforce email template for sending out Email communication to Approvers and Agents upon circulation</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>RFAVFT04 Upon Circulation - Approver and Agent</name>
+    <style>none</style>
+    <subject>承認申請（Request for Approval）:  -</subject>
+    <type>visualforce</type>
+</EmailTemplate>

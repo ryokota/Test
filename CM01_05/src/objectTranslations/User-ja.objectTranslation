@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <layouts>
+        <layout>All User Layout</layout>
+        <sections>
+            <label><!-- CRS Roles &amp; Approvers --></label>
+            <section>CRS Roles &amp; Approvers</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- RFA Agent Details --></label>
+            <section>RFA Agent Details</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>RFA User Layout</layout>
+        <sections>
+            <label><!-- Edit RFA Agent Details --></label>
+            <section>Edit RFA Agent Details</section>
+        </sections>
+        <sections>
+            <label><!-- RFA Agent Details --></label>
+            <section>RFA Agent Details</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>User Layout</layout>
+        <sections>
+            <label>管理者備考</label>
+            <section>Admin Comment</section>
+        </sections>
+        <sections>
+            <label><!-- BOD --></label>
+            <section>BOD</section>
+        </sections>
+        <sections>
+            <label><!-- CokeOne --></label>
+            <section>CokeOne</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>所属・勤務地</label>
+            <section>Function &amp; Location</section>
+        </sections>
+        <sections>
+            <label><!-- Milestone --></label>
+            <section>Milestone</section>
+        </sections>
+        <sections>
+            <label><!-- RFA --></label>
+            <section>RFA</section>
+        </sections>
+        <sections>
+            <label>職位</label>
+            <section>User Info</section>
+        </sections>
+    </layouts>
+</CustomObjectTranslation>

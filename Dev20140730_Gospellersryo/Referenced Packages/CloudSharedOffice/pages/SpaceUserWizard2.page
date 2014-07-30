@@ -1,0 +1,107 @@
+<apex:page id="Page" cache="false" controller="SOLXYZCSO001.SpaceUserController" tabStyle="ContentTab__tab">
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $('input[type!="submit"][type!="button"], select').keypress(function(e){
+          if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+            return false;
+          }else{
+            if(e.type == "select") return false;
+            return true;
+          }
+        });
+    });
+
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+        if({!if(wizard2_notMailSend != 'yes', 'false', 'true')} == false){
+            var mailText = $(document.getElementById("{!$Component.Page.Form.Block.MAIL_TEXT}"));
+            mailText.attr({"disabled":"disabled"});
+        }
+
+        var comment = $(document.getElementById("{!$Component.Page.Form.Block.MAIL_TEXT}"));
+        comment.keyup(function(){
+            $("#comment_dummy").val(comment.val());
+            viewCommentLength("comment_dummy", "remainder", 512);
+        });
+        $("#remainder").text(getMsg(new Array("512"), "{!$Label.solxyzcso001__label_10227}"));
+    });
+
+    //==============//
+    //  メール通知  //
+    //==============//
+    function mailSendOnClick(obj){
+        var mailText = $(document.getElementById("{!$Component.Page.Form.Block.MAIL_TEXT}"));
+        if($(obj).val() == "yes"){
+            mailText.removeAttr("disabled");
+        }else{
+            mailText.attr({"disabled":"disabled"});
+        }
+    }
+</script>
+
+<apex:form id="Form">
+
+    <apex:pageBlock tabStyle="ContentTab__tab">
+        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10280}{!spacePath}"  collapsible="false"/>
+    </apex:pageBlock>
+
+    <apex:pageBlock id="Block" tabStyle="ContentTab__tab">
+
+        <table style="width: 100%;" border="0">
+            <tr>
+                <td colspan="2">
+                    <div style="font-weight: bold; margin-bottom: 10px;">{!$Label.label_10072}</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="padding-left: 10px;">{!$Label.msg_00005}</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="padding-left: 15px;">
+                    <apex:selectRadio value="{!wizard2_notMailSend}" id="mailSend" onclick="mailSendOnClick(this)">
+                        <apex:selectOptions value="{!radioItems}"/>
+                    </apex:selectRadio>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 100px; text-align: right; padding-right: 10px;">{!$Label.label_10376}</td>
+                <td>
+                    <div id="remainder" style="width:405px; text-align:right; white-space: nowrap;margin-bottom:0.2em;"></div>
+                    <apex:inputTextarea value="{!wizard2_mailText }" id="MAIL_TEXT" style="width: 400px; height: 200px;"/>
+                    <textarea rows="3" id="comment_dummy" style="display:none"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><p style="margin-left: 10px;">{!$Label.label_10070}</p></td>
+            </tr>
+        </table>
+
+
+        <!-- コマンドボタン -->
+        <apex:pageBlockButtons location="bottom">
+
+            <table width="100%">
+                <tr>
+                    <td align="right">
+                        <!-- [次へ] -->
+                        <apex:commandButton styleClass="btn userInvBtn" action="{!page3}" value="{!$Label.solxyzcso001__label_00067}"/>
+                        <!-- [戻る] -->
+                        <apex:commandButton styleClass="btn userInvBtn" action="{!page1}" value="{!$Label.solxyzcso001__label_00068}"/>
+                        <!-- [キャンセル] -->
+                        <input class="btn userInvBtn" type="button" value="{!$Label.label_00058}" onclick="top.window.close();" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </td>
+                </tr>
+            </table>
+
+        </apex:pageBlockButtons>
+
+    </apex:pageBlock>
+
+</apex:form>
+
+</apex:page>

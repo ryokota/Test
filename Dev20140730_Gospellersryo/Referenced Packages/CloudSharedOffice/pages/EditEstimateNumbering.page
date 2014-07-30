@@ -1,0 +1,134 @@
+<apex:page controller="SOLXYZCSO001.FE_AppConfigController" sidebar="false" action="{!init}">
+
+<apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+    <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+</apex:outputpanel>
+
+<apex:outputpanel rendered="{!hasWR && hasPermissionWRAdmin}">
+
+<apex:include pageName="SOLXYZCSO001__WRCSOBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td id="c_left" bgcolor="#f2f2f3" style="min-height:39px;max-height:39px;">
+                <apex:include pageName="SOLXYZCSO001__WRSettingMenu"/>
+            </td>
+            <td valign="top">
+                <table width="100%">
+                    <tr>
+                        <td id="c_headLeft" height="39px" style="min-height:39px;max-height:39px;">
+                            <h1 id="c_headLeftTitle">{!$Label.label_wr_report_20010}</h1><br/>
+                            <h2 id="c_headLeftSubTitle">{!$Label.label_wr_report_20015}</h2>
+                        </td>
+                        <!-- 操作ボックス -->
+                        <td id="c_headRight" height="39px" style="min-height:39px;max-height:39px;">
+                            <apex:include pageName="SOLXYZCSO001__WROptionsLink"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right" colspan="2">
+                            <apex:pageBlock >
+    
+    <apex:form >
+      <apex:pageMessages id="message"/>
+      <apex:pageBlock mode="maindetail">
+
+      <apex:pageBlockButtons >
+          <apex:commandButton action="{!saveEstimate}" value="{!$Label.solxyzcso001__field_common_save}"
+          					  onclick="CsoScript_loadingStart()"/>
+          <apex:commandButton action="{!cancelEstimate}" value="{!$Label.solxyzcso001__field_common_cancel}"
+                              onclick="return confirmCancel()" immediate="true"/>
+      </apex:pageBlockButtons>
+      
+      <apex:pageBlockSection title="" columns="1">
+        <apex:pageblockSectionItem >
+            <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30003}" for="name" />
+            <apex:inputField id="Name" required="true" rendered="{!$ObjectType.SOLXYZCSO001__EstimateNumbering__c.fields.Name.Updateable}" value="{!EstimateNumbering.Name}"/>
+        </apex:pageblockSectionItem>
+        <apex:pageblockSectionItem helpText="{!$Label.solxyzcso001__message_wf_30002}">
+            <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30005}" for="exp" />
+            <apex:inputField id="NumberingFormat" required="true" value="{!EstimateNumbering.SOLXYZCSO001__NumberingFormat__c}" rendered="{!$ObjectType.SOLXYZCSO001__EstimateNumbering__c.fields.SOLXYZCSO001__NumberingFormat__c.Updateable}"/>
+        </apex:pageblockSectionItem>
+        <apex:pageblockSectionItem >
+            <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30004}" for="format" />
+            <apex:outputPanel style="display: inline-block;">              
+                <apex:outputPanel layout="block" id="ExplanationRemainder" style="text-align: right;"></apex:outputPanel>                       
+                <apex:inputField id="Explanation" value="{!EstimateNumbering.SOLXYZCSO001__Explanation__c}" style="max-width:300px;width:300px;" rendered="{!$ObjectType.SOLXYZCSO001__EstimateNumbering__c.fields.SOLXYZCSO001__Explanation__c.Updateable}" />
+            </apex:outputPanel>
+        </apex:pageblockSectionItem>
+        <apex:pageblockSectionItem rendered="{!isUpdate == false}" helpText="{!nowCountHelpText}">
+            <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30006}" for="NowCount" />
+            <apex:inputField id="NowCount" rendered="{!$ObjectType.SOLXYZCSO001__EstimateNumbering__c.fields.SOLXYZCSO001__NowCount__c.Updateable}" value="{!EstimateNumbering.SOLXYZCSO001__NowCount__c}"/>
+        </apex:pageblockSectionItem>
+        <!--
+        <apex:pageBlockSectionItem >
+        <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30003}" for="name" />
+          <apex:inputText id="estimateName" value="{!EstimateNumbering.Name}"/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+        <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30004}" for="exp" />
+          <apex:inputtextarea value="{!EstimateNumbering.SOLXYZCSO001__Explanation__c}"/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+          <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30005}" for="format" />
+          <apex:inputtext  required="true" value="{!EstimateNumbering.SOLXYZCSO001__NumberingFormat__c}"/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+          <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_30006}" for="num" />
+          <apex:outputlabel value="{!EstimateNumbering.SOLXYZCSO001__NowCount__c}"/>
+        </apex:pageBlockSectionItem>
+        -->
+        
+      </apex:pageBlockSection>
+    </apex:pageBlock>
+  </apex:form>
+                            </apex:pageBlock>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div id="copyright" >{!$Label.field_CSO_copyright}</div>
+    
+    <script type="text/javascript">
+
+function confirmCancel() {
+    var isCancel = confirm("{!$Label.message_wf_30001}");
+    if (isCancel)
+        return true;
+    return false;
+}
+
+function jq(myid) {
+    return myid.replace(/(:|\.)/g,'\\\$1');
+}
+
+$(function() {
+    var explanationField = $("textarea[id$=Explanation]");
+    var explanationRemainderField = $("div[id$=ExplanationRemainder]");
+    explanationField.keyup(function(){
+        viewCommentLength(jq(explanationField.attr('id')), jq(explanationRemainderField.attr('id')), 512);
+    });
+    viewCommentLength(jq(explanationField.attr('id')), jq(explanationRemainderField.attr('id')), 512);
+});
+
+    </script>
+
+</apex:outputpanel>
+</apex:page>

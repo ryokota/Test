@@ -1,0 +1,230 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SignatureEditController" tabStyle="delivery__tab" id="sigEditPage">
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid != null && cso_userInfo.showErrPage == false, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/delivery.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<style type="text/css">
+.separatorDiv {
+    width: 100%;
+}
+
+.separatorDiv div {
+    color: white;
+    padding: 3px 0px 3px 5px;
+}
+
+table th{
+    font-weight: bold;
+    text-align: right;
+}
+</style>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('input[type!="submit"][type!="button"],select').keypress(function(e){
+      if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+        return false;
+      }else{
+        return true;
+      }
+    });
+
+});
+
+/*
+ * 画面読込処理
+ */
+jQuery.event.add(window, "load", function(){
+    $("#signature_context").keyup(function(e){
+        viewCommentLength("signature_context", "remainder", 512);
+    });
+    viewCommentLength("signature_context", "remainder", 512);
+});
+
+var regexp = RegExp(/\r\n|\r|\n/g);
+
+function ok(){
+    if(validate()){
+        var mode = $("#mode").val();
+        var id = $("#signature_id").val();
+        var name = $("#signature_name").val();
+        var context = $("#signature_context").val().replace(regexp, "\r\n");
+        var apply = $("#apply_flg").attr('checked');
+
+        if (mode == 'create' || mode == 'edit') {
+
+           var callback = function(data){
+                    if(!data.result){
+                    	CsoScript_loadingStop();
+                        alert(data.message);
+                    }
+                    location.href = "{!$Page.SignatureInfo}";
+                };
+
+            var callerror =  function(data){
+                CsoScript_loadingStop();
+                alert(data);
+            };
+
+            CsoScript_loadingStart();
+
+            if (mode == 'create') {
+                // 署名登録
+                securePostAsync('/deliverymanagement/signatureRegister.json',
+                    {"name":name, "context":context, "apply_flg":apply},
+                    callback, callerror);
+            } else {
+                // 署名更新
+                securePostAsync('/deliverymanagement/signatureEdit.json',
+                    {"signature_id":id, "name":name, "context":context, "apply_flg":apply},
+                    callback, callerror);
+            }
+        }
+
+    }
+}
+
+/*
+ * validation
+ */
+function validate(){
+
+//    var styleClass = "error";
+//    $("#signature_name").removeClass(styleClass);
+
+    var title= $("#signature_name").val();
+
+    var limit = 100;
+    if(title.length == 0){
+//        $("#signature_name").addClass(styleClass);
+        alert(getMsg(new Array('{!$Label.label_10402}'), "{!$Label.msg_00058}"));
+        return false;
+    } else if(title.length > limit) {
+//        $("#signature_name").addClass(styleClass);
+        alert(getMsg(new Array('{!$Label.label_10402}', limit), "{!$Label.msg_00059}"));
+        return false;
+    }
+
+    var context = $("#signature_context").val().replace(regexp, "\r\n");
+    limit = 512;
+    if(context.length > limit) {
+//        $("#signature_context").addClass(styleClass);
+        alert(getMsg(new Array('{!$Label.label_10126}', limit), "{!$Label.msg_00059}"));
+        return false;
+    }
+
+    // エラーが発生しなかった場合は戻り値=trueで終了
+    return true;
+}
+
+function viewErr(element, array){
+    var dom = "<ul class='err'>";
+    for(i in array){
+        dom += "<li>" + array[i] + "</li>";
+    }
+    dom += "</ul>";
+    element.append(dom);
+}
+
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__DeliveryMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/signature.png')}" alt="{!$Label.solxyzcso001__label_10399}" title="{!$Label.solxyzcso001__label_10399}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10399}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!editTitle}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinksDelivery"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form id="sigEditForm">
+                <apex:pageBlock id="sigEditBlock">
+                    <!-- コマンドボタン -->
+                    <apex:pageBlockButtons location="top" >
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00075}" onclick="ok();return false;" id="ok"/>
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!cancel}" id="cancel"/>
+                    </apex:pageBlockButtons>
+
+                    <div id ="signatureEditMain" style="overflow:auto;">
+                        <div class="separatorDiv LabelBGColor subLabelHeight">
+                            <div></div>
+                        </div>
+
+                    <table id="deliveryAddressList"></table>
+                    <div id="deliveryAddressListPager"></div>
+                    <div style="padding: 10px;">
+                    <input id="mode" name="mode" type="hidden" value="{!editMode}"></input>
+                    <input id="signature_id" name="signature_id" type="hidden" value="{!signatureId}"></input>
+                    <div id="errorHeader"></div>
+                        <table>
+                            <tr>
+                                <th style="min-width: 60px;">{!$Label.label_10402}</th>
+                                <td class="c_require">
+                                    <input id="signature_name" name="signature_name" style="width: 20em;" value="{!signatureName}">
+                                    </input>
+                                </td>
+                            </tr>
+                            <tr><td></td></tr>
+                            <tr>
+                                <th style="min-width: 60px;"></th>
+                                <td align="right">
+                                    <div id="remainder" style="white-space: nowrap;"></div>
+                                </td>
+                            </tr>
+                            <tr style="padding-top: 10px;">
+                                <th style="min-width: 60px;">{!$Label.label_10403}</th>
+                                <td>
+                                    <textarea id="signature_context" name="signature_context" rows="10" style="width:550px; resize: none;" >{!signatureContext}</textarea>
+                                </td>
+                            </tr>
+                            <tr><td></td><td></td></tr>
+                            <tr style="padding-top: 10px;">
+                                <th style="min-width: 60px;"></th>
+                                <td>
+                                    <input type="checkbox" id="apply_flg" name="apply_flg" ></input>
+                                    <label for="apply_flg">{!$Label.label_10406}</label>
+                                </td>
+                            </tr>
+
+                        </table>
+                        <br/>
+
+                        </div>
+                    </div>
+                </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

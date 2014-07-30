@@ -1,0 +1,1851 @@
+<apex:page cache="false" sidebar="false" controller="SOLXYZCSO001.SpaceAlertController" tabStyle="setting__tab">
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_corp_alert == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_corp_alert == 'true' && userInfo.showErrPage == false, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<style type="text/css">
+th {
+    text-align: center;
+}
+</style>
+<style type="text/css">
+.tabTable {
+    width : 100%;
+}
+.tabTable th {
+    width : 130px;
+    min-width : 130px;
+    max-width : 130px;
+    font-weight: bolder;
+    text-align: right;
+}
+
+.tabTable td {
+    text-align: left;
+}
+
+.searchDelDiv {
+    margin-left: 55px;
+    margin-right:10px;
+}
+.searchDelTable {
+    width:100%;
+}
+.searchDelTable td {
+    text-align: right;
+    padding-bottom:2px;
+}
+
+.separatorDiv{
+    width: 100%;
+}
+
+.separatorDiv div{
+//  color: white;
+//  padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+.historyTbl {
+    margin-top: 15px;
+    /*margin-bottom: 15px;*/
+}
+
+.historyTbl th{
+    font-weight: bold;
+    width: 100px;
+}
+
+.historyTbl *{
+//  color: blue;
+    white-space: nowrap;
+}
+
+.diskInfo {
+    border: 1px #E3E3E3 solid;
+    border-collapse: collapse;
+    border-spacing: 0;
+    word-break:break-all;
+    width:390px;
+}
+
+.diskInfo th {
+    padding: 5px;
+    border: #E3E3E3 solid;
+    border-width: 0 0 1px 1px;
+    background: #F5F5F5;
+    font-weight: bold;
+    line-height: 120%;
+    text-align: center !important;
+    width:130px;
+    min-width:130px;
+}
+
+.diskInfo td {
+    border: 1px #E3E3E3 solid;
+    border-width: 0 0 1px 1px;
+    text-align: center;
+    width:130px;
+    min-width:130px;
+}
+
+.brankfilter {
+    filter:alpha(opacity=60);
+    -moz-opacity:0.6;
+    opacity:0.6;
+    background:gray;
+    height:285px;
+    width:500px;
+}
+
+.ui-tab {
+	min-height: 385px;
+}
+
+.ui-tabs {
+    background : none;
+    border:none;
+}
+
+.ui-tabs .ui-tabs-nav {
+    background: none;
+    border:none;
+}
+
+.ui-tabs .ui-tabs-panel {
+    background : none;
+    border:2px solid #11579c;
+    hight:100%
+}
+
+.ui-widget-header .ui-state-default {
+    background : none;
+    border: 2px solid #DFEFFC;
+
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+    background: #11579c;
+    border: 1px solid #11579c;
+
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a{
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.ui-corner-all {
+    border-radius: 5px 5px 5px 5px;
+}
+.ui-jqgrid-labels th{
+    min-width:0px;
+    max-width:2000px;
+}
+</style>
+
+
+
+
+
+<script type="text/javascript">
+
+    //========//
+    //  定数  //
+    //========//
+    var myDiskType     = "0";
+    var coraboDiskType = "1";
+    var archDiskType   = "2";
+    var comDiskType    = "3";
+
+    //========//
+    //  変数  //
+    //========//
+    var mySpaceAddr;
+    var clbSpaceAddr;
+    var compSpaceAddr;
+    var arcSpaceAddr;
+    var query = Object();
+    var mySelfMailFlag         = "false";
+    var myManaUserMailFlag     = "false";
+    var myAnyUserMailFlag      = "false";
+    var coraboManaUserMailFlag = "false";
+    var coraboAnyUserMailFlag  = "false";
+    var comManaUserMailFlag    = "false";
+    var comAnyUserMailFlag     = "false";
+    var archManaUserMailFlag   = "false";
+    var archAnyUserMailFlag    = "false";
+    var myAlertActiveFlag      = "false";
+    var collaboAlertActiveFlag = "false";
+    var comAlertActiveFlag     = "false";
+    var archAlertActiveFlag    = "false";
+
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+        var browserType = getBrowserType();
+        //  スペース使用量通知情報の取得
+        spaceAlert_getSpaceAlertInfo();
+
+        //  ユーザの検索画面の初期化
+        initSelectUser();
+
+        if('{!userInfo.locale}' == 'en' &&  browserType == 'IE9' ){
+            $('.ui-th-div-ie').css("line-height","26px");
+        }else{
+            $('.ui-th-div-ie').css("line-height","21px");
+        }
+
+    });
+
+    //================================//
+    //  スペース使用量通知情報の取得  //
+    //================================//
+    function spaceAlert_getSpaceAlertInfo(){
+        //--------------------------//
+        //  スペース使用量通知情報  //
+        //--------------------------//
+        secureGetAsync('/setup/SettingAlertGet.json', '', spaceAlert_getSpaceAlertInfo_callback);
+
+        //----------------//
+        //  マイスペース  //
+        //----------------//
+        $("#tableSpaceMailAddress").jqGrid({
+            data: mySpaceAddr,
+            datatype : "local",
+            jsonReader : {
+                repeatitems : false,
+                id : "id"
+            },
+            colNames:[
+                        '',
+                        '{!$Label.label_10131}',
+                        '{!$Label.label_00039}',
+                        '{!$Label.label_10028}',
+                        '{!$Label.label_10016}'
+                     ],
+            colModel:[
+                        {name:'id',index:'id', hidden:true},
+                        {name:'info',index:'userid', width:190},
+                        {name:'nameStr',index:'nameStr', hidden:true},
+                        {name:'profileName',index:'profileName', width:124},
+                        {name:'mailAddress',index:'mail', width:190}
+                    ],
+            autowidth: true,
+            sortname: 'userid',
+            multiselect: true,
+            multiboxonly: true,
+            rowList:[10,50,100],
+            rowNum:10,
+            pager: '#tableSpaceMailAddressPager',
+            viewrecords: true
+        });
+        $("#tableSpaceMailAddress").jqGrid('navGrid','#tableSpaceMailAddressPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+        secureGetAsync('/setup/SetAlertMailAddrV2Get.json',
+                {
+                    diskType : myDiskType
+                },
+                function(data) {
+                    var opt = {
+                            data : data["rows"],
+                            datatype: "local"
+                    };
+                    $('#tableSpaceMailAddress').clearGridData();
+                    $('#tableSpaceMailAddress').setGridParam(opt);
+                    $('#tableSpaceMailAddress').trigger("reloadGrid");
+
+                }
+        );
+
+
+        //------------------//
+        //  コラボスペース  //
+        //------------------//
+        $("#tableCollabMailAddress").jqGrid({
+            data: clbSpaceAddr,
+            datatype : "local",
+            jsonReader : {
+                repeatitems : false,
+                id : "id"
+            },
+            colNames:[
+                        '',
+                        '{!$Label.label_10131}',
+                        '{!$Label.label_00039}',
+                        '{!$Label.label_10028}',
+                        '{!$Label.label_10016}'
+                     ],
+            colModel:[
+                        {name:'id',index:'id', hidden:true},
+                        {name:'info',index:'userid', width:190},
+                        {name:'nameStr',index:'nameStr', hidden:true},
+                        {name:'profileName',index:'profileName', width:124},
+                        {name:'mailAddress',index:'mail', width:190}
+                    ],
+            autowidth: true,
+            sortname: 'userid',
+            multiselect: true,
+            multiboxonly: true,
+            rowList:[10,50,100],
+            rowNum:10,
+            pager: '#tableCollabMailAddressPager',
+            viewrecords: true,
+        });
+        $("#tableCollabMailAddress").jqGrid('navGrid','#tableCollabMailAddressPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+        secureGetAsync('/setup/SetAlertMailAddrV2Get.json',
+                {
+                    diskType : coraboDiskType
+                },
+                function(data) {
+                    var opt = {
+                            data : data["rows"],
+                            datatype : "local"
+                    };
+                    $('#tableCollabMailAddress').clearGridData();
+                    $('#tableCollabMailAddress').setGridParam(opt);
+                    $('#tableCollabMailAddress').trigger("reloadGrid");
+                }
+        );
+
+
+        //----------------------//
+        //  カンパニースペース  //
+        //----------------------//
+        $("#tableComMailAddress").jqGrid({
+            data: compSpaceAddr,
+            datatype : "local",
+            jsonReader : {
+                repeatitems : false,
+                id : "id"
+            },
+
+            colNames:[
+                        '',
+                        '{!$Label.label_10131}',
+                        '{!$Label.label_00039}',
+                        '{!$Label.label_10028}',
+                        '{!$Label.label_10016}'
+                     ],
+            colModel:[
+                        {name:'id',index:'id', hidden:true},
+                        {name:'info',index:'userid', width:190},
+                        {name:'nameStr',index:'nameStr', hidden:true},
+                        {name:'profileName',index:'profileName', width:124},
+                        {name:'mailAddress',index:'mail', width:190}
+                    ],
+            autowidth: true,
+            sortname: 'userid',
+            multiselect: true,
+            multiboxonly: true,
+            pager: '#tableComMailAddressPager',
+            rowNum:10,
+            rowList:[10,50,100],
+            viewrecords: true,
+        });
+        $("#tableComMailAddress").jqGrid('navGrid','#tableComMailAddressPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+        secureGetAsync('/setup/SetAlertMailAddrV2Get.json',
+                {
+                    diskType : comDiskType
+                },
+                function(data) {
+                    var opt = {
+                            data : data["rows"],
+                            datatype : "local"
+                    };
+                    $('#tableComMailAddress').clearGridData();
+                    $('#tableComMailAddress').setGridParam(opt);
+                    $('#tableComMailAddress').trigger("reloadGrid");
+                }
+        );
+
+
+        //----------------------//
+        //  アーカイブスペース  //
+        //----------------------//
+        $("#tableArchMailAddress").jqGrid({
+            data : arcSpaceAddr,
+            datatype : "local",
+            jsonReader : {
+                repeatitems : false,
+                id : "id"
+            },
+
+            colNames:[
+                        '',
+                        '{!$Label.label_10131}',
+                        '{!$Label.label_00039}',
+                        '{!$Label.label_10028}',
+                        '{!$Label.label_10016}'
+                     ],
+            colModel:[
+                        {name:'id',index:'id', hidden:true},
+                        {name:'info',index:'userid', width:190},
+                        {name:'nameStr',index:'nameStr', hidden:true},
+                        {name:'profileName',index:'profileName', width:124},
+                        {name:'mailAddress',index:'mail', width:190}
+                    ],
+            autowidth: true,
+            height: 100,
+            sortname: 'userid',
+            pager: '#tableArchMailAddressPager',
+            rowList:[10,50,100],
+            rowNum:10,
+            viewrecords: true,
+            multiselect: true,
+            multiboxonly: true,
+        });
+        $("#tableArchMailAddress").jqGrid('navGrid','#tableArchMailAddressPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+        secureGetAsync('/setup/SetAlertMailAddrV2Get.json',
+                {
+                    diskType : archDiskType
+                },
+                function(data) {
+                    var opt = {
+                            data : data["rows"],
+                            datatype : "local"
+                    };
+                    $('#tableArchMailAddress').clearGridData();
+                    $('#tableArchMailAddress').setGridParam(opt);
+                    $('#tableArchMailAddress').trigger("reloadGrid");
+                }
+        );
+
+
+        $("#myAlertActiveCheck").click(function(){
+            myDisableControl();
+        });
+        $("#collaboAlertActiveCheck").click(function(){
+            collaboDisableControl();
+        });
+        $("#comAlertActiveCheck").click(function(){
+            comDisableControl();
+        });
+        $("#archAlertActiveCheck").click(function(){
+            arcDisableControl();
+        });
+
+        $("#myAnyCheck").click(function() {
+            myDisableControlAnyCheck();
+        });
+
+        //  サイズ調整
+        windowResize();
+    }
+    function spaceAlert_getSpaceAlertInfo_callback(data){
+        if (data == null){
+            return;
+        }
+        if(!data["result"]){
+            var errMsg = data["message"];
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+
+
+        mySelfMailFlag         = data["mySelfMailFlag"];
+        myManaUserMailFlag     = data["myManaUserMailFlag"];
+        myAnyUserMailFlag      = data["myAnyUserMailFlag"];
+        coraboManaUserMailFlag = data["coraboManaUserMailFlag"];
+        coraboAnyUserMailFlag  = data["coraboAnyUserMailFlag"];
+        comManaUserMailFlag    = data["comManaUserMailFlag"];
+        comAnyUserMailFlag     = data["comAnyUserMailFlag"];
+        archManaUserMailFlag   = data["archManaUserMailFlag"];
+        archAnyUserMailFlag    = data["archAnyUserMailFlag"];
+        myAlertActiveFlag      = data["myAlertActiveFlag"];
+        collaboAlertActiveFlag = data["collaboAlertActiveFlag"];
+        comAlertActiveFlag     = data["comAlertActiveFlag"];
+        archAlertActiveFlag    = data["archAlertActiveFlag"];
+
+        $("#myUnit").val(data["myDiskThresholdUnit"]);
+        $("#coraboUnit").val(data["coraboDiskThresholdUnit"]);
+        $("#companyUnit").val(data["comDiskThresholdUnit"]);
+        $("#archUnit").val(data["archDiskThresholdUnit"]);
+
+
+        //----------------//
+        //  マイスペース  //
+        //----------------//
+        //  通知の有効化
+        if (data["myAlertActiveFlag"] == true ) {
+            $("#myAlertActiveCheck").attr("checked","checked");
+        }
+        //  本人
+        if (data["mySelfMailFlag"] == true) {
+            $("#mySelfCheck").attr("checked","checked");
+        }
+        //  ユーザ
+        if (data["myAnyUserMailFlag"] == true) {
+            $("#myAnyCheck").attr("checked","checked");
+        }
+        //  閾値
+        var myDiskThreshold = data["myDiskThreshold"];
+        if((myDiskThreshold == null) || (myDiskThreshold == "0")){
+            myDiskThreshold = "";
+        }
+        $("#myDisk").val(myDiskThreshold);
+        //  作成者
+        var spaceAlert_myCreater = data["myCreater"];
+        if((spaceAlert_myCreater == null) || (spaceAlert_myCreater == "")){
+            spaceAlert_myCreater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_myCreater").html(spaceAlert_myCreater);
+        //  作成日
+        var spaceAlert_myCreateDateTime = data["myCreateDateTime"];
+        if((spaceAlert_myCreateDateTime == null) || (spaceAlert_myCreateDateTime == "")){
+            spaceAlert_myCreateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_myCreateDateTime").html(spaceAlert_myCreateDateTime);
+        //  更新者
+        var spaceAlert_myUupdater = data["myUpdater"];
+        if((spaceAlert_myUupdater == null) || (spaceAlert_myUupdater == "")){
+            spaceAlert_myUupdater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_myUupdater").html(spaceAlert_myUupdater);
+        //  更新日
+        var spaceAlert_myUpdateDateTime = data["myUpdateDateTime"];
+        if((spaceAlert_myUpdateDateTime == null) || (spaceAlert_myUpdateDateTime == "")){
+            spaceAlert_myUpdateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_myUpdateDateTime").html(spaceAlert_myUpdateDateTime);
+
+
+        //------------------//
+        //  コラボスペース  //
+        //------------------//
+        //  通知の有効化
+        if (data["collaboAlertActiveFlag"] == true ) {
+            $("#collaboAlertActiveCheck").attr("checked","checked");
+        }
+        //  作成者
+        var spaceAlert_collaboCreater = data["collaboCreater"];
+        if((spaceAlert_collaboCreater == null) || (spaceAlert_collaboCreater == "")){
+            spaceAlert_collaboCreater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_collaboCreater").html(spaceAlert_collaboCreater);
+        //  作成日
+        var spaceAlert_collaboCreateDateTime = data["collaboCreateDateTime"];
+        if((spaceAlert_collaboCreateDateTime == null) || (spaceAlert_collaboCreateDateTime == "")){
+            spaceAlert_collaboCreateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_collaboCreateDateTime").html(spaceAlert_collaboCreateDateTime);
+        //  更新者
+        var spaceAlert_collaboUpdater = data["collaboUpdater"];
+        if((spaceAlert_collaboUpdater == null) || (spaceAlert_collaboUpdater == "")){
+            spaceAlert_collaboUpdater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_collaboUpdater").html(spaceAlert_collaboUpdater);
+        //  更新日
+        var spaceAlert_collaboUpdateDateTime = data["collaboUpdateDateTime"];
+        if((spaceAlert_collaboUpdateDateTime == null) || (spaceAlert_collaboUpdateDateTime == "")){
+            spaceAlert_collaboUpdateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_collaboUpdateDateTime").html(spaceAlert_collaboUpdateDateTime);
+        //  閾値
+        var coraboDiskThreshold = data["coraboDiskThreshold"];
+        if((coraboDiskThreshold == null) || (coraboDiskThreshold == "0")){
+            coraboDiskThreshold = "";
+        }
+        $("#coraboDisk").val(coraboDiskThreshold);
+        //  上限
+        var spaceAlert_collaboMaxDisk = data["collaboMaxDisk"];
+        if((spaceAlert_collaboMaxDisk == null) || (spaceAlert_collaboMaxDisk === "")){
+            spaceAlert_collaboMaxDisk = "&nbsp;";
+        }
+        else if(spaceAlert_collaboMaxDisk == -1){
+            spaceAlert_collaboMaxDisk = "{!$Label.label_10008}";
+        }
+        $("#spaceAlert_collaboMaxDisk").html(spaceAlert_collaboMaxDisk);
+        //  現在の使用量
+        var spaceAlert_collaboUsedDisk = data["collaboUsedDisk"];
+        if((spaceAlert_collaboUsedDisk == null) || (spaceAlert_collaboUsedDisk === "")){
+            spaceAlert_collaboUsedDisk = "&nbsp;";
+        }
+        else if(spaceAlert_collaboUsedDisk <= 0){
+            spaceAlert_collaboUsedDisk = "{!$Label.label_10432}";
+        }
+        $("#spaceAlert_collaboUsedDisk").html(spaceAlert_collaboUsedDisk);
+        //  現在の使用率
+        var spaceAlert_collaboUsedPerDisk = data["collaboUsedPerDisk"];
+        if((spaceAlert_collaboUsedPerDisk == null) || (spaceAlert_collaboUsedPerDisk === "")){
+            spaceAlert_collaboUsedPerDisk = "&nbsp;";
+        }
+        else{
+            spaceAlert_collaboUsedPerDisk = spaceAlert_collaboUsedPerDisk + "{!$Label.label_10433}";
+        }
+        $("#spaceAlert_collaboUsedPerDisk").html(spaceAlert_collaboUsedPerDisk);
+
+
+        //----------------------//
+        //  カンパニースペース  //
+        //----------------------//
+        //  通知の有効化
+        if (data["comAlertActiveFlag"] == true ) {
+            $("#comAlertActiveCheck").attr("checked","checked");
+        }
+        //  作成者
+        var spaceAlert_comCreater = data["comCreater"];
+        if((spaceAlert_comCreater == null) || (spaceAlert_comCreater == "")){
+            spaceAlert_comCreater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_comCreater").html(spaceAlert_comCreater);
+        //  作成日
+        var spaceAlert_comCreateDateTime = data["comCreateDateTime"];
+        if((spaceAlert_comCreateDateTime == null) || (spaceAlert_comCreateDateTime == "")){
+            spaceAlert_comCreateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_comCreateDateTime").html(spaceAlert_comCreateDateTime);
+        //  更新者
+        var spaceAlert_comUpdater = data["comUpdater"];
+        if((spaceAlert_comUpdater == null) || (spaceAlert_comUpdater == "")){
+            spaceAlert_comUpdater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_comUpdater").html(spaceAlert_comUpdater);
+        //  更新日
+        var spaceAlert_comUpdateDateTime = data["comUpdateDateTime"];
+        if((spaceAlert_comUpdateDateTime == null) || (spaceAlert_comUpdateDateTime == "")){
+            spaceAlert_comUpdateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_comUpdateDateTime").html(spaceAlert_comUpdateDateTime);
+        //  閾値
+        var comDiskThreshold = data["comDiskThreshold"];
+        if((comDiskThreshold == null) || (comDiskThreshold == "0")){
+            comDiskThreshold = "";
+        }
+        $("#companyDisk").val(comDiskThreshold);
+        //  上限
+        var spaceAlert_comMaxDisk = data["comMaxDisk"];
+        if((spaceAlert_comMaxDisk == null) || (spaceAlert_comMaxDisk === "")){
+            spaceAlert_comMaxDisk = "&nbsp;";
+        }
+        else if(spaceAlert_comMaxDisk == -1){
+            spaceAlert_comMaxDisk = "{!$Label.label_10008}";
+        }
+        $("#spaceAlert_comMaxDisk").html(spaceAlert_comMaxDisk);
+        //  現在の使用量
+        var spaceAlert_comUsedDisk = data["comUsedDisk"];
+        if((spaceAlert_comUsedDisk == null) || (spaceAlert_comUsedDisk === "")){
+            spaceAlert_comUsedDisk = "&nbsp;";
+        }
+        else if(spaceAlert_comUsedDisk <= 0){
+            spaceAlert_comUsedDisk = "{!$Label.label_10432}";
+        }
+        $("#spaceAlert_comUsedDisk").html(spaceAlert_comUsedDisk);
+        //  現在の使用率
+        var spaceAlert_comUsedPerDisk = data["comUsedPerDisk"];
+        if((spaceAlert_comUsedPerDisk == null) || (spaceAlert_comUsedPerDisk === "")){
+            spaceAlert_comUsedPerDisk = "&nbsp;";
+        }
+        else{
+            spaceAlert_comUsedPerDisk = spaceAlert_comUsedPerDisk + "{!$Label.label_10433}";
+        }
+        $("#spaceAlert_comUsedPerDisk").html(spaceAlert_comUsedPerDisk);
+
+
+        //----------------------//
+        //  アーカイブスペース  //
+        //----------------------//
+        //  通知の有効化
+        if (data["archAlertActiveFlag"] == true ) {
+            $("#archAlertActiveCheck").attr("checked","checked");
+        }
+        //  作成者
+        var spaceAlert_archCreater = data["archCreater"];
+        if((spaceAlert_archCreater == null) || (spaceAlert_archCreater == "")){
+            spaceAlert_archCreater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_archCreater").html(spaceAlert_archCreater);
+        //  作成日
+        var spaceAlert_archCreateDateTime = data["archCreateDateTime"];
+        if((spaceAlert_archCreateDateTime == null) || (spaceAlert_archCreateDateTime == "")){
+            spaceAlert_archCreateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_archCreateDateTime").html(spaceAlert_archCreateDateTime);
+        //  更新者
+        var spaceAlert_archUpdater = data["archUpdater"];
+        if((spaceAlert_archUpdater == null) || (spaceAlert_archUpdater == "")){
+            spaceAlert_archUpdater = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_archUpdater").html(spaceAlert_archUpdater);
+        //  更新日
+        var spaceAlert_archUpdateDateTime = data["archUpdateDateTime"];
+        if((spaceAlert_archUpdateDateTime == null) || (spaceAlert_archUpdateDateTime == "")){
+            spaceAlert_archUpdateDateTime = "{!$Label.label_10431}";
+        }
+        $("#spaceAlert_archUpdateDateTime").html(spaceAlert_archUpdateDateTime);
+        //  閾値
+        var archDiskThreshold = data["archDiskThreshold"];
+        if((archDiskThreshold == null) || (archDiskThreshold == "0")){
+            archDiskThreshold = "";
+        }
+        $("#archDisk").val(archDiskThreshold);
+        //  上限
+        var spaceAlert_archMaxDisk = data["archMaxDisk"];
+        if((spaceAlert_archMaxDisk == null) || (spaceAlert_archMaxDisk === "")){
+            spaceAlert_archMaxDisk = "&nbsp;";
+        }
+        else if(spaceAlert_archMaxDisk == -1){
+            spaceAlert_archMaxDisk = "{!$Label.label_10008}";
+        }
+        $("#spaceAlert_archMaxDisk").html(spaceAlert_archMaxDisk);
+        //  現在の使用量
+        var spaceAlert_archUsedDisk = data["archUsedDisk"];
+        if((spaceAlert_archUsedDisk == null) || (spaceAlert_archUsedDisk === "")){
+            spaceAlert_archUsedDisk = "&nbsp;";
+        }
+        else if(spaceAlert_archUsedDisk <= 0){
+            spaceAlert_archUsedDisk = "{!$Label.label_10432}";
+        }
+        $("#spaceAlert_archUsedDisk").html(spaceAlert_archUsedDisk);
+        //  現在の使用率
+        var spaceAlert_archUsedPerDisk = data["archUsedPerDisk"];
+        if((spaceAlert_archUsedPerDisk == null) || (spaceAlert_archUsedPerDisk === "")){
+            spaceAlert_archUsedPerDisk = "&nbsp;";
+        }
+        else{
+            spaceAlert_archUsedPerDisk = spaceAlert_archUsedPerDisk + "{!$Label.label_10433}";
+        }
+        $("#spaceAlert_archUsedPerDisk").html(spaceAlert_archUsedPerDisk);
+
+
+        checkControl();
+        myDisableControl();
+        // Tabs
+        $('#tabDiv').tabs({
+                select: function(event, ui){
+                    $("#brankCollabMailAddress").hide();
+                    $("#brankComMailAddress").hide();
+                    $("#brankCollabMailAddress").hide();
+                    $("#brankArchMailAddress").hide();
+                    if (ui.index==0) {
+                        myDisableControl();
+                    } else if (ui.index==1) {
+                        collaboDisableControl();
+                    } else if (ui.index==2) {
+                        comDisableControl();
+                    } else if (ui.index==3) {
+                        arcDisableControl();
+                    }
+                }
+        });
+        // レイアウトが崩れる原因となるクラスを削除
+        $("#tabDiv > ul").removeClass("ui-widget-header");
+
+        var tabIndex = window.location.hash;
+        tabIndex = tabIndex.substring(1);
+        if(isNaN(tabIndex) == true){
+            tabIndex = 0;
+        }
+        tabIndex = tabIndex - 0;
+        $('#tabDiv').css("display", "");
+        $('#tabDiv').tabs({
+            selected : tabIndex
+        });
+    }
+
+
+    $(window).bind('resize', windowResize).trigger('resize');
+
+    function windowResize(){
+        var mainWidth  = getBrowserWidth() - 340;       // 幅    ブラウザの幅   - 340px
+        var mainHeight = getBrowserHeight() - 222;      // 高さ  ブラウザの高さ - 270px
+        if(mainWidth < 680){
+            mainWidth = 680;
+        }
+        $('#tabDiv').height(mainHeight);
+        $('#tabDiv').width(mainWidth);
+
+        var tabWidth=$('#tabDiv').width();
+        var tabHeight=$('#tabDiv').height();
+        $('#tabSpaceMailAddress').css("height", tabHeight-70);
+        $('#tabCollabMailAddress').css("height", tabHeight-70);
+        $('#tabComMailAddress').css("height", tabHeight-70);
+        $('#tabArchMailAddress').css("height", tabHeight-70);
+        $('#tableSpaceMailAddress').setGridWidth(tabWidth-200).setGridHeight(tabHeight-275);
+        $('#tableCollabMailAddress').setGridWidth(tabWidth-200).setGridHeight(tabHeight-275);
+        $('#tableComMailAddress').setGridWidth(tabWidth-200).setGridHeight(tabHeight-275);
+        $('#tableArchMailAddress').setGridWidth(tabWidth-200).setGridHeight(tabHeight-275);
+        $('.brankfilter').width(tabWidth-193).height(tabHeight-218);
+    }
+
+
+    $('#tabDiv').bind('tabsselect', function(event, ui) {
+        if (!validate()) {
+            return false;
+        }
+        $(window).trigger('resize', "");
+
+    });
+
+    function myDisableControl() {
+        if($("#myAlertActiveCheck").attr("checked")){
+            $("#myDisk").attr('disabled','');
+            $('#myDisk').css("background-color", "");
+            $("#myUnit").attr('disabled','');
+            $("#myUnit").removeAttr("style");
+            $("#mySelfCheck").attr('disabled','');
+            $("#myAnyCheck").attr('disabled','');
+            myDisableControlAnyCheck();
+        }else{
+            $("#myDisk").attr('disabled','disabled');
+            $('#myDisk').css("background-color", "lightgray");
+            $("#myUnit").attr('disabled','disabled');
+            $("#myUnit").attr("style", "background-color:lightgray;border: solid 1px silver;");
+            $("#mySelfCheck").attr('disabled','disabled');
+            $("#myAnyCheck").attr('disabled','disabled');
+            $("#mySearchButton").attr('disabled',true);
+            $("#myRemoveButton").attr('disabled',true);
+            $("#brankMySpaceMailAddres").show();
+        }
+    }
+
+    function myDisableControlAnyCheck() {
+        if($("#myAnyCheck").attr("checked")) {
+            $("#mySearchButton").attr('disabled',false);
+            $("#myRemoveButton").attr('disabled',false);
+            $("#brankMySpaceMailAddres").hide();
+        } else {
+            $("#mySearchButton").attr('disabled',true);
+            $("#myRemoveButton").attr('disabled',true);
+            $("#brankMySpaceMailAddres").show();
+        }
+    }
+
+    function collaboDisableControl() {
+        if($("#collaboAlertActiveCheck").attr("checked")){
+            $("#coraboDisk").attr('disabled','');
+            $("#coraboDisk").css("background-color", "");
+            $("#coraboUnit").attr('disabled','');
+            $("#coraboUnit").removeAttr("style");
+            $("#collaboSearchButton").attr('disabled',false);
+            $("#collaboRemoveButton").attr('disabled',false);
+            $("#brankCollabMailAddress").hide();
+        }else{
+            $("#coraboDisk").attr('disabled','disabled');
+            $("#coraboDisk").css("background-color", "lightgray");
+            $("#coraboUnit").attr('disabled','disabled');
+            $("#coraboUnit").attr("style", "background-color:lightgray;border: solid 1px silver;");
+            $("#collaboSearchButton").attr('disabled',true);
+            $("#collaboRemoveButton").attr('disabled',true);
+            $("#brankCollabMailAddress").show();
+        }
+    }
+
+    function comDisableControl() {
+        if($("#comAlertActiveCheck").attr("checked")){
+            $("#companyDisk").attr('disabled','');
+            $("#companyDisk").css("background-color", "");
+            $("#companyUnit").attr('disabled','');
+            $("#companyUnit").removeAttr("style");
+            $("#comSearchButton").attr('disabled',false);
+            $("#comRemoveButton").attr('disabled',false);
+            $("#brankComMailAddress").hide();
+        }else{
+            $("#companyDisk").attr('disabled','disabled');
+            $("#companyDisk").css("background-color", "lightgray");
+            $("#companyUnit").attr('disabled','disabled');
+            $("#companyUnit").attr("style", "background-color:lightgray;border: solid 1px silver;");
+            $("#comSearchButton").attr('disabled',true);
+            $("#comRemoveButton").attr('disabled',true);
+            $("#brankComMailAddress").show();
+        }
+    }
+
+    function arcDisableControl() {
+        if($("#archAlertActiveCheck").attr("checked")){
+            $("#archDisk").attr('disabled','');
+            $("#archDisk").css("background-color", "");
+            $("#archUnit").attr('disabled','');
+            $("#archUnit").removeAttr("style");
+            $("#archSearchButton").attr('disabled',false);
+            $("#archRemoveButton").attr('disabled',false);
+            $("#brankArchMailAddress").hide();
+        }else{
+            $("#archDisk").attr('disabled','disabled');
+            $("#archDisk").css("background-color", "lightgray");
+            $("#archUnit").attr('disabled','disabled');
+            $("#archUnit").attr("style", "background-color:lightgray;border: solid 1px silver;");
+            $("#archSearchButton").attr('disabled',true);
+            $("#archRemoveButton").attr('disabled',true);
+            $("#brankArchMailAddress").show();
+        }
+    }
+
+    function checkControl() {
+
+        if (mySelfMailFlag == true) {
+            $("#mySelfCheck").attr("checked","checked");
+        } else {
+            $("#mySelfCheck").attr("checked","");
+        }
+        if (myManaUserMailFlag == true) {
+            $("#myManaCheck").attr("checked","checked");
+        } else {
+            $("#myManaCheck").attr("checked","");
+        }
+        if (myAnyUserMailFlag == true) {
+            $("#myAnyCheck").attr("checked","checked");
+        } else {
+            $("#myAnyCheck").attr("checked","");
+        }
+
+        if (coraboManaUserMailFlag == true) {
+            $("#coraboManaCheck").attr("checked","checked");
+        } else {
+            $("#coraboManaCheck").attr("checked","");
+        }
+        if (coraboAnyUserMailFlag  == true) {
+            $("#coraboAnyCheck").attr("checked","checked");
+        } else {
+            $("#coraboAnyCheck").attr("checked","");
+        }
+
+        if (comManaUserMailFlag  == true) {
+            $("#comManaCheck").attr("checked","checked");
+        } else {
+            $("#comManaCheck").attr("checked","");
+        }
+        if (comAnyUserMailFlag   == true) {
+            $("#comAnyCheck").attr("checked","checked");
+        } else {
+            $("#comAnyCheck").attr("checked","");
+        }
+
+        if (archManaUserMailFlag   == true) {
+            $("#archManaCheck").attr("checked","checked");
+        } else {
+            $("#archManaCheck").attr("checked","");
+        }
+        if (archAnyUserMailFlag    == true) {
+            $("#archAnyCheck").attr("checked","checked");
+        } else {
+            $("#archAnyCheck").attr("checked","");
+        }
+        if (myAlertActiveFlag == true) {
+            $("#myAlertActiveCheck").attr("checked","checked");
+        } else {
+            $("#myAlertActiveCheck").attr("checked","");
+        }
+        if (collaboAlertActiveFlag == true) {
+            $("#collaboAlertActiveCheck").attr("checked","checked");
+        } else {
+            $("#collaboAlertActiveCheck").attr("checked","");
+        }
+        if (comAlertActiveFlag == true) {
+            $("#comAlertActiveCheck").attr("checked","checked");
+        } else {
+            $("#comAlertActiveCheck").attr("checked","");
+        }
+        if (archAlertActiveFlag == true) {
+            $("#archAlertActiveCheck").attr("checked","checked");
+        } else {
+            $("#archAlertActiveCheck").attr("checked","");
+        }
+
+    }
+
+    function addMailAddressByTextBox(){
+        $("#mailAddAddressHeader ul").remove();
+        if(isMailAddress($("#textAddMailAddress").val())){
+            var id = Math.floor(Math.random()*10000);
+            var datarow = {id:id,name:"",mailAddress:$("#textAddMailAddress").val()};
+            jQuery("#tableSpaceMailAddress").jqGrid('addRowData',id,datarow);
+            $("#textAddMailAddress").val("");
+        }else{
+            viewErr(new Array(getMsg(new Array("{!$Label.label_10440}"), "{!$Label.msg_00191}")));
+        }
+    }
+
+
+    function removeMailAddress(){
+        $("#mailAddAddressHeader ul").remove();
+        removeCommon($("#tableSpaceMailAddress"));
+    }
+
+    function removeColMailAddress(){
+        $("#collMailAddAddressHeader ul").remove();
+        removeCommon($("#tableCollabMailAddress"));
+    }
+
+    function removeComMailAddress(){
+        $("#comMailAddAddressHeader ul").remove();
+        removeCommon($("#tableComMailAddress"));
+    }
+
+    function removeArchMailAddress(){
+        $("#archMailAddAddressHeader ul").remove();
+        removeCommon($("#tableArchMailAddress"));
+    }
+    
+    function removeCommon(grid) {
+    	var ids = grid.getGridParam("selarrrow");
+		var data = grid.getGridParam("data");
+	
+		for (var i = data.length - 1; i >= 0; i--) {
+			if (ids.indexOf(data[i].id) >= 0) {
+				data.splice(i, 1);
+			}
+		}
+	
+		if (data.length == 0) {
+			grid.clearGridData();
+		} else {
+			grid.setGridParam({data : data, datatype : "local"});
+		}
+		grid.trigger("reloadGrid");
+    }
+
+
+
+    function openAddressBook(flag){
+        showSelectUser();
+    }
+
+    function initDialog() {
+        var selected = $("#tabDiv").tabs("option", "selected");
+        var grid;
+        switch (selected) {
+        case 0:
+            grid = $('#tableSpaceMailAddress');
+            break;
+        case 1:
+            grid = $('#tableCollabMailAddress');
+            break;
+        case 2:
+            grid = $('#tableComMailAddress');
+            break;
+        case 3:
+            grid = $('#tableArchMailAddress');
+            break;
+        default:
+            return;
+        }
+
+        var users = grid.getGridParam("data");
+        return users;
+    }
+
+
+    function okPropDialog(users, newUsers){
+
+        var selected = $("#tabDiv").tabs("option", "selected");
+        switch (selected) {
+        case 0:
+            renewAddressList($("#tableSpaceMailAddress"), users, newUsers);
+            break;
+        case 1:
+            renewAddressList($("#tableCollabMailAddress"), users, newUsers);
+            break;
+        case 2:
+            renewAddressList($("#tableComMailAddress"), users, newUsers);
+            break;
+        case 3:
+            renewAddressList($("#tableArchMailAddress"), users, newUsers);
+            break;
+        default:
+            break;
+        }
+
+        $("#userSelectDialog").dialog("close");
+    }
+
+
+
+    function renewAddressList(spaceGrid, addressList, newList) {
+
+        for (var i=0; i<newList.length; i++) {
+            addressList.push(newList[i]);
+        }
+
+        var opt = {
+                data: addressList,
+                datatype : "local"
+        };
+        spaceGrid.clearGridData();
+        spaceGrid.setGridParam(opt);
+        spaceGrid.trigger("reloadGrid");
+
+        for (var i=0; i<newList.length; i++) {
+            var ids = spaceGrid.getDataIDs();
+            for (j in ids) {
+                var rowData = spaceGrid.getRowData(ids[j]);
+                if (newList[i].id == rowData.id) {
+                    spaceGrid.setSelection(ids[j]);
+                    break;
+                }
+            }
+        }
+
+
+    }
+
+    function cancelPropDialog() {
+        $("#userSelectDialog").dialog("close");
+    }
+
+
+
+    function validate(){
+        var selfCheckFlg;
+        var manaCheckFlg;
+        var myAnyCheckFlg;
+
+        paramAddressList = new Array();
+        manaCheckFlg = $("#myAlertActiveCheck").attr("checked");
+
+        var datas = $("#tableSpaceMailAddress").getGridParam("data");
+        if (manaCheckFlg) {
+            var archDisk = $.trim($("#myDisk").val());
+            var archUnit = $.trim($("#myUnit").val());
+            if (archDisk.length != 0) {
+                if (!isNumeric(archDisk)) {
+                    alert(getMsg(new Array("{!$Label.label_10435}"), "{!$Label.msg_00192}"));
+                    return false;
+                } else if (archUnit != "%" && new Number(archDisk) <= 0) {
+                    alert(getMsg(new Array("{!$Label.label_10435}"), "{!$Label.msg_00192}"));
+                    return false;
+                } else if (archUnit == "%" && (new Number(archDisk) <= 0 || new Number(archDisk) > 100)) {
+                    alert(getMsg(new Array("{!$Label.label_10435}", "1", "100"), "{!$Label.msg_00193}"));
+                    return false;
+                }
+            } else {
+                alert(getMsg(new Array("{!$Label.label_00051}", "{!$Label.label_10435}"), "{!$Label.msg_00194}"));
+                return false;
+            }
+
+            if (!$('#mySelfCheck').attr("checked") && !$('#myAnyCheck').attr("checked")) {
+                alert(getMsg(new Array("{!$Label.label_10436}"), "{!$Label.msg_00195}"));
+                return false;
+            }
+
+            if (datas.length == 0 && $('#myAnyCheck').attr("checked")) {
+                alert(getMsg(new Array("{!$Label.label_00051}", "{!$Label.label_10440}"), "{!$Label.msg_00194}"));
+                return false;
+            }
+        }
+        for (i in datas) {
+            paramAddressList.push(datas[i].mailAddress + ':' + datas[i].id);
+        }
+        query["myTo"] = paramAddressList.toString();
+
+
+
+        paramAddressList = new Array();
+        manaCheckFlg = $("#collaboAlertActiveCheck").attr("checked");
+        var datas = $("#tableCollabMailAddress").getGridParam("data");
+        if(manaCheckFlg){
+            var archDisk = $.trim($("#coraboDisk").val());
+            var archUnit = $.trim($("#coraboUnit").val());
+            if (archDisk.length != 0) {
+                if (!isNumeric(archDisk)) {
+                    alert(getMsg(new Array("{!$Label.label_10435}"), "{!$Label.msg_00192}"));
+                    return false;
+                } else if (archUnit != "%" && new Number(archDisk) <= 0) {
+                    alert(getMsg(new Array("{!$Label.label_10435}"), "{!$Label.msg_00192}"));
+                    return false;
+                } else if (archUnit == "%" && (new Number(archDisk) <= 0 || new Number(archDisk) > 100)) {
+                    alert(getMsg(new Array("{!$Label.label_10435}", "1", "100"), "{!$Label.msg_00193}"));
+                    return false;
+                }
+            } else {
+                alert(getMsg(new Array("{!$Label.label_00052}", "{!$Label.label_10435}"), "{!$Label.msg_00194}"));
+                return false;
+            }
+
+            if(datas.length == 0){
+                alert(getMsg(new Array("{!$Label.label_00052}", "{!$Label.label_10440}"), "{!$Label.msg_00194}"));
+                return false;
+            }
+        }
+        for (i in datas) {
+            paramAddressList.push(datas[i].mailAddress + ':' + datas[i].id);
+        }
+        query["caraboTo"] = paramAddressList.toString();
+
+
+        paramAddressList = new Array();
+        manaCheckFlg = $("#comAlertActiveCheck").attr("checked");
+        var datas = $("#tableComMailAddress").getGridParam("data");
+        if(manaCheckFlg){
+            var archDisk = $.trim($("#companyDisk").val());
+            var archUnit = $.trim($("#companyUnit").val());
+            if (archDisk.length != 0) {
+                if (!isNumeric(archDisk)) {
+                    alert(getMsg(new Array("{!$Label.label_10435}"), "{!$Label.msg_00192}"));
+                    return false;
+                } else if (archUnit != "%" && new Number(archDisk) <= 0) {
+                    alert(getMsg(new Array("{!$Label.label_10435}"), "{!$Label.msg_00192}"));
+                    return false;
+                } else if (archUnit == "%" && (new Number(archDisk) <= 0 || new Number(archDisk) > 100)) {
+                    alert(getMsg(new Array("{!$Label.label_10435}", "1", "100"), "{!$Label.msg_00193}"));
+                    return false;
+                }
+            } else {
+                alert(getMsg(new Array("{!$Label.label_00053}", "{!$Label.label_10435}"), "{!$Label.msg_00194}"));
+                return false;
+            }
+
+            if(datas.length == 0){
+                alert(getMsg(new Array("{!$Label.label_00053}", "{!$Label.label_10440}"), "{!$Label.msg_00194}"));
+                return false;
+            }
+        }
+        for (i in datas) {
+            paramAddressList.push(datas[i].mailAddress + ':' + datas[i].id);
+        }
+        query["companyTo"] = paramAddressList.toString();
+
+
+        paramAddressList = new Array();
+        manaCheckFlg = $("#archAlertActiveCheck").attr("checked");
+
+        var datas = $("#tableArchMailAddress").getGridParam("data");
+        if(manaCheckFlg){
+            var archDisk = $.trim($("#archDisk").val());
+            var archUnit = $.trim($("#archUnit").val());
+            if (archDisk.length != 0) {
+                if (!isNumeric(archDisk)) {
+                    alert(getMsg(new Array("{!$Label.label_10435}"), "{!$Label.msg_00192}"));
+                    return false;
+                } else if (archDisk != "%" && new Number(archDisk) <= 0) {
+                    alert(getMsg(new Array("{!$Label.label_10435}"), "{!$Label.msg_00192}"));
+                    return false;
+                } else if (archUnit == "%" && (new Number(archDisk) <= 0 || new Number(archDisk) > 100)) {
+                    alert(getMsg(new Array("{!$Label.label_10435}", "1", "100"), "{!$Label.msg_00193}"));
+                    return false;
+                }
+            } else {
+                alert(getMsg(new Array("{!$Label.label_00054}", "{!$Label.label_10435}"), "{!$Label.msg_00194}"));
+                return false;
+            }
+
+            if(datas.length == 0 && manaCheckFlg){
+                alert(getMsg(new Array("{!$Label.label_00054}", "{!$Label.label_10440}"), "{!$Label.msg_00194}"));
+                return false;
+            }
+        }
+        for (i in datas) {
+            paramAddressList.push(datas[i].mailAddress + ':' + datas[i].id);
+        }
+        query["archTo"] = paramAddressList.toString().replace(/<br>/g,",");
+
+       return true;
+    }
+
+    function svalidate() {
+        query = Object();
+        $("#okButton").attr('disabled',true);
+        if(!validate()) {
+            $("#okButton").attr('disabled',false);
+            return false;
+        }
+
+        if (!$("#myAlertActiveCheck").attr("checked")) {
+            $("#myDisk").val("");
+            $("#myUnit").val("");
+            $("#mySelfCheck").attr('checked', "");
+            $("#myAnyCheck").attr('checked', "");
+            delete query["myTo"];
+        }
+        if (!$('#myAnyCheck').attr("checked")) {
+            delete query["myTo"];
+        }
+
+        if (!$('#collaboAlertActiveCheck').attr("checked")) {
+            $('#coraboDisk').val("");
+            $('#coraboUnit').val("");
+            delete query["caraboTo"];
+        }
+        if (!$('#comAlertActiveCheck').attr("checked")) {
+            $("#companyDisk").val("");
+            $("#companyUnit").val("");
+            delete query["companyTo"];
+        }
+        if (!$("#archAlertActiveCheck").attr('checked')) {
+            $("#archDisk").val("");
+            $("#archUnit").val("");
+            delete query["archTo"];
+        }
+
+        $("#req").val(JSON.stringify(query));
+
+
+        var params={
+                req:$("#req").val(),
+                myDisk:$.trim($("#myDisk").val()),
+                coraboDisk:$.trim($("#coraboDisk").val()),
+                companyDisk:$.trim($("#companyDisk").val()),
+                archDisk:$.trim($("#archDisk").val()),
+                myUnit:$.trim($("#myUnit").val()),
+                coraboUnit:$.trim($("#coraboUnit").val()),
+                companyUnit:$.trim($("#companyUnit").val()),
+                archUnit:$.trim($("#archUnit").val()),
+
+                mySelfCheck:$("#mySelfCheck").attr('checked'),
+                myManaCheck:$("#myManaCheck").attr('checked'),
+                myAnyCheck:$("#myAnyCheck").attr('checked'),
+                myAlertActiveCheck:$("#myAlertActiveCheck").attr('checked'),
+
+                coraboManaCheck:$("#coraboManaCheck").attr('checked'),
+                coraboAnyCheck:$("#coraboAnyCheck").attr('checked'),
+                collaboAlertActiveCheck:$("#collaboAlertActiveCheck").attr('checked'),
+
+                comManaCheck:$("#comManaCheck").attr('checked'),
+                comAnyCheck:$("#comAnyCheck").attr('checked'),
+                comAlertActiveCheck:$("#comAlertActiveCheck").attr('checked'),
+
+                archManaCheck:$("#archManaCheck").attr('checked'),
+                archAnyCheck:$("#archAnyCheck").attr('checked'),
+                archAlertActiveCheck:$("#archAlertActiveCheck").attr('checked')
+            }
+
+
+        var callback = function(data){
+            CsoScript_loadingStop();
+            if(data["result"] == false){
+                alert(data["message"]);
+                $("#okButton").attr('disabled',false);
+                return false;
+            }
+            var search = location.search;
+            window.top.location.href = '{!JSENCODE(URLFOR($Page.SpaceAlert))}' + search;
+        };
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+            $("#okButton").attr('disabled',false);
+            return false;
+        };
+        CsoScript_loadingStart();
+        securePostAsync("/setup/SettingAlert.json", params, callback, callerror);
+
+        return true;
+    }
+
+    function getDiskSize(size, unit) {
+        var disksize = 0;
+        if (unit == "GB") {
+            disksize = size * 1024 * 1024 * 1024;
+        } else if (Uni == "TB") {
+            disksize = size * 1024 * 1024 * 1024 * 1024;
+        }
+        return disksize;
+    }
+</script>
+
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/alert_space_20120420.png')}" alt="{!$Label.solxyzcso001__label_10422}" title="{!$Label.solxyzcso001__label_10422}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10345}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10422}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+
+
+                <apex:pageBlock >
+
+                    <!-- コマンドボタン -->
+                    <apex:pageBlockButtons location="top">
+                        <input type="button" value="{!$Label.label_00075}" class="btn" onclick="return svalidate();" id="okButton"/>
+                        <input type="button" value="{!$Label.label_00058}" class="btn" onclick="history.back();"/>
+                    </apex:pageBlockButtons>
+
+
+
+
+
+
+<input type="hidden" name="req" id="req" />
+
+<div id="tabDiv" class="ui-tab" style="display:none;overflow:auto;">
+    <ul>
+        <li><a href="#tabSpaceMailAddress">{!$Label.label_00051}</a></li>
+        <li><a href="#tabCollabMailAddress">{!$Label.label_00052}</a></li>
+        <li><a href="#tabComMailAddress">{!$Label.label_00053}</a></li>
+        <li><a href="#tabArchMailAddress">{!$Label.label_00054}</a></li>
+    </ul>
+
+
+
+    <!-- div id="tabSpaceMailAddress" style="overflow:auto;" -->
+    <div id="tabSpaceMailAddress" style="overflow:hidden;">
+        <div style=" margin-left: 10px;">
+            <table class="tabTable" >
+                <tr>
+                    <th>
+                        {!$Label.label_10434}
+                    </th>
+                    <td align="left">
+                        <input type="checkbox" id="myAlertActiveCheck" name="myAlertActiveCheck"  value="1"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="position: absolute; margin-top: -40px; margin-left: 240px;">
+            <table class="historyTbl">
+                <tr>
+                    <th>{!$Label.label_10015}</th>
+                    <td id="spaceAlert_myCreater">
+                    </td>
+                    <th>{!$Label.label_10005}</th>
+                    <td id="spaceAlert_myCreateDateTime">
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_10024}</th>
+                    <td id="spaceAlert_myUupdater">
+                    </td>
+                    <th>{!$Label.label_10006}</th>
+                    <td id="spaceAlert_myUpdateDateTime">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style=" margin-left: 10px;margin-top:10px;">
+            <table class="tabTable" height="83px">
+                <tr>
+                    <th>{!$Label.label_10435}</th>
+                    <td class="c_require">
+                        <input type="text" name="myDisk" id="myDisk" maxlength="3" value="" class="c_text_ss required"/>
+                        <select id = "myUnit" name = "myUnit" >
+                            <option value="GB">{!$Label.label_00043}</option>
+                            <option value="TB">{!$Label.label_00044}</option>
+                            <option value="%">{!$Label.label_10433}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_10436}</th>
+                    <td>
+                        <div id="mySelfCheckDiv">
+                            <input type="checkbox" id="mySelfCheck" name="mySelfCheck"  value="1"/>
+                            {!$Label.label_10430}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td>
+                        <div id="myAnyCheckDiv">
+                            <input type="checkbox" id="myAnyCheck" name="myAnyCheck"  value="1"/>
+                            {!$Label.label_10131}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="searchDelDiv">
+            <table class="searchDelTable">
+                <tr>
+                    <td>
+                        <input type="button" id="mySearchButton" value="{!$Label.label_10020}" class="btn"  onclick="openAddressBook('addressList1');"/>
+                        &nbsp;
+                        <input type="button" id="myRemoveButton" value="{!$Label.label_00072}" class="btn"  onclick="removeMailAddress();"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="margin-left: 10px;">
+            <table class="tabTable">
+            <tr>
+                <th></th>
+                <td>
+                    <table id="tableSpaceMailAddress" ></table>
+                    <div id="tableSpaceMailAddressPager"></div>
+                </td>
+            </tr>
+            </table>
+        </div>
+        <div id="brankMySpaceMailAddres" style="position: absolute; top:202px; left:167px; display: none;">
+            <table class="brankfilter" >
+                 <tr>
+                    <td></td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+
+
+
+
+    <!-- div id="tabCollabMailAddress" style="overflow:auto;" -->
+    <div id="tabCollabMailAddress" style="overflow:hidden;">
+        <div style=" margin-left: 10px; font-weight: bolder;">
+            <table class="tabTable">
+                <tr>
+                    <th>
+                        {!$Label.label_10434}
+                    </th>
+                    <td>
+                        <input type="checkbox" id="collaboAlertActiveCheck" name="collaboAlertActiveCheck"  value="1"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="position: absolute; margin-top: -40px; margin-left: 240px;">
+            <table class="historyTbl">
+                <tr>
+                    <th>{!$Label.label_10015}</th>
+                    <td id="spaceAlert_collaboCreater">
+                    </td>
+                    <th>{!$Label.label_10005}</th>
+                    <td id="spaceAlert_collaboCreateDateTime">
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_10024}</th>
+                    <td id="spaceAlert_collaboUpdater">
+                    </td>
+                    <th>{!$Label.label_10006}</th>
+                    <td id="spaceAlert_collaboUpdateDateTime">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style=" margin-left: 10px; margin-top:10px">
+            <table class="tabTable" height="83px">
+                <tr>
+                    <th>
+                        {!$Label.label_10435}
+                    </th>
+                    <td class="c_require">
+                        <input type="text" name="coraboDisk" id="coraboDisk" maxlength="3" value="" class="c_text_ss required"/>
+                        <select id = "coraboUnit" name = "coraboUnit" >
+                            <option value="GB">{!$Label.label_00043}</option>
+                            <option value="TB">{!$Label.label_00044}</option>
+                            <option value="%">{!$Label.label_10433}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td>
+                        <table class="diskInfo">
+                            <tr>
+                                <th>{!$Label.label_10437}</th>
+                                <th>{!$Label.label_10438}</th>
+                                <th>{!$Label.label_10439}</th>
+                            </tr>
+                            <tr>
+                                <td id="spaceAlert_collaboMaxDisk">
+                                </td>
+                                <td id="spaceAlert_collaboUsedDisk">
+                                </td>
+                                <td id="spaceAlert_collaboUsedPerDisk">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="searchDelDiv">
+            <table class="searchDelTable">
+                <tr>
+                    <td>
+                        <input type="button" id="collaboSearchButton" value="{!$Label.label_10020}" class="btn"  onclick="openAddressBook('addressList2');"/>
+                        &nbsp;
+                        <input type="button" id="collaboRemoveButton" value="{!$Label.label_00072}" class="btn"  onclick="removeColMailAddress();"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style=" margin-left: 10px;">
+            <table class="tabTable">
+                <tr>
+                    <th valign="top">{!$Label.label_10436}</th>
+                    <td>
+                        <table id="tableCollabMailAddress"></table>
+                        <div id="tableCollabMailAddressPager"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="brankCollabMailAddress" style="position: absolute; top:202px; left:167px; display: none;">
+            <table class="brankfilter" >
+                 <tr>
+                    <td></td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+
+
+
+    <!-- div id="tabComMailAddress" style="overflow:auto;" -->
+    <div id="tabComMailAddress" style="overflow:hidden;" >
+        <div style=" margin-left: 10px; font-weight: bolder;">
+            <table class="tabTable">
+                <tr>
+                <th>{!$Label.label_10434}</th>
+                <td>
+                    <input type="checkbox" id="comAlertActiveCheck" name="comAlertActiveCheck"  value="1"/>
+                </td>
+                </tr>
+            </table>
+        </div>
+        <div style="position: absolute; margin-top: -40px; margin-left: 240px;">
+            <table class="historyTbl">
+                <tr>
+                    <th>{!$Label.label_10015}</th>
+                    <td id="spaceAlert_comCreater">
+                    </td>
+                    <th>{!$Label.label_10005}</th>
+                    <td id="spaceAlert_comCreateDateTime">
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_10024}</th>
+                    <td id="spaceAlert_comUpdater">
+                    </td>
+                    <th>{!$Label.label_10006}</th>
+                    <td id="spaceAlert_comUpdateDateTime">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style=" margin-left: 10px;margin-top:10px">
+            <table class="tabTable" height="83px">
+                <tr>
+                    <th>{!$Label.label_10435}</th>
+                    <td class="c_require">
+                        <input type="text" name="companyDisk" id="companyDisk" maxlength="3" value="" class="c_text_ss required"/>
+                        <select id = "companyUnit" name = "companyUnit" >
+                            <option value="GB">{!$Label.label_00043}</option>
+                            <option value="TB">{!$Label.label_00044}</option>
+                            <option value="%">{!$Label.label_10433}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td align="left">
+                        <table align="left" class="diskInfo" >
+                            <tr>
+                                <th>{!$Label.label_10437}</th>
+                                <th>{!$Label.label_10438}</th>
+                                <th>{!$Label.label_10439}</th>
+                            </tr>
+                            <tr>
+                                <td id="spaceAlert_comMaxDisk">
+                                </td>
+                                <td id="spaceAlert_comUsedDisk">
+                                </td>
+                                <td id="spaceAlert_comUsedPerDisk">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="searchDelDiv">
+            <table class="searchDelTable">
+                <tr>
+                <td>
+                    <input type="button" id="comSearchButton" value="{!$Label.label_10020}" class="btn"  onclick="openAddressBook('addressList3');"/>
+                    &nbsp;
+                    <input type="button" id="comRemoveButton" value="{!$Label.label_00072}" class="btn"  onclick="removeComMailAddress();"/>
+                </td>
+                </tr>
+            </table>
+        </div>
+        <div style="margin-left: 10px;">
+            <table class="tabTable">
+                <tr>
+                    <th valign="top">{!$Label.label_10436}</th>
+                    <td>
+                        <table id="tableComMailAddress" ></table>
+                        <div id="tableComMailAddressPager"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="brankComMailAddress" style="position: absolute; top:202px; left:167px; display: none;">
+            <table class="brankfilter" >
+                 <tr>
+                    <td>
+                    </td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+
+
+
+
+    <!-- div id="tabArchMailAddress" style="overflow:auto;" -->
+    <div id="tabArchMailAddress" style="overflow:hidden;">
+        <div style=" margin-left: 10px; font-weight: bolder;">
+            <table class="tabTable">
+                <tr>
+                    <th>{!$Label.label_10434}</th>
+                    <td>
+                        <input type="checkbox" id="archAlertActiveCheck" name="archAlertActiveCheck"  value="1"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="position: absolute; margin-top: -40px; margin-left: 240px;">
+            <table class="historyTbl">
+                <tr>
+                    <th>{!$Label.label_10015}</th>
+                    <td id="spaceAlert_archCreater">
+                    </td>
+                    <th>{!$Label.label_10005}</th>
+                    <td id="spaceAlert_archCreateDateTime">
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_10024}</th>
+                    <td id="spaceAlert_archUpdater">
+                    </td>
+                    <th>{!$Label.label_10006}</th>
+                    <td id="spaceAlert_archUpdateDateTime">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style=" margin-left: 10px;margin-top:10px;">
+            <table class="tabTable" height="83px">
+                <tr>
+                    <th>{!$Label.label_10435}</th>
+                    <td class="c_require">
+                        <input type="text" name="archDisk" id="archDisk" value="" maxlength="3" class="c_text_ss required"/>
+                        <select id = "archUnit" name = "companyUnit" >
+                            <option value="GB">{!$Label.label_00043}</option>
+                            <option value="TB">{!$Label.label_00044}</option>
+                            <option value="%">{!$Label.label_10433}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td align="left">
+                        <table class="diskInfo">
+                            <tr>
+                                <th>{!$Label.label_10437}</th>
+                                <th>{!$Label.label_10438}</th>
+                                <th>{!$Label.label_10439}</th>
+                            </tr>
+                            <tr>
+                                <td id="spaceAlert_archMaxDisk">
+                                </td>
+                                <td id="spaceAlert_archUsedDisk">
+                                </td>
+                                <td id="spaceAlert_archUsedPerDisk">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="searchDelDiv">
+            <table class="searchDelTable">
+                <tr>
+                <td>
+                    <input type="button" id="archSearchButton" value="{!$Label.label_10020}" class="btn"  onclick="openAddressBook('addressList3');"/>
+                    &nbsp;
+                    <input type="button" id="archRemoveButton" value="{!$Label.label_00072}" class="btn"  onclick="removeArchMailAddress();"/>
+                </td>
+                </tr>
+            </table>
+        </div>
+        <div style=" margin-left: 10px;">
+            <table class="tabTable">
+                <tr>
+                    <th valign="top">{!$Label.label_10436}</th>
+                    <td>
+                        <table id="tableArchMailAddress" ></table>
+                        <div id="tableArchMailAddressPager"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="brankArchMailAddress" style="position: absolute; top:202px; left:167px; display: none;">
+            <table class="brankfilter" >
+                 <tr>
+                    <td></td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__SelectUser"/>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+
+
+
+
+                </apex:pageBlock>
+
+
+            </td>
+        </tr>
+
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+    </div>
+<!-- "Display None" attribute Panel or ContextMenu -->
+
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.uid == null && userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

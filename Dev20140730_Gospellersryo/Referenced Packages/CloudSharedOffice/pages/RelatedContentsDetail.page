@@ -1,0 +1,211 @@
+<apex:page >
+<!-- <apex:page Controller="RelatedContentsDetailController">
+<apex:outputPanel rendered="{!IF(processResult == false, true, false)}">
+    <apex:pageMessages />
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(processResult != false && userInfo.showErrPage == false, true, false)}">
+<!-- CSO認証共通モジュール
+<apex:include pageName="CsoBridge"/>
+<apex:includeScript value="{!$Resource.jquery}"/>
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.cso, 'css/common.child.css?20120828')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/grid.locale-ja.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/commonDownload.js')}" />
+
+<apex:include pageName="CsoScript"/>
+
+<script type="text/javascript">
+var tempVerStr="{!releaseVersionString}";
+var DATA_DELIM=',';
+
+//==========================//
+//  ダウンロード処理        //
+//==========================//
+function contents_download(){
+
+    var space_id     = "{!spaceId}";
+    var doc_id       = "{!fileId}";
+    var version = "[" + tempVerStr.replace(/\./g, ",") + "]";
+
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '{!$Page.DownloadPopupWindow}';
+        url = url + '?downloadType=standard';
+        url = url + '&spaceId=' + space_id;
+        url = url + '&fileId='  + doc_id;
+        url = url + '&version=' + encodeURIComponent(version);
+        url = url + '&type='    + "alive";
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync('/contentsmanagement/SingleContentsDownloadApi.json', {"spaceId" : space_id, "fileId" : doc_id, "ver" : version, "type" : "alive"}, callback, callerror);
+}
+function downloadExec(url){
+    top.location.href = url;
+//  window.open(url, 'relatedcontentsdl', 'width=100, height=50, menubar=no, toolbar=no, scrollbars=no');
+}
+
+//==========================//
+//  コンテンツの関連解除    //
+//==========================//
+function deleteContentsList(){
+    var params={
+        "objid"      : "{!Sf_ID}",
+        "objname"    : "{!Sf_name}",
+        "obj_catname": "{!Sf_typeName}",
+        "docids"     : "{!fileId}",
+    };
+
+    var callback = function(data){
+        CsoScript_loadingStop();
+        if(data["result"] == false){
+            alert(data["message"]);
+            return;
+        }
+
+        var succeeded_msg='{!$Label.msg_01053}';
+        var succeededNames='';
+        for(var idx in data["succeeded"]){
+            succeededNames += '\n ' + data["succeeded"][idx];
+        }
+        succeeded_msg += succeededNames;
+
+        // 活動履歴登録
+         Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.RelatedContentsDetailController.insTask}',
+            '{!Sf_ID}', succeeded_msg,
+            function(data, event){
+               //画面遷移
+               top.location.href = '/{!Sf_Id}';
+            },
+            {escape: true}
+        );
+        //画面遷移
+        top.location.href = '/{!Sf_Id}';
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+        return;
+    };
+    if(window.confirm('{!$Label.msg_01056}')){
+        CsoScript_loadingStart();
+        secureGetAsync("/contentsmanagement/contentsRelationDelete.json", params, callback, callerror);
+    } else {
+        return;
+    }
+}
+
+</script>
+
+<apex:sectionHeader title="{!$Label.field_010200}" subtitle="{!docName}"/>
+
+<apex:form id="contentsForm">
+  <apex:variable var="Sf_ID" value="{!Sf_ID}" />
+  <apex:variable var="Sf_name" value="{!Sf_name}" />
+  <apex:variable var="pageType" value="{!pageType}" />
+  <!-- Sf_typeとSf_typeName変数は標準オブジェクト別ページで宣言
+  <apex:variable var="Sf_type" value="{!Sf_type}" />
+  <apex:variable var="Sf_typeName" value="{!Sf_typeName}" />
+
+<apex:pageBlock title="" id="relatedContentsPageBlock" >
+    <apex:pageBlockButtons >
+      <apex:commandButton value="{!$Label.field_common_back}"  action="{!back}" />
+      <apex:commandButton value="{!$Label.field_common_edit}"  action="{!edit}" rendered="{!IF(asrt == 'garbage' || asrt == 'archive', false, true)}" />
+      <apex:commandButton value="{!$Label.field_010199}" onclick="deleteContentsList();return false;"/>
+      <apex:commandButton value="{!$Label.label_10010}"  onclick="contents_download();return false;" />
+    </apex:pageBlockButtons>
+
+    <!-- ページボディー
+    <apex:inputHidden id="hidden_version" value="{!version}"/>
+    <apex:pageBlockSection columns="2" id="contentsBlockSection">
+        <!-- コンテンツ名
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="content" value="{!$Label.label_10011}"/>
+            <div id="docName">{!docName}</div>
+        </apex:pageBlockSectionItem>
+        <!-- バージョン
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="version" value="{!$Label.label_10038}"/>
+            <div id="version">{!releaseVersionString}</div>
+        </apex:pageBlockSectionItem>
+
+        <!-- 説明
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="comment" value="{!$Label.label_10012}"/>
+            <div id="explanation"><pre>{!explanation}</pre></div>
+        </apex:pageBlockSectionItem>
+        <!-- タグ
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="tags" value="{!$Label.label_00057}"/>
+            <div id="tagNames">{!tagNames}</div>
+        </apex:pageBlockSectionItem>
+
+        <!-- 作成者
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="creator" value="{!$Label.label_10015}"/>
+            <div id="regUserName">{!regUserName}</div>
+        </apex:pageBlockSectionItem>
+        <!-- 作成日時
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="created_date" value="{!$Label.label_10014}"/>
+            <div id="regDate" >{!regDate}</div>
+        </apex:pageBlockSectionItem>
+
+        <!-- 更新者
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_person" value="{!$Label.label_10024}"/>
+            <div id="upUserName" >{!upUserName}</div>
+        </apex:pageBlockSectionItem>
+        <!-- 更新日時
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_date" value="{!$Label.label_10018}"/>
+            <div id="upDate" >{!upDateString}</div>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+
+</apex:pageBlock>
+
+</apex:form>
+</apex:outputPanel>
+<apex:include pageName="CSOSirverlight" />
+</apex:page>-->
+</apex:page>

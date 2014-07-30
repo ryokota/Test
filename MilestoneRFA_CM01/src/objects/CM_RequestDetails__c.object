@@ -1,0 +1,2611 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Commercial RFA Type.B request detail.</description>
+    <enableActivities>false</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>CM_Automatic_Renewed__c</fullName>
+        <externalId>false</externalId>
+        <label>Automatic renewed</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_CHIRASHI__c</fullName>
+        <externalId>false</externalId>
+        <label>CHIRASHI</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_Can_Stand__c</fullName>
+        <externalId>false</externalId>
+        <label>Can</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_Chanel_Of_Price_Guidelines__c</fullName>
+        <description>Channel of price guidelines</description>
+        <externalId>false</externalId>
+        <label>Channel of price guidelines</label>
+        <picklist>
+            <picklistValues>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>R-E&amp;D</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>R-OtherOTC</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>R-CS</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>L-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>L-E&amp;D</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>L-OtherOTC</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>L-CS</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_Contract_Condition_Price_Description__c</fullName>
+        <externalId>false</externalId>
+        <label>Contract condition（Price) / Description</label>
+        <length>32768</length>
+        <trackHistory>true</trackHistory>
+        <type>Html</type>
+        <visibleLines>15</visibleLines>
+    </fields>
+    <fields>
+        <fullName>CM_Contract_term_from__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>単発時はfrom/toを同じ年月日入力します。</inlineHelpText>
+        <label>Contract term (from)</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>CM_Contract_term_to__c</fullName>
+        <externalId>false</externalId>
+        <label>Contract term (to)</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>CM_Contractor__c</fullName>
+        <externalId>false</externalId>
+        <label>Constractor</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_Cooler_Stand__c</fullName>
+        <externalId>false</externalId>
+        <label>Cooler</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_Cup_Stand__c</fullName>
+        <externalId>false</externalId>
+        <label>Cup</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_Delivery_term_from__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>単発時はfrom toを同じ年月日入力</inlineHelpText>
+        <label>Delivery term (from)</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>CM_Delivery_term_to__c</fullName>
+        <externalId>false</externalId>
+        <label>Delivery term (to)</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>CM_Description__c</fullName>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <type>Html</type>
+        <visibleLines>25</visibleLines>
+    </fields>
+    <fields>
+        <fullName>CM_Dispenser_Stand__c</fullName>
+        <externalId>false</externalId>
+        <label>Dis</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_Execution_due_date__c</fullName>
+        <externalId>false</externalId>
+        <label>Execution due date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>CM_Existing_Equipment__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Existing equipment</label>
+        <trackHistory>false</trackHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>CM_Input__c</fullName>
+        <description>フリーフォーマット</description>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <length>32768</length>
+        <trackHistory>true</trackHistory>
+        <type>LongTextArea</type>
+        <visibleLines>15</visibleLines>
+    </fields>
+    <fields>
+        <fullName>CM_Model_Name__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>If there is more than one described in the detailed description.</inlineHelpText>
+        <label>Model name</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_Monthly_amount_Tax_exclusive_price__c</fullName>
+        <externalId>false</externalId>
+        <label>Monthly amount（tax-exclusive price）</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>CM_New_Equipment__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>New Equipment</label>
+        <trackHistory>false</trackHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>CM_Number_of_SampleCase__c</fullName>
+        <externalId>false</externalId>
+        <label>Number of Sample cases</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_Order_term_from__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>単発時はfrom toを同じ年月日入力</inlineHelpText>
+        <label>Order term (from)</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>CM_Order_term_to__c</fullName>
+        <externalId>false</externalId>
+        <label>Order term (to)</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>CM_Other_Stand__c</fullName>
+        <externalId>false</externalId>
+        <label>Ohter</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_Other_payment_methods__c</fullName>
+        <externalId>false</externalId>
+        <label>Other payment methods</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_Part_Name__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>If there is more than one described in the detailed description.</inlineHelpText>
+        <label>Part name</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>cashless(single RW)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_Payment_amount_Tax_exclusive_price__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the total amount.</inlineHelpText>
+        <label>Payment amount（tax-exclusive price）</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>true</trackHistory>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>CM_Payment_due_date__c</fullName>
+        <externalId>false</externalId>
+        <label>Payment due date</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>CM_Payment_method__c</fullName>
+        <externalId>false</externalId>
+        <label>Payment method</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_Payment_timing__c</fullName>
+        <externalId>false</externalId>
+        <label>Payment timing</label>
+        <picklist>
+            <picklistValues>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Achieved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>true</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_RFA__c</fullName>
+        <externalId>false</externalId>
+        <label>RFA No.</label>
+        <referenceTo>RFA__c</referenceTo>
+        <relationshipName>CM_RFA</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackHistory>true</trackHistory>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>CM_RFA_stage__c</fullName>
+        <description>Not displayed on the screen.</description>
+        <externalId>false</externalId>
+        <formula>Text( CM_RFA__r.Stage__c )</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>RFA Stage</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_RecordType_Name__c</fullName>
+        <externalId>false</externalId>
+        <formula>RecordType.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>RecordType Name</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_Special_sales_term_from__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>単発時はfrom toを同じ年月日入力</inlineHelpText>
+        <label>Special sales term (from)</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>CM_Special_sales_term_to__c</fullName>
+        <externalId>false</externalId>
+        <label>Special sales term (to)</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>CM_Target_Dealer__c</fullName>
+        <externalId>false</externalId>
+        <label>Target Dealer</label>
+        <picklist>
+            <picklistValues>
+                <fullName>All</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>true</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_Used_Equipment__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Old Equipment</label>
+        <trackHistory>false</trackHistory>
+        <type>Checkbox</type>
+    </fields>
+    <label>RFA申請詳細</label>
+    <listViews>
+        <fullName>All</fullName>
+        <filterScope>Everything</filterScope>
+        <label>すべて選択</label>
+    </listViews>
+    <nameField>
+        <displayFormat>RFA#-D{000000000}</displayFormat>
+        <label>Request details No.</label>
+        <trackHistory>true</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <recordTypeTrackHistory>false</recordTypeTrackHistory>
+    <recordTypes>
+        <fullName>CM_01_Contract_unit_price</fullName>
+        <active>true</active>
+        <description>契約単価申請詳細登録。Contract unit price.</description>
+        <label>01. Contract unit price</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>L-CS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>L-E%26D</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>L-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>L-OtherOTC</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>R-CS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>R-E%26D</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>R-OtherOTC</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_02_Special_price_promotion_discount</fullName>
+        <active>true</active>
+        <description>特売/プロモーション値引き申請詳細登録。Special price / promotion disucount price.</description>
+        <label>02. Special price / Promotion discount</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>L-CS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>L-E%26D</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>L-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>L-OtherOTC</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>R-CS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>R-E%26D</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>R-OtherOTC</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_03_FS_selling_price</fullName>
+        <active>true</active>
+        <description>FS販売価格申請詳細。FS selling price.</description>
+        <label>03. FS selling price</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_04_FS_commission_Variable</fullName>
+        <active>true</active>
+        <description>FSコミッション（変動）の申請詳細登録。FS commition (variable).</description>
+        <label>04. FS commission (Variable)</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_05_FS_commission_Fixed</fullName>
+        <active>true</active>
+        <description>FSコミッション（固定）申請の詳細登録。FS commition (fixed).</description>
+        <label>05. FS commission (Fixed)</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_06_KeyMoney_Rebate_Spot_Other</fullName>
+        <active>true</active>
+        <description>キーマネー/リベート/スポット申請の詳細登録。Total amount of key money, Rebate, Spot and others.</description>
+        <label>06. Key money / Rebate / Spot / Other</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Achieved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_07_Only_in_the_case_of_Rebate</fullName>
+        <active>true</active>
+        <description>実績後払いリベート申請の詳細登録。Only in the case of a rebate.</description>
+        <label>07. Only in the case of Rebate</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Achieved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_08_Other_support</fullName>
+        <active>true</active>
+        <description>その他協賛申請の詳細登録。Other support (the non-specific client support, the sponsorship support).</description>
+        <label>08. Other support</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_09_Promotion_OtherExpense</fullName>
+        <active>true</active>
+        <description>プロモーション/その他費用申請の詳細登録。Promotion / Other expense.</description>
+        <label>09. Promotion / Other expense</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_10_Promotion_CooperationSample_Sampling</fullName>
+        <active>true</active>
+        <description>プロモーション（サンプル協賛/サンプリング）に関する内容。Promotion (Sample cooperation / Sampling).</description>
+        <label>10. Promotion (Cooperation / Sampling)</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_a_Nonstandard_Equipment</fullName>
+        <active>true</active>
+        <description>販売機材運営基準の承認、採用外機種の申請。Non-standard Equipment.</description>
+        <label>a. Non-standard Equipment</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_b_Vending_Equipment_parts</fullName>
+        <active>true</active>
+        <description>販売機材運営基準の承認、機材部品申請詳細登録。Equipment parts.</description>
+        <label>b. Vending Equipment parts</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_c_Incidental_work</fullName>
+        <active>true</active>
+        <description>販売機材運営基準の承認、附帯工事申請詳細登録。Incidental work.</description>
+        <label>c. Incidental work</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_d_Vending_Equipment_Lease</fullName>
+        <active>true</active>
+        <description>販売機材運営基準の承認、販売機材のリース取引申請詳細登録。Equipment Leases.</description>
+        <label>d. Vending Equipment Lease</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>CM_e_Equipment_retirement</fullName>
+        <active>true</active>
+        <description>取引先との販売機材の購入・売却申請。Purchase/sales of equipment for trading with trading partners.</description>
+        <label>e. Equipment retirement</label>
+        <picklistValues>
+            <picklist>CM_Automatic_Renewed__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_CHIRASHI__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Chanel_Of_Price_Guidelines__c</picklist>
+            <values>
+                <fullName>R-Institutional SAKAYA</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Part_Name__c</picklist>
+            <values>
+                <fullName>Anti-theft parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Battery for disaster countermeasure</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Card reader</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Key switch for free</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Others</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wattmeter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>cashless%28single RW%29</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_method__c</picklist>
+            <values>
+                <fullName>Deferred payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Prepayment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Payment_timing__c</picklist>
+            <values>
+                <fullName>Bimonthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Monthly payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One time payment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Quarterly payment</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Target_Dealer__c</picklist>
+            <values>
+                <fullName>All</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Individual</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Several</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>CM_Contract_date_contradiction_rule</fullName>
+        <active>true</active>
+        <description>Contract_date_contradiction_rule</description>
+        <errorConditionFormula>CM_Contract_term_from__c &gt;  CM_Contract_term_to__c</errorConditionFormula>
+        <errorDisplayField>CM_Contract_term_to__c</errorDisplayField>
+        <errorMessage>There is an inconsistency in the contract term.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_Delivery_date_contradiction_rule</fullName>
+        <active>true</active>
+        <description>Contract date contradiction rule.</description>
+        <errorConditionFormula>CM_Delivery_term_from__c &gt; CM_Delivery_term_to__c</errorConditionFormula>
+        <errorDisplayField>CM_Delivery_term_to__c</errorDisplayField>
+        <errorMessage>There is an inconsistency in the delivery term.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_NumberOfStand_Input_Rule</fullName>
+        <active>true</active>
+        <description>Input required check of stand</description>
+        <errorConditionFormula>AND($RecordType.DeveloperName = &apos;CM_a_Nonstandard_Equipment&apos;  ,
+    IsNull(CM_Can_Stand__c) , 
+	IsNull(CM_Cup_Stand__c) , 
+	IsNull(CM_Cooler_Stand__c) , 
+	IsNull(CM_Dispenser_Stand__c) , 
+	IsNull(CM_Other_Stand__c )
+)</errorConditionFormula>
+        <errorMessage>You must enter the number of equipment</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_OldAndNewClassification_Input_Rule</fullName>
+        <active>true</active>
+        <description>Select required check of Old and new classification</description>
+        <errorConditionFormula>AND($RecordType.DeveloperName = &apos;CM_c_Incidental_work&apos;  ,
+NOT(OR( CM_New_Equipment__c, CM_Used_Equipment__c, CM_Existing_Equipment__c))
+)</errorConditionFormula>
+        <errorMessage>You must enter the old and new classification.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_Order_date_contradiction_rule</fullName>
+        <active>true</active>
+        <description>Order date contradiction rule.</description>
+        <errorConditionFormula>CM_Order_term_from__c &gt; CM_Order_term_to__c</errorConditionFormula>
+        <errorDisplayField>CM_Order_term_to__c</errorDisplayField>
+        <errorMessage>There is an inconsistency in the order term.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_OtherPaymentMethod_Input_rule</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(
+ISPICKVAL(CM_Payment_timing__c, &apos;Other&apos;),
+isBlank( CM_Other_payment_methods__c )
+)</errorConditionFormula>
+        <errorDisplayField>CM_Other_payment_methods__c</errorDisplayField>
+        <errorMessage>You must enter the Other payment methods.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_PaymentAmount_Required_Rule</fullName>
+        <active>true</active>
+        <errorConditionFormula>And($RecordType.DeveloperName = &apos;CM_10_Promotion_CooperationSample_Sampling&apos;,
+  Not(isBlank( CM_Payment_amount_Tax_exclusive_price__c )),
+  isBlank(  CM_Payment_due_date__c  )
+)</errorConditionFormula>
+        <errorDisplayField>CM_Payment_due_date__c</errorDisplayField>
+        <errorMessage>You must enter the Payment due date.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_PaymentAmount_Type06_Rule</fullName>
+        <active>true</active>
+        <description>06. Key Money/Rebate/Spot/Other Payment Amount Input check.</description>
+        <errorConditionFormula>And($RecordType.DeveloperName = &quot;CM_06_KeyMoney_Rebate_Spot_Other&quot;,
+Or(
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;Total amount per transaction ＞ 50,000,000 yen&quot;), 
+		Not(CM_Payment_amount_Tax_exclusive_price__c &gt; 50000000)),
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;＞ 35,000,000 yen 　and 　≦ 50,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 35000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 50000000))),
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;＞ 25,000,000 yen 　and 　≦ 50,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 25000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 50000000))),
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;＞ 25,000,000 yen 　and 　≦ 35,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 25000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 35000000))),
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;＞ 10,000,000 yen 　and 　≦ 25,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 10000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 25000000))),
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;＞ 3,000,000 yen 　and 　≦ 10,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 3000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 10000000))),
+/* add(S) */
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;＞ 1,000,000 yen 　and 　≦ 25,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 1000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 25000000))),
+/* add(E) */
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;≦ 3,000,000 yen&quot;),
+		Not(CM_Payment_amount_Tax_exclusive_price__c &lt;= 3000000)),
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;＞ 1,000,000 yen 　and 　≦ 10,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 1000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 10000000))),
+/* add(S) */
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;＞ 100,000 yen 　and 　≦ 1,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 100000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 1000000))),
+/* add(E) */
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;≦ 1,000,000 yen&quot;),
+		Not(CM_Payment_amount_Tax_exclusive_price__c &lt;= 1000000)),
+/* add(S) */
+	And(isPickval(CM_RFA__r.CM_KeyMoney_Rebate_Sport_Other__c,&quot;≦ 100,000 yen&quot;),
+		Not(CM_Payment_amount_Tax_exclusive_price__c &lt;= 100000))
+/* add(E) */
+))</errorConditionFormula>
+        <errorDisplayField>CM_Payment_amount_Tax_exclusive_price__c</errorDisplayField>
+        <errorMessage>Payment amount must match with what you have selected for &quot;06. Key money / Rebate / Spot / Other&quot; on the request.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_PaymentAmount_Type07_Rule</fullName>
+        <active>true</active>
+        <description>07. Only in the case of Rebate Payment Amount Input check.</description>
+        <errorConditionFormula>And($RecordType.DeveloperName = &quot;CM_07_Only_in_the_case_of_Rebate&quot;,
+Or(
+	And(isPickval(CM_RFA__r.CM_Only_in_the_case_of_Rebate__c,&quot;Total amount per transaction ＞ 50,000,000 yen&quot;), 
+		Not(CM_Payment_amount_Tax_exclusive_price__c &gt; 50000000)),
+	And(isPickval(CM_RFA__r.CM_Only_in_the_case_of_Rebate__c,&quot;＞ 40,000,000 yen 　and 　≦ 50,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 40000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 50000000))),
+	And(isPickval(CM_RFA__r.CM_Only_in_the_case_of_Rebate__c,&quot;＞ 30,000,000 yen 　and 　≦ 50,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 30000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 50000000))),
+	And(isPickval(CM_RFA__r.CM_Only_in_the_case_of_Rebate__c,&quot;＞ 30,000,000 yen 　and 　≦ 40,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 30000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 40000000))),
+	And(isPickval(CM_RFA__r.CM_Only_in_the_case_of_Rebate__c,&quot;＞ 15,000,000 yen 　and 　≦ 30,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 15000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 30000000))),
+	And(isPickval(CM_RFA__r.CM_Only_in_the_case_of_Rebate__c,&quot;＞ 10,000,000 yen 　and 　≦ 30,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 10000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 30000000))),
+	And(isPickval(CM_RFA__r.CM_Only_in_the_case_of_Rebate__c,&quot;＞ 5,000,000 yen 　and 　≦ 15,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 5000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 15000000))),
+	And(isPickval(CM_RFA__r.CM_Only_in_the_case_of_Rebate__c,&quot;≦ 5,000,000 yen&quot;),
+		Not(CM_Payment_amount_Tax_exclusive_price__c &lt;= 5000000)),
+	And(isPickval(CM_RFA__r.CM_Only_in_the_case_of_Rebate__c,&quot;＞ 1,000,000 yen 　and 　≦ 10,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 1000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 10000000))),
+	And(isPickval(CM_RFA__r.CM_Only_in_the_case_of_Rebate__c,&quot;≦ 1,000,000 yen&quot;),
+		Not(CM_Payment_amount_Tax_exclusive_price__c &lt;= 1000000))
+))</errorConditionFormula>
+        <errorDisplayField>CM_Payment_amount_Tax_exclusive_price__c</errorDisplayField>
+        <errorMessage>Payment amount must match with what you have selected for &quot;07. Only in the case of Rebate&quot; on the request.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_PaymentAmount_Type08_Rule</fullName>
+        <active>true</active>
+        <description>08. Other support Payment Amount Input check.</description>
+        <errorConditionFormula>And($RecordType.DeveloperName = &quot;CM_08_Other_support&quot;,
+Or(
+	And(isPickval(CM_RFA__r.CM_Other_support__c,&quot;Total amount per transaction ＞　25,000,000 yen&quot;), 
+		Not(CM_Payment_amount_Tax_exclusive_price__c &gt; 25000000)),
+	And(isPickval(CM_RFA__r.CM_Other_support__c,&quot;＞ 10,000,000 yen 　and 　≦ 25,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 10000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 25000000))),
+	And(isPickval(CM_RFA__r.CM_Other_support__c,&quot;＞ 1,000,000 yen 　and 　≦ 10,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 1000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 10000000))),
+	And(isPickval(CM_RFA__r.CM_Other_support__c,&quot;＞ 100,000 yen 　and 　≦ 1,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 100000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 1000000))),
+	And(isPickval(CM_RFA__r.CM_Other_support__c,&quot;≦ 100,000 yen&quot;),
+		Not(CM_Payment_amount_Tax_exclusive_price__c &lt;= 100000))
+))</errorConditionFormula>
+        <errorDisplayField>CM_Payment_amount_Tax_exclusive_price__c</errorDisplayField>
+        <errorMessage>Payment amount must match with what you have selected for &quot;08. Other support&quot; on the request.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_PaymentAmount_Type09_Rule</fullName>
+        <active>true</active>
+        <description>09. Promotion / Other expense Payment Amount Input check.</description>
+        <errorConditionFormula>And($RecordType.DeveloperName = &quot;CM_09_Promotion_OtherExpense&quot;,
+Or(
+	And(isPickval(CM_RFA__r.CM_Promotion_OtherExpense__c,&quot;Total amount per transaction ＞　10,000,000 yen&quot;), 
+		Not(CM_Payment_amount_Tax_exclusive_price__c &gt; 10000000)),
+	And(isPickval(CM_RFA__r.CM_Promotion_OtherExpense__c,&quot;＞ 7,500,000 yen 　and 　≦ 10,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 7500000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 10000000))),
+	And(isPickval(CM_RFA__r.CM_Promotion_OtherExpense__c,&quot;＞ 5,000,000 yen 　and 　≦ 10,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 5000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 10000000))),
+	And(isPickval(CM_RFA__r.CM_Promotion_OtherExpense__c,&quot;＞ 5,000,000 yen 　and 　≦ 7,500,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 5000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 7500000))),
+	And(isPickval(CM_RFA__r.CM_Promotion_OtherExpense__c,&quot;＞ 1,000,000 yen 　and 　≦ 5,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 1000000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 5000000))),
+	And(isPickval(CM_RFA__r.CM_Promotion_OtherExpense__c,&quot;＞ 250,000 yen 　and 　≦ 1,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 250000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 1000000))),
+	And(isPickval(CM_RFA__r.CM_Promotion_OtherExpense__c,&quot;≦ 250,000 yen&quot;),
+		Not(CM_Payment_amount_Tax_exclusive_price__c &lt;= 250000)),
+	And(isPickval(CM_RFA__r.CM_Promotion_OtherExpense__c,&quot;＞ 100,000 yen 　and 　≦ 1,000,000 yen&quot;),
+		Not(And(CM_Payment_amount_Tax_exclusive_price__c &gt; 100000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 1000000))),
+	And(isPickval(CM_RFA__r.CM_Promotion_OtherExpense__c,&quot;≦ 100,000 yen&quot;),
+		Not(CM_Payment_amount_Tax_exclusive_price__c &lt;= 100000))
+))</errorConditionFormula>
+        <errorDisplayField>CM_Payment_amount_Tax_exclusive_price__c</errorDisplayField>
+        <errorMessage>Payment amount must match with what you have selected for &quot;09. Promotion / Other expense&quot; on the request.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_PaymentAmount_Type10_Rule</fullName>
+        <active>true</active>
+        <description>10. Promotion (Cooperation / Sampling) Payment Amount Input check.</description>
+        <errorConditionFormula>And($RecordType.DeveloperName = &quot;CM_10_Promotion_CooperationSample_Sampling&quot;, 
+Or(
+	And(isPickval(CM_RFA__r.CM_Promotion_CooperationSampling__c,&quot;Per deal ≦ 50 cases  and ≦ 100,000 yen&quot;), 
+		or(
+			and(not(isNull(CM_Number_of_SampleCase__c)),
+				not(CM_Number_of_SampleCase__c &lt;= 50)),
+			and(not(isNull(CM_Payment_amount_Tax_exclusive_price__c )),
+				not(CM_Payment_amount_Tax_exclusive_price__c &lt;= 100000))
+		)
+	),		
+	And(isPickval(CM_RFA__r.CM_Promotion_CooperationSampling__c,&quot;Per deal ＞ 50 cases   or  ＞ 100,000 yen&quot;),
+		or(
+			and(not(isNull(CM_Number_of_SampleCase__c)),
+				not(CM_Number_of_SampleCase__c &gt; 50)),
+			and(not(isNull(CM_Payment_amount_Tax_exclusive_price__c)),
+				not(CM_Payment_amount_Tax_exclusive_price__c &gt; 100000))
+		)
+	),
+/* --- add --- */
+	And(isPickval(CM_RFA__r.CM_Promotion_CooperationSampling__c,&quot;Per deal ＞ 10 cases and ＞ 20,000 yen&quot;),
+		or(
+			and(not(isNull(CM_Number_of_SampleCase__c)),
+				not(CM_Number_of_SampleCase__c &gt; 10)),
+			and(not(isNull(CM_Payment_amount_Tax_exclusive_price__c)),
+				not(CM_Payment_amount_Tax_exclusive_price__c &gt; 20000))
+		)
+	),
+
+	And(isPickval(CM_RFA__r.CM_Promotion_CooperationSampling__c,&quot;Per deal ≦ 10 cases and ≦ 20,000 yen&quot;),
+		or(
+			and(not(isNull(CM_Number_of_SampleCase__c)),
+				not(CM_Number_of_SampleCase__c &lt;= 10)),
+			and(not(isNull(CM_Payment_amount_Tax_exclusive_price__c)),
+				not(CM_Payment_amount_Tax_exclusive_price__c &lt;= 20000))
+		)
+	),
+
+	And(isPickval(CM_RFA__r.CM_Promotion_CooperationSampling__c,&quot;Per deal ＞ 10 cases and ≦ 50 cases, ＞ 20,000 yen and  ≦ 100,000 yen&quot;),
+		or(
+			and(not(isNull(CM_Number_of_SampleCase__c)),
+				not(
+					and(CM_Number_of_SampleCase__c &gt; 10, CM_Number_of_SampleCase__c &lt;= 50))),
+			and(not(isNull(CM_Payment_amount_Tax_exclusive_price__c)),
+				not(
+					and(CM_Payment_amount_Tax_exclusive_price__c &gt; 20000, CM_Payment_amount_Tax_exclusive_price__c &lt;= 100000)))
+		)
+	)
+/* --- add end --- */
+)
+)</errorConditionFormula>
+        <errorMessage>Payment amount（tax-exclusive price） or Number of Sample Case must match with what you have selected for &quot;10. Promotion (Cooperation/Sampling) &quot; on the request.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_Payment_due_date_past_date_rule</fullName>
+        <active>true</active>
+        <description>Payment due date past date check.</description>
+        <errorConditionFormula>CM_Payment_due_date__c &lt; today()</errorConditionFormula>
+        <errorDisplayField>CM_Payment_due_date__c</errorDisplayField>
+        <errorMessage>You can not set the past date.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_SampleCase_PaymentAmout_Required_Rule</fullName>
+        <active>true</active>
+        <errorConditionFormula>And($RecordType.DeveloperName = &apos;CM_10_Promotion_CooperationSample_Sampling&apos;,
+ And(
+  isBlank( CM_Payment_amount_Tax_exclusive_price__c ),
+  isBlank( CM_Number_of_SampleCase__c )
+ )
+)</errorConditionFormula>
+        <errorMessage>Please enter a sample number of cases or Payment amount（tax-exclusive price）.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_SampleCase_Required_Rule</fullName>
+        <active>true</active>
+        <errorConditionFormula>And($RecordType.DeveloperName = &apos;CM_10_Promotion_CooperationSample_Sampling&apos;,
+  Not(isBlank(  CM_Number_of_SampleCase__c  )),
+  isBlank(  CM_Execution_due_date__c   )
+)</errorConditionFormula>
+        <errorDisplayField>CM_Execution_due_date__c</errorDisplayField>
+        <errorMessage>You must enter the Execution due date.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CM_Special_sale_date_contradiction_rule</fullName>
+        <active>true</active>
+        <description>Special_sale_date_contradiction_rule</description>
+        <errorConditionFormula>CM_Special_sales_term_from__c &gt;  CM_Special_sales_term_to__c</errorConditionFormula>
+        <errorDisplayField>CM_Special_sales_term_to__c</errorDisplayField>
+        <errorMessage>There is an inconsistency in the special sales term.</errorMessage>
+    </validationRules>
+</CustomObject>

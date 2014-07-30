@@ -1,0 +1,12 @@
+<apex:page standardController="Student__c" showHeader="false" sidebar="false" cache="false" label="Student Picture" >
+    <apex:image id="Image" 
+                value="/servlet/servlet.FileDownload?file={!Student__c.Picture_ID__c}" 
+                rendered="{!NOT(isBlank(Student__c.Picture_ID__c))}" 
+                style="width:140px;display:block;" 
+                width="140"  />
+    <apex:image id="Empty" 
+                value="{!URLFOR($Resource.Default_Picture)}" 
+                rendered="{!isBlank(Student__c.Picture_ID__c)}" 
+                style="width:140px;display:block;" 
+                width="140"  />
+</apex:page>

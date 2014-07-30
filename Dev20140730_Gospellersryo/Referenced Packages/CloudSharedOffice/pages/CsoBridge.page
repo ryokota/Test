@@ -1,0 +1,283 @@
+<apex:page showHeader="false" sidebar="false" controller="SOLXYZCSO001.CsoBridgeController">
+<!-- 認証フレーム -->
+<iframe src="{!$Label.field_CSO_URL}/common/AuthenticationApi?id={!URLENCODE($User.UserName)}&tk={!Token}&isEvidence=false" height="0" width="0" id="auth_frame" style="display:none;"/>
+<!-- 読込処理待機用オブジェクト -->
+<input type="text" id="load_bridge" style="display:none;" />
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+
+<script type="text/javascript">
+/*
+ * 読込処理待機用オブジェクト
+ */
+var load_handler = $('#load_bridge');
+
+/*
+ * API呼び出し先URL
+ */
+var _apiUrl = '{!$Label.field_CSO_URL}';
+
+/*
+ * SFDCセッションID保持
+ */
+var __sfdcSessionId = '{!GETSESSIONID()}';
+
+/*
+ * ECMセッションID保持
+ */
+var __ecmSessionId = '';
+
+/*
+ * 読込完了フラグ
+ */
+var loadedFlag = false;
+
+/*
+ * 処理実行済みフラグ
+ */
+var execedFlag = false;
+
+/*
+ * ECMセッションID要求/受取ハンドラ
+ */
+if(window.addEventListener) {
+    window.addEventListener("message",
+                       function(e){
+                           if(__ecmSessionId == undefined || __ecmSessionId == ''){
+                               if(e.data.indexOf("{") == -1){
+                                   __ecmSessionId = e.data;
+                               }
+                           }
+                           $('#load_bridge').val(e.data);
+                           setTimeout('load_fire()', 100);
+                       }, false);
+} else {
+    window.attachEvent("onmessage",
+                       function(e){
+                           if(__ecmSessionId == undefined || __ecmSessionId == ''){
+                               if(e.data.indexOf("{") == -1){
+                                   __ecmSessionId = e.data;
+                               }
+                           }
+                           $('#load_bridge').val(e.data);
+                           setTimeout('load_fire()', 100);
+                       }, false);
+}
+
+/*
+ * 画面読込完了処理
+ */
+$(window).load(function() {
+    checkMobileAuth();
+    // iPadの場合、ダミーページへ移動
+    var browserType = getBrowserType();
+    if (browserType.indexOf("Safari") > -1){
+        if(GetCookie("iPadAccess") != "true"){
+            var checkquery = "trial=1";
+            var nowurl = location.href;
+            if(nowurl.indexOf(checkquery) == -1){
+                SetCookie("iPadAccess","true");
+                var url = _apiUrl + "/html/safariGimmick.html?url=" + nowurl + "&" + checkquery;
+                self.top.window.location = url;
+            }
+        }
+    }
+
+    loadedFlag = true;
+    if(__ecmSessionId == undefined || __ecmSessionId == ''){
+        setTimeout('request_id()', 100);
+    }
+});
+
+/*
+ * ECMセッションID要求
+ */
+function request_id(){
+    if(__ecmSessionId == ''){
+        var frame = document.getElementById('auth_frame');
+        frame.contentWindow.postMessage('', '*');
+    } else {
+        setTimeout('load_fire()', 100);
+    }
+}
+
+/*
+ * 読込処理起動
+ */
+function load_fire(){
+   if(loadedFlag && __ecmSessionId != '' && !execedFlag){
+       execedFlag = true;
+       $('#load_bridge').trigger('change');
+   } else {
+       setTimeout('load_fire()', 100);
+   }
+}
+
+/*
+ * Cookieに値を格納
+ */
+function GetCookie(key){
+    var tmp = document.cookie + ";";
+    var index1 = tmp.indexOf(key, 0);
+    if(index1 != -1){
+        tmp = tmp.substring(index1,tmp.length);
+        var index2 = tmp.indexOf("=",0) + 1;
+        var index3 = tmp.indexOf(";",index2);
+        return(unescape(tmp.substring(index2,index3)));
+    }
+    return("");
+}
+
+/*
+ * Cookieの値を取得
+ */
+function SetCookie(key, val){
+    document.cookie = key + "=" + escape(val) + ";expires=Fri, 31-Dec-2030 23:59:59;";
+}
+</script>
+<script type="text/javascript" src="/soap/ajax/20.0/connection.js"></script>
+<script type="text/javascript" src="/soap/ajax/20.0/apex.js"></script>
+<script type="text/javascript">
+/**
+ * 同期GETメソッド(Deprecated)
+ */
+//function secureGet(__url, __data, __callback, __callerror){
+//    jsonpAccess(__url, __data, false, false, __callback, __callerror);
+//};
+
+/**
+ * 非同期GETメソッド
+ */
+function secureGetAsync(__url, __data, __callback, __callerror){
+    jsonpAccess(__url, __data, true, false, __callback, __callerror);
+};
+
+/**
+ * 同期POSTメソッド
+ */
+function securePost(__url, __data){
+    return toolKitAccess(__url, __data);
+};
+
+/**
+ * 非同期POSTメソッド(Deprecated)
+ */
+function securePostAsync(__url, __data, __callback, __callerror){
+
+    var userAgent = getBrowserType();
+
+    if ((userAgent.indexOf("Safari") > -1)||(userAgent.indexOf("Chrome") > -1)||(userAgent.indexOf("Firefox") > -1)) {
+        if(typeof(__data) == 'string'){
+            __data = JSON.parse(__data);
+        }
+        xhr2Access(__url, __data, true, false, __callback,__callerror);
+    } else {
+        silverlightAccess(__url, __data, __callback, __callerror);
+    }
+
+};
+
+/*
+ * 基底メソッド(JSONPベース)
+ */
+function jsonpAccess(__url, __data, __sync, __cache, __callback, __callerror){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = exceptionHandler;
+    }
+
+    var errorWrap = function(data, status, throwz){
+//        if(status == 'timeout'){
+//            CsoScript_loadingStop();
+//            data = '{!$Label.msg_01074}';
+//        }
+        __callerror(data, status, throwz);
+    };
+
+    $.ajax({
+            url     : _apiUrl + __url,
+            // GET固定
+            type    : 'GET',
+            data    : __data,
+            dataType: 'jsonp',
+            sync    : __sync,
+            cache   : __cache,
+//            timeout : 60000,
+            success : function(data, status){
+                          // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+                          if(data.result == false && data.resultInfo == undefined){
+                              alert(data.message);
+                              return;
+                          } else {
+                              // 正常にコールバックを実行する
+                              __callback(data, status);
+                          }
+                      },
+            error   : errorWrap
+    });
+}
+
+/*
+ * 基底メソッド(XHR2ベース)
+ */
+function xhr2Access(__url, __data, __sync, __cache, __callback, __callerror){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = exceptionHandler;
+    }
+
+    var errorWrap = function(data, status, throwz){
+//        if(status == 'timeout'){
+//            CsoScript_loadingStop();
+//            data = '{!$Label.msg_01074}';
+//        }
+        __callerror(data, status, throwz);
+    };
+
+    $.ajax({
+            url     : _apiUrl + __url,
+            // POST固定
+            type    : 'POST',
+            data    : __data,
+            dataType: 'json',
+            sync    : __sync,
+            cache   : __cache,
+//            timeout : 60000,
+            xhrFields: {
+                withCredentials: true
+            },
+            success : function(data, status){
+                // 正常にコールバックを実行する
+                __callback(data, status);
+            },
+            error   : errorWrap
+    });
+}
+
+
+/**
+ * 基底メソッド(SFDC tool kitベース)
+ */
+function toolKitAccess(__url, __data){
+    /*
+     * レスポンスをパースして返却
+     * エラーハンドリングは呼び出し元で処理する
+     */
+    return JSON.parse(sforce.apex.execute('CSOPostService', 'csoPost',{'url':__url, 'data' : JSON.stringify(__data), 'ecmSessionId' : __ecmSessionId}));
+}
+
+/*
+ * 例外ハンドラー
+ */
+var exceptionHandler = function(data, status, throwz){
+    if(throwz.indexOf('was not called') <= 0){
+        alert(data);
+    }
+};
+
+
+</script>
+
+</apex:page>

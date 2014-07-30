@@ -1,0 +1,395 @@
+<!-- CSO/WRと接続するための処理群 -->
+<apex:page showHeader="false" sidebar="false" controller="SOLXYZCSO001.WRCSOBridgeController">
+<!-- 認証フレーム -->
+<!-- 読込処理待機用オブジェクト -->
+<input type="text" id="load_bridge" style="display:none;" />
+
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery-1.5.2.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/Silverlight.js')}" />
+    <script type="text/javascript" src="{!URLFOR($Resource.WRCSO,'js/xdr.js')}"></script>
+    <script type="text/javascript">
+
+/*
+ * 読込処理待機用オブジェクト
+ */
+var load_handler = $('#load_bridge');
+
+/*
+ * API呼び出し先URL
+ */
+var _apiUrl = '{!$Label.field_csowebreport_url}';
+/*
+ * API呼び出し先URL（SF）
+ */
+var _apiUrlSf = '{!$Label.field_csowebreportSF_url}';
+/*
+* Nebraska接続
+*/
+var _apiUrlSfUser = '{!$Label.field_csowebreport_userapi_url}';
+
+/*
+ * ECMセッションID保持
+ */
+var __ecmSessionId = '';
+
+/*
+ * 読込完了フラグ
+ */
+var loadedFlag = false;
+
+/*
+ * 処理実行済みフラグ
+ */
+var execedFlag = false;
+
+
+/*
+ * 例外ハンドラー
+ */
+var exceptionHandler = function(data, status, throwz){
+    //alert(data);
+};
+
+/**
+ * 非同期GETメソッド
+ */
+function secureGetAsync(__url, __data, __callback, __callerror){
+    jsonpAccess(__url, __data, true, false, __callback, __callerror,"GET");
+};
+
+/**
+ * 非同期POSTメソッド(Deprecated)
+ */
+function securePostAsync(__url, __data, __callback, __callerror){
+    //jsonpAccess(__url, __data, true, false, __callback, __callerror, "POST");
+
+    var userAgent = getBrowserType();
+    //TODO CSOBridgeと違うので確認する
+    if ((userAgent.indexOf("Safari") > -1)||(userAgent.indexOf("Chrome") > -1)||(userAgent.indexOf("Firefox") > -1)||(userAgent.indexOf("IE11") > -1)) {
+    //if (userAgent.indexOf("Safari") > -1) {
+        if(typeof(__data) == 'string'){
+            __data = JSON.parse(__data);
+        }
+        xhr2Access(__url, __data, true, false, __callback,__callerror);
+    } else {
+        silverlightAccess(__url, __data, __callback, __callerror);
+    }
+};
+
+/*
+ * 基底メソッド(XHR2ベース)
+ */
+function xhr2Access(__url, __data, __sync, __cache, __callback, __callerror){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = exceptionHandler;
+    }
+
+    $.ajax({
+            url     : _apiUrlSf + __url,
+            // POST固定
+            type    : 'POST',
+            data    : __data,
+            dataType: 'json',
+            sync    : __sync,
+            cache   : __cache,
+            xhrFields: {
+                withCredentials: true
+            },
+            success : function(data, status){
+             // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+                          if(data.result == false && data.resultInfo == undefined){
+                              alert(data.message);
+                              return;
+                          } else {
+                              // 正常にコールバックを実行する
+                              __callback(data, status);
+                          }
+                      },
+            error   : __callerror
+    });
+}
+
+/*
+ * 基底メソッド(JSONPベース)
+ */
+function jsonpAccess(__url, __data, __sync, __cache, __callback, __callerror, __type, __complete){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = exceptionHandler;
+    }
+
+    if(__complete == undefined){
+        __complete = function(){}
+    }
+
+    $.ajax({
+            url     : _apiUrlSf + __url,
+            // GET固定
+            type    : __type,
+            data    : __data,
+            dataType: 'json',
+            sync    : __sync,
+            cache   : __cache,
+            success : function(data, status, xhr){
+                          // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+                          if(data.result == false && data.resultInfo == undefined){
+                              alert(data.message);
+                              return;
+                          } else {
+                              // 正常にコールバックを実行する
+                              __callback(data, status, xhr);
+                          }
+                      },
+            error   : __callerror,
+            complete : __complete
+    });
+}
+
+/**
+ * 非同期GETメソッド(SF)
+ * #既存に影響を与えないように別メソッドとする（2013/02/25）
+ */
+function secureGetAsyncSf(__url, __data, __callback, __callerror){
+    jsonpAccessSf(__url, __data, true, false, __callback, __callerror,"GET");
+};
+
+
+/**
+ * #非同期Getメソッド( Nebraska )
+ */
+function secureGetAsyncSfUser(__url, __data, __callback, __callerror){
+    jsonpAccessSfUser(__url, __data, true, false, __callback, __callerror,"GET");
+};
+
+/*
+ * 基底メソッド(SF)(JSONPベース)
+ * #既存に影響を与えないように別メソッドとする（2013/02/25）
+ */
+function jsonpAccessSfUser(__url, __data, __sync, __cache, __callback, __callerror, __type, __complete){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = exceptionHandler;
+    }
+
+    if(__complete == undefined){
+        __complete = function(){}
+    }
+
+    $.ajax({
+            url     : _apiUrlSfUser + __url,
+            // GET固定
+            type    : __type,
+            data    : __data,
+            dataType: 'json',
+            sync    : __sync,
+            cache   : __cache,
+            success : function(data, status, xhr){
+                          // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+                          if(data.result == false && data.resultInfo == undefined){
+                              alert(data.message);
+                              return;
+                          } else {
+                              // 正常にコールバックを実行する
+                              __callback(data, status, xhr);
+                          }
+                      },
+            error   : __callerror,
+            complete : __complete
+    });
+}
+
+/*
+ * 基底メソッド(SF)(XHR2ベース)
+ * #既存に影響を与えないように別メソッドとする（2013/02/25）
+ */
+function xhr2AccessSf(__url, __data, __sync, __cache, __callback, __callerror){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = exceptionHandler;
+    }
+
+    $.ajax({
+            url     : _apiUrlSf + __url,
+            // POST固定
+            type    : 'POST',
+            data    : __data,
+            dataType: 'json',
+            sync    : __sync,
+            cache   : __cache,
+            xhrFields: {
+                withCredentials: true
+            },
+            success : function(data, status){
+             // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+                          if(data.result == false && data.resultInfo == undefined){
+                              alert(data.message);
+                              return;
+                          } else {
+                              // 正常にコールバックを実行する
+                              __callback(data, status);
+                          }
+                      },
+            error   : __callerror
+    });
+}
+
+/*
+ * 基底メソッド(Nebraska)(XHR2ベース)
+ * #既存に影響を与えないように別メソッドとする（2014/03/04）
+ */
+function xhr2AccessSfUser(__url, __data, __sync, __cache, __callback, __callerror){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = exceptionHandler;
+    }
+
+    $.ajax({
+            url     : _apiUrlSfUser + __url,
+            // POST固定
+            type    : 'POST',
+            data    : __data,
+            dataType: 'json',
+            sync    : __sync,
+            cache   : __cache,
+            xhrFields: {
+                withCredentials: true
+            },
+            success : function(data, status){
+             // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+                          if(data.result == false && data.resultInfo == undefined){
+                              alert(data.message);
+                              return;
+                          } else {
+                              // 正常にコールバックを実行する
+                              __callback(data, status);
+                          }
+                      },
+            error   : __callerror
+    });
+}
+
+/*
+ * 基底メソッド(SF)(JSONPベース)
+ * #既存に影響を与えないように別メソッドとする（2013/02/25）
+ */
+function jsonpAccessSf(__url, __data, __sync, __cache, __callback, __callerror, __type, __complete){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = exceptionHandler;
+    }
+
+    if(__complete == undefined){
+        __complete = function(){}
+    }
+
+    $.ajax({
+            url     : _apiUrlSf + __url,
+            // GET固定
+            type    : __type,
+            data    : __data,
+            dataType: 'json',
+            sync    : __sync,
+            cache   : __cache,
+            success : function(data, status, xhr){
+                          // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+                          if(data.result == false && data.resultInfo == undefined){
+                              alert(data.message);
+                              return;
+                          } else {
+                              // 正常にコールバックを実行する
+                              __callback(data, status, xhr);
+                          }
+                      },
+            error   : __callerror,
+            complete : __complete
+    });
+}
+
+
+
+/**
+ * 非同期POSTメソッド(SF)
+ */
+function securePostAsyncSf(__url, __data, __callback, __callerror){
+    var userAgent = getBrowserType();
+
+    if ((userAgent.indexOf("Safari") > -1)||(userAgent.indexOf("Chrome") > -1)||(userAgent.indexOf("Firefox") > -1)||(userAgent.indexOf("IE11") > -1)) {
+        if(typeof(__data) == 'string'){
+            __data = JSON.parse(__data);
+        }
+        xhr2AccessSf(__url, __data, true, false, __callback,__callerror);
+    } else {
+        silverlightAccessSf(__url, __data, __callback, __callerror);
+    }
+};
+
+/**
+ * 非同期POSTメソッド(Nebraska)
+ */
+function securePostAsyncSfUser(__url, __data, __callback, __callerror){
+    var userAgent = getBrowserType();
+
+    if ((userAgent.indexOf("Safari") > -1)||(userAgent.indexOf("Chrome") > -1)||(userAgent.indexOf("Firefox") > -1)||(userAgent.indexOf("IE11") > -1)) {
+        if(typeof(__data) == 'string'){
+            __data = JSON.parse(__data);
+        }
+        xhr2AccessSfUser(__url, __data, true, false, __callback,__callerror);
+    } else {
+        silverlightAccessSfUser(__url, __data, __callback, __callerror);
+    }
+};
+
+/**
+ * 非同期GETメソッド(SF)
+ * CORSの対応を本体側で実施している場合に利用する
+ */
+function secureGetAsyncSfJsonAccess(__url, __data, __callback, __callerror){
+    jsonAccessSf(__url, __data, true, false, __callback, __callerror,"GET");
+};
+
+/*
+ * 基底メソッド(SF)(JSONベース)
+ * CORSの対応を本体側で実施している場合に利用する
+ */
+function jsonAccessSf(__url, __data, __sync, __cache, __callback, __callerror, __type, __complete){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = exceptionHandler;
+    }
+
+    if(__complete == undefined){
+        __complete = function(){}
+    }
+
+    $.ajax({
+            url     : _apiUrlSf + __url,
+            // GET固定
+            type    : __type,
+            data    : __data,
+            dataType: 'json',
+            sync    : __sync,
+            cache   : __cache,
+            success : function(data, status, xhr){
+                          // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+                          if(data.result == false && data.resultInfo == undefined){
+                              alert(data.message);
+                              return;
+                          } else {
+                              // 正常にコールバックを実行する
+                              __callback(data, status, xhr);
+                          }
+                      },
+            error   : __callerror,
+            complete : __complete
+    });
+}
+</script>
+</apex:page>

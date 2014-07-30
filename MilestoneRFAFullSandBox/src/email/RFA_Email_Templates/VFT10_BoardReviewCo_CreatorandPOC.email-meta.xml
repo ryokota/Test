@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>true</available>
+    <description>Information only Email Communication to Co-Creator/ Primary POC users when the RFA is pushed to Level &quot;Pending Board Review&quot;</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>VFT10 Board Review - Co Creator and POC</name>
+    <style>none</style>
+    <subject>ご参考まで（Information Only）:  is Pending Board Review</subject>
+    <type>visualforce</type>
+</EmailTemplate>

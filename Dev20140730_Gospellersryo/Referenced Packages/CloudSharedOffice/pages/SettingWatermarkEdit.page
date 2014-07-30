@@ -1,0 +1,897 @@
+<apex:page cache="false" sidebar="false" controller="SOLXYZCSO001.SettingWatermarkController" tabStyle="setting__tab" action="{!init}">
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_watermark == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_watermark == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.plupload.queue.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ecm-contents.css')}" />
+
+
+
+<style type="text/css">
+#editProfileMain {
+    width:100%;
+    height: 100%;
+}
+
+.separatorDiv{
+    position:relative;
+    width: 100%;
+    vertical-align: bottom;
+}
+
+#separatorDiv div{
+    color: white;
+    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+#detailDiv{
+    padding: 5px 0px 5px 10px;
+}
+
+#detailDiv table th{
+    text-align: right;
+    padding-right: 10px;
+    font-weight: bold;
+    white-space:nowrap;
+}
+
+#detailDiv table td {
+    white-space:nowrap;
+}
+
+.innerTable tbl01{
+color: #0000CD;
+}
+
+.historyTbl {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-left: 15px;
+}
+
+.historyTbl th{
+    font-weight: bold;
+    width: 100px;
+}
+
+.historyTbl *{
+}
+
+div.border {
+    border-style:solid;
+    border-width:1px;
+    border-color : #999999;
+    border-collapse:collapse;
+    width:500px;
+    height:400px;
+    overflow:auto;
+}
+.config_panel_slider .ui-widget-header {
+    border: 1px solid #4297d7;
+    background: #5c9ccc;
+    color: #ffffff;
+    font-weight: bold;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+.config_panel_slider .ui-slider-range {
+    border: 0
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/watermark.png')}" alt="{!$Label.solxyzcso001__label_10619}" title="{!$Label.solxyzcso001__label_10619}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_11009}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10619}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+
+
+                <apex:pageBlock >
+
+                    <!-- コマンドボタン -->
+                    <apex:pageBlockButtons >
+                        <input class="btn" type="button" value="{!$Label.label_00075}" onclick="okOnClick();" />
+                        <input class="btn" type="button" value="{!$Label.label_00058}" onclick="cancelOnClick();" />
+                    </apex:pageBlockButtons>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}"  collapsible="false"/>
+
+<div id ="editMain">
+    <div id="detailDiv">
+        <table>
+            <tr>
+                <td style="vertical-align: top;width:350px;">
+                    <table cellspacing="5" style="margin: 5px 0px 5px 10px;">
+                        <tr>
+                            <th>{!$Label.label_10450}</th>
+                            <td colspan="2"><input type="checkbox" name="WM_enabled" id="WM_enabled" /></td>
+                        </tr>
+                        <tr>
+                            <th>{!$Label.label_11043}</th>
+                            <td colspan="2">
+                                <div class="c_require" style="height:20px;">
+                                <input type="text" name="WM_name" id="WM_name" class="c_text_l required" style="width: 400px;" maxlength="100" />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{!$Label.label_10579}</th>
+                            <td colspan="2">
+                                <label><input type="checkbox" name="WM_timing" id="WM_timingSpace" />{!$Label.label_11013}</label>
+                                <label><input type="checkbox" name="WM_timing" id="WM_timingDelivery" />{!$Label.label_11014}</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{!$Label.label_10583}</th>
+                            <td><label><input type="radio" name="WM_method" id="WM_methodStamp" value="STAMP"/>{!$Label.label_10577}</label></td>
+                            <td><label><input type="radio" name="WM_method" id="WM_methodBackGround" value="BACKGROUND"/>{!$Label.label_10578}</label></td>
+
+                        </tr>
+                        <tr>
+                            <th>{!$Label.label_11059}</th>
+                            <td><label><input type="radio" name="WM_priority" id="WM_priorityOrganization" value="ORGANIZATION"/>{!$Label.label_11050}</label></td>
+                            <td><label><input type="radio" name="WM_priority" id="WM_prioritySpace"        value="SPACE"/>{!$Label.label_11051}</label></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <apex:include pageName="SOLXYZCSO001__SettingWatermarkPreviewCommonScript"/>
+                    <apex:include pageName="SOLXYZCSO001__SettingWatermarkEditPreviewScript"/>
+                    <apex:include pageName="SOLXYZCSO001__SettingWatermarkEditPreview"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="vertical-align: top;">
+                    <table class="historyTbl">
+                        <tr>
+                            <th id="WM_HeaderCreator">{!$Label.label_10015}</th>
+                            <td><span id="WM_registUserName"></span></td>
+                            <th id="WM_HeaderCreateDate">{!$Label.label_10005}</th>
+                            <td><span id="WM_registDate"></span></td>
+                        </tr>
+                        <tr>
+                            <th id="WM_HeaderUpdator">{!$Label.label_10024}</th>
+                            <td><span id="WM_updateUserName"></span></td>
+                            <th id="WM_HeaderUpdateDate">{!$Label.label_10006}</th>
+                            <td><span id="WM_updateDate"></span></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+<!-- 適用スペース -->
+    <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10586}"  collapsible="false"/>
+
+    <div id="applySpaceDiv" style="padding: 0 20px 0 20px">
+        <div class="c_command_l">
+            <ul class="c_command_pipe">
+                <li class="item">
+                    <input type="button" class="btn" onclick="removeSpace();" value="{!$Label.label_00072}"/>
+                </li>
+                <li class="last">
+                    <input type="button" class="btn" onclick="openAddSpace();" value="{!$Label.label_10020}"/>
+                </li>
+            </ul>
+        </div>
+        <!-- jqGrid -->
+        <div id="spaceList-container">
+            <table id="spaceList" ></table>
+            <div id="spaceListPager"></div>
+        </div>
+    </div>
+
+    <div id="addSpaceDialog" style="display: none;" >
+        <div>
+            {!$Label.msg_00275}
+            <div class="border">
+                <ul id="spaceTree" class="selectTree filetree">
+                </ul>
+            </div>
+            <div style="text-align:center;margin:5px;">
+                <input type="button" class="btn" onclick="return addSpace();"      value="{!$Label.label_00075}" />
+                <input type="button" class="btn" onclick="return closeAddSpace();" value="{!$Label.label_00058}" />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                </apex:pageBlock>
+
+
+            </td>
+        </tr>
+
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__SettingWatermarkEditScript"/>
+
+<script type="text/javascript">
+var WM_spaces = [];
+var _spaceTreeList = null;
+
+jQuery.event.add(window, "load", function(){
+
+    /*--  ブラウザの種類を保持  --*/
+    WM_browserType = getBrowserType();
+
+    /*--  IDを保持  --*/
+    WM_WatermarkId = "{!definitionId}";
+
+    /*--  設定情報を取得  --*/
+    var callback =  function(data, status){
+        if(!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+        initData(data);
+    };
+    var callerror =  function(data){
+        alert("WatermarkDetailApi:" + data);
+    };
+    secureGetAsync('/setup/WatermarkDetailApi.json?id=' + WM_WatermarkId, '', callback, callerror);
+
+    /*--  プレビュー部分の初期化  --*/
+    preview_ready();
+
+    /*--  適用スペースの初期化  --*/
+    initWatermarkSpaceList();
+});
+
+function initWatermarkSpaceList(){
+	var spaceTreeListCallback =  function(data, status){
+		if (data.result) {
+			_spaceTreeList = data["tree"];
+		}
+    };
+    secureGetAsync('/setup/spaceTreeListGetApi.json', ' ', spaceTreeListCallback);
+
+    /*--  編集の場合  --*/
+    if(WM_WatermarkId != ""){
+
+        var callback =  function(data, status){
+            for(i=0;i<data.records;i++){
+                WM_spaces.push({
+                    id : data.rows[i].id,
+                    space_name : data.rows[i].space_name,
+                    space_info : data.rows[i].space_info
+                });
+            }
+            var opt = {
+                    data : WM_spaces,
+                    datatype: "local"
+            };
+            $('#spaceList').clearGridData();
+            $('#spaceList').setGridParam(opt);
+            $('#spaceList').trigger("reloadGrid");
+        };
+        var callerror =  function(data){
+            alert("WatermarkSpaceListApi:" + data);
+        };
+
+        var searchQuery = {
+                page : 1,
+                rows : 1000000,
+                sord : "asc",
+                sidx : "id",
+                nd : "_",
+                _search : "false"
+        }
+
+        secureGetAsync('/setup/WatermarkSpaceListApi.json?id=' + WM_WatermarkId, searchQuery, callback, callerror);
+    }
+
+    var rows = $.cookie("watermarkSpaceRows");
+    if (!rows) {
+        rows = 50;
+    }
+
+    $("#spaceList").jqGrid({
+        data : WM_spaces,
+        datatype: "local",
+        jsonReader :{
+            repeatitems: false,
+            id : "id"
+        },
+        colNames:['',
+                  '{!$Label.label_10155}',
+                  ''],
+        colModel:[
+                    {name:'id',         index:'id',         hidden:true},
+                    {name:'space_info', index:'space_name', width:550},
+                    {name:'space_name', index:'space_name', hidden:true}
+                ],
+        rowNum:50,
+        height: 200,
+        width: $("#RightPane").width(),
+        rowList:[10,50,100],
+        sortname: 'space_name',
+        pager: '#spaceListPager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        loadComplete: function(data){
+            var r = $(this).getGridParam("rowNum");
+            $.cookie("watermarkSpaceRows", $(this).getGridParam("rowNum"));
+        }
+    });
+
+    $("#addSpaceDialog").dialog({
+        autoOpen : false,
+        modal : true,
+        title : "{!$Label.label_10155}",
+        width : 530,
+        height : 500
+    });
+
+    var spaceTreeCallback =  function(data, status){
+        if (!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+
+        $("#spaceTree").children().remove();
+        var branches = $(data["tree"]).appendTo("#spaceTree");
+        $("#spaceTree").treeview({
+            collapsed: true,
+            add: branches
+
+            ,
+            url: "/setup/SpaceTreeChildrenApi.json",
+           	callback: function(elements){
+				setTimeout(function(){
+					var $ul = elements;
+					var $li = $ul.children("li");
+
+					var existInterLock = false;		//-- 下位連動フラグの有無（false:下位連動なし、true:下位連動あり） --%>
+					var interlock = "";				//-- 下位連動フラグの値（"checked":チェックする、"":チェックしない） --%>
+
+					//-- 下位連動フラグがあった場合 --%>
+					var objChk = $("#spaceTree").find("input[id=" + elements.prevObject[0].id + "]");
+					if(objChk.attr("interlock") != null){
+						existInterLock = true;
+						if(objChk.attr("interlock") == "true"){
+							interlock = objChk.attr("interlock");
+						}
+					}
+
+					//-- [下位連動]する場合 --%>
+					if(existInterLock == true) {
+						$li.each(function() {
+							var obj = $("#spaceTree").find("input[id=" + $(this).attr("id") + "]");
+							//-- 下位にも[下位連動]フラグ(interlock)を付加する --%>
+							obj.attr("interlock", interlock);
+							//-- 連動する --%>
+							obj.attr("checked", interlock);
+						});
+						return false;
+					}
+
+					var ids = $("#spaceList").getGridParam("data");
+					$("input[type=checkbox]", $("#spaceTree")).each(function() {
+						var id = $(this).attr("id");
+						for (var i in ids) {
+							if (ids[i].id == id) {
+								var lookup = false;
+								$li.each(function() {
+									if ($(this).attr("id") == id) {
+										lookup = true;
+										return false;
+									}
+								});
+								if (lookup) {
+									$(this).attr("checked", true);
+								}
+								break;
+							}
+						}
+					});
+				},100);
+			},
+        });
+        $("#spaceTreeLoading").hide();
+    };
+    var spaceTreeCallerror =  function(data){
+        alert("VersionSettingSpaceTreeGet:" + data);
+    };
+
+    //secureGetAsync('/setup/VersionSettingSpaceTreeGet.json', ' ', spaceTreeCallback, spaceTreeCallerror);
+    secureGetAsync('/setup/SpaceTreeRootApi.json', ' ', spaceTreeCallback, spaceTreeCallerror);
+}
+
+function initData(data){
+    var info = data.detail.info;
+
+    WM_ImageFileInfoIdOld = info.imageAttr.imgId;
+
+    /*--  uploaderの初期化  --*/
+    uploaderInit();
+
+
+    if(WM_WatermarkId == ""){
+        hideRegisterInfo();
+    }
+    WM_displayInit(data);
+    $('#WM_name').val(info.name);                               /*--  定義名    --*/
+    if(info.priority == 0){                                     /*--  優先設定  --*/
+        $('#WM_priorityOrganization').attr('checked', 'checked');
+    }
+    else{
+        $('#WM_prioritySpace').attr('checked', 'checked');
+    }
+    $('#WM_registUserName').text(data.detail.registUserName);   /*--  作成者    --*/
+    $('#WM_registDate').text(data.detail.registDate);           /*--  作成日    --*/
+    $('#WM_updateUserName').text(data.detail.updateUserName);   /*--  更新者    --*/
+    $('#WM_updateDate').text(data.detail.updateDate);           /*--  更新日    --*/
+    WM_loadStringImage(data);
+    WM_displayInit2(data);
+    resizeGrid();
+    $(window).resize(resizeGrid);
+}
+
+function hideRegisterInfo(){
+    $("#WM_HeaderCreator").text("");
+    $("#WM_HeaderCreateDate").text("");
+    $("#WM_HeaderUpdator").text("");
+    $("#WM_HeaderUpdateDate").text("");
+}
+
+function resizeGrid(){
+    var height = getBrowserHeight() - 570;
+    $("#spaceList").setGridWidth(1);
+    $("#spaceList").setGridWidth($("#spaceList-container").innerWidth());
+
+    if (height >= 270) {
+        $("#spaceList").setGridHeight(height);
+    }
+}
+
+function cancelOnClick(){
+    var callback = function(data){
+        cancelOnClickMain();
+    };
+    var callerror =  function(data){
+        alert("WatermarkImageRemoveApi:" + data);
+        cancelOnClickMain();
+    };
+    securePostAsync('/setup/WatermarkImageRemoveApi.json', {"dummy":"dummy"}, callback, callerror);
+}
+function cancelOnClickMain(){
+    if("{!type}" == "detail"){
+        location.href = "SettingWatermarkDetail?id=" + WM_WatermarkId;
+    } else {
+        location.href = "SettingWatermarkList";
+    }
+}
+
+function okOnClick(){
+    $(".btn").attr("disabled", "disabled");
+
+
+    /*-- -------------- --*/
+    /*-- エラーチェック --*/
+    /*-- -------------- --*/
+    WM_err = false;
+    /*-- 定義名チェック --*/
+    if ($("#WM_name").val() == "") {
+        WM_err = true;
+        alert('{!$Label.msg_01025}');
+    } else if($("#WM_name").val().match(/^.*[(\\|/|\*|:|?|\"|\'|<|>|\|)].*$/)){
+        WM_err = true;
+        alert('{!$Label.msg_00293}');
+    } else if ($("#WM_name").val().length > 100) {
+        WM_err = true;
+        alert('{!$Label.msg_00277}');
+    }
+
+    /*-- その他のチェック --*/
+    WM_checkInputData();
+
+    /*-- エラーがあった場合 --*/
+    if (WM_err == true){
+        $(".btn").removeAttr("disabled");
+        return false;
+    }
+
+    /*-- ------------------ --*/
+    /*-- デフォルト値の設定 --*/
+    /*-- ------------------ --*/
+    setPreviewDefaultValue();
+
+    /*-- ---------------- --*/
+    /*-- パラメータの生成 --*/
+    /*-- ---------------- --*/
+    var query = {
+            id              : WM_WatermarkId,
+            name            : $('#WM_name').val(),
+            enabled         : $("#WM_enabled").attr("checked"),
+            timingSpace     : $('#WM_timingSpace').attr('checked'),
+            timingDelivery  : $('#WM_timingDelivery').attr('checked'),
+            targetTimestamp : WM_TargetTimestamp,
+            targetUsername  : WM_TargetUserName,
+            targetUserid    : WM_TargetUserId,
+            targetImage     : WM_TargetUserImage,
+            targetCorp      : WM_TargetCorp,
+            targetPost      : WM_TargetPost,
+            targetNumber    : WM_TargetNumber,
+            targetEmail     : WM_TargetEmail,
+            targetText      : WM_TargetText,
+            method          : $("input[name=WM_method]:checked").val(),
+            priority        : $("input[name=WM_priority]:checked").val(),
+
+            /*-- タイムスタンプ --*/
+            timestampPosition : PDF_ItemPosNoTimestamp,
+            timestampAngle    : $('#' + PDF_ID_SliderAngleValueTimestamp).val(),
+            timestampTrans    : $('#' + PDF_ID_SliderAlphaValue).val(),
+            timestampSize     : $('#PDF_FontSizeTextTimestamp').val(),
+            timestampFormat   : $('#PDF_FormatTextTimestamp').val(),
+            timestampColor    : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Timestamp).val(),
+            /*-- ユーザ名 --*/
+            usernamePosition  : PDF_ItemPosNoUserName,
+            usernameAngle     : $('#' + PDF_ID_SliderAngleValueUserName).val(),
+            usernameTrans     : $('#' + PDF_ID_SliderAlphaValue).val(),
+            usernameSize      : $('#PDF_FontSizeTextUserName').val(),
+            usernameColor     : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_UserName).val(),
+            /*-- ユーザID --*/
+            useridPosition    : PDF_ItemPosNoUserId,
+            useridAngle       : $('#' + PDF_ID_SliderAngleValueUserId).val(),
+            useridTrans       : $('#' + PDF_ID_SliderAlphaValue).val(),
+            useridSize        : $('#PDF_FontSizeTextUserId').val(),
+            useridColor       : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_UserId).val(),
+            /*-- 画像 --*/
+            imagePosition     : PDF_ItemPosNoUserImage,
+            imageAngle        : $('#' + PDF_ID_SliderAngleValueUserImage).val(),
+            imageTrans        : $('#' + PDF_ID_SliderAlphaValue).val(),
+            imageWidth        : $('#PDF_SpinWidth').val(),
+            imageHeight       : $('#PDF_SpinHeight').val(),
+            imageFileName     : $("#WM_fileName").val(),
+            imageFileInfoId   : PDF_UploadFileId,
+            imageFileInfoIdOld: WM_ImageFileInfoIdOld,
+            /*-- 所属組織 --*/
+            corpPosition      : PDF_ItemPosNoCorp,
+            corpAngle         : $('#' + PDF_ID_SliderAngleValueCorp).val(),
+            corpTrans         : $('#' + PDF_ID_SliderAlphaValue).val(),
+            corpSize          : $('#PDF_FontSizeTextCorp').val(),
+            corpColor         : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Corp).val(),
+            /*-- 部署・役職 --*/
+            postPosition      : PDF_ItemPosNoPost,
+            postAngle         : $('#' + PDF_ID_SliderAngleValuePost).val(),
+            postTrans         : $('#' + PDF_ID_SliderAlphaValue).val(),
+            postSize          : $('#PDF_FontSizeTextPost').val(),
+            postColor         : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Post).val(),
+            /*-- 社員番号 --*/
+            numberPosition    : PDF_ItemPosNoNumber,
+            numberAngle       : $('#' + PDF_ID_SliderAngleValueNumber).val(),
+            numberTrans       : $('#' + PDF_ID_SliderAlphaValue).val(),
+            numberSize        : $('#PDF_FontSizeTextNumber').val(),
+            numberColor       : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Number).val(),
+            /*-- メールアドレス --*/
+            emailPosition     : PDF_ItemPosNoEmail,
+            emailAngle        : $('#' + PDF_ID_SliderAngleValueEmail).val(),
+            emailTrans        : $('#' + PDF_ID_SliderAlphaValue).val(),
+            emailSize         : $('#PDF_FontSizeTextEmail').val(),
+            emailColor        : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Email).val(),
+            /*-- フリーテキスト --*/
+            textPosition      : PDF_ItemPosNoText,
+            textAngle         : $('#' + PDF_ID_SliderAngleValueText).val(),
+            textTrans         : $('#' + PDF_ID_SliderAlphaValue).val(),
+            textSize          : $('#PDF_FontSizeTextText').val(),
+            textColor         : $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Text).val(),
+            textText          : $('#PDF_FreeText').val(),
+
+            spaces            : JSON.stringify(WM_spaces)
+    }
+
+    /*-- -------- --*/
+    /*-- 登録処理 --*/
+    /*-- -------- --*/
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+        CsoScript_loadingStop();
+        cancelOnClick();
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("WatermarkEditApi:" + data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    CsoScript_loadingStart();
+    securePostAsync('/setup/WatermarkEditApi.json', query, callback, callerror);
+
+    return true;
+}
+
+function openAddSpace() {
+    var ids = $("#spaceList").getGridParam("data");
+    $("input[type=checkbox]", $("#spaceTree")).each(function() {
+        var id = $(this).attr("id");
+        var checked = false;
+        for (var i in ids) {
+            if (ids[i].id == id) {
+                checked = true;
+                break;
+            }
+        }
+        $(this).attr("checked", checked);
+    });
+    $("#addSpaceDialog").dialog("open");
+    return false;
+}
+
+function clickSpace(obj, id) {
+    var checked = $(obj).attr("checked");
+    var p = $(obj).parent().parent();
+    var c = $("input[type=checkbox]", p);
+
+	c.attr({checked:checked, interlock:checked});
+}
+
+function closeAddSpace() {
+    $("#addSpaceDialog").dialog("close");
+    return false;
+}
+
+function addSpace() {
+
+	var spaces = [];
+	$(WM_spaces).each(function() {
+		if ($("#spaceTree").find("li#" + this.id).length < 1) {
+			spaces.push(this);
+		}
+	});
+	var escaper = $('<div/>');
+    $("input[type=checkbox]:checked", $("#spaceTree")).each(function() {
+		var spaceId = $(this).attr("id");
+
+		var bExists = false;
+		$(WM_spaces).each(function() {
+			if (this.id == spaceId) {
+				spaces.push(this);
+				 bExists = true;
+				return false;
+			}
+		});
+
+		if(bExists == true){
+			return true;
+		}
+
+        var space = {
+            id : $(this).attr("id"),
+            space_info : "<div class='jqgrid-list-standard-name-top'>" + escaper.text($(this).attr("spacename")).html() + "</div><div class='jqgrid-list-standard-name-bottom'>" + escaper.text($(this).attr("path")).html() + "</div>",
+            space_name : $(this).attr("spacename")
+        };
+        spaces.push(space);
+
+		var $li = $("#spaceTree").find("li#" + spaceId);
+		if($li.hasClass("hasChildren")){
+			if(_spaceTreeList != null){
+				for(var i = 0; i < _spaceTreeList.length; i++){
+					var info = _spaceTreeList[i];
+					var path = info.parentPath;
+					if(!path){
+					}else{
+						//-- 重複チェック --%>
+						var bExists = false;
+						for(var idx = 0; idx < spaces.length; idx++){
+							if(spaces[idx].id == info.spaceId){
+								bExists = true;
+								break;
+							}
+						}
+						if(bExists == true){
+							continue;
+						}
+
+						if(path.indexOf(spaceId)!=-1){
+							var space = {
+								id : info.spaceId,
+								space_info : "<div class='jqgrid-list-standard-name-top'>" + escaper.text(info.spaceName).html() + "</div><div class='jqgrid-list-standard-name-bottom'>" + escaper.text(info.spacePath).html() + "</div>",
+								space_name : info.spaceName
+							};
+							spaces.push(space);
+						}
+					}
+				}
+			}
+		}
+    });
+
+	//-- 選択したスペース一覧から、下位連動で未選択とされたスペースを削除 --%>
+	$("#spaceTree").find("input[type=checkbox][interlock=false]").each(function(){
+		var spaceId = $(this).context.id;
+		var $li = $("#spaceTree").find("li#" + spaceId);
+		if($li.hasClass("hasChildren")){
+			if(_spaceTreeList != null){
+				for(var i = 0; i < _spaceTreeList.length; i++){
+					var info = _spaceTreeList[i];
+					var path = info.parentPath;
+					if(!path){
+					}else{
+						if(path.indexOf(spaceId)!=-1){
+							for(var idx = 0; idx < spaces.length; idx++){
+								if(spaces[idx].id == info.spaceId){
+									spaces.splice(idx, 1);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	});
+
+    $("#addSpaceDialog").dialog("close");
+
+    $("#spaceList").clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+    
+    WM_spaces = spaces;
+    
+    return false;
+}
+
+function removeSpace() {
+
+    var selected = $("#spaceList").getGridParam("selarrrow");
+    if (selected.length == 0) {
+        alert('{!$Label.msg_01034}');
+        return false;
+    }
+
+    if (!confirm('{!$Label.msg_00276}')) {
+        return false;
+    }
+
+    var ids = WM_spaces;
+    WM_spaces = [];
+    for (var i=0; i<ids.length; i++) {
+        var k = ids[i];
+        if (jQuery.inArray(k.id, selected) < 0) {
+            WM_spaces.push(k);
+        }
+    }
+
+    $("#spaceList").clearGridData().setGridParam({data : WM_spaces}).trigger("reloadGrid");
+
+    return false;
+}
+</script>
+
+
+<!-- "Display None" attribute Panel or ContextMenu -->
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

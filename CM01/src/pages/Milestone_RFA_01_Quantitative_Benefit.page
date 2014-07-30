@@ -1,0 +1,171 @@
+<apex:page standardController="RFA__c" sidebar="false" extensions="Milestone_RFA_01_QuantitativeBenefitCtrl">
+<style>
+.borderTable {
+
+    border: solid 1px black;
+    border-color:#ECECEC;
+    border-collapse:collapse;
+    padding: 5px;
+    width : 100%;
+}
+.borderTable th{
+    font-weight: bold;
+    height:20px;
+    width:90px;
+    white-space: normal;
+    border: 1px solid black;
+    background-color: #d60016;
+    color: #FFFFFF;
+}
+.borderTable td{
+    white-space: normal;
+    height:20px;
+    width:90px;
+}
+
+.tdBorder {
+    border: 1px solid black;
+}
+.tdLeftNotBorder {
+    border: 1px solid black;
+    border-left-style:none;
+}
+.tdRightNotBorder {
+    border: 1px solid black;
+    border-right-style:none;
+}
+
+span.dateFormat {display: none;}
+</style>
+
+<apex:includeScript value="{!URLFOR($Resource.jQueryGantt, 'jquery.min.js')}"   />
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+    inputDisable();
+});
+
+function inputEnable(){
+    $j("input[class$=editbtn]").show();
+    $j("input[id$=editButton]").hide();
+    
+    $j("input[type=checkbox]").attr("disabled", false);
+    $j("select[class$=yearlist]").attr("disabled", false);
+    $j("input[type=text]").removeAttr("disabled");
+    $j("input[type=text]").removeClass("disabled");
+    $j("table[class=borderTable]").find("select").removeAttr("disabled");
+}
+
+function inputDisable(){
+    $j("input[class$=editbtn]").hide();
+    $j("input[id$=editButton]").show();
+    
+    $j("input[type=checkbox]").attr("disabled", true);
+    $j("select[class$=yearlist]").attr("disabled", true);
+    $j("input[type=text]").attr("disabled", true);
+    $j("input[type=text]").addClass("disabled");
+    $j("table[class=borderTable]").find("select").attr("disabled","disabled");
+}
+
+</script>
+    <apex:form >
+    	<apex:pageBlock >
+	    	<apex:outputPanel id="main-panel" layout="block">
+		    	<table>
+		    		<tr >
+		    			<td align="center">
+		    				<input type="button" id="editButton" class="detailbtn" value="Edit" onclick="inputEnable()" />
+		    				<apex:commandButton id="saveButton" styleClass="editbtn" value="Save" action="{!saveSynergy}" oncomplete="inputDisable()" reRender="listPanel" />
+		        			<apex:commandButton id="cancelButton" styleclass="editbtn" value="Cancel" action="{!editCancel}" immediate="true" oncomplete="inputDisable()" reRender="listPanel" />
+		        		</td>
+		    		</tr>
+		    	</table>
+		        <table>
+		        	<tr>
+		        		<td>
+		        			<apex:selectList styleClass="yearlist" value="{!year}" size="1" multiselect="false" onChange="changeYear();">
+		        				<apex:selectOptions value="{!yearOption}" />
+		        			</apex:selectList>
+		        			<apex:actionFunction name="changeYear" action="{!changeYear}" reRender="listPanel" />
+		        			<apex:outputLabel value="{!$Label.RM_Year}"/>
+						</td>
+					</tr>
+				</table>
+		    	<apex:outputPanel id="listPanel">
+			        <br/>
+			 		<H1>{!$Label.RM_Quantitative_Benefit_Spending_Rough_Estimate_in_MM_Yen}</H1>
+			        <table class="borderTable" >
+			        	<thead>
+				        	<tr class="year-row">
+				        		<th>{!$Label.RM_Name}</th>
+			                    <th>{!$Label.RM_Function}</th>
+			                    <th width="20px">Q1</th>
+			                    <th>Q2</th>
+			                    <th>Q3</th>
+			                    <th>Q4</th>
+			                    <th><apex:outputText id="ThisYear" value="{!thisYear}"/></th>
+			                    <th>Q1</th>
+			                    <th>Q2</th>
+			                    <th>Q3</th>
+			                    <th>Q4</th>
+				        		<apex:repeat value="{!headerYear}" var="e" >
+				        			<th><apex:outputText value="{!e}" /></th>
+				        		</apex:repeat>
+				        		<th>{!$Label.RM_Total}</th>
+	                		</tr>
+			        	</thead>
+			        	<apex:repeat value="{!spendingSynergyHistory.records}" var="v_SynergyHistory">
+				        	<tr>
+				        		<td>
+				        			<apex:selectList styleClass="yearlist" value="{!v_SynergyHistory.RM_Name__c}" size="1" multiselect="false">
+				        				<apex:selectOptions value="{!nameOption}" />
+				        			</apex:selectList>
+				        		</td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_Function__c}" /></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_This_Year_Q1__c}" style="width:90%;"/></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_This_Year_Q2__c}" style="width:90%;"/></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_This_Year_Q3__c}" style="width:90%;"/></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_This_Year_Q4__c}" style="width:90%;"/></td>
+				        		<td><apex:outputField value="{!v_SynergyHistory.RM_This_Year_Formula__c}" style="width:90%;"/></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_Next_Year_Q1__c}" style="width:90%;"/></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_Next_Year_Q2__c}" style="width:90%;"/></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_Next_Year_Q3__c}" style="width:90%;"/></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_Next_Year_Q4__c}" style="width:90%;"/></td>
+				        		<td><apex:outputField value="{!v_SynergyHistory.RM_Next_Year_Formula__c}" style="width:90%;"/></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_The_Year_After_Next__c}" style="width:90%;"/></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_Three_Years_Later__c}" style="width:90%;"/></td>
+				        		<td><apex:inputField value="{!v_SynergyHistory.RM_Four_Years_Later__c}" style="width:90%;"/></td>
+				        		<td><apex:outputField value="{!v_SynergyHistory.RM_Total__c}" style="width:90%;"/></td>
+				        	</tr>
+			        	</apex:repeat>
+			        	<tfoot>
+			        		<tr>
+			        			<td>{!$Label.RM_Total}</td>
+			        			<td></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.thisYearQ1}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.thisYearQ2}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.thisYearQ3}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.thisYearQ4}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.thisYearTotal}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.nextYearQ1}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.nextYearQ2}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.nextYearQ3}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.nextYearQ4}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.nextYearTotal}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.theYearAfterNext}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.threeYearsLater}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.fourYearsLater}" /></td>
+			        			<td><apex:outputText value="{!spendingSynergyHistory.total}" /></td>
+			        		</tr>
+			        	</tfoot>
+			        </table>
+					<apex:pageblocksection columns="1" showheader="false">
+				        <apex:inputfield Value="{!rfa.RM_Detail_Document_Attached_Y_N_3__c}"/>
+				        <apex:inputfield Value="{!rfa.RM_PaybackPeriodYears__c}" required="false"/>
+					</apex:pageblocksection>
+		        </apex:outputPanel>
+	        </apex:outputPanel>
+        </apex:pageBlock>
+	</apex:form>
+</apex:page>

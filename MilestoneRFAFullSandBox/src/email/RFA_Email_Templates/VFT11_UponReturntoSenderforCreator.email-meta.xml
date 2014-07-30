@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>true</available>
+    <description>Notify the record creator when the RFA is sent back to the sender</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>VFT11 Upon Return to Sender for Creator</name>
+    <style>none</style>
+    <subject>要確認（Action Required）:  Returned to Sender</subject>
+    <type>visualforce</type>
+</EmailTemplate>

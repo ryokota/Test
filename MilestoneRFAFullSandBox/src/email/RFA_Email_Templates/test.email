@@ -1,0 +1,27 @@
+<!-- 
+    Email template for notifying POC and CO-Creator when the RFA is pushed to Circulation Stage.
+    Related To : RFAUserRole__c
+ -->
+<messaging:emailTemplate>
+<messaging:htmlEmailBody >
+<html>
+<body>
+<div style = " font-size:14px;">
+<p>このEメールは、下記承認申請の参照者の方へお送りしています。<BR/>You are receiving this email because you were identified to receive an informational only copy of the following RFA.</p>
+<p>案件名 (Request Title) : </BR>
+{!RFA__c.RequestTitle__c}</p>  
+<p>コストセンター (Cost Center) : </BR>
+{!RFA__c.CostCenterName__c}</p>  
+<p>申請合計金額 (Request Amount) : </BR>
+¥ {!RFA__c.RequestAmountFunctionalCurrency__c}</p>   
+<p><B>内容を確認する場合には下記リンクをクリックし、承認申請リクエストの文書を開いてください:<BR/>Click this link to open the RFA Request Document:<BR/>
+<a href="{!RFA__c.Link}">{!RFA__c.Name}</a></B></p>
+<BR/>
+<p>ご質問がございましたら、<a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a> へご連絡ください。<BR/>
+If you have any inquiries kindly contact <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a>.
+</p>
+</div>    
+</body>
+</html>
+</messaging:htmlEmailBody>
+</messaging:emailTemplate>

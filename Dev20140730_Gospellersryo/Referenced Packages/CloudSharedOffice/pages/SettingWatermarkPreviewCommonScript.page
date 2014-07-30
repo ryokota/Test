@@ -1,0 +1,255 @@
+<apex:page cache="false" >
+
+<script type="text/javascript">
+/*-- =======//
+//  定  数  //
+//======= --*/
+/*--  キャンバスのID  --*/
+var PDF_ID_PreviewCanvas = "preview_canvas";
+/*--  透かし項目のID  --*/
+var PDF_ID_PreviewObject             = "PDF_PreviewObject";
+var PDF_ID_PreviewObjectUserId       = "PDF_PreviewObjectUserId";           /*--  ユーザID        --*/
+var PDF_ID_PreviewObjectUserName     = "PDF_PreviewObjectUserName";         /*--  ユーザ名        --*/
+var PDF_ID_PreviewObjectTimestamp    = "PDF_PreviewObjectTimestamp";        /*--  タイムスタンプ  --*/
+var PDF_ID_PreviewObjectUserImage    = "PDF_PreviewObjectUserImage";        /*--  画像            --*/
+var PDF_ID_PreviewObjectCorp         = "PDF_PreviewObjectCorp";             /*--  所属組織        --*/
+var PDF_ID_PreviewObjectPost         = "PDF_PreviewObjectPost";             /*--  部署・役職      --*/
+var PDF_ID_PreviewObjectNumber       = "PDF_PreviewObjectNumber";           /*--  社員番号        --*/
+var PDF_ID_PreviewObjectEmail        = "PDF_PreviewObjectEmail";            /*--  メールアドレス  --*/
+var PDF_ID_PreviewObjectText         = "PDF_PreviewObjectText";             /*--  フリーテキスト  --*/
+
+/*--  表示位置のデフォルト  --*/
+var PDF_ItemPosNoDefault = 5;
+/*--  フォーマットのデフォルト  --*/
+var PDF_TimestampFormatDefault = "yyyy/MM/dd HH:mm:ss";
+/*--  文字列画像の文字フォントサイズ  --*/
+var PDF_StringImageFontSize = 10;
+/*--  プレビュー領域の横幅（px）  --*/
+var PDF_PreviewWidth = 234;
+/*--  A4縦の横幅（px）  --*/
+var PDF_PaperWidthA4 = 793;
+/*--  プレビュー領域とA4用紙の比率  --*/
+var PDF_RATIO_BASE = PDF_PreviewWidth / PDF_PaperWidthA4;
+/*--  A4を基準とした時の透かし対象のサイズの倍率  --*/
+var PDF_RATIO_A4 = 1.00;
+var PDF_RATIO_A3 = 0.70;
+var PDF_RATIO_B4 = 0.82;
+var PDF_RATIO_B5 = 1.15;
+
+/*--  画像読み込みに失敗した時の変わりの画像  --*/
+var WM_LoadImageErrFile = "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/001_05.gif')}";
+
+/*-- =======//
+//  変  数  //
+//======= --*/
+/*--  画像の初期化フラグ  --*/
+var WM_InitLoadImageUserId    = false;
+var WM_InitLoadImageUserName  = false;
+var WM_InitLoadImageTimestamp = false;
+var WM_InitLoadImageUserImage = false;
+var WM_InitLoadImageCorp      = false;
+var WM_InitLoadImagePost      = false;
+var WM_InitLoadImageNumber    = false;
+var WM_InitLoadImageEmail     = false;
+var WM_InitLoadImageText      = false;
+var WM_LoadTextImage          = false;
+/*--  透かし対象か否かを保持  --*/
+var WM_TargetUserId           = false;
+var WM_TargetUserName         = false;
+var WM_TargetTimestamp        = false;
+var WM_TargetUserImage        = false;
+var WM_TargetCorp             = false;
+var WM_TargetPost             = false;
+var WM_TargetNumber           = false;
+var WM_TargetEmail            = false;
+var WM_TargetText             = false;
+/*--  透かし項目の表示位置を保持  --*/
+var PDF_ItemPosNoUserId    = PDF_ItemPosNoDefault;  /*--  ユーザID        --*/
+var PDF_ItemPosNoUserName  = PDF_ItemPosNoDefault;  /*--  ユーザ名        --*/
+var PDF_ItemPosNoTimestamp = PDF_ItemPosNoDefault;  /*--  タイムスタンプ  --*/
+var PDF_ItemPosNoUserImage = PDF_ItemPosNoDefault;  /*--  画像            --*/
+var PDF_ItemPosNoCorp      = PDF_ItemPosNoDefault;  /*--  所属組織        --*/
+var PDF_ItemPosNoPost      = PDF_ItemPosNoDefault;  /*--  部署・役職      --*/
+var PDF_ItemPosNoNumber    = PDF_ItemPosNoDefault;  /*--  社員番号        --*/
+var PDF_ItemPosNoEmail     = PDF_ItemPosNoDefault;  /*--  メールアドレス  --*/
+var PDF_ItemPosNoText      = PDF_ItemPosNoDefault;  /*--  フリーテキスト  --*/
+/*--  画像サイズを保持  --*/
+var PDF_ImageSizeUserId    = {width: 0, height: 0}; /*--  ユーザID        --*/
+var PDF_ImageSizeUserName  = {width: 0, height: 0}; /*--  ユーザ名        --*/
+var PDF_ImageSizeTimestamp = {width: 0, height: 0}; /*--  タイムスタンプ  --*/
+var PDF_ImageSizeUserImage = {width: 0, height: 0}; /*--  画像            --*/
+var PDF_ImageSizeCorp      = {width: 0, height: 0}; /*--  所属組織        --*/
+var PDF_ImageSizePost      = {width: 0, height: 0}; /*--  部署・役職      --*/
+var PDF_ImageSizeNumber    = {width: 0, height: 0}; /*--  社員番号        --*/
+var PDF_ImageSizeEmail     = {width: 0, height: 0}; /*--  メールアドレス  --*/
+var PDF_ImageSizeText      = {width: 0, height: 0}; /*--  フリーテキスト  --*/
+/*--  ブラウザタイプ  --*/
+var WM_browserType = "";
+
+function getItemPosX(posNo){
+    var x = 0;
+    switch (posNo){
+        case 1:
+        case 2:
+        case 3:
+            x = 0;
+            break;
+        case 4:
+        case 5:
+        case 6:
+            x = 3;
+            break;
+        case 7:
+        case 8:
+        case 9:
+            x = 6;
+            break;
+    }
+
+    return x;
+}
+function getItemPosY(posNo){
+    var y = 0;
+    switch (posNo){
+        case 1:
+        case 4:
+        case 7:
+            y = 1;
+            break;
+        case 2:
+        case 5:
+        case 8:
+            y = 2;
+            break;
+        case 3:
+        case 6:
+        case 9:
+            y = 3;
+            break;
+    }
+
+    return y;
+}
+function itemRearrangeExec(canvas, target, x, y){
+    /*-- ---------------- --*/
+    /*--  配置座標の算出  --*/
+    /*-- ---------------- --*/
+    var off  = canvas.offset();
+    var top  = off.top;
+    var left = off.left;
+
+    var targetWidth  = target.width();
+    var targetHeight = target.height();
+    if(WM_browserType == 'IE8'){
+        targetWidth  = parseInt($("#" + target.attr("id") + '_rvml_group').css("width"));
+        targetHeight = parseInt($("#" + target.attr("id") + '_rvml_group').css("height"));
+    }
+
+    /*--  中央  --*/
+    if(x == 3){
+        left = left + Math.floor(canvas.width() / 2) - Math.floor(targetWidth / 2);
+    }
+    /*--  右側  --*/
+    else if(x == 6){
+        left = left + canvas.width() - targetWidth;
+        /*--  微調整  --*/
+        left = left - 2;
+    }
+    /*--  左側  --*/
+    else{
+        left = left + 0;
+    }
+
+    /*--  中央  --*/
+    if(y == 2){
+        top = top + Math.floor(canvas.height() / 2) - Math.floor(targetHeight / 2);
+    }
+    /*--  下  --*/
+    else if(y == 3){
+        top = top + canvas.height() - targetHeight;
+        /*--  微調整  --*/
+        top = top - 2;
+    }
+    /*--  上  --*/
+    else{
+        top = top + 0;
+    }
+
+    /*-- -------- --*/
+    /*--  再配置  --*/
+    /*-- -------- --*/
+    /*-- Note:20120828                                                       --*/
+    /*--      スピンで画像サイズを変更すると、他の透かし対象（ユーザ名など） --*/
+    /*--      の位置が１ピクセルくらい上下にずれる現象が起こる。             --*/
+    /*--      （Chrome, FireFoxのみ）                                        --*/
+    /*--                                                                     --*/
+    /*--      下記のようにoffset()を２度行うことでChromeでは                 --*/
+    /*--      上記現象が解消された。                                         --*/
+    /*--      （FireFoxは変わらず）                                          --*/
+    target.offset({"top":top,"left":left});
+    target.offset({"top":top,"left":left});
+}
+
+/**
+ * 表示倍率を取得する
+ *
+ */
+function getStringRatio(paperSize, fontSize){
+    var ratio = 1;
+    switch (paperSize){
+    case "A4":
+        ratio = 1;
+        break;
+    case "A3":
+        ratio = PDF_RATIO_A3;
+        break;
+    case "B4":
+        ratio = PDF_RATIO_B4;
+        break;
+    case "B5":
+        ratio = PDF_RATIO_B5;
+        break;
+    }
+
+    return fontSize * ratio * PDF_RATIO_BASE / PDF_StringImageFontSize;
+}
+function getImageRatio(paperSize){
+    var ratio = 1;
+    switch (paperSize){
+    case "A4":
+        ratio = 1;
+        break;
+    case "A3":
+        ratio = PDF_RATIO_A3;
+        break;
+    case "B4":
+        ratio = PDF_RATIO_B4;
+        break;
+    case "B5":
+        ratio = PDF_RATIO_B5;
+        break;
+    }
+
+    return ratio * PDF_RATIO_BASE;
+}
+/**
+ * 回転指定
+ */
+function rotate(o, ro){
+    $('#' + o).rotate(parseInt(360 - ro));
+}
+
+/**
+ * 透過指定
+ */
+function opacity(o, op){
+    if(WM_browserType == 'IE8'){
+        $('#' + o + '_rvml').css('filter', 'alpha(opacity=' + op + ')');
+    } else {
+        op = op * 0.01;
+        $('#' + o).css('opacity', op);
+    }
+}
+</script>
+
+</apex:page>

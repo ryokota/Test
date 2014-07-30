@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Agenda Item</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Agenda Items</value>
+    </caseValues>
+    <fields>
+        <label><!-- Agenda Item Type --></label>
+        <name>Agenda_Item_Type__c</name>
+        <picklistValues>
+            <masterLabel>Item to be Reported</masterLabel>
+            <translation><!-- Item to be Reported --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Proposal to be Resolved</masterLabel>
+            <translation><!-- Proposal to be Resolved --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Approval Status --></label>
+        <name>Approval_Status__c</name>
+        <picklistValues>
+            <masterLabel>Approved</masterLabel>
+            <translation><!-- Approved --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Not Submitted</masterLabel>
+            <translation><!-- Not Submitted --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Recalled</masterLabel>
+            <translation><!-- Recalled --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Rejected</masterLabel>
+            <translation><!-- Rejected --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Submitted</masterLabel>
+            <translation><!-- Submitted --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- BOD Meeting --></label>
+        <name>BOD_Meeting__c</name>
+        <relationshipLabel><!-- 議題 --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Confidential --></label>
+        <name>Confidential__c</name>
+    </fields>
+    <fields>
+        <help><!-- Short description of what to discuss --></help>
+        <label><!-- Description --></label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label><!-- Annotations --></label>
+        <name>Document_Annotations__c</name>
+    </fields>
+    <fields>
+        <label><!-- Document Language --></label>
+        <name>Document_Language__c</name>
+        <picklistValues>
+            <masterLabel>English</masterLabel>
+            <translation><!-- English --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Japanese</masterLabel>
+            <translation><!-- Japanese --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Document Language of Parent --></label>
+        <name>Document_Language_of_Parent__c</name>
+    </fields>
+    <fields>
+        <label><!-- Document Title --></label>
+        <name>Document_Title__c</name>
+    </fields>
+    <fields>
+        <label><!-- Include in Email --></label>
+        <name>Finished_for_Email__c</name>
+    </fields>
+    <fields>
+        <label><!-- One EN Agend with Only One JP Agenda --></label>
+        <name>One_EN_Agend_with_Only_One_JP_Agenda__c</name>
+    </fields>
+    <fields>
+        <label><!-- Order (To Be Reported) --></label>
+        <name>Order_To_Be_Reported__c</name>
+    </fields>
+    <fields>
+        <label><!-- Order (To Be Resolved) --></label>
+        <name>Order_To_Be_Resolved__c</name>
+    </fields>
+    <fields>
+        <label><!-- Related Agenda Item --></label>
+        <name>Related_Agenda_Item__c</name>
+        <relationshipLabel>Agenda Items (JP)</relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Type --></label>
+        <name>Type__c</name>
+    </fields>
+    <fields>
+        <label><!-- Version Count --></label>
+        <name>Version_Count__c</name>
+    </fields>
+    <layouts>
+        <layout>Agenda Item Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>Name</nameFieldLabel>
+    <sharingReasons>
+        <label><!-- Admin --></label>
+        <name>Admin</name>
+    </sharingReasons>
+    <sharingReasons>
+        <label><!-- Advisor --></label>
+        <name>Advisor</name>
+    </sharingReasons>
+    <sharingReasons>
+        <label><!-- Guest --></label>
+        <name>Guest</name>
+    </sharingReasons>
+    <sharingReasons>
+        <label><!-- Member --></label>
+        <name>Member</name>
+    </sharingReasons>
+    <sharingReasons>
+        <label><!-- Secretary --></label>
+        <name>Secretary</name>
+    </sharingReasons>
+    <startsWith>Vowel</startsWith>
+    <validationRules>
+        <errorMessage><!-- Japanese version of Agenda Item cannot be the parent Agenda Item! --></errorMessage>
+        <name>English_Agenda_should_be_parent_Agenda</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Japanese Agenda must have a related Agenda Item in English. --></errorMessage>
+        <name>Japanese_Agenda_must_have_related_Agenda</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- English version of Agenda Item cannot be the child Agenda Item! --></errorMessage>
+        <name>Japanese_Agenda_should_be_child_Agenda</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Only one level lookup is available! --></errorMessage>
+        <name>One_Level_Lookup_Limitation</name>
+    </validationRules>
+</CustomObjectTranslation>

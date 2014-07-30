@@ -1,0 +1,120 @@
+<apex:page standardStylesheets="true" showHeader="false" sidebar="false" Controller="SOLXYZCSO001.FE_ReportSearchtController" tabStyle="Opportunity" title="Create Report" Id="page1" action="{!init}">
+<head>
+  <title>検索</title>
+  <link  href="/sCSS/24.0/sprites/1331837151000/Theme3/ja/common.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css" />
+  <link  href="/sCSS/24.0/sprites/1331837151000/Theme3/ja/extended.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="setup popupTab">
+    <div id="ieBrowserFix" style="display:none;">
+        <apex:sectionHeader title="IE" subtitle="BrowserFix" />
+    </div>
+    <apex:form id="Form1">
+        <apex:pageMessages />
+        <apex:actionFunction name="Reflesh" rerender="Form1"/>
+        <br/>
+        <apex:outputText value="{!$Label.solxyzcso001__label_wf_00029}" />
+        <apex:inputtext value="{!serch}"/>
+        <apex:commandButton value="Go!" action="{!serchDocuments}"/>
+        <br/>
+        <div class="bPageBlock secondaryPalette">
+            <div class="pbBody">
+            	<!--
+                <apex:dataTable value="{!reports}" var="mtList" id="mtList" styleClass="list" headerClass="headerRow" rowClasses="dataRow" columnClasses="dataCell" >
+                -->
+                <!-- 2012.12.12 #4371 add -->
+                <apex:dataTable value="{!reports_v}" var="mtList" id="mtList" styleClass="list" headerClass="headerRow" rowClasses="dataRow" columnClasses="dataCell" >
+                    <apex:column >
+                        <apex:facet name="header">{!$Label.solxyzcso001__label_wf_30039}</apex:facet>
+                        <apex:outputPanel rendered="{!mtList.SOLXYZCSO001__IsActive__c}" >
+                            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__FE_CSO, 'image/warn.png')}" style="height:1em;width:1em;" title="オーバレイのバージョンが最新ではありません。" rendered="{!mtList.OverlayVersionMismatchFlg__c }" />
+                           <!--
+                            <apex:outputLink value="#" id="theLink" onclick="setReportId({!reportCon},'{!mtList.ID}')">
+                            -->
+                            <!-- 2012.12.12 #4371 add -->
+                            <apex:outputLink value="#" id="theLink" onclick="setReportId({!reportCon_v},'{!mtList.ID}')">
+                                <apex:outputtext value="{!mtList.name}" id="name"/>
+                            </apex:outputLink>
+                        </apex:outputPanel>
+                        <apex:outputpanel rendered="{!mtList.SOLXYZCSO001__IsActive__c == false}" >
+                            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__FE_CSO, 'image/stop.png')}" style="height:1em;width:1em;" title="使用できません。" />
+                            <apex:outputtext value="{!mtList.name}" id="name_disabled"/>
+                        </apex:outputpanel>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">{!$Label.solxyzcso001__label_wf_00050}</apex:facet>
+                        <apex:outputtext value="{!mtList.SOLXYZCSO001__ObjectLabel__c}" id="Author"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">{!$Label.solxyzcso001__label_wf_00002}</apex:facet>
+                        <apex:outputtext value="{!mtList.SOLXYZCSO001__OverlayID__c}" id="bodylength" />
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">{!$Label.solxyzcso001__label_wf_00009}</apex:facet>
+                        <apex:outputfield value="{!mtList.CreatedById}" id="onfidencialFlg" />
+                    </apex:column>
+                    <!-- #3698 2012.11.14 add start -->
+                    <apex:column >
+                       <apex:facet name="header">{!$Label.solxyzcso001__label_10238}</apex:facet>
+                       <apex:outputfield value="{!mtList.LastModifiedById}" id="lastModifiedId" />
+                    </apex:column>
+                    <!-- #3698 2012.11.14 add end -->
+                    <apex:column >
+                        <apex:facet name="header">{!$Label.solxyzcso001__label_wf_30038}</apex:facet>
+                        <apex:outputfield value="{!mtList.SOLXYZCSO001__LastModifiedByUser__c}" id="lastModifiedDate" />
+                        <apex:inputHidden value="{!mtList.Id}" id="id" rendered="{!$ObjectType.SOLXYZCSO001__ReportDefinition__c.fields.Id.Accessible}" />
+                    </apex:column>
+                </apex:dataTable>
+            </div>
+        </div>
+    </apex:form>
+</body>
+
+<SCRIPT>
+
+    function setReportId(con,name) {
+        var checkDocument = "";
+        var checkName = "";
+        var mDocument = "";
+        var mname = "";
+        var ua = navigator.userAgent;
+        for(i = 0; i < con; i++){
+          checkDocument = "page1:Form1:mtList:" + i + ":id";
+          checkName = "page1:Form1:mtList:" + i + ":name";
+          if(ua.indexOf("Firefox") >= 0){
+            mDocument = document.getElementById(checkDocument).value;
+            var mname = null;
+            //mname = document.getElementById(checkName).textContent;
+            var nameObject = document.getElementById(checkName);
+            if(nameObject != null){
+                mname = nameObject.textContent;
+            }
+
+            if(mDocument == name){
+                window.opener.document.getElementById("createReport:form:block:select:select2:select2_item:reportText").value = mname;
+                window.opener.document.getElementById("createReport:form:block:select:select2:select2_item:reportText_lkid").value = name;
+            }
+          }else{
+            mDocument = document.getElementById(checkDocument).value;
+            //mname = document.getElementById(checkName).innerText;
+            var mname = null;
+            var nameObject = document.getElementById(checkName);
+            if(nameObject != null){
+                mname = nameObject.innerText;
+            }
+            if(mDocument == name){
+                window.opener.document.getElementById("createReport:form:block:select:select2:select2_item:reportText").value = mname;
+                window.opener.document.getElementById("createReport:form:block:select:select2:select2_item:reportText_lkid").value = name;
+            }
+
+          }
+        }
+        opener.inputObjChange();
+        window.open("about:blank","_self").close();
+    }
+    function Action2(){
+        window.open("about:blank","_self").close();
+    }
+
+</SCRIPT>
+</apex:page>

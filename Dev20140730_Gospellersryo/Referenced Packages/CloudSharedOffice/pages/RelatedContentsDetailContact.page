@@ -1,0 +1,8 @@
+<apex:page standardController="Contact" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Contact">
+  <apex:variable var="Sf_type" value="Contact" />
+  <apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Contact}" />
+<!-- 
+  <apex:include pageName="RelatedContentsDetail"/>
+ -->
+  <c:RelatedContentsDetailComp id="RelatedContentsDetailComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

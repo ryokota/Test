@@ -1,0 +1,39 @@
+<!--
+<messaging:emailTemplate subject="ご参考まで（Information Only）: {!relatedTo.RFA__r.ControlNumber__c} is Pending Board Review" recipientType="User" relatedToType="RFAUserRole__c">
+-->
+<messaging:emailTemplate subject="ご参考まで（Information Only）: {!relatedTo.Name}" recipientType="User" relatedToType="RFAUserRole__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = " font-size:14px;">
+                    <!--This email is to notify you that the following RFA is {!relatedTo.RFA__r.Level__c}. -->
+                    <!-- <p>このEメールは、次の承認申請が役員会の審査中であることをお知らせするものです。
+                    役員会でのレビューが完了すると、承認の最終ステータスが承認申請完了メモで通知されます。
+                    この承認申請には下のリンクからアクセスしてください。<BR/>-->
+                    <p>このEメールは、次の承認申請が役員会の審査中であることをお知らせするものです。
+                    役員会でのレビューが完了すると、最終結果が通知されます。
+                    この承認申請には下のリンクからアクセスしてください。<BR/>
+                    This email is to notify you that the following RFA is in Board Review.
+                    You will be notified via the RFA Completion Memo of the final RFA approval status once the Board review process is complete.  
+                    Use the link below to access the Request.
+                    </p>
+                    <BR/>
+
+                    <c:RFA_C03_EmailTemplateBodyRFAuserRole rfaObj="{!relatedTo}"/>
+                    <p><B>下記リンクをクリックし、承認申請リクエスト文書をご確認ください:<BR/>
+                    Click this link to open the RFA Request Document:<BR/>  
+                    <!--<a href="{!$Label.RFA_CL026}/{!relatedTo.RFA__c}">{!relatedTo.Name}</a></B></p>-->
+                    <a href="{!$Label.RFA_CL026}/{!relatedTo.RFA__c}">{!relatedTo.RFA__r.Name}</a></B></p>
+                    <BR/>
+                    <p>このEメールは、本承認申請の申請者または主要連絡先の方へ送られています。<BR/>
+                    You are receiving this email because you are the Requester or Primary Point of Contact(s) of this RFA.
+                    </p>
+                    <BR/>
+                    <p>ご質問がございましたら、 <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a> へご連絡ください。<BR/>
+                    If you have any inquiries kindly contact <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a>.
+                    </p>
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

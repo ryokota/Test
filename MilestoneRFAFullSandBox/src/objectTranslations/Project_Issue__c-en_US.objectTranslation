@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Project Issue</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Project Issues</value>
+    </caseValues>
+    <fields>
+        <help><!-- 受付チャネルを定義する。 --></help>
+        <label>Channel</label>
+        <name>Channel__c</name>
+        <picklistValues>
+            <masterLabel>その他</masterLabel>
+            <translation><!-- その他 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>メール</masterLabel>
+            <translation>Mail</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>訪問</masterLabel>
+            <translation>Visit</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>電話</masterLabel>
+            <translation>Phone</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- Issueを管理/受付する担当者を定義する。 --></help>
+        <label>Responsible Officer</label>
+        <name>ContactPoint__c</name>
+        <relationshipLabel><!-- お問合せ一覧 (担当者) --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- 自動計算 --></help>
+        <label>Days</label>
+        <name>Days__c</name>
+    </fields>
+    <fields>
+        <help><!-- Issue名を英語で定義する。 --></help>
+        <label>Issue Name</label>
+        <name>IssueName__c</name>
+    </fields>
+    <fields>
+        <help><!-- Issue名を定義する。 --></help>
+        <label>Issue Name</label>
+        <name>IssueTitle__c</name>
+    </fields>
+    <fields>
+        <help><!-- Issueの詳細内容を定義する。 --></help>
+        <label>Issue Detail</label>
+        <name>Issue_Contents__c</name>
+    </fields>
+    <fields>
+        <help><!-- 依頼者を定義する。 --></help>
+        <label>Requester</label>
+        <name>Issue_requester__c</name>
+        <relationshipLabel><!-- お問合せ一覧 (依頼者) --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Issueの種別を定義する。 --></help>
+        <label>Function</label>
+        <name>Kind__c</name>
+        <picklistValues>
+            <masterLabel>BOD</masterLabel>
+            <translation><!-- BOD --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Milestone</masterLabel>
+            <translation><!-- Milestone --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Project support</masterLabel>
+            <translation><!-- Project support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>その他</masterLabel>
+            <translation>Other</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>システムバグ</masterLabel>
+            <translation>System Bug</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>システム変更</masterLabel>
+            <translation><!-- システム変更 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>システム操作_マニュアル</masterLabel>
+            <translation>System Manual</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>デリゲーション</masterLabel>
+            <translation>Delegation</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>ブラウザ</masterLabel>
+            <translation>Browser</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>ユーザ登録</masterLabel>
+            <translation>User Registration</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>ログイン</masterLabel>
+            <translation>Login</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>承認者修正</masterLabel>
+            <translation>Approver Change</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>押印申請</masterLabel>
+            <translation><!-- 押印申請 --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- 問題の対応優先順を定義する。 --></help>
+        <label>Priority</label>
+        <name>Priority__c</name>
+        <picklistValues>
+            <masterLabel>中</masterLabel>
+            <translation>Middle</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>低</masterLabel>
+            <translation>Low</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>緊急</masterLabel>
+            <translation>Emergency</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>高</masterLabel>
+            <translation>High</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Project Name</label>
+        <name>ProjectName__c</name>
+        <relationshipLabel><!-- Project Issue List --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>Related Issue No.</label>
+        <name>Related_Issue_No__c</name>
+        <relationshipLabel><!-- Project Issues --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Issueを依頼した日付を定義する。 --></help>
+        <label>Request Date</label>
+        <name>RequestDate__c</name>
+    </fields>
+    <fields>
+        <label><!-- Requester Function --></label>
+        <name>Requester_Function__c</name>
+    </fields>
+    <fields>
+        <help><!-- Issuel解決した内容を定義する。 --></help>
+        <label>Answer Detail</label>
+        <name>SettlementContents__c</name>
+    </fields>
+    <fields>
+        <help><!-- 解決済みの日付を定義する。 --></help>
+        <label>Date of resolved</label>
+        <name>SettlementDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- Issue解決担当者を定義する。 --></help>
+        <label>Problem Solver</label>
+        <name>SettlementUser__c</name>
+        <relationshipLabel><!-- お問合せ一覧 (解決者) --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Issueでの進捗状況を定義する。 --></help>
+        <label>Status</label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>受付</masterLabel>
+            <translation>Accepted</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>対応中</masterLabel>
+            <translation>In Progress</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>解決済</masterLabel>
+            <translation>Resolved</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- input:00, 15, 30, 45, 60, 75, 90, ...
+目安時間（min）・password reset　10　・マネージャ修正　30 --></help>
+        <label>Workload(min)</label>
+        <name>Workload_time__c</name>
+    </fields>
+    <layouts>
+        <layout>Project Issueレイアウト</layout>
+        <sections>
+            <label><!-- Issue内容 --></label>
+            <section>Issue内容</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+        <sections>
+            <label><!-- 詳細情報 --></label>
+            <section>詳細情報</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>Issue No.</nameFieldLabel>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

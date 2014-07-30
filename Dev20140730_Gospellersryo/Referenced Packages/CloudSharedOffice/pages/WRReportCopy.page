@@ -1,0 +1,173 @@
+<apex:page id="wrcopyPage" sidebar="false" controller="SOLXYZCSO001.WRReportCopyController" tabStyle="WRReportHistory__tab">
+<apex:form >
+<apex:actionFunction name="doInit" action="{!init}" rerender="allPanel"/>
+</apex:form>
+<apex:form Id="form" >
+
+
+<apex:outputPanel id="allPanel">
+    <apex:outputPanel rendered="{!NOT(initialised)}">
+        <p align="center" style='{font-family:"Arial", Helvetica, sans-serif; font-size:20px;}'><apex:image value="/img/loading.gif"/>&nbsp;Please wait</p>
+        <script>
+           window.onload=function()
+           {
+             doInit();
+           };
+        </script>
+    </apex:outputPanel>
+<apex:outputPanel rendered="{!initialised}">
+
+<apex:iframe src="/apex/CSO_WR_Error?code={!wr_userInfo.code}&massage={!wr_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(wr_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(wr_userInfo.showErrPage == false, true, false)}">
+<head>
+    <link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.yui_skin)}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_min)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_event)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_container)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_animation)}"></script>
+</head>
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__WRCSOScript" />
+<style type="text/css">
+</style>
+
+<script type="text/javascript">
+
+var newWin;
+var nowMoving = false;
+
+function openExecuteCopyWindow() {
+    var options = 'width=1024,height=768,resizable=yes,menubar=no,scrollbars=yes,status=no,toolbar=no,directories=no,location=no';
+    newWin = window.open('', '_blank', options);
+}
+
+function moveExecuteCopyWindow() {
+    var tempDataName = $('input[id$="reportCopyTempDataName"]').val()
+    var url = "{!$Page.SOLXYZCSO001__OneStepCopyReport}?tempname=" + tempDataName;
+    newWin.location = url;
+    if(!newWin.closed){
+        setInterval(moveJudge, 1000);
+    }
+}
+
+function moveExecuteCopyWindowForMulti() {
+    var tempDataName = $('input[id$="reportCopyTempDataName"]').val()
+    var url = "{!$Page.SOLXYZCSO001__OneStepCopyReportForMulti}?tempname=" + tempDataName;
+    newWin.location = url;
+    if(!newWin.closed){
+        setInterval(moveJudge, 1000);
+    }
+}
+
+function moveJudge(){
+    if(newWin.closed && !nowMoving){
+        nowMoving = true;
+        window.location.href = "{!$Page.SOLXYZCSO001__WRReportHistory}";
+    }
+}
+
+</script>
+
+<table style="width:100%">
+    <tr>
+        <td>
+            <apex:outputPanel rendered="{!canExecuteCopy && isMultiData}" id="page_title_multi">
+                <apex:sectionHeader title="{!$Label.solxyzcso001__label_wf_50005}" subtitle="{!$Label.solxyzcso001__label_wf_50010} ( {!selectedSheet}　{!currentPageNo} / {!pageCount} )" />
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!canExecuteCopy && !isMultiData}" id="page_title">
+                <apex:sectionHeader title="{!$Label.solxyzcso001__label_wf_50005}" subtitle="{!$Label.solxyzcso001__label_wf_50010} ( {!currentPageNo} / {!pageCount} )" />
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!!canExecuteCopy}">
+                <apex:sectionHeader title="{!$Label.solxyzcso001__label_wf_50005}" subtitle="{!$Label.solxyzcso001__label_wf_50010}" />
+            </apex:outputPanel>
+
+        </td>
+        <td style="" align="right" valign="bottom">
+            <apex:include pageName="SOLXYZCSO001__WROptionsLink"/>
+        </td>
+    </tr>
+</table>
+
+<!-- apex:form Id="form" -->
+    <apex:pageBlock id="block">
+        <apex:pageMessages id="pageMsg" />
+        <apex:pageBlockSection collapsible="false" rendered="{!canExecuteCopy && isMultiData}">
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="オーバレイシート名"/>
+                <apex:selectList id="reportDefSelect" value="{!selectedSheet}" size="1" style="width: 200px;">
+                    <apex:actionSupport event="onchange" action="{!changeSheet}" rerender="mapping, page_title_multi, button_area"/>
+                    <apex:selectOptions value="{!sheets}"/>
+                </apex:selectList>
+            </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection >
+            <apex:outputPanel />
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_wf_00060}" columns="1" id="mapping" collapsible="false">
+            <apex:pageBlockSectionItem id="section_item2">
+                <apex:outputPanel id="panel1">
+                    <table>
+                        <tr>
+                            <td style="width:200px;">
+                                <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00061}" />
+                            </td>
+                            <td style="width:200px;">
+                                <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00050}" />
+                            </td>
+                            <td style="width:200px;">
+                                <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00062}" />
+                            </td>
+                            <td>
+                                <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00063}" />
+                            </td>
+                        </tr>
+                        <apex:repeat value="{!copyReportDataList}" var="record" id="repeatItem">
+                            <tr>
+                                <td nowrap="nowrap">
+                                    <apex:outputtext value="{!record.overlayColumn.columnName}" />
+                                </td>
+                                <td nowrap="nowrap">
+                                    <apex:outputtext value="{!record.overlayColumn.objNameLabel}" />
+                                </td>
+                                <td nowrap="nowrap">
+                                    <apex:outputtext value="{!record.overlayColumn.objColumnName}" />
+                                </td>
+                                <td>
+                                    <table>
+                                        <apex:repeat value="{!record.recordValues}" var="recordValue" id="repeatValue">
+                                            <tr><td><apex:inputField value="{!recordValue.SOLXYZCSO001__ReportValue__c}" style="width:400px;height:15px;vertical-align:bottom;" /></td></tr>
+                                        </apex:repeat>
+                                    </table>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                    </table>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+        <apex:pageBlockButtons location="both">
+            <apex:outputPanel rendered="{!canExecuteCopy}" id="button_area">
+                <apex:commandButton value="{!$Label.solxyzcso001__label_wf_00051}" id="pretBtn" action="{!movePrevPage}" rendered="{!currentPageNo!=1}" />
+                <apex:commandButton value="{!$Label.solxyzcso001__field_common_next}" id="nextBtn" action="{!moveNextPage}" rendered="{!currentPageNo!=pageCount}" />
+            </apex:outputPanel>
+            <apex:outputPanel style="margin-left:50px;">
+                <apex:outputPanel rendered="{!canExecuteCopy && isMultiData}">
+                    <apex:commandButton value="{!$Label.solxyzcso001__label_evidence_00009}" id="executeBtnForMulti" action="{!saveCopyTempData}" onclick="openExecuteCopyWindow()" oncomplete="moveExecuteCopyWindowForMulti()"/>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!canExecuteCopy && !isMultiData}">
+                    <apex:commandButton value="{!$Label.solxyzcso001__label_evidence_00009}" id="executeBtn" action="{!saveCopyTempData}" onclick="openExecuteCopyWindow()" oncomplete="moveExecuteCopyWindow()"/>
+                </apex:outputPanel>
+                <apex:commandButton value="{!$Label.solxyzcso001__field_common_cancel}" id="cancelBtn" action="{!cancel}" onclick="return confirm('{!$Label.solxyzcso001__msg_010083_fe}')" immediate="true" />
+            </apex:outputPanel>
+        </apex:pageBlockButtons>
+        <apex:inputHidden value="{!reportCopyTempDataName}" Id="reportCopyTempDataName"/>
+    </apex:pageBlock>
+</apex:outputPanel>
+    </apex:outputPanel>
+</apex:outputPanel>
+<div id="copyright">{!$Label.solxyzcso001__label_00001}</div>
+</apex:form>
+</apex:page>

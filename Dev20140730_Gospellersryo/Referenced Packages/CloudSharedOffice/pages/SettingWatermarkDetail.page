@@ -1,0 +1,992 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingWatermarkController" tabStyle="setting__tab" action="{!init}">
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_watermark == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_watermark == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jQueryRotate.2.2.js')}" />
+<style type="text/css">
+#editProfileMain {
+    width:100%;
+    height: 100%;
+}
+
+.separatorDiv{
+    position:relative;
+    vertical-align: bottom;
+}
+
+#separatorDiv div{
+    color: white;
+    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+#detailDiv{
+    padding: 5px 0px 5px 30px;
+}
+
+#detailDiv table th{
+    text-align: right;
+    padding-right: 10px;
+    font-weight: bold;
+    white-space:nowrap;
+}
+
+#detailDiv table td {
+    white-space:nowrap;
+}
+
+.detailTbl th {
+    vertical-align: center;
+    width: 100px;
+    height: 20px;
+}
+
+.detailTbl td {
+    vertical-align: center;
+}
+
+.previewTbl th {
+    vertical-align: top;
+    width: 100px;
+}
+
+.historyTbl {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.historyTbl th{
+    font-weight: bold;
+    width: 100px;
+}
+
+.historyTbl *{
+}
+
+.preview_container {
+    background-color: #ccc;
+    width: 280px;
+    height: 280px;
+    padding:0px 10px 0 10px;
+}
+
+#preview_canvas{
+    background-color:#fff;
+    width:177px;
+    min-width:177px;
+    max-width:177px;
+    height:250px;
+    min-height:250px;
+    max-height:250px;
+    margin-top:10px;
+    margin-left:50px;
+    overflow:hidden;
+    float:left;
+}
+
+.preview_object{
+    background-color:#ffffff;
+}
+
+.checkbox{
+    width: 20px;
+    height: 20px;
+}
+
+</style>
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/watermark.png')}" alt="{!$Label.solxyzcso001__label_10585}" title="{!$Label.solxyzcso001__label_10585}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_11009}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10585}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+
+                        <apex:pageBlockButtons >
+                           <apex:commandButton id="btnDelete" value="{!$Label.solxyzcso001__label_00072}" onclick="removeButton();return false;" />
+                           <apex:commandButton id="btnEdit" value="{!$Label.solxyzcso001__label_00073}" onclick="editButton();return false;"/>
+                           <apex:commandButton id="btnCancel" value="{!$Label.solxyzcso001__label_00058}" action="{!cancel}" />
+                        </apex:pageBlockButtons>
+
+                        <div id ="editMain">
+                           <!-- 詳細 -->
+                            <apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}"  collapsible="false"/>
+                            <div id="detailDiv">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <table class="detailTbl">
+                                                <tr>
+                                                    <th>{!$Label.label_10483}</th>
+                                                    <td colspan="8"><input type="checkbox" id="enabled" disabled="disabled"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>{!$Label.label_11043}</th>
+                                                  <td colspan="8"><span id="name"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>{!$Label.label_10579}</th>
+                                                    <td><input type="checkbox" id="timingSpace" disabled="disabled"/></td>
+                                                    <td colspan="3">{!$Label.label_11013}</td>
+                                                    <td><input type="checkbox" id="timingDelivery" disabled="disabled"/></td>
+                                                    <td colspan="3">{!$Label.label_10164}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>{!$Label.label_10583}</th>
+                                                    <td colspan="8"><span id="method"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>{!$Label.label_11059}</th>
+                                                    <td colspan="8"><span id="priority"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>{!$Label.label_10580}</th>
+                                                    <td><input type="checkbox" id="targetTimestamp" disabled="disabled"/></td>
+                                                    <td>{!$Label.label_10581}</td>
+                                                    <td><input type="checkbox" id="targetUsername" disabled="disabled"/></td>
+                                                    <td>{!$Label.label_10021}</td>
+                                                    <td><input type="checkbox" id="targetUserid" disabled="disabled"/></td>
+                                                    <td>{!$Label.label_10003}</td>
+                                                    <td><input type="checkbox" id="targetImage" disabled="disabled"/></td>
+                                                    <td>{!$Label.label_10582}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th></th>
+                                                    <td><input type="checkbox" id="targetCorp" disabled="disabled"/></td>
+                                                    <td>{!$Label.label_10650}</td>
+                                                    <td><input type="checkbox" id="targetPost" disabled="disabled"/></td>
+                                                    <td>{!$Label.label_10652}</td>
+                                                    <td><input type="checkbox" id="targetNumber" disabled="disabled"/></td>
+                                                    <td>{!$Label.label_10651}</td>
+                                                    <td><input type="checkbox" id="targetEmail" disabled="disabled"/></td>
+                                                    <td>{!$Label.label_10016}</td>
+                                                    <td><input type="checkbox" id="targetText" disabled="disabled"/></td>
+                                                    <td>{!$Label.label_10654}</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="previewTbl">
+                                                <tr>
+                                                    <th>{!$Label.label_10584}</th>
+                                                    <td>
+                                                        <div class="preview_container">
+                                                            <div id="preview_canvas">
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="historyTbl">
+                                                <tr>
+                                                    <th>{!$Label.label_10015}</th>
+                                                    <td><span id="registUserName"></span></td>
+                                                    <th>{!$Label.label_10005}</th>
+                                                    <td><span id="registDate"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>{!$Label.label_10024}</th>
+                                                    <td><span id="updateUserName"></span></td>
+                                                    <th>{!$Label.label_10006}</th>
+                                                    <td><span id="updateDate"></span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <!-- 適用スペース -->
+                            <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10586}"  collapsible="false"/>
+                            <div id="applySpaceDiv" style="padding: 20px 20px 0 20px;">
+                                <!-- jqGrid -->
+                                <div id="spaceList-container">    
+                                    <table id="spaceList" ></table>
+                                    <div id="spaceListPager" ></div>
+                                </div>
+                            </div>
+                        </div>
+                    <input type="hidden" name="Id" id="Id" />
+
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__SettingWatermarkPreviewCommonScript"/>
+<script type="text/javascript">
+var spaces = [];
+var definitionId = null;
+
+jQuery.event.add(window, "load", function(){
+    /*--  ブラウザの種類を保持  --*/
+    WM_browserType = getBrowserType();
+
+    if('{!definitionId}' != ''){
+        definitionId = '{!definitionId}'
+    }
+
+    var callback =  function(data){
+        if(data.result){
+            var detail = data.detail;
+            displayInit(detail);
+            previewInit(detail);
+            spaces = data.spaces;
+            $("#spaceTable").clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+        } else {
+            alert(data.message);
+        }
+    }
+
+    secureGetAsync('/setup/watermarkDetailApi.json?id=' + definitionId ,"", callback);
+
+    $("#spaceList").jqGrid({
+        url:_apiUrl + '/setup/watermarkSpaceListApi.json?id=' + definitionId,
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id         : "space_id"
+        },
+        colNames:['',
+                  '',
+                  '{!$Label.solxyzcso001__label_10155}'],
+        colModel:[
+                    {name:'space_id',  index:'space_id',   hidden:true},
+                    {name:'space_name',index:'space_name', hidden:true},
+                    {name:'space_info',index:'space_name', width:590}
+                ],
+        rowNum:50,
+        height: 200,
+        width: $("#RightPane").width(),
+        rowList:[10,50,100],
+        sortname: 'space_name',
+        pager: '#spaceListPager',
+        viewrecords: true,
+        multiselect: false,
+        multiboxonly: false,
+        loadComplete: function(data){
+        }
+    });
+
+    resizeGrid();
+    $(window).resize(resizeGrid);
+});
+
+function displayInit(detail){
+    var info = detail.info;
+    show_checkbox('enabled', info.enabled);
+    $("#name").text(info.name);
+    show_checkbox('timingSpace',     info.timingSpace);
+    show_checkbox('timingDelivery',  info.timingDelivery);
+    show_checkbox('targetTimestamp', info.targetTimestamp);
+    show_checkbox('targetUsername',  info.targetUsername);
+    show_checkbox('targetUserid',    info.targetUserid);
+    show_checkbox('targetImage',     info.targetImage);
+    show_checkbox('targetCorp',      info.targetCorp);
+    show_checkbox('targetPost',      info.targetPost);
+    show_checkbox('targetNumber',    info.targetNumber);
+    show_checkbox('targetEmail',     info.targetEmail);
+    show_checkbox('targetText',      info.targetText);
+
+    $('#method').text(detail.method);
+    $('#priority').text(detail.priority);
+    $('#registUserName').text(detail.registUserName);
+    $('#registDate').text(detail.registDate);
+    $('#updateUserName').text(detail.updateUserName);
+    $('#updateDate').text(detail.updateDate);
+}
+
+
+function resizeGrid(){
+    var height = getBrowserHeight() - 570;
+    $("#spaceList").setGridWidth(1);
+    $("#spaceList").setGridWidth($("#spaceList-container").innerWidth());    
+
+    if (height >= 270) {
+        $("#spaceList").setGridHeight(height);
+    }
+}
+
+function show_checkbox(id, check){
+    if(eval(check)){
+        $('#' + id).attr('checked', 'checked');
+    } else {
+        $('#' + id).attr('checked', '');
+    }
+}
+
+function removeButton(){
+    var hasSpace = '{!hasSpace}';
+    var msg;
+    if(hasSpace == "true"){
+        msg = '{!$Label.solxyzcso001__msg_01018}';
+    }else{
+        msg = '{!$Label.solxyzcso001__msg_01035}';
+    }
+    if (confirm(msg)) {
+        CsoScript_loadingStart();
+        var callback = function(data){
+            // 削除できなかった場合にはメッセージを表示する
+            if(data.result == false){
+                alert(data.message);
+            }
+            location.href = "SettingWatermarkList";
+            CsoScript_loadingStop();
+        }
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+        securePostAsync('/setup/watermarkDeleteApi.json',{'id' : definitionId}, callback,callerror);
+    }
+}
+
+function editButton(){
+    location.href = "SettingWatermarkEdit?id=" + definitionId + "&type=detail";
+}
+
+/*--  PDFPreview関連処理  --*/
+function previewInit(detail){
+    var info = detail.info;
+    /*--  画像Source  --*/
+    var strFormat = info.timeStampAttr.format;
+    if((strFormat == null) || (strFormat == "")){
+        strFormat = PDF_TimestampFormatDefault;
+    }
+    var srcUserId    = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.userIdAttr.color    + "&format=userid&point=" + PDF_StringImageFontSize;
+    var srcUserName  = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.usernameAttr.color  + "&format=username&point=" + PDF_StringImageFontSize;
+    var srcTimestamp = _apiUrl + "/WatermarkTextDownload?type=1&color=" + info.timeStampAttr.color + "&format=" + encodeURI(strFormat) + "&point=" + PDF_StringImageFontSize;
+    var srcCorp      = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.corpAttr.color      + "&format=corp&point=" + PDF_StringImageFontSize;
+    var srcPost      = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.postAttr.color      + "&format=post&point=" + PDF_StringImageFontSize;
+    var srcNumber    = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.numberAttr.color    + "&format=number&point=" + PDF_StringImageFontSize;
+    var srcEmail     = _apiUrl + "/WatermarkTextDownload?type=0&color=" + info.emailAttr.color     + "&format=email&point=" + PDF_StringImageFontSize;
+    var srcText      = _apiUrl + "/WatermarkTextDownload?type=2&color=" + info.textAttr.color      + "&format=" + encodeURIComponent(info.textAttr.text) + "&point=" + PDF_StringImageFontSize;
+    var srcUserImage = _apiUrl + "/WatermarkFileDownload?imageId="      + info.imageAttr.imgId;
+
+    /*--  画像の読み込みフラグを初期化  --*/
+    WM_InitLoadImageUserId    = false;
+    WM_InitLoadImageUserName  = false;
+    WM_InitLoadImageTimestamp = false;
+    WM_InitLoadImageUserImage = false;
+    WM_InitLoadImageCorp      = false;
+    WM_InitLoadImagePost      = false;
+    WM_InitLoadImageNumber    = false;
+    WM_InitLoadImageEmail     = false;
+    WM_InitLoadImageText      = false;
+
+    var objCanvas = $('#' + PDF_ID_PreviewCanvas);
+    /*-- ---------------- --*/
+    /*--  タイムスタンプ  --*/
+    /*-- ---------------- --*/
+    if(eval(info.targetTimestamp) == true){
+        /*--  項目追加  --*/
+        var objTimestamp = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectTimestamp).addClass('preview_object');
+        objCanvas.append(objTimestamp);
+        $("#" + PDF_ID_PreviewObjectTimestamp).hide();
+        /*--  画像サイズ取得  --*/
+        var imgTimestamp = new Image();
+        imgTimestamp.onload = function(){
+            PDF_ImageSizeTimestamp = {width: this.width, height: this.height};
+            WM_InitLoadImageTimestamp = true;
+        }
+        imgTimestamp.onerror = function(){
+            $("#" + PDF_ID_PreviewObjectTimestamp).attr('src', WM_LoadImageErrFile);
+            PDF_ImageSizeTimestamp = {width: 150, height: 150};
+            WM_InitLoadImageTimestamp = true;
+        }
+        imgTimestamp.src = srcTimestamp;
+
+    }
+    else{
+        WM_InitLoadImageTimestamp = true;
+    }
+    /*-- ---------- --*/
+    /*--  ユーザ名  --*/
+    /*-- ---------- --*/
+    if(eval(info.targetUsername) == true){
+        /*--  項目追加  --*/
+        var objUserName  = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectUserName).addClass('preview_object');
+        objCanvas.append(objUserName);
+        objUserName.hide();
+        /*--  画像サイズ取得  --*/
+        var imgUserName = new Image();
+        imgUserName.onload = function(){
+            PDF_ImageSizeUserName = {width: this.width, height: this.height};
+            WM_InitLoadImageUserName = true;
+        }
+        imgUserName.onerror = function(){
+            $("#" + PDF_ID_PreviewObjectUserName).attr('src', WM_LoadImageErrFile);
+            PDF_ImageSizeUserName = {width: 150, height: 150};
+            WM_InitLoadImageUserName = true;
+        }
+        imgUserName.src = srcUserName;
+    }
+    else{
+        WM_InitLoadImageUserName = true;
+    }
+    /*-- ---------- --*/
+    /*--  ユーザID  --*/
+    /*-- ---------- --*/
+    if(eval(info.targetUserid) == true){
+        /*--  項目追加  --*/
+        var objUserId    = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectUserId).addClass('preview_object');
+        objCanvas.append(objUserId);
+        objUserId.hide();
+        /*--  画像サイズ取得  --*/
+        var imgUserId = new Image();
+        imgUserId.onload = function(){
+            PDF_ImageSizeUserId = {width: this.width, height: this.height};
+            WM_InitLoadImageUserId = true;
+        }
+        imgUserId.onerror = function(){
+            $("#" + PDF_ID_PreviewObjectUserId).attr('src', WM_LoadImageErrFile);
+            PDF_ImageSizeUserId = {width: 150, height: 150};
+            WM_InitLoadImageUserId = true;
+        }
+        imgUserId.src = srcUserId;
+    }
+    else{
+        WM_InitLoadImageUserId = true;
+    }
+    /*-- ---------- --*/
+    /*--  所属組織  --*/
+    /*-- ---------- --*/
+    if(eval(info.targetCorp) == true){
+        /*--  項目追加  --*/
+        var objCorp  = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectCorp).addClass('preview_object');
+        objCanvas.append(objCorp);
+        objCorp.hide();
+        /*--  画像サイズ取得  --*/
+        var imgCorp = new Image();
+        imgCorp.onload = function(){
+            PDF_ImageSizeCorp = {width: this.width, height: this.height};
+            WM_InitLoadImageCorp = true;
+        }
+        imgCorp.onerror = function(){
+            $("#" + PDF_ID_PreviewObjectCorp).attr('src', WM_LoadImageErrFile);
+            PDF_ImageSizeCorp = {width: 150, height: 150};
+            WM_InitLoadImageCorp = true;
+        }
+        imgCorp.src = srcCorp;
+    }
+    else{
+        WM_InitLoadImageCorp = true;
+    }
+    /*-- ------------ --*/
+    /*--  部署・役職  --*/
+    /*-- ------------ --*/
+    if(eval(info.targetPost) == true){
+        /*--  項目追加  --*/
+        var objPost  = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectPost).addClass('preview_object');
+        objCanvas.append(objPost);
+        objPost.hide();
+        /*--  画像サイズ取得  --*/
+        var imgPost = new Image();
+        imgPost.onload = function(){
+            PDF_ImageSizePost = {width: this.width, height: this.height};
+            WM_InitLoadImagePost = true;
+        }
+        imgPost.onerror = function(){
+            $("#" + PDF_ID_PreviewObjectPost).attr('src', WM_LoadImageErrFile);
+            PDF_ImageSizePost = {width: 150, height: 150};
+            WM_InitLoadImagePost = true;
+        }
+        imgPost.src = srcPost;
+    }
+    else{
+        WM_InitLoadImagePost = true;
+    }
+    /*-- ---------- --*/
+    /*--  社員番号  --*/
+    /*-- ---------- --*/
+    if(eval(info.targetNumber) == true){
+        /*--  項目追加  --*/
+        var objNumber  = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectNumber).addClass('preview_object');
+        objCanvas.append(objNumber);
+        objNumber.hide();
+        /*--  画像サイズ取得  --*/
+        var imgNumber = new Image();
+        imgNumber.onload = function(){
+            PDF_ImageSizeNumber = {width: this.width, height: this.height};
+            WM_InitLoadImageNumber = true;
+        }
+        imgNumber.onerror = function(){
+            $("#" + PDF_ID_PreviewObjectNumber).attr('src', WM_LoadImageErrFile);
+            PDF_ImageSizeNumber = {width: 150, height: 150};
+            WM_InitLoadImageNumber = true;
+        }
+        imgNumber.src = srcNumber;
+    }
+    else{
+        WM_InitLoadImageNumber = true;
+    }
+    /*-- ---------- --*/
+    /*--  メールアドレス  --*/
+    /*-- ---------- --*/
+    if(eval(info.targetEmail) == true){
+        /*--  項目追加  --*/
+        var objEmail  = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectEmail).addClass('preview_object');
+        objCanvas.append(objEmail);
+        objEmail.hide();
+        /*--  画像サイズ取得  --*/
+        var imgEmail = new Image();
+        imgEmail.onload = function(){
+            PDF_ImageSizeEmail = {width: this.width, height: this.height};
+            WM_InitLoadImageEmail = true;
+        }
+        imgEmail.onerror = function(){
+            $("#" + PDF_ID_PreviewObjectEmail).attr('src', WM_LoadImageErrFile);
+            PDF_ImageSizeEmail = {width: 150, height: 150};
+            WM_InitLoadImageEmail = true;
+        }
+        imgEmail.src = srcEmail;
+    }
+    else{
+        WM_InitLoadImageEmail = true;
+    }
+    /*-- ---------------- --*/
+    /*--  フリーテキスト  --*/
+    /*-- ---------------- --*/
+    if(eval(info.targetText) == true){
+        /*--  項目追加  --*/
+        var objText  = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectText).addClass('preview_object');
+        objCanvas.append(objText);
+        objText.hide();
+        /*--  画像サイズ取得  --*/
+        var imgText = new Image();
+        imgText.onload = function(){
+            PDF_ImageSizeText = {width: this.width, height: this.height};
+            WM_InitLoadImageText = true;
+        }
+        imgText.onerror = function(){
+            $("#" + PDF_ID_PreviewObjectText).attr('src', WM_LoadImageErrFile);
+            PDF_ImageSizeText = {width: 150, height: 150};
+            WM_InitLoadImageText = true;
+        }
+        imgText.src = srcText;
+    }
+    else{
+        WM_InitLoadImageText = true;
+    }
+
+    setImageSrc(PDF_ID_PreviewObjectUserId,    srcUserId);
+    setImageSrc(PDF_ID_PreviewObjectUserName,  srcUserName);
+    setImageSrc(PDF_ID_PreviewObjectTimestamp, srcTimestamp);
+    setImageSrc(PDF_ID_PreviewObjectCorp,      srcCorp);
+    setImageSrc(PDF_ID_PreviewObjectPost,      srcPost);
+    setImageSrc(PDF_ID_PreviewObjectNumber,    srcNumber);
+    setImageSrc(PDF_ID_PreviewObjectEmail,     srcEmail);
+    setImageSrc(PDF_ID_PreviewObjectText,      srcText);
+
+    /*-- ------ --*/
+    /*--  画像  --*/
+    /*-- ------ --*/
+    if(eval(info.targetImage) == true){
+        /*--  項目追加  --*/
+        var objUserImage = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectUserImage).addClass('preview_object');
+        objCanvas.append(objUserImage);
+        objUserImage.hide();
+        /*--  画像サイズ取得  --*/
+        var imgUserImage= new Image();
+        imgUserImage.onload = function(){
+            PDF_ImageSizeUserImage= {width: this.width, height: this.height};
+            WM_InitLoadImageUserImage= true;
+        }
+        imgUserImage.onerror = function(){
+            $("#" + PDF_ID_PreviewObjectUserImage).attr('src', WM_LoadImageErrFile);
+            PDF_ImageSizeUserImage= {width: 150, height: 150};
+            WM_InitLoadImageUserImage= true;
+        }
+        imgUserImage.src = srcUserImage;
+        setImageSrc(PDF_ID_PreviewObjectUserImage, srcUserImage);
+    }
+    else{
+        WM_InitLoadImageUserImage = true;
+    }
+
+    setTimeout(function(){
+      chkInitLoadImage(info);
+    },100);
+}
+function setImageSrc(id, src){
+    $("#" + id).attr('src', src);
+}
+function chkInitLoadImage(info){
+    if((WM_InitLoadImageUserId    == false) ||
+       (WM_InitLoadImageUserName  == false) ||
+       (WM_InitLoadImageTimestamp == false) ||
+       (WM_InitLoadImageUserImage == false) ||
+       (WM_InitLoadImageCorp      == false) ||
+       (WM_InitLoadImagePost      == false) ||
+       (WM_InitLoadImageNumber    == false) ||
+       (WM_InitLoadImageEmail     == false) ||
+       (WM_InitLoadImageText      == false)){
+        setTimeout(function(){
+            chkInitLoadImage(info);
+        },100);
+        return;
+    }
+
+    /*--  タイムスタンプ  --*/
+    PDF_ItemPosNoTimestamp = info.timeStampAttr.position;
+    if(eval(info.targetTimestamp) == true){
+        $('#' + PDF_ID_PreviewObjectTimestamp).show();
+    }
+    /*--  ユーザ名  --*/
+    PDF_ItemPosNoUserName = info.usernameAttr.position;
+    if(eval(info.targetUsername) == true){
+        $('#' + PDF_ID_PreviewObjectUserName).show();
+    }
+    /*--  ユーザID  --*/
+    PDF_ItemPosNoUserId = info.userIdAttr.position;
+    if(eval(info.targetUserid) == true){
+        $('#' + PDF_ID_PreviewObjectUserId).show();
+    }
+    /*--  画像  --*/
+    PDF_ItemPosNoUserImage = info.imageAttr.position;
+    if(eval(info.targetImage) == true){
+        $('#' + PDF_ID_PreviewObjectUserImage).show();
+    }
+    /*--  所属組織  --*/
+    PDF_ItemPosNoCorp = info.corpAttr.position;
+    if(eval(info.targetCorp) == true){
+        $('#' + PDF_ID_PreviewObjectCorp).show();
+    }
+    /*--  部署・役職  --*/
+    PDF_ItemPosNoPost = info.postAttr.position;
+    if(eval(info.targetPost) == true){
+        $('#' + PDF_ID_PreviewObjectPost).show();
+    }
+    /*--  社員番号  --*/
+    PDF_ItemPosNoNumber = info.numberAttr.position;
+    if(eval(info.targetNumber) == true){
+        $('#' + PDF_ID_PreviewObjectNumber).show();
+    }
+    /*--  メールアドレス  --*/
+    PDF_ItemPosNoEmail = info.emailAttr.position;
+    if(eval(info.targetEmail) == true){
+        $('#' + PDF_ID_PreviewObjectEmail).show();
+    }
+    /*--  フリーテキスト  --*/
+    PDF_ItemPosNoText = info.textAttr.position;
+    if(eval(info.targetText) == true){
+        $('#' + PDF_ID_PreviewObjectText).show();
+    }
+
+    if(WM_browserType == 'IE8'){
+        /*--  rotate()でvmlタグに作り直しておく  --*/
+        rotate(PDF_ID_PreviewObjectUserId,    0);
+        rotate(PDF_ID_PreviewObjectUserName,  0);
+        rotate(PDF_ID_PreviewObjectTimestamp, 0);
+        rotate(PDF_ID_PreviewObjectUserImage, 0);
+        rotate(PDF_ID_PreviewObjectCorp,      0);
+        rotate(PDF_ID_PreviewObjectPost,      0);
+        rotate(PDF_ID_PreviewObjectNumber,    0);
+        rotate(PDF_ID_PreviewObjectEmail,    0);
+        rotate(PDF_ID_PreviewObjectText,      0);
+        /*--  背景色を指定しないと、透過した際に黒ずんでしまう  --*/
+        $('#' + PDF_ID_PreviewObjectUserId    + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectUserName  + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectTimestamp + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectUserImage + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectCorp      + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectPost      + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectNumber    + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectEmail     + '_rvml').css("background-color","#ffffff");
+        $('#' + PDF_ID_PreviewObjectText      + '_rvml').css("background-color","#ffffff");
+    }
+
+    /*--  透過処理  --*/
+    opacity(PDF_ID_PreviewObjectUserId,    100 - info.userIdAttr.trans);
+    opacity(PDF_ID_PreviewObjectUserName,  100 - info.usernameAttr.trans);
+    opacity(PDF_ID_PreviewObjectTimestamp, 100 - info.timeStampAttr.trans);
+    opacity(PDF_ID_PreviewObjectUserImage, 100 - info.imageAttr.trans);
+    opacity(PDF_ID_PreviewObjectCorp,      100 - info.corpAttr.trans);
+    opacity(PDF_ID_PreviewObjectPost,      100 - info.postAttr.trans);
+    opacity(PDF_ID_PreviewObjectNumber,    100 - info.numberAttr.trans);
+    opacity(PDF_ID_PreviewObjectEmail,     100 - info.emailAttr.trans);
+    opacity(PDF_ID_PreviewObjectText,      100 - info.textAttr.trans);
+
+    /*--  配置  --*/
+    itemRearrangeAll(info);
+}
+function itemRearrangeAll(info){
+
+    /*--  画像サイズを設定  --*/
+    var paperSize = "A4";
+    var ratio = getStringRatio(paperSize, info.userIdAttr.fontSize);
+    var size = PDF_ImageSizeUserId;
+    var objUserId = $("#" + PDF_ID_PreviewObjectUserId);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objUserId.css("width",  cssWidth + "px");
+        objUserId.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectUserId + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectUserId + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objUserId.width(parseInt(size.width) * ratio);
+        objUserId.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    ratio = getStringRatio(paperSize, info.usernameAttr.fontSize);
+    size = PDF_ImageSizeUserName;
+    var objUserName = $("#" + PDF_ID_PreviewObjectUserName);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objUserName.css("width",  cssWidth + "px");
+        objUserName.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectUserName + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectUserName + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objUserName.width(parseInt(size.width) * ratio);
+        objUserName.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizeTimestamp;
+    ratio = getStringRatio(paperSize, info.timeStampAttr.fontSize);
+    var objTimestamp = $("#" + PDF_ID_PreviewObjectTimestamp);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objTimestamp.css("width",  cssWidth + "px");
+        objTimestamp.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectTimestamp + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectTimestamp + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objTimestamp.width(parseInt(size.width) * ratio);
+        objTimestamp.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    var ratioImage = getImageRatio(paperSize);
+    var sizeImage = {width: 0, height: 0};
+    sizeImage.width  = info.imageAttr.width;
+    sizeImage.height = info.imageAttr.height;
+    var objUserImage = $("#" + PDF_ID_PreviewObjectUserImage);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(sizeImage.width) * ratioImage;
+        var cssHeight = parseInt(sizeImage.height) * ratioImage;
+        objUserImage.css("width",  cssWidth + "px");
+        objUserImage.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectUserImage + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectUserImage + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objUserImage.width(parseInt(sizeImage.width) * ratioImage);
+        objUserImage.height(parseInt(sizeImage.height) * ratioImage);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizeCorp;
+    ratio = getStringRatio(paperSize, info.corpAttr.fontSize);
+    var objCorp = $("#" + PDF_ID_PreviewObjectCorp);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objCorp.css("width",  cssWidth + "px");
+        objCorp.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectCorp + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectCorp + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objCorp.width(parseInt(size.width) * ratio);
+        objCorp.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizePost;
+    ratio = getStringRatio(paperSize, info.postAttr.fontSize);
+    var objPost = $("#" + PDF_ID_PreviewObjectPost);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objPost.css("width",  cssWidth + "px");
+        objPost.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectPost + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectPost + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objPost.width(parseInt(size.width) * ratio);
+        objPost.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizeNumber;
+    ratio = getStringRatio(paperSize, info.numberAttr.fontSize);
+    var objNumber = $("#" + PDF_ID_PreviewObjectNumber);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objNumber.css("width",  cssWidth + "px");
+        objNumber.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectNumber + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectNumber + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objNumber.width(parseInt(size.width) * ratio);
+        objNumber.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizeEmail;
+    ratio = getStringRatio(paperSize, info.emailAttr.fontSize);
+    var objEmail = $("#" + PDF_ID_PreviewObjectEmail);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objEmail.css("width",  cssWidth + "px");
+        objEmail.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectEmail + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectEmail + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objEmail.width(parseInt(size.width) * ratio);
+        objEmail.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizeText;
+    ratio = getStringRatio(paperSize, info.textAttr.fontSize);
+    var objText = $("#" + PDF_ID_PreviewObjectText);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objText.css("width",  cssWidth + "px");
+        objText.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectText + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectText + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objText.width(parseInt(size.width) * ratio);
+        objText.height(parseInt(size.height) * ratio);
+    }
+
+    var objCanvas = $('#' + PDF_ID_PreviewCanvas);
+    /*--  配置（画像）  --*/
+    x = getItemPosX(PDF_ItemPosNoUserImage);
+    y = getItemPosY(PDF_ItemPosNoUserImage);
+    itemRearrangeExec(objCanvas, objUserImage, x, y);
+    /*--  配置（ユーザID）  --*/
+    var x = getItemPosX(PDF_ItemPosNoUserId);
+    var y = getItemPosY(PDF_ItemPosNoUserId);
+    itemRearrangeExec(objCanvas, objUserId, x, y);
+    /*--  配置（ユーザ名）  --*/
+    x = getItemPosX(PDF_ItemPosNoUserName);
+    y = getItemPosY(PDF_ItemPosNoUserName);
+    itemRearrangeExec(objCanvas, objUserName, x, y);
+    /*--  配置（タイムスタンプ）  --*/
+    x = getItemPosX(PDF_ItemPosNoTimestamp);
+    y = getItemPosY(PDF_ItemPosNoTimestamp);
+    itemRearrangeExec(objCanvas, objTimestamp, x, y);
+    /*--  配置（所属組織）  --*/
+    x = getItemPosX(PDF_ItemPosNoCorp);
+    y = getItemPosY(PDF_ItemPosNoCorp);
+    itemRearrangeExec(objCanvas, objCorp, x, y);
+    /*--  配置（部署・役職）  --*/
+    x = getItemPosX(PDF_ItemPosNoPost);
+    y = getItemPosY(PDF_ItemPosNoPost);
+    itemRearrangeExec(objCanvas, objPost, x, y);
+    /*--  配置（社員番号）  --*/
+    x = getItemPosX(PDF_ItemPosNoNumber);
+    y = getItemPosY(PDF_ItemPosNoNumber);
+    itemRearrangeExec(objCanvas, objNumber, x, y);
+    /*--  配置（メールアドレス）  --*/
+    x = getItemPosX(PDF_ItemPosNoEmail);
+    y = getItemPosY(PDF_ItemPosNoEmail);
+    itemRearrangeExec(objCanvas, objEmail, x, y);
+    /*--  配置（フリーテキスト）  --*/
+    x = getItemPosX(PDF_ItemPosNoText);
+    y = getItemPosY(PDF_ItemPosNoText);
+    itemRearrangeExec(objCanvas, objText, x, y);
+
+    /*--  中央に配置してある場合、回転角度を設定する  --*/
+    if(PDF_ItemPosNoUserId == 5){
+        rotate(PDF_ID_PreviewObjectUserId, info.userIdAttr.angle);
+    }
+    if(PDF_ItemPosNoUserName == 5){
+        rotate(PDF_ID_PreviewObjectUserName, info.usernameAttr.angle);
+    }
+    if(PDF_ItemPosNoTimestamp == 5){
+        rotate(PDF_ID_PreviewObjectTimestamp, info.timeStampAttr.angle);
+    }
+    if(PDF_ItemPosNoUserImage == 5){
+        rotate(PDF_ID_PreviewObjectUserImage, info.imageAttr.angle);
+    }
+    if(PDF_ItemPosNoCorp == 5){
+        rotate(PDF_ID_PreviewObjectCorp, info.corpAttr.angle);
+    }
+    if(PDF_ItemPosNoPost == 5){
+        rotate(PDF_ID_PreviewObjectPost, info.postAttr.angle);
+    }
+    if(PDF_ItemPosNoNumber == 5){
+        rotate(PDF_ID_PreviewObjectNumber, info.numberAttr.angle);
+    }
+    if(PDF_ItemPosNoEmail == 5){
+        rotate(PDF_ID_PreviewObjectEmail, info.emailAttr.angle);
+    }
+    if(PDF_ItemPosNoText == 5){
+        rotate(PDF_ID_PreviewObjectText, info.textAttr.angle);
+    }
+}
+
+
+</script>
+
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

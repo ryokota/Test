@@ -1,0 +1,107 @@
+<apex:page controller="SOLXYZCSO001.SettingWRGrpRoleSyncController" sidebar="false" action="{!init}">
+
+<apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+    <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+</apex:outputpanel>
+
+<apex:outputpanel rendered="{!hasWR && hasPermissionWRAdmin}">
+
+<apex:include pageName="SOLXYZCSO001__WRCSOBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+
+<script type="text/javascript">
+
+function confirmSync(){
+    var isCancel = confirm("{!$Label.msg_010061}");
+    if (isCancel) return true;
+    return false;
+}
+</script>
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td id="c_left" bgcolor="#f2f2f3" style="min-height:39px;max-height:39px;">
+                <apex:include pageName="SOLXYZCSO001__WRSettingMenu"/>
+            </td>
+            <td valign="top">
+                <table width="100%">
+                    <tr>
+                        <td id="c_headLeft" height="39px" style="min-height:39px;max-height:39px;">
+                            <h1 id="c_headLeftTitle">{!$Label.label_wr_report_20007}</h1><br/>
+                            <h2 id="c_headLeftSubTitle">{!$Label.label_wr_report_20016}</h2>
+                        </td>
+                        <!-- 操作ボックス -->
+                        <td id="c_headRight" height="39px" style="min-height:39px;max-height:39px;">
+                            <apex:include pageName="SOLXYZCSO001__WROptionsLink"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right" colspan="2">
+                            <apex:form >
+                                <apex:pageMessages />
+                                <apex:pageBlock >
+                                    <apex:pageBlockButtons location="bottom">
+                                        <apex:commandButton value="{!$Label.solxyzcso001__field_common_save}" onclick="return confirmSync();" action="{!save}" />
+                                    </apex:pageBlockButtons>
+                                    <apex:pageblockSection columns="1" >
+                                        <apex:pageBlockSectionItem >
+                                            <apex:outputPanel >
+                                                <apex:inputCheckbox value="{!grpSyncDto.syncFlag}" />
+                                                <apex:outputLabel value="{!$Label.solxyzcso001__label_wr_report_20017}"/>
+                                                <br />
+                                                <br />
+                                                <apex:outputLabel escape="false" value="&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                                <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00011}"/>
+                                                <apex:outputLabel value=""/>
+                                               <apex:outputText rendered="{!grpSyncDto.userName!=null}" value="{!grpSyncDto.userName}"/>
+                                                <apex:outputLabel rendered="{!grpSyncDto.userName==null}" escape="false" value="-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                                <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00012}"/>
+                                                <apex:outputLabel value=""/>
+                                                <apex:outputText rendered="{!grpSyncDto.RECODEUpdateTimeByUserTimezone!=null}" value="{!grpSyncDto.RECODEUpdateTimeByUserTimezone}"/>
+                                                <apex:outputLabel rendered="{!grpSyncDto.RECODEUpdateTimeByUserTimezone==null}" escape="false" value="-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                            </apex:outputPanel>
+                                        </apex:pageBlockSectionItem>
+                                        <apex:pageBlockSectionItem >
+                                            <apex:outputPanel >
+                                                <apex:inputCheckbox value="{!roleSyncDto.syncFlag}" />
+                                                <apex:outputLabel value="{!$Label.solxyzcso001__label_wr_report_20018}"/>
+                                                <br />
+                                                <br />
+                                                <apex:outputLabel escape="false" value="&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                                <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00011}"/>
+                                                <apex:outputLabel value=""/>
+                                                <apex:outputText rendered="{!roleSyncDto.userName!=null}" value="{!roleSyncDto.userName}"/>
+                                                <apex:outputLabel rendered="{!roleSyncDto.userName==null}" escape="false" value="-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                                <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00012}"/>
+                                                <apex:outputLabel value=""/>
+                                                <apex:outputText rendered="{!roleSyncDto.RECODEUpdateTimeByUserTimezone!=null}" value="{!roleSyncDto.RECODEUpdateTimeByUserTimezone}"/>
+                                                <apex:outputLabel rendered="{!roleSyncDto.RECODEUpdateTimeByUserTimezone==null}" escape="false" value="-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"/>
+                                            </apex:outputPanel>
+                                        </apex:pageBlockSectionItem>
+                                    </apex:pageblockSection>
+                                </apex:pageBlock>
+                            </apex:form>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div id="copyright" >{!$Label.field_CSO_copyright}</div>
+</apex:outputpanel>
+</apex:page>

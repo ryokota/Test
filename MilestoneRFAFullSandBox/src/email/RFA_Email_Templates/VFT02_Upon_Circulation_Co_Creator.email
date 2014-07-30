@@ -1,0 +1,59 @@
+<messaging:emailTemplate subject="Information Only:{!relatedTo.RFA__r.00N10000003LqPt}-{!relatedTo.RFA__r.RequestTitle__c}" recipientType="User" relatedToType="RFAUserRole__c">
+<messaging:htmlEmailBody >
+<html>
+     <body>
+       
+        <div style = " font-size:14px;">
+            <p>
+                <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="TO :"/> &nbsp;<apex:outputText value="{!relatedTo.RFA__r.CreatedBy.name}"/><br/>
+            </p>
+            <p>                        
+                <apex:outputText style=" font-weight:bold;  " value="CC :"/> &nbsp;
+                <apex:outputText value="{!relatedTo.RFA__r.POC_Name__c}, " rendered="{!relatedTo.RFA__r.POC_Name__c!=null}"/>
+                
+                <!--<apex:outputText value="{!relatedTo.RFA__r.00N10000003LqPS} " rendered="{!relatedTo.RFA__r.00N10000003LqPS!=null}"/><br/> -->                             
+            </p>
+            
+            <!--
+            <p>A new Request with the following detail has been sent to {!relatedTo.RFA__r.LevelStage__c} Circulation.</p>
+            -->
+            <p>A new Request with the following detail has been sent to {!relatedTo.RFA__r.Stage__c} Circulation.</p>
+
+            <p>
+              <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="Request Title :"/> &nbsp;<apex:outputText value="{!relatedTo.RFA__r.RequestTitle__c}"/><br/>
+            </p>
+            <p>       
+              <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="Control # :"/>&nbsp;<apex:outputText value="{!relatedTo.RFA__r.00N10000003LqPt}"/><br/>
+            </p>
+            <p>
+              <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="Profit Center :"/>&nbsp;<apex:outputText value="{!relatedTo.RFA__r.ProfitCenterNumber__c}-{!relatedTo.RFA__r.ProfitCenterNumberName__c}"/><br/>
+            </p>
+            <p>
+              <!-- <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="Request Amount(USD) :"/>&nbsp;<apex:outputText value="{0,number, #,###}"><apex:param value="{!relatedTo.RFA__r.00N10000003LqR0}"/></apex:outputtext><br/> -->
+            </p>
+            <p>
+              <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="Board Item :"/>&nbsp;<apex:outputText value="{!relatedTo.RFA__r.BoardSubItem__c}"/><br/>
+            </p>
+            <p> 
+              <!-- <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="Brief Request Summary:"/>&nbsp;<apex:outputText value="{!relatedTo.RFA__r.00N10000003LqQ7}"/><br/> -->
+            </p>
+            <p><B>Click this link to open the RFA Request Document :   <a href="{!$label.RFA_CL026}/{!relatedTo.RFA__c}">{!relatedTo.RFA__r.Name}</a></B></p><BR/>
+
+            <p>You are receiving this email because you are the Creator, Co-Creator(s), or Primary Point of Contact(s ) the RFA.  </p><br/>
+
+            <p>If you have any inquiries kindly contact <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a></p>
+
+
+        </div>
+    </body>
+</html>
+
+
+
+
+
+
+
+
+</messaging:htmlEmailBody>
+</messaging:emailTemplate>

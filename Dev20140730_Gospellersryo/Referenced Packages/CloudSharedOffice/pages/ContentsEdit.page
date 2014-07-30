@@ -1,0 +1,684 @@
+<apex:page id="contentsEdit" sidebar="false" showHeader="false" controller="SOLXYZCSO001.DocumentContentsInfoController" tabStyle="account">
+<apex:outputPanel rendered="{!IF(processResult == false, true, false)}">
+    <apex:pageMessages />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(processResult != false, true, false)}">
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.tagit.css')}" />
+<!-- ライフサイクル -->
+<script type="text/javascript">
+    var spaceAsrt = '{!spaceAsrt}';
+</script>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.csoBalloon.js')}" />
+<apex:include pageName="SOLXYZCSO001__LifeCyclePulgin"/>
+<apex:include pageName="SOLXYZCSO001__inputcheck"/>
+
+<style>
+.tag-container ul {
+    width: 320px;
+}
+
+.tag-container li > span {
+    font-size: 80%;
+}
+
+
+#contents_info_tab {
+    margin-top: 0px;
+}
+
+#contents_info_tab li {
+    list-style: none;
+    line-height: 10px;
+    float: left;
+    margin-right: 5px;
+    border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    display: block;
+    text-decoration: none;
+    padding: 9px 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#contents_info_tab a {
+    display: block;
+    text-decoration: none;
+    padding: 9px 17px;
+    font-weight: bold;
+}
+
+.contents_info_tab_active {
+    background-color: #F8F8F8;
+    color: #445566 !important;
+}
+
+.contents_info_tab_active a {
+    color: #445566 !important;
+}
+.contents_info_tab_active a:hover {
+    color: #445566 !important;
+}
+
+.contents_info_tab_deactive {
+    background-color: #0033ff;
+    filter:alpha(opacity=50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    color: white;
+}
+
+.contents_info_tab_deactive a {
+    color: white;
+}
+
+.contents_info_tab_deactive a:hover {
+    color: white;
+}
+.tab-conedit{
+    min-height: 350px;
+}
+.disclose-table {
+    margin: 10px 0 0 50px;
+}
+.disclose-table th {
+    text-align: right;
+    font-weight: bold;
+    height: 30px;
+    padding: 0 10px 0 0;
+}
+.disclose-table td label {
+    margin: 0 10px 0 0;
+}
+.disclose-space-title {
+    margin: 30px 0 0 50px;
+    font-weight: bold;
+}
+.disclose-contents-explanation {
+	margin: 10px 0 35px 50px;
+}
+</style>
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/tag-it.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.customfields.css')}" />
+<apex:include pageName="SOLXYZCSO001__CustomFieldsPlugin"/>
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+String.prototype.replaceAll  = function(s1,s2){
+    return this.replace(new RegExp(s1, 'gm'),s2);
+}
+var expireEectionSelector = '{!$Component.contentsEdit.contentsForm.contentsPageBlock.contentsBlockSection.contentsSectionExpire}';
+var expireOverSectionSelector = '{!$Component.contentsEdit.contentsForm.contentsPageBlock.contentsBlockSection.theBlockSectionExpireover}';
+//var commentEectionSelector = '{!$Component.contentsEdit.contentsForm.contentsPageBlock.contentsBlockSection.contentsSectionComment}';
+
+var ContentId="";
+var LCInfos=[];
+var lcDataList = new Array();
+
+function jq(myid) {
+    return '#' + myid.replace(/(:|\.)/g,'\\\$1');
+}
+
+$(document).ready(function(){
+    $("input[id$=tagNames]").tagit({allowSpaces: true});
+    $("input[id$=documentName]").parent().css("max-width","none");
+
+    ContentId='{!fileId}';
+
+    if(ContentId!=""){
+    	//  カスタム項目
+		$("#customfieldsTbl").customfields({
+			obj_id	: ContentId,
+			attach	: "contents",
+			edit	: true,
+		});
+		
+		$(window).unload(function() {
+	        if (window.opener != null && window.opener.simpleReload) {
+	            window.opener.simpleReload();
+	        }
+	    });
+
+        //console.info("here inside");
+
+         //ライフサイクル情報取得
+        var callback=function(data){
+            if(data.result){
+
+            if(data.lifecycle_per_contents){
+                $('#contents_info_tab_2').show();
+            } else {
+                $('#contents_info_tab_2').hide();
+            }
+
+// console.info(data);
+        if(data.lifecycle){
+            for(var i=0;i<data.lifecycle.length;i++){
+                var lcData = new Object();
+                lcData.action = data.lifecycle[i].action+1;
+                lcData.date_unit = 0;
+                var d = new Date(data.lifecycle[i].datetime);
+
+                var dd = d.getDate();
+                var mm = d.getMonth()+1;//January is 0!
+                var yyyy = d.getFullYear();
+                if(dd<10){dd='0'+dd}
+                if(mm<10){mm='0'+mm}
+               // console.info(yyyy+"/"+mm+"/"+dd);
+
+                if("{!userinfo.locale}" == "en") {
+                	lcData.time = mm+"/"+dd+"/"+yyyy;
+                } else {
+                	lcData.time = yyyy+"/"+mm+"/"+dd;
+               	}
+                lcDataList.push(lcData);
+            }
+        }
+
+    $("#lifeCycleView").lifecycle({
+        mode : 2,
+        actSelect : "lifecycleviewSelector",
+        data : lcDataList,
+        resource : {
+            Store   : "{!$Label.label_13019}",
+            Archive : "{!$Label.label_00055}",
+            Trash   : "{!$Label.label_00056}",
+            Delete  : "{!$Label.label_13012}",
+            Day     : "{!$Label.label_13064}",
+            Week    : "{!$Label.label_13065}",
+            Month   : "{!$Label.label_13066}",
+            Year    : "{!$Label.label_13067}",
+        }
+    });
+
+// コンテンツ公開設定初期表示処理
+ getInitDiscloseContents();
+
+            }else{
+                alert(data.message);
+            }
+        }
+        secureGetAsync('/contentsmanagement/ContentsPropertyGet.json?fileId=' + ContentId ,"", callback);
+    }
+
+});
+
+jQuery.event.add(window, "load", function() {
+    setFlexibleTextForSF("#c_headSubTitle", 30);
+
+    $("textarea[id$=explanation]").keyup(function(){
+        viewCommentLength("explanation", "explanationRemainder", 512);
+    });
+    viewCommentLength("explanation", "explanationRemainder", 512);
+
+    $(getId(expireEectionSelector + ':pdate')).datepicker({
+        dateFormat: '{!datePickerFormat}',
+        numberOfMonths: 1,
+        minDate: new Date()
+    });
+
+    expire_change();
+    $(".tab-conedit").height(getBrowserHeight() - 300);
+    $("#contents_info_tab_1").click(function(){tab(1);});
+    $("#contents_info_tab_2").click(function(){tab(2);});
+    $("#contents_info_tab_3").click(function(){tab(3);});
+});
+
+function viewCommentLength(t, v, maxSize){
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    var str = $("textarea[id$=" + t + "]").val().replace(regexp, "\r\n");
+    var size = maxSize - str.length;
+
+    if(size <= 0){
+        $("#" + v).css("color","#FF0000");
+    }else{
+        $("#" + v).css("color","#000000");
+    }
+
+    $("#" + v).text(getMsg(new Array(size + ""), '{!$Label.label_10227}'));
+
+}
+
+/*
+ * 保存期間切替処理
+ */
+function expire_change(){
+
+    var radioSelector = getName(expireEectionSelector + ':expire') + ':checked';
+    var saveDate      = getId(expireEectionSelector + ':pdate');
+    var expire      = getId(expireOverSectionSelector + ':expireover');
+
+    if($(radioSelector).val() == 0) {
+        $(saveDate).attr('disabled', 'disabled');
+        $(saveDate).val('');
+        $(expire).attr('disabled', 'disabled');
+    }else{
+        $(saveDate).removeAttr('disabled');
+        $(expire).removeAttr('disabled');
+    }
+}
+/*
+ * タブ切り替え
+ */
+function tab(tab){
+    var i = 1;
+    $(".contents_info_tab").each(function(){
+        if(tab == i){
+            $("#tab_" + i).show();
+            $(this).removeClass("contents_info_tab_deactive");
+            $(this).addClass("contents_info_tab_active");
+        }else{
+            $("#tab_" + i).hide();
+            $(this).removeClass("contents_info_tab_active");
+            $(this).addClass("contents_info_tab_deactive");
+        }
+        i++;
+    });
+}
+
+function saveContentsInfo(){
+	var err = new Array();
+	var documentName = $("input[id$=documentName]").val();
+	var explanation = $("textarea[id$=explanation]").val();
+	var tagNames = $("input[id$=tagNames]").val();
+	var LCReady = getLCInfo();
+    var DCReady = createDiscloseData();
+    
+    // ライフサイクルデータ準備とコンテンツ公開データ準備の結果がOKだった場合、trueを返す
+    if (LCReady && DCReady) {
+		if (documentName.length == 0) {
+			err.push(getMsg(new Array("{!$Label.label_10762}"), "{!$Label.msg_01084}"));
+	    }
+	    
+	    if (explanation.length > 512) {
+	        err.push('{!$Label.msg_00007}');
+	    } else {
+	    	explanation = $.trim(explanation);
+	    }
+	    
+	    tagNames = $.trim(tagNames);
+	    tagNameArray = new Array();
+	    if(tagNames != null){
+	        var blacklistCharacterValidationPattern = new RegExp("[\\\\|/|*|:|\"|\?|\||<|>]+");
+	        $.each(tagNames.replaceAll('，', ',').split(','), function(n, tagName){
+	            tagName = $.trim(tagName);
+	            if(tagName.length > 24) {
+	                err.push('{!$Label.msg_00073}');
+                } else if(tagName.length == 0){
+	               return;
+				}
+	            if (blacklistCharacterValidationPattern.test(tagName)) {
+	                err.push('{!$Label.msg_01079}');
+	            }
+	            if ($.inArray(tagName, tagNameArray) != -1) {
+	                err.push('{!$Label.msg_01080}'.replace('{0}', tagName));
+	            }
+	            tagNameArray.push(tagName);
+	        });
+	    }
+	    
+		//  カスタム項目
+		$("#customfieldsTbl").cfValidator({
+			"err"		: err,
+			"errClass"	: "",
+			"success"	: editContentSuccess,
+			"fail"		: editContentFail
+		});
+	} else {
+		return false;
+	}
+}
+
+var editContentSuccess = function(args) {
+	document.getElementById('{!$Component.contentsForm.contentsPageBlock.customfields}').value = $("#customfieldsTbl").cfValues();
+	contentsUpdate();
+	return true;
+}
+
+var editContentFail = function(args) {
+	return false;
+}
+
+/*
+ * 保存時ライフサイクルデータ準備
+ */
+function getLCInfo(){
+
+    var cycleDataList=new Array();
+    cycleDataList=$(this).getLcData();
+    var okTosave=true;
+
+    for(var j = 0; j < cycleDataList.length; j++){
+        var cycleData=cycleDataList[j];
+        if(cycleData.action){
+            if(!isDateFormat(cycleData.time, "{!userinfo.locale}")){
+                alert("{!$Label.msg_01103}");
+                okTosave=false;
+            }
+            if(isPastDate(cycleData.time, "{!userinfo.locale}")){
+                alert("{!$Label.msg_01118}");
+                okTosave=false;
+            }
+            if(j <= 0){
+                continue;
+            }
+            if(!isRightDate(cycleDataList[j-1].time, cycleDataList[j].time, "{!userinfo.locale}")){
+                alert("{!$Label.msg_01119}");
+                okTosave=false;
+            }
+
+        }
+    }
+
+    if(okTosave==true){
+      document.getElementById('{!$Component.contentsForm.contentsPageBlock.lifeCycleData}').value = JSON.stringify($(this).getLcData());
+      return true;
+    }else{
+      return false;
+    }
+}
+
+/*
+ * 保存時コンテンツ公開データ準備
+ */
+function createDiscloseData(){
+    if(discloseValidation()){
+        document.getElementById('{!$Component.contentsForm.contentsPageBlock.discloseEnable}').value = $("#discloseEnableCheck").attr("checked");
+        document.getElementById('{!$Component.contentsForm.contentsPageBlock.discloseMode}').value = $("[name=discloseModeRadio]:checked").val();
+        document.getElementById('{!$Component.contentsForm.contentsPageBlock.discloseStartDate}').value = $("#discloseStartDateTmp").val();
+        document.getElementById('{!$Component.contentsForm.contentsPageBlock.discloseEndDate}').value = $("#discloseEndDateTmp").val();
+        return true;
+    }
+    return false;
+}
+
+/*
+ * コンテンツ公開設定初期表示処理
+ */
+function getInitDiscloseContents(documentId){
+
+    // スペース設定表示
+    if('{!spaceDiscloseMode}' == '0'){
+        if('{!spaceDiscloseEnable}' == 'true'){
+            $("#spaceDiscloseType").text("{!$Label.label_13126}");
+        } else {
+            $("#spaceDiscloseType").text("{!$Label.label_10431}");
+        }
+    } else if('{!spaceDiscloseMode}' == '1') {
+        $("#spaceDiscloseType").text("{!$Label.label_13127}");
+    } else if('{!spaceDiscloseMode}' == '2') {
+        $("#spaceDiscloseType").text("{!$Label.label_13128}");
+    }
+    if(('{!spaceDiscloseMode}' == '0')&&('{!spaceDiscloseEnable}' == 'true')){
+        $("#spaceDiscloseTerm").text("{!spaceDiscloseStartDate} {!$Label.label_10316} {!spaceDiscloseEndDate}");
+        $("#spaceDiscloseTermTimeZone").show();
+    } else {
+        $("#spaceDiscloseTerm").text("{!$Label.label_10431}");
+        $("#spaceDiscloseTermTimeZone").hide();
+    }
+
+    // 編集部分表示
+    $("[name=discloseModeRadio][value=0]").attr("checked", "checked");
+    if({!discloseDisplay}){
+        $('#contents_info_tab_3').show();
+    } else {
+        $('#contents_info_tab_3').hide();
+    }
+
+    if ({!discloseEnable}) {
+        $("#discloseEnableCheck").attr("checked", "checked");
+    } else {
+        $("#discloseEnableCheck").attr("checked", "");
+    }
+
+    discloseEnableChecked();
+
+    if ('{!JSENCODE(discloseMode)}' == '0') {
+        $("[name=discloseModeRadio][value=0]").attr("checked", "checked");
+    } else if ('{!JSENCODE(discloseMode)}' == '1') {
+        $("[name=discloseModeRadio][value=1]").attr("checked", "checked");
+    } else if ('{!JSENCODE(discloseMode)}' == '2') {
+        $("[name=discloseModeRadio][value=2]").attr("checked", "checked");
+    }
+    discloseModeSelected();
+
+
+    $("#discloseStartDateTmp, #discloseEndDateTmp").datepicker({dateFormat : "{!datePickerFormat}"});
+    $("#discloseDiv, #discloseButtonArea").show();
+}
+
+function discloseEnableChecked() {
+    if ($("#discloseEnableCheck").attr("checked")) {
+        $("[name=discloseModeRadio], discloseStartDateTmp, #discloseEndDateTmp").attr("disabled", "");
+    } else {
+        $("[name=discloseModeRadio], discloseStartDateTmp, #discloseEndDateTmp").attr("disabled", "disabled");
+    }
+    discloseModeSelected();
+}
+
+function discloseModeSelected() {
+    if ($("#discloseEnableCheck").attr("checked") && $("[name=discloseModeRadio]:checked").val() == 0) {
+        $("#discloseStartDateTmp, #discloseEndDateTmp").attr("disabled", "");
+    } else {
+        $("#discloseStartDateTmp, #discloseEndDateTmp").attr("disabled", "disabled");
+    }
+}
+
+/*
+ * コンテンツ公開設定バリデーション
+ */
+function discloseValidation(){
+    if ($("#discloseEnableCheck").attr("checked")
+            && $("[name=discloseModeRadio]:checked").val() == 0
+            && $("#discloseStartDateTmp").val() == ""
+            && $("#discloseEndDateTmp").val() == "") {
+        alert("{!$Label.msg_01128}");
+        return false;
+    } else if ($("#discloseStartDateTmp").val() != "" && $("#discloseEndDateTmp").val() != ""
+        && $("#discloseStartDateTmp").datepicker("getDate") > $("#discloseEndDateTmp").datepicker("getDate")) {
+        alert("{!$Label.msg_01129}");
+        return false;
+    }
+        return true;
+}
+
+function showTips(o, msgCodes) {
+    var obj = $(o);
+    var offset = obj.offset();
+
+    $(".tooltip").css("left", offset.left + 10)
+    			 .css('top', offset.top)
+    			 .css('position','absolute')
+    			 .css('height','auto')
+    			 .css('width','auto');
+
+    $('.tooltip').html('');
+    var massage = '';
+    for(var i=0; i<msgCodes.length; i++){
+        massage += msgCodes[i];
+    }
+    $('.tooltip').html(massage);
+
+    $(".tooltip").show();
+}
+</script>
+<apex:form id="contentsForm">
+    <!-- ヘッダー -->
+    <div id="c_head">
+        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/property.png')}"/>
+        <div id="c_headTitle">
+            {!$Label.solxyzcso001__label_00002}
+        </div>
+        <div id="c_headSubTitle" title="{!docName}">{!docName}</div>
+    </div>
+
+    <apex:pageBlock title="" id="contentsPageBlock">
+    <!-- エラー／警告メッセージ表示エリア -->
+    <apex:pageMessages />
+    <!-- ボタン -->
+    <apex:pageBlockButtons >
+    	<input class="btn" type="button" value="{!$Label.label_00075}" onclick="saveContentsInfo();"/>
+        <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!back}" />
+    </apex:pageBlockButtons>
+
+    <!-- ページボディー -->
+<div id ="tab_1" style="padding-bottom:15px; height:310px; overflow-y:auto;" class="tab-conedit">
+    <apex:inputHidden id="hidden_version" value="{!version}"/>
+    <table id="customfieldsTbl" class="customfields">
+        <!-- コンテンツ -->
+        <tr cfname="name">
+        	<th>{!$Label.label_10011}</th>
+        	<td class="c_require">
+				<apex:inputText id="documentName" style="width: 320px;" value="{!docName}" maxlength="255"/>{!sizeStr}
+            </td>
+        </tr>
+        <!-- 説明 -->
+        <tr cfname="explanation">
+        	<th>{!$Label.label_10012}</th>
+        	<td>
+                <table>
+                <tr>
+                    <td align="right">
+                        <div id="explanationRemainder"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+						<apex:inputtextarea id="explanation" styleClass="c_textarea_m" style="resize:none;" value="{!explanation}" />
+                    </td>
+                </tr>
+                </table>
+            </td>
+        </tr>
+        <!-- タグ -->
+        <tr cfname="tag">
+            <th>{!$Label.label_00057}</th>
+            <td>
+                <div class="tag-container" style="margin-top:-10px;margin-bottom: -10px;">
+					<apex:inputText id="tagNames" style="height: 1.2em; width: 320px;" value="{!tagNames}" />
+                </div>
+            </td>
+        </tr>
+        <!-- バージョン -->
+        <tr cfname="version">
+        	<th>{!$Label.label_10038}</th>
+        	<td>
+            	<div id="version" colspan="3" >{!releaseVersionString}</div>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- ライフサイクル詳細 -->
+<div id ="tab_2" style="display:none; padding-bottom:15px; height:310px;" class="tab-conedit">
+
+                <div id="lifeCycleView" style="position: absolute;"></div>
+                        <div id="lifecycleviewSelector" style="display: none;">
+                            <table id="lifecycleviewSelectorTable">
+                                <tr>
+                                    <td class="selectArch" style="text-align: center;">
+                                        <div onclick="$(this).lcSelectAct(1);" lctype="1">
+                                            <img src="{!URLFOR($Resource.cso, 'image/lc-archNew.png')}" class="lc-icon"/>
+                                            <div style="padding-top: 5px;">{!$Label.label_00055}</div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div onclick="$(this).lcSelectAct(2);" lctype="2">
+                                            <img src="{!URLFOR($Resource.cso, 'image/lc-trashNew.png')}" class="lc-icon"/>
+                                            <div style="padding-top: 5px;">{!$Label.label_00056}</div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div onclick="$(this).lcSelectAct(3);" lctype="3">
+                                            <img src="{!URLFOR($Resource.cso, 'image/lc-delNew.png')}" class="lc-icon"/>
+                                            <div style="padding-top: 5px;">{!$Label.label_13012}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+</div>
+<!-- コンテンツ公開設定 -->
+<div id="tab_3" style="display:none; padding-bottom:15px; height:310px;" class="tab-conedit">
+    <table class="disclose-table">
+        <tr>
+            <th>{!$Label.label_00083}</th>
+            <td><input type="checkbox" id="discloseEnableCheck" name="discloseEnableCheck" onclick="discloseEnableChecked();" /></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_13125}</th>
+            <td>
+                <label>
+                    <input type="radio" name="discloseModeRadio" value="0" onchange="discloseModeSelected();" />
+                    {!$Label.label_13126}
+                </label>
+                <label>
+                    <input type="radio" name="discloseModeRadio" value="1" onchange="discloseModeSelected();" />
+                    {!$Label.label_13127}
+                </label>
+                <label>
+                    <input type="radio" name="discloseModeRadio" value="2" onchange="discloseModeSelected();" />
+                    {!$Label.label_13128}
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_13129}</th>
+            <td>
+                <input type="text" id="discloseStartDateTmp" name="discloseStartDateTmp" class="shortWidth" value="{!discloseStartDate}" />
+                ～
+                <input type="text" id="discloseEndDateTmp" name="discloseEndDateTmp" class="shortWidth" value="{!discloseEndDate}" />
+            </td>
+        </tr>
+    </table>
+    <p class="disclose-contents-explanation">{!$Label.label_13130}</p>
+    <hr />
+    <p class="disclose-space-title">{!$Label.label_13131}</p>
+    <table class="disclose-table">
+        <tr>
+            <th>{!$Label.label_13125}</th>
+            <td><div id="spaceDiscloseType" style="font-size: 15px; margin: 0 0 0 5px;"></div></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_13129}</th>
+            <td>
+                <div id="spaceDiscloseTerm" style="font-size: 15px; margin: 0 0 0 5px;"></div>
+            </td>
+        </tr>
+        <tr>
+            <th style="height: 18px;"></th>
+            <td><div id="spaceDiscloseTermTimeZone" style="font-size: 15px; margin: 0 0 0 5px; display:none;">{!timeZoneText}</div></td>
+        </tr>
+    </table>
+</div>
+    <div style="background-color: #7593D7; height:50px; width:100%;">
+
+        <ul id="contents_info_tab">
+            <li id="contents_info_tab_1" class="contents_info_tab contents_info_tab_active">{!$Label.label_13008}</li>
+            <li id="contents_info_tab_2" class="contents_info_tab contents_info_tab_deactive">{!$Label.label_13017}</li>
+            <li id="contents_info_tab_3" class="contents_info_tab contents_info_tab_deactive" style="display:{!if(discloseDisplay,'block','none')}" >{!$Label.label_13129}</li>
+        </ul>
+    </div>
+    <apex:inputhidden value="{!lifeCycleData}" id="lifeCycleData" />
+    <apex:inputhidden value="{!discloseEnable}" id="discloseEnable" />
+    <apex:inputhidden value="{!discloseMode}" id="discloseMode" />
+    <apex:inputhidden value="{!discloseStartDate}" id="discloseStartDate" />
+    <apex:inputhidden value="{!discloseEndDate}" id="discloseEndDate" />
+    <!--<input type="hidden" id="lifeCycleData" name="lifeCycleData" value="{!lifeCycleData}"/>-->
+    <apex:inputhidden value="{!customfields}" id="customfields" />
+</apex:pageBlock>
+<apex:actionFunction name="contentsUpdate" action="{!contentsUpdate}"/>
+</apex:form>
+<div id="tooltip" class="tooltip"></div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+</apex:page>

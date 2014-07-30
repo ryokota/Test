@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>FK_NAME</field>
+    </columns>
+    <columns>
+        <field>FK_CUST_RECORDTYPE</field>
+    </columns>
+    <columns>
+        <field>FK_CREATED</field>
+    </columns>
+    <columns>
+        <field>FK_$Milestone1_Project__c.Function__c</field>
+    </columns>
+    <columns>
+        <field>CUST_NAME</field>
+    </columns>
+    <columns>
+        <field>CUST_RECORDTYPE</field>
+    </columns>
+    <columns>
+        <field>CUST_CREATED_NAME</field>
+    </columns>
+    <filter>
+        <criteriaItems>
+            <column>FK_CUST_RECORDTYPE</column>
+            <operator>equals</operator>
+            <value></value>
+        </criteriaItems>
+        <language>ja</language>
+    </filter>
+    <format>Tabular</format>
+    <name>Not RecordType</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Milestone1_Milestone__c@Milestone1_Milestone__c.Project__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>FK_$Milestone1_Project__c.Kickoff__c</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

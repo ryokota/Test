@@ -1,0 +1,9 @@
+<apex:page >
+<apex:form >
+    <td><!--
+        <apex:outputPanel rendered="{!IF(a.RecordType.Name=='Inbound' && a.Status__c=='Accepted', true, false)}">
+            <c:PickupRequest program="{!a.Program__r.Id}"/>
+        </apex:outputPanel>
+-->    </td>
+</apex:form>
+</apex:page>

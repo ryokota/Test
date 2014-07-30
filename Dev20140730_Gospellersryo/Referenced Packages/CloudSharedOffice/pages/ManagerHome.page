@@ -1,0 +1,1001 @@
+<apex:page sidebar="false" tabStyle="overlay__tab" controller="SOLXYZCSO001.WRManagerHomeController" action="{!initPage}">
+<apex:iframe src="{!$Page.SOLXYZCSO001__CSO_WR_Error}?code={!wr_userInfo.code}&massage={!wr_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(wr_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(wr_userInfo.showErrPage == false, true, false)}">
+<apex:outputPanel >
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__WRCSOBridge"/>
+<apex:include pageName="SOLXYZCSO001__WebReportContextMenu"/>
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/contextMenu.css?20130227')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/document.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.history.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userLocale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userLocale == 'ja_jp', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userLocale == 'en_US', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userLocale == 'zh_CN', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/fg.menu.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.treeview.async.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/onclickMenue_plus-min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/xdr.js')}" />
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+<apex:pageMessages ></apex:pageMessages>
+
+<style type="text/css">
+
+.spaceCreateTable th {
+    text-align: right;
+    /* min-width:70px; */
+    font-size : small;
+}
+.spaceCreateTable td {
+    overflow: hidden;
+}
+.th-left {
+    font-size: 10px;
+    color: black;
+    text-align: left;
+    background-color: #EFF3FF;
+    LINE-HEIGHT: 13px;
+}
+
+.errMsg{
+    background-color: #FFFF00;
+    color: #FF0000;
+    font-weight: bold;
+    margin-left: 5px;
+    display: none;
+    width: 95%;
+}
+
+.innerTableTx{
+    margin-top: 20px;
+}
+
+.innerTableTx th{
+    text-align: right;
+}
+
+.innerTableTx td{
+    border: none !important;
+    padding: 5px !important;
+}
+
+.required {
+    background-color: #FFCCFF;
+    border: solid 1px silver;
+}
+
+.error {
+    border-color: red !important;
+}
+
+.c_require2 {
+border-color : #FF0000;
+border-left: 3px solid #FF0000;
+padding-left: 2px;
+}
+</style>
+
+<script type="text/javascript">
+
+var userlocale = '{!userlocale}';
+
+//----------------------
+// ページ内変数
+//----------------------
+
+var openFlag = false;
+var selectFlag = 1;
+var tagType = 1;
+var tagName = '';
+var sideRoot = new Array();
+var displaySpaceID = '';
+var viewType = "dir";
+
+//ジャンプフラグ
+var jumpFlag=false;
+
+//ポップアップ子ウィンドウ
+var win = null;
+
+
+/**
+ *ロード時に実行する。
+ */
+jQuery.event.add(window, "load", function(){
+
+    if({! !hasPermissionWRAdmin}){
+        setErrorMessage("{!$Label.msg_wf_00230}");
+        return;
+    }
+
+    if({!isSessionTimeouted}){
+        setErrorMessage("{!$Label.label_wf_00146}");
+        return;
+    }
+
+    //gridviewにコンテキストメニューをバインドする
+    $("#listView1").mouseup(function(e){ });
+    $("#listView1").bind("contextmenu", function(){});
+    grdContextMenuInit();
+
+    onChangeSpace('overlay');
+    init('','overlay', 'dir');
+    loadSpaceInfos('root');
+    changeCurrentTreeColor('root');
+
+    $.history.init(function(hash){
+        if(hash == null || hash == '') hash="root";
+        if(hash != '') {
+            //ハッシュを元にリストをロードする。
+            loadHtml2('dir', hash);
+        }
+    });
+
+    // 各DOMのサイズ最適化
+    $(window).resize(resizeBodySize);
+    resizeBodySize();
+
+    initMobableElement();
+
+});
+
+/////////////////////////////////////////
+// スペース関連
+/////////////////////////////////////////
+
+function loadSpaceInfos(spaceId){
+
+    displaySpaceID = spaceId;
+
+    var callback =  function(data){
+         setSpaceName(data["name"]);
+         setPathList(data["crumbs"]);
+    };
+    secureGetAsyncSfJsonAccess('/api/overlaySpaceChoose.json', {id : spaceId, respType : '1', locale : userlocale, userid :'{!$User.UserName}' , credential : '{!credential}'}, callback);
+}
+
+/*----------------------------------------------
+ * 表示切替
+ ---------------------------------------------*/
+/**
+ * ローディングGIF表示切替
+ */
+function displayLoading(){
+    $('#tree').empty();
+    $('#tagNameTreeDiv').empty();
+    $('#spaceTree').empty();
+    $('#tagDiv').hide();
+    $('#loadingGif').show();
+}
+/**
+ * スペースツリー表示切替
+ */
+function displaySpaceTree(){
+    $('#tagDiv').hide();
+    $('#loadingGif').hide();
+    $('#spaceTree').show();
+}
+/**
+ * タグツリー表示切替
+ */
+function displayTagTree(){
+    $('#spaceTree').empty();
+    $('#loadingGif').hide();
+    $('#tagDiv').show();
+}
+/**
+ * コンテンツローディング表示
+ */
+function displayContentsLoading(){
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // 招待者一覧・コマンドボタン非表示
+    $('#invitatiedDiv').hide();
+    $('#invitatiedCommand').hide();
+    // コンテンツ一覧・コマンドボタン表示
+    $('#listViewArea').hide();
+    $('#listViewCommand').hide();
+    // コンテンツ一覧・コマンドボタン表示
+    $('#contentsloading').show();
+}
+/**
+ * コンテンツ一覧表示
+ */
+function displayList(){
+    // Webテキスト・コマンドボタン非表示
+    $('#EditorDiv').hide();
+    $('#editorCommand').hide();
+    // 招待者一覧・コマンドボタン非表示
+    // ローディング非表示
+    $('#contentsloading').hide();
+    // タイトル部変更
+    $('#folder_image').show();
+    $('#tag_image').hide();
+    $('#edit_image').hide();
+    $('#spaceManage_image').hide();
+    resizeBodySize();
+}
+/*
+ * 画面リサイズ時の各要素のサイズをリサイズ
+ */
+function resizeBodySize(){
+
+    var browserWidth = getBrowserWidth();
+    var browserHeight = getBrowserHeight();
+
+    $("#listView1").setGridHeight(browserHeight - 300);
+    $("#spaceUserManager_inv_space_user_list").setGridHeight(browserHeight - 330);
+    $("#c_left_container").css("height", (browserHeight - 130)+"px");
+    $("#tree_div").css("height", (browserHeight - 214)+"px");
+    if((browserWidth - 340) < 713){
+        $("#listView1").setGridWidth(713);
+        $("#spaceUserManager_inv_space_user_list").setGridWidth(713);
+    } else {
+        if(getBrowserType() != 'IE8'){
+            $("#listView1").setGridWidth(browserWidth - 340);
+            $("#spaceUserManager_inv_space_user_list").setGridWidth(browserWidth - 340);
+        } else {
+            $("#listView1").setGridWidth(browserWidth - 324);
+            $("#spaceUserManager_inv_space_user_list").setGridWidth(browserWidth - 324);
+        }
+    }
+}
+
+function tagMenuSelected(){
+    mSpaceIdentifier = 6;
+}
+
+/*
+ * URLにパラメータを設定する
+ */
+function setURL(url){
+    location.href = url;
+    initialized = true;
+}
+
+function reloadNow(){
+    var url = location.href;
+
+    if(!jumpFlag){
+        $("#listView1").trigger("reloadGrid");
+    } else {
+        var url = location.href;
+        var strs = url.replace(/^.*#/, '').split(":");
+        if(strs.length == 2){
+            if(strs[1] == "search"){ search(null); }
+            else{ reload(strs[0], strs[1]); }
+        }else if(strs.length == 1){
+            $('#listView1').trigger('reloadGrid');
+        }
+    }
+}
+</script>
+<script type="text/javascript">
+/*
+ * グリッド初期化
+ */
+function init(spaceId, asrt, overlayType){
+
+    if(overlayType == null) overlayType="dir";
+
+    $("#listView1").jqGrid({
+        url : _apiUrlSf + '/api/overlayComplexList.json',
+        postData : {
+            spaceId : spaceId,
+            overlayType: overlayType,
+            locale: userlocale,
+            userid : '{!$User.UserName}',
+            credential : '{!credential}'
+        },
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id       : "_id"
+        },
+        colNames:[
+            '',
+            '{!$Label.label_wf_00006}',    //名前
+            '{!$Label.label_wf_00007}',    //説明
+            '{!$Label.label_wf_00008}',    //バージョン
+            '{!$Label.label_wf_00114}',    //サイズ
+            '{!$Label.label_wf_00009}',    //作成者
+            '{!$Label.label_wf_00010}',    //作成日
+            '{!$Label.label_wf_00011}',    //更新者
+            '{!$Label.label_wf_00012}',    //更新日
+            '',
+            '',
+            '',
+            '',
+            '',
+            ''
+        ],
+        colModel:[
+                {name:'id',index:'id', hidden:true},
+                {name:'dispName',index:'dispName', width:180},
+                {name:'comment', index:'comment', width:220},
+                {name:'version', index:'version', width:70},
+                {name:'size', index:'size', width:70},
+                {name:'regist_uname', index:'regist_uname', width:100},
+                {name:'regist_date', index:'regist_date', width:100},
+                {name:'update_uname', index:'update_uname', width:90},
+                {name:'update_date', index:'update_date', width:100},
+                {name:'_id', index:'_id', hidden:true},
+                {name:'type', index:'type', hidden:true},
+                {name:'ovlId', index:'ovlId', hidden:true},
+                {name:'delAuth', index:'delAuth', hidden:true},
+                {name:'name',index:'name', width:439, hidden:true},
+                {name:'checkTime',index:'checkTime', width:439, hidden:true}
+
+                ],
+        rowNum:50,
+        height: getBrowserHeight() - 340,
+        width: getBrowserWidth() - 340,
+        rowList:[10,50,100],
+        sortname: 'name',
+        pager: '#listView1Pager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        shrinkToFit : false,
+        loadComplete : function(data) {
+            //#4284対応 add
+            // 既にバインドされた一覧を取得
+            var rowids = $(this).jqGrid("getDataIDs");
+            var list = [];
+            var columnModelNameMap = getColumnModelNameMap($(this));
+            for(var i in rowids){
+            	var rowData = $(this).find("#" + rowids[i] + " td");
+                var row = constructObjectFromRowData(rowData, columnModelNameMap);
+
+                // row.xxxx(xxxxはjqGridのカラムの値)
+                var s = $(rowData[columnModelNameMap["size"]]).text();
+                if(!isNaN(parseInt(s))){
+                    //2012/11/25 #4284 fujita WR本体の表示に合わせる
+                    var kb = parseInt(s / 1024);
+                    if (s % 1024 != 0) {
+                        kb = kb + 1;
+                    }
+                    row.size = kb + "KB";
+                }
+                 list[rowids[i]] = row;
+            }
+            // 削除->追加の処理
+            for(var i in rowids){
+                var row = list[rowids[i]];
+                $(this).jqGrid("delRowData", row._id);
+                $(this).jqGrid("addRowData", row._id, row);
+            }
+
+            //aタグにセットする
+            $("#listView1 img").each(function(){
+                //$(this).addClass("folder_2");
+                $(this).attr("src", "{!URLFOR($Resource.WRCSO, 'image/folder_2.png')}");
+            })
+
+            if(data.message){
+                // 画面を消す
+                setErrorMessage(data.message);
+            }
+        },
+        gridComplete : function(){ hideCsoContextMenu(); },
+        onSortCol: function(name, index){ hideCsoContextMenu();},
+        onSelectAll : function(ids, status){
+            switchCsoContextMenu(false);
+            contextMenuEnable();
+            var list = getSelectedList();
+            if (list.length > 0) {
+                updateCsocontextMenuHeader(list[0].name,list.length);
+            }
+        },
+        onCellSelect:function(rowid, icol, cellcontent){
+            //セルが選択された時
+            switchCsoContextMenu();
+            contextMenuEnable();
+
+            var list = getSelectedList();
+            if (list.length > 0) {
+                updateCsocontextMenuHeader(list[0].name,list.length);
+            }
+       }
+    });
+    createAndAssignColumnModelNameMap($("#listView1"));
+    $("#overlayList").jqGrid('navGrid','#listView1Pager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function createAndAssignColumnModelNameMap(jqgridObj) {
+	var colModel = jqgridObj.getGridParam('colModel');
+	var colModelNameMap = [];
+	for (var i=0; i<colModel.length; ++i) {
+		colModelNameMap[colModel[i].name] = i;
+	}
+	jqgridObj.data('colModelNameMap', colModelNameMap);
+}
+
+function getColumnModelNameMap(jqgridObj) {
+	return jqgridObj.data('colModelNameMap');
+}
+
+function constructObjectFromRowData(cellArray, columnModelNameMap) {
+	var obj = {};
+	for (var name in columnModelNameMap) {
+		obj[name] = $(cellArray[columnModelNameMap[name]]).html();
+	}
+	return obj;
+}
+
+/*
+ * ASRT名を設定する
+ */
+function setAsrtName(asrt){
+    if(asrt == "overlay"){
+        $('#c_headLeftTitle').text('{!$Label.label_wf_00001}');    //マイスペース
+    } else if(asrt == "category"){
+        $('#c_headLeftTitle').text('{!$Label.label_wf_00040}');    //カンパニースペース
+    } else if(asrt == "printer"){
+        $('#c_headLeftTitle').text('{!$Label.label_wf_00041}');    //ゴミ箱
+    }
+}
+
+/*
+ * ブレッドクラム作成・設定
+ */
+function setPathList(path){
+
+    var pathSpaceWidth,tmpPathAreaWidth;
+    var work;
+    var pathCut = false;
+    var cnt = 0;
+
+    $("#fullPathDisplay").html(path);
+
+    pathSpaceWidth =  $("#gbox_listView1").width() - 200;
+
+    $("#tmpPathArea").html(path);
+    work = path;
+    tmpPathAreaWidth = $("#tmpPathArea").width() - 0;
+
+    //do untill the path is fit in.
+    while (pathSpaceWidth < tmpPathAreaWidth) {
+        //remove the first path.
+        $("#tmpPathArea a:first").remove();
+        work=$("#tmpPathArea").html();
+        if(pathCut == true){
+            // 不要なブレッドクラムセパレーターを削除
+            work = work.substring(6, work.length);
+        }
+
+        $("#tmpPathArea").html(work);
+        tmpPathAreaWidth = $("#tmpPathArea").width();
+        pathCut = true;
+        if(cnt >= 100){
+            break;
+        }
+        cnt += 1;
+    }
+
+    if(pathCut == true){
+        $('#spacePath div div img').show();
+        $('#spacePath div div img').attr('class', 'showListButton');
+    }else{
+        $('#spacePath div div img').css('display', 'none');
+    }
+    $("#spacePath div div h3").html(work);
+    $("#spacePath div div a:last").addClass('path-bold');
+
+}
+
+/*
+ * グリッドリロード
+ */
+function reload(url, dir, id){
+    $("#listViewArea").show();
+    $("#listView1").setGridParam({
+        url: url,
+        page: 1
+    });
+    $("#listView1").trigger("reloadGrid");
+
+    //ぱんくずリストの変更
+    loadSpaceInfos(dir);
+
+    changeCurrentTreeColor(dir);
+}
+
+/*
+ * 現在設定されているURLでリロード
+ */
+function reloadGrid() {
+    setTimeout(function() { $("#listView1").trigger("reloadGrid"); }, 1500);
+}
+
+/*
+ * ファイル検索処理
+ */
+function search(str){
+    $("#listView1").setGridParam({page:1});
+
+    if(str){ $("#keywords").val(str); }
+    var searchstr = $.trim($("#keywords").val());
+
+    if (searchstr == "") {
+        alert(getMsg(new Array("1"), '{!$Label.msg_search_00001}'));    //検索文字列は{0}文字以上で入力してください。
+        return false;
+    }
+
+    var limit = 32;
+    if (searchstr.length > limit) {
+        alert(getMsg(new Array(limit + ""), '{!$Label.msg_search_00002}'));    //検索文字列は{0}文字以下で入力してください。
+        return false;
+    }
+
+    if (searchstr.match(/[\\\*\+\.\?\{\}\(\)\[\]\^\$\-\|\&]/)) {
+        alert(getMsg(new Array("\\ * + . ? { } ( ) [ ] ^ $ - |"), '{!$Label.msg_search_00003}'));    //検索文字列に以下の文字は使用できません。\n\n {0}
+        return false;
+    }
+
+    $("#listViewArea").show();
+    $("#EditorDiv").hide();
+    $("#innerBottomMenu").show();
+    $("#innerHeadTop").show();
+    $("#spacePathDiv").show();
+
+    var url="";
+    if(jumpFlag){
+        $("#listView1").setGridParam({
+            url : _apiUrlSf + '/contentsmanagement/SpaceContentsListGet.json',
+            postData : {
+                searchstr : searchstr,
+                asrt : "search",
+            }
+        });
+    }else{
+        $("#title").empty();
+        searchFlag=true;
+        $("#listView1").setGridParam({
+           url :  _apiUrlSf + '/contentsmanagement/tagSpaceContentsListGet.json',
+           postData : {
+               tagName : searchstr,
+               search : true,
+           }
+        });
+    }
+
+    if ($("#listView1").getGridParam()){ delete $("#listView1").getGridParam().postData.useCache;}
+
+    $("#listView1").trigger("reloadGrid");
+    if (str != null){
+        location.href = "#" + searchstr + ":search";
+    }
+    // コンテンツ一覧を表示する
+    if(jumpFlag){
+        displayList();
+    }else{
+        displayTagList();
+    }
+    $("#settingBtn").hide();
+    mSpaceIdentifier =7;
+}
+
+/*
+ * グリッドから選択された行の情報を取得
+ */
+function getSelectedList() {
+    var ids = jQuery("#listView1").jqGrid('getGridParam', 'selarrrow');
+    var list = new Array();
+    var columnModelNameMap = getColumnModelNameMap($("#listView1"));
+    for (var i in ids) {
+    	var rowData = $("#listView1").find("#" + ids[i] + " td");
+        var ret = constructObjectFromRowData(rowData, columnModelNameMap);
+        var obj = {
+                    'id' : ret._id,
+                    '_id' : ret._id,
+                    'name' : $(rowData[columnModelNameMap["name"]]).text(),
+                    'ovlId' : ret.ovlId,
+                    'version' : ret.version,
+                    'update_uname' : ret.update_uname,
+                    'update_date' : ret.update_date,
+                    'comment' : $(rowData[columnModelNameMap["comment"]]).text(),
+                    'type' : ret.type,
+                    'rowId': ret.id,
+                    'upDate' : ret.checktime
+                  };
+        list.push(obj);
+    }
+    return list;
+}
+
+/**
+ * 選択された行を削除
+ */
+function deleteOverlays(){
+
+    if(confirm("{!$Label.message_wf_00001}")){
+
+        var list = getSelectedList();
+
+        var _delData = JSON.stringify(list);
+
+        var _delCallback = function(data){
+
+            if(data ["result"] == false){
+                //alert("削除に失敗しました。 ");
+            }
+            reloadNow();
+        }
+
+        var _errorCallback = function(data){
+            reloadNow();
+            reloadTree();
+        }
+        secureGetAsyncSfJsonAccess('/api/overlayDelete.json', {ids:_delData, userid : '{!$User.UserName}' , credential : '{!credential}'}, _delCallback, _errorCallback);
+    }else{
+        reloadNow();
+        reloadTree();
+    }
+}
+
+
+/**
+ * スペースを選択
+ */
+function loadHtml(type, dir){
+    location.href = "#" + dir;
+    loadHtml2(type, dir);
+}
+
+function loadHtml2(type, dir){
+    $(document).scrollTop(0);
+    var url = '{!$Label.field_csowebreportSf_url}/api/overlayComplexList.json?overlayType='+type+'&id='+dir+'&locale='+userlocale;
+    reload(url, dir);
+    changeCurrentTreeColor(dir);
+}
+
+/**
+ * エラーメッセージを表示
+ */
+function setErrorMessage(message){
+
+    $("#setErrorMessageDiv").text(message);
+    $("#setErrorMessageDiv").css("display", "block");
+
+    $("#c_wrapper").css("display", "none");
+}
+
+</script>
+<apex:form id="openOverlayInfo">    <apex:pageMessages />
+    <apex:actionFunction name="addMessage" action="{!addMessage}" />
+
+<div id="setErrorMessageDiv" style="display:none; width:100%; padding-left:3em;" />
+<!-- warapper -->
+<div id="c_wrapper">
+    <div id="errorMessageBox" class="errorMessageBox" style="display:none;"></div>
+
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left">
+                <apex:include pageName="SOLXYZCSO001__WRManagerTree"/>
+                <apex:outputLabel rendered="true"></apex:outputLabel>
+            </td>
+            <!-- right header container -->
+            <td id="c_head">
+                <apex:include pageName="SOLXYZCSO001__WRManagerHeader"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right">
+                <apex:pageBlock >
+                    <apex:include pageName="SOLXYZCSO001__WROverlayList"/>
+                </apex:pageBlock>
+            </td>
+        </tr>
+
+    </table>
+    <div id="copyright" >{!$Label.field_CSO_copyright}</div>
+</div>
+
+<!-- 詳細表示時に受け渡す値 -->
+
+    <div id="overlayInfoDataHiddedFields">
+        <apex:inputhidden id="disp_ovlId" value="{!ovlId}" />
+        <apex:inputhidden id="disp_name"  value="{!name}" />
+        <apex:inputhidden id="disp_version" value="{!version}" />
+        <apex:inputhidden id="disp_comment" value="{!comment}" />
+        <apex:inputhidden id="disp_upDate" value="{!updateDate}" />
+        <apex:inputhidden id="disp_upUser" value="{!updateUser}" />
+    </div>
+</apex:form>
+</apex:outputPanel>
+
+<!-- スペース詳細 -->
+<script type="text/javascript">
+
+function registOverlayFloder(id, name, comment){
+    //removeAddDialogElements();
+
+    registing = false;
+
+    hideCsoContextMenu();
+    $("#require_tags").css("display", "inline");
+
+    $("#explanation").keyup(function(){
+        viewCommentLength("explanation", "remainder", 512);
+    });
+    viewCommentLength("explanation", "remainder", 512);
+
+    $("#spaceId").val("");
+    $("#dirName").val("");
+    $("#explanation").val("");
+
+    if(id != null) $("#spaceId").val(id);
+    if(name != null) $("#dirName").val(name);
+    if(comment != null) $("#explanation").val(comment);
+
+    $("#dirParentId").val(displaySpaceID);
+    $("#spaceId").val();
+    $("#dirName").removeClass("error");
+    $("#floderCreateErrorMsg").html("");
+    $("#floderCreateErrorMsg").addClass("errMsg");
+
+
+    $("#explanation").keyup();
+    $("#addDialog").attr("title",'');
+
+    $("#dirName").removeAttr("disabled");
+    $("#explanation").removeAttr("disabled");
+
+    $("#sp_button_cancel2").click(function(){
+        $("#addDialog").dialog('close');
+        return false;
+    });
+    $("#sp_button_action2").click(function(){
+        overlayFloderDoCreate($("#addDialog"));
+        return false;
+    });
+
+    $("#addDialog").dialog({
+            modal:true,
+            width:600,
+            height:450,
+            close: function(event, ui) {
+            },
+            title : id == null ? "{!$Label.label_wf_00143}" : "{!$Label.label_wf_00144}",
+            open : function(){
+                $("#addDialog").removeClass("ui-dialog ui-dialog-content");
+            }
+    });
+    $("#actionbuttonrow1").css("display", "none");
+    $("#actionbuttonrow2").css("display", "inline");
+    $("#remainder").css("display", "inline");
+
+    $("#sp_button_action2").text("{!$Label.label_wf_00035}");
+}
+
+function displayDirectoryInfo(id, name, comment){
+
+    $("#require_tags").css("display", "none");
+
+    $("#dirParentId").val(displaySpaceID);
+    $("#spaceId").val(id);
+    $("#dirName").val(name);
+    $("#explanation").val(comment);
+
+    $("#dirName").attr("disabled", true);
+    $("#explanation").attr("disabled", true);
+
+    $("#dirName").removeClass("error");
+    $("#floderCreateErrorMsg").html("");
+    $("#floderCreateErrorMsg").addClass("errMsg");
+    $("#explanation").keyup();
+    $("#addDialog").attr("title",'');
+
+    $("#td_req").removeClass("c_require");
+
+    $("#sp_button_cancel1").click(function(){
+        $("#addDialog").dialog('close');
+        return false;
+    });
+    $("#sp_button_action1").click(function(){
+        $("#addDialog").dialog('close');
+        setTimeout(function(){
+        registOverlayFloder(
+            $("#spaceId").val(),
+            $("#dirName").val(),
+            $("#explanation").val()
+        );
+        }, 100);
+
+        return false;
+    });
+    $("#sp_button_action1").text("{!$Label.label_wf_00020}");
+
+    $("#addDialog").dialog({
+            modal:true,
+            width:600,
+            height:450,
+            close: function(event, ui) {
+            },
+            title : "{!$Label.label_wf_00145}"
+    });
+
+    $("#actionbuttonrow1").css("display", "inline");
+    $("#actionbuttonrow2").css("display", "none");
+    $("#remainder").css("display", "none");
+
+
+}
+
+var registing = false;
+
+/**
+ * Regist.
+ */
+function overlayFloderDoCreate(diaObj){
+
+    if(registing)return;
+    registing = true;
+
+    $("#floderCreateErrorMsg").html("");
+    if(!createSpaceValidate()){
+        registing = false;
+        return ;
+     }
+    var obj = new Object();
+    var dirName = $.trim($("#dirName").val());
+    var comment =  $.trim($("#explanation").val());
+    obj['name'] = dirName;
+    obj['opt'] = 'create_dir';
+    obj['parentId'] = displaySpaceID;
+    obj['updDate'] = '${updateDate}';
+    obj['comment'] = $.trim($("#explanation").val());
+
+    var _registDirs = function(data){
+        if(data.spaceID){
+            $(diaObj).dialog('close');
+            var viewType='${viewType}';
+            if(viewType=='thumbNail'){
+                thumbNailReload();
+            }else{
+                reloadNow();
+                reloadTree();
+            }
+        }else if(data.message != null){
+            var msgArr = [];
+            msgArr[0] = data.message;
+            showValidateError(msgArr, $("#floderCreateErrorMsg"));
+        }else{
+            $(diaObj).dialog('close');
+            reloadNow();
+            reloadTree();
+        }
+        registing = false;
+    }
+
+    var onspaceId = $("#spaceId").val();
+    var regType = $("#spaceId").val() == '' ? "new" : "edit";
+	var data = {"regType" : regType, "name" : dirName, "parent" : displaySpaceID, "comment" : comment, "spaceId" : onspaceId, "locale":userlocale ,"userid" : '{!$User.UserName}' , "credential" : '{!credential}' };
+    secureGetAsyncSfJsonAccess('/api/overlaySpace.json', data , _registDirs);
+}
+
+function createSpaceValidate() {
+    var err = new Array();
+    var obj = new Object();
+    $("#floderCreateErrorMsg").html("");
+    var styleClass = "error";
+    $("#dirName").removeClass(styleClass);
+    $("#explanation").removeClass(styleClass);
+
+    var val = $.trim($("#dirName").val());
+    if(val.length == 0){
+        err[err.length] = "{!$Label.message_wf_00008}";
+        $("#dirName").addClass(styleClass);
+    }
+    if (val.match(/^.*[(\\|/|:|\*|?|\"|<|>|\|)].*$/)){
+        err[err.length] = "{!$Label.msg_00215}";
+        $("#dirName").addClass(styleClass);
+    }
+    obj["dirName"] = val;
+
+    val = $.trim($("#explanation").val());
+    if(val.length >512 ){
+        err[err.length] = "{!$Label.message_wf_00007}";
+        $("#explanation").addClass(styleClass);
+    }
+    obj["explanation"] = val;
+
+    if(err.length != 0){
+        showValidateError(err, $("#floderCreateErrorMsg"));
+        return false;
+    }
+    return true;
+}
+
+function showValidateError(array,errObj){
+    errObj.html("");
+
+    var dom = "<ul class='err'>"
+    for(var i = 0; i < array.length; i++){
+        dom += "<li>" + array[i] + "</li>";
+    }
+    dom += "</ul>";
+    errObj.html(dom);
+    errObj.show();
+}
+
+
+</script>
+
+<div id="addDialog" style="display: none; overflow:bisible;" >
+    <div id="floderCreateErrorMsg"/>
+    <table id="innerTable" class="innerTableTx">
+        <tr><td>
+        <table class="spaceCreateTable" style="padding-bottom:3px;">
+                <tr>
+                    <th>{!$Label.label_wf_30025}</th>
+                    <td id="td_req" >
+                        <form action="#" onsubmit="spaceCreateValidate(); return false;">
+                            <span id="require_tags" class="c_require2" /><input name="dirName" id="dirName" type="text" maxlength="100" class="c_text_l" />
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_wf_00007}</th>
+                    <td>
+                        <table>
+                            <tr>
+                                <td align="right"><div id="remainder" style="padding-bottom: 0.3em"/></td>
+                            </tr>
+                            <tr>
+                                <td><textarea name="explanation" id="explanation" style="width: 450px; height: 150px; resize: none;"></textarea></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+    </table>
+    </td></tr>
+    <tr><td></td></tr>
+    <tr><td></td></tr>
+    <tr><td></td></tr>
+    <tr><td></td></tr>
+    <tr><td valign="top">
+        <div id="actionbuttonrow1">
+                        <div style="text-align : center;" ><button id="sp_button_action1" style="font-size:x-small;"></button>&nbsp;<button id="sp_button_cancel1" style="font-size:x-small;">{!$Label.label_wf_00021}</button> </div>
+
+                </div >
+                <div id="actionbuttonrow2">
+                        <div style="text-align : center;" ><button id="sp_button_action2" style="font-size:x-small;"></button>&nbsp;<button id="sp_button_cancel2" style="font-size:x-small;">{!$Label.label_wf_00021}</button> </div>
+                </div >
+    </td></tr>
+    </table>
+    <input type="hidden" id="spaceId" name="spaceId" />
+    <input type="hidden" id="dirParentId" value="" name="dirParentId" />
+    <input type="hidden" name = "opt" value="create_dir" />
+</div>
+</apex:outputPanel>
+</apex:page>

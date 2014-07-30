@@ -1,0 +1,26 @@
+<!-- RFA Request Detail a. Application for Non-standard Equipmen Component -->
+<apex:component >
+    <apex:attribute name="data" description="RFA Request Details a. Application for Non-standard Equipmen data " type="CM_RequestDetails__c" required="true" />
+    
+    <apex:componentBody >
+    <apex:pageblock title="{!data.RecordType.Name}" >
+    <apex:pageBlockSection title="Request Detail" showHeader="false" columns="1">
+        <apex:outputField value="{!data.CM_Model_Name__c}" />
+        <apex:outputLabel for="" />
+    </apex:pageBlockSection>
+    <apex:pageBlockSection title="{!$Label.CM_Number_of_Section_Name}" showHeader="true" columns="1" collapsible="false">
+        <apex:outputField value="{!data.CM_Can_Stand__c}" rendered="{!Not(IsBlank(data.CM_Can_Stand__c))}" />
+        <apex:outputField value="{!data.CM_Cup_Stand__c}" rendered="{!Not(IsBlank(data.CM_Cup_Stand__c))}" />
+        <apex:outputField value="{!data.CM_Cooler_Stand__c}" rendered="{!Not(IsBlank(data.CM_Cooler_Stand__c))}" />
+        <apex:outputField value="{!data.CM_Dispenser_Stand__c}" rendered="{!Not(IsBlank(data.CM_Dispenser_Stand__c))}" />
+        <apex:outputField value="{!data.CM_Other_Stand__c}" rendered="{!Not(IsBlank(data.CM_Other_Stand__c))}" />
+    </apex:pageBlockSection>
+    <apex:pageBlockSection title="" showHeader="false" columns="1">
+        <apex:outputLabel for="" />
+    </apex:pageBlockSection>    
+    <apex:pageBlockSection title="" showHeader="false" columns="1">
+        <apex:outputField value="{!data.CM_Description__c}" />
+    </apex:pageBlockSection>
+    </apex:pageblock>
+    </apex:componentBody>
+</apex:component>

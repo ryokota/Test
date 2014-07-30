@@ -1,0 +1,112 @@
+<apex:page cache="false" controller="SOLXYZCSO001.WorkflowRouteInfoController" sidebar="false" showHeader="false" tabStyle="workflow__tab">
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_workflow_standard == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_workflow_standard == 'true', true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/_colorado.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/redmond/jquery-ui-1.8.9.custom.popup.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/chosen.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.async.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/chosen.jquery.js')}" />
+
+<script type="text/javascript">
+	var USER_LOCALE = '{!JSENCODE(userInfo.locale)}';
+</script>
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:include pageName="SOLXYZCSO001__js_wfSteps"/>
+
+
+<style type="text/css">
+
+</style>
+
+<script type="text/javascript">
+$(function(){
+    showStep();
+})
+
+function showStep(){
+    $("#step-list").wfDef({
+        id              : getUrlVars()["id"],
+        isEdit          : false,
+        apiUrl          : "{!$Label.solxyzcso001__field_CSO_URL}",
+        cssUrl          : "{!$Label.solxyzcso001__field_CSO_URL}/css/jquery.wfSteps.css",
+        addStepButton   : "addStepButton",
+        delStepButton   : "delStepButton",
+        replaceButton   : "replaceButton",
+        submitButton    : "okButton",
+        submitFunction  : function(){
+            regist();
+        },
+    });
+}
+
+function getUrlVars(arg){
+    var vars = [], hash;
+    var hashes = "";
+    if(arg !== undefined){
+        hashes = arg.slice(arg.indexOf('?') + 1).split('&');
+    }else{
+        hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    }
+    for(var i = 0; i <hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+</script>
+
+
+
+
+
+<apex:form >
+    <apex:pageBlock tabStyle="ContentTab__tab">
+        <!-- ボタン -->
+        <apex:pageBlockButtons >
+            <button class="btn Ok" type="button" onclick="top.window.close();">
+                {!$Label.label_00059}
+            </button>
+        </apex:pageBlockButtons>
+
+        <!-- 詳細 -->
+        <div id="tab_0" class="tab-div">
+            <div id="step-list" />
+        </div>
+
+    </apex:pageBlock>
+</apex:form>
+
+</apex:outputPanel>
+</apex:page>

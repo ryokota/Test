@@ -1,0 +1,24 @@
+<!-- RFA Request Detail 06. KeyMoney_Rebate_Spot_Other -->
+<apex:component >
+    <apex:attribute name="data" description="RFA Request Details 06. KeyMoney_Rebate_Spot_Other data " type="CM_RequestDetails__c" required="true" />
+    
+    <apex:componentBody >
+    <apex:pageblock title="{!data.RecordType.Name}" >
+    <apex:pageBlockSection title="Request Detail" showHeader="false" columns="2">
+        <apex:outputField value="{!data.CM_Payment_amount_Tax_exclusive_price__c}" /><apex:outputLabel for="" />
+        
+        <apex:outputField value="{!data.CM_Payment_method__c}" /><apex:outputLabel for="" />
+        <apex:outputField value="{!data.CM_Payment_timing__c}" /><apex:outputLabel for="" />
+        <apex:outputField value="{!data.CM_Other_payment_methods__c}" /><apex:outputLabel for="" />
+
+        <apex:outputField value="{!data.CM_Contract_term_from__c}" />
+        <apex:outputField value="{!data.CM_Contract_term_to__c}" />
+        <apex:outputField value="{!data.CM_Automatic_Renewed__c}" /><apex:outputLabel for="" />
+        <apex:outputField value="{!data.CM_Payment_due_date__c  }" /><apex:outputLabel for="" />
+    </apex:pageBlockSection>
+    <apex:pageBlockSection title="" showHeader="false" columns="1">
+        <apex:outputField value="{!data.CM_Description__c}" />
+    </apex:pageBlockSection>
+    </apex:pageblock>
+    </apex:componentBody>
+</apex:component>

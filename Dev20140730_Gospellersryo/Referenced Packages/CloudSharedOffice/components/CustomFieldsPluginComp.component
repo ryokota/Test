@@ -1,0 +1,646 @@
+<apex:component id="customFieldsPluginComp" access="global" allowDML="true">
+<apex:outputText escape="false" value="</span>"/>
+<script type="text/javascript">
+(function($){
+
+	CF_OBJ_ID					= "cf-obj-id";
+	CF_ATTACH					= "cf_attach";
+	CF_EDIT						= "cf-edit";
+	CF_ASYNC					= "cf-async";
+	CF_POS_COLUMN				= "cfcol";
+	CF_NAME						= "cfname";
+
+	CF_TYPE_TEXT				= "TEXT";
+	CF_TYPE_TEXTAREA			= "TEXTAREA";
+	CF_TYPE_LONG_TEXTAREA		= "LONG_TEXTAREA";
+	CF_TYPE_NUMBER				= "NUMBER";
+	CF_TYPE_CHECKBOX			= "CHECKBOX";
+	CF_TYPE_DROPDOWNLIST		= "DROPDOWNLIST";
+	CF_TYPE_LISTBOX				= "LISTBOX";
+	CF_TYPE_DATE				= "DATE";
+	CF_TYPE_DATETIME			= "DATETIME";
+	CF_TYPE_NUMBERING			= "NUMBERING";
+	CF_TYPE_URL					= "URL";
+	
+	CF_MAX_LENGTH_NUMBER		= 18;
+
+	CF_UNKNOWN_ERROR			= "0";
+	CF_INVALID_REQUIRED			= "1";
+	CF_INVALID_UNIQUE			= "2";
+	CF_INVALID_LENGTH_MIN		= "3";
+	CF_INVALID_LENGTH_MAX		= "4";
+	CF_INVALID_NUM_MIN			= "5";
+	CF_INVALID_NUM_MAX			= "6";
+	CF_INVALID_DATE				= "7";
+	CF_INVALID_DATETIME			= "8";
+	CF_INVALID_URL				= "9";
+	CF_INVALID_NUMBER			= "not_number";
+	CF_INVALID_CHAR				= "invalid_char";
+
+	cache = null;
+
+	$.fn.customfields = function(options) {
+		var options = $.extend({
+			obj_id	: "",
+			attach	: "",
+			edit	: false,
+			async	: true,
+		}, options);
+
+		$(this).attr(CF_OBJ_ID, options.obj_id);
+		$(this).attr(CF_ATTACH, options.attach);
+		$(this).attr(CF_EDIT, options.edit);
+		$(this).attr(CF_ASYNC, options.async);
+		$(this).attr(CF_POS_COLUMN, 0);
+
+		setCustomData(this);
+
+		return this;
+	};
+
+	function setCustomData(target) {
+		var callback = function(data) {
+			if (!data.result) {
+				noCustomFields(target);
+				return;
+			}
+			cache = data;
+			setLayout(target);
+		};
+		var callerror = function(data) {
+			alert(data);
+		};
+		secureGetAsync(
+			'/setup/customfields/objectInfoGet.json',
+			{
+				id		:	$(target).attr(CF_OBJ_ID),
+				attach	:	$(target).attr(CF_ATTACH),
+				edit	:	$(target).attr(CF_EDIT)
+			},
+			callback,
+			callerror
+		);
+	}
+
+	function noCustomFields(t) {
+		t.css("display", t.get(0).tagName == "TABLE" ? "table" : "block");
+		t.find("[" + CF_POS_COLUMN + "]").css("display", "table");
+		t.find("[" + CF_NAME + "]").css("display", "table-row");
+		$(".customfields-rel").removeClass("customfields-rel");
+	}
+
+	function setLayout(t) {
+		data = cache;
+		if (data.no_data) {
+			noCustomFields(t);
+			return;
+		}
+
+		var isEdit = (t.attr(CF_EDIT).toLowerCase() == "true");
+
+		var fieldsMap = new Object();
+		
+		for (var i=0; i<data.fields.length; i++) {
+			if (!fieldsMap[data.fields[i].position_column]) {
+				fieldsMap[data.fields[i].position_column] = new Array();
+			}
+			fieldsMap[data.fields[i].position_column].push(data.fields[i]);
+		}
+		
+		for (var fieldsMapKey in fieldsMap) {
+			var arrFields = fieldsMap[fieldsMapKey];
+			arrFields.sort(function(a,b){ return a.position_l - b.position_l; });
+
+			var dispElm = null;
+			if (t.find("[" + CF_POS_COLUMN + "=" + fieldsMapKey + "]").length > 0) {
+				dispElm = t.find("[" + CF_POS_COLUMN + "=" + fieldsMapKey + "]");
+			} else {
+				dispElm = t;
+			}
+			
+			$("[cfinput-type=DATE]").remove();
+			$("[cfinput-type=DATETIME]").remove();
+			
+			var lastDisplayedIndex = null;
+			for (var i=0; i<arrFields.length; i++) {
+				var field = arrFields[i];
+				var tr;
+				var td = $("<td>");
+				if (field.standard) {
+					if (t.find("[cfname=" + field.name + "]").length == 0) {
+						continue;
+					}
+					tr = t.find("[cfname=" + field.name + "]");
+				} else {
+					t.find("[cfname=" + field.name + "]").remove();
+					tr = $("<tr cfname=\"" + field.name + "\">").append($("<th>").text(field.label));
+					var elm = null;
+					var help = null;
+					if (isEdit && field.modifiable) {
+						if (field.type == CF_TYPE_TEXT) {
+							elm = $("<input type=\"text\" class=\"cf-modify-input cf-modify-text\">");
+							elm.attr("maxLength", field.length_max);
+							if (t.attr(CF_OBJ_ID) == "" && field.initial_value != null) {
+								elm.val(field.initial_value);
+							} else {
+								elm.val(field.value);
+							}
+						} else if (field.type == CF_TYPE_TEXTAREA) {
+							elm = $("<textarea class=\"cf-modify-input cf-modify-textarea\">");
+							elm.attr("maxLength", field.length_max);
+							if (t.attr(CF_OBJ_ID) == "" && field.initial_value != null) {
+								elm.val(field.initial_value);
+							} else {
+								elm.val(field.value);
+							}
+						} else if (field.type == CF_TYPE_LONG_TEXTAREA) {
+							elm = $("<textarea class=\"cf-modify-input cf-modify-textarea\">");
+							elm.attr("maxLength", field.length_max);
+							if (t.attr(CF_OBJ_ID) == "" && field.initial_value != null) {
+								elm.val(field.initial_value);
+							} else {
+								elm.val(field.value);
+							}
+						} else if (field.type == CF_TYPE_NUMBER) {
+							elm = $("<input type=\"text\" class=\"cf-modify-input cf-modify-number\">");
+							if (t.attr(CF_OBJ_ID) == "" && field.initial_value != null) {
+								elm.val(field.initial_value);
+							} else {
+								elm.val(field.value);
+							}
+							if (field.num_max != null && field.num_min != null) {
+								var max_str_len = field.num_max.toString().length;
+								var min_str_len = field.num_min.toString().length;
+								elm.attr("maxLength", max_str_len > min_str_len ? max_str_len : min_str_len);
+							} else {
+								elm.attr("maxLength", field.num_max > 0 ? field.num_max.toString().length : CF_MAX_LENGTH_NUMBER);
+							}
+							elm.bind("keyup", onNumberKeypress);
+							elm.bind("paste", onNumberKeypress);
+							elm.bind("blur", onNumberKeypress);
+						} else if (field.type == CF_TYPE_CHECKBOX) {
+							elm = $("<div class=\"cf-modify-checkbox-div\">")
+									.append($("<input type=\"checkbox\" value=\"" + field.id + "\">"));
+							if (isTrue(field.value)) {
+								elm.find("input").attr("checked", "checked");
+							}
+						} else if (field.type == CF_TYPE_DROPDOWNLIST) {
+							elm = $("<select class=\"cf-modify-input cf-modify-dropdownlist\">");
+							for (var j = 0; j < field.options.length; j++) {
+								elm.append($("<option value=\"" + field.options[j] + "\">").text(field.options[j]));
+							}
+							elm.find("[value=\"" + field.value + "\"]").attr("selected", "selected");
+						} else if (field.type == CF_TYPE_LISTBOX) {
+							elm = $("<select class=\"cf-modify-input cf-modify-listbox\" size=\"3\" multiple>");
+							for (var j = 0; j < field.options.length; j++) {
+								elm.append($("<option value=\"" + field.options[j] + "\">").text(field.options[j]));
+							}
+							try {
+								var arrChecks = JSON.parse(field.value);
+								for (var j = 0; j < arrChecks.length; j++) {
+									elm.find("[value=\"" + arrChecks[j] + "\"]").attr("selected", "selected");
+								}
+							} catch(e) {
+							}
+						} else if (field.type == CF_TYPE_DATE) {
+							elm = $("<input class=\"cf-modify-input cf-modify-date\" maxLength=\"10\">").val(field.value);
+						} else if (field.type == CF_TYPE_DATETIME) {
+							elm = $("<input class=\"cf-modify-input cf-modify-datetime\" maxLength=\"16\">").val(field.value);
+						} else if (field.type == CF_TYPE_NUMBERING) {
+							if (t.attr(CF_OBJ_ID) == "") {
+								elm = $("<input type=\"text\" class=\"cf-modify-input cf-modify-numberingrule\" disabled=\"disabled\">").val("{!$Label.custom_field_message_00042}");
+							} else {
+								elm = $("<span>").text(field.value == "" ? "-" : field.value);
+							}
+						} else if (field.type == CF_TYPE_URL) {
+							elm = $("<input class=\"cf-modify-input cf-modify-url\" maxLength=\"2083\">").val(field.value);
+							if (t.attr(CF_OBJ_ID) == "" && field.initial_value != null) {
+								elm.val(field.initial_value);
+							}
+						} else {
+							elm = $("<span>").text(field.value);
+						}
+						elm.attr({
+							"id"				: "cf-" + field.id,
+							"name"				: "cf-" + field.name,
+							"cfinput"			: "1",
+							"cfinput-id"		: field.id,
+							"cfinput-name"		: field.name,
+							"cfinput-label"		: field.label,
+							"cfinput-type"		: field.type,
+							"cfinput-required"	: field.required,
+							"cfinput-unique"	: field.unique,
+							"cfinput-lenmin"	: field.length_min,
+							"cfinput-lenmax"	: field.length_max,
+							"cfinput-nummin"	: field.num_min,
+							"cfinput-nummax"	: field.num_max,
+						});
+						if (field.help_text != null && field.help_text != "") {
+							var regexp = RegExp(/\r\n|\r|\n/g);
+							help = $("<img>").attr({
+									"id"	: "cfhelp-" + field.id,
+									"src"	: "{!URLFOR($Resource.cso, 'image/tooltip.png')}",
+									"class"	: "cf-tooltip-icon",
+									"text"	: field.help_text.replace(/</g, "&lt;").replace(regexp, "<br />"),
+							});
+						}
+						if (field.required && 
+								(field.type == CF_TYPE_TEXT
+										|| field.type == CF_TYPE_TEXTAREA
+										|| field.type == CF_TYPE_LONG_TEXTAREA
+										|| field.type == CF_TYPE_NUMBER
+										|| field.type == CF_TYPE_LISTBOX
+										|| field.type == CF_TYPE_DATE
+										|| field.type == CF_TYPE_DATETIME
+										|| field.type == CF_TYPE_URL)) {
+							td.addClass("c_require");
+						}
+					} else {
+						if (field.type == CF_TYPE_TEXTAREA
+								|| field.type == CF_TYPE_LONG_TEXTAREA) {
+							elm = $("<textarea class=\"cf-refer-textarea\" readonly>")
+									.val(field.value == "" ? "-" : field.value);
+						} else if (field.type == CF_TYPE_CHECKBOX) {
+							elm = $("<img class=\"cf-refer-checkbox\">")
+							if (isTrue(field.value)) {
+								elm.attr("src", "{!URLFOR($Resource.cso, 'image/check_on.png')}");
+							} else {
+								elm.attr("src", "{!URLFOR($Resource.cso, 'image/check_off.png')}");
+							}
+						} else if (field.type == CF_TYPE_LISTBOX) {
+							try {
+								var arrTxt = JSON.parse(field.value);
+								for (var j = 0; j < arrTxt.length; j++) {
+									arrTxt[j] = escapeHtml(arrTxt[j]);
+								}
+								elm = $("<span>").html(arrTxt.length == 0 ? "-" : arrTxt.join("<br />"));
+							} catch(e) {
+								elm = $("<span>").text("-");
+							}
+						} else if (field.type == CF_TYPE_URL) {
+							if (isEmpty(field.value)) {
+								elm = $("<span>").text("-");
+							} else {
+								elm = $("<a class=\"cf-refer-url\" target=\"_blank\" />").attr("href", field.value).text(field.value);
+							}
+						} else {
+							elm = $("<span>").text(field.value == "" ? "-" : field.value);
+						}
+					}
+					if (help == null) {
+						tr.append(td.append(elm));
+					} else {
+						tr.append(td.append(elm).append(help));
+					}
+				}
+
+				tr.css("display", "table-row");
+
+				if (lastDisplayedIndex == null) {
+					if (dispElm.find("tr").length == 0) {
+						dispElm.append(tr);
+					} else if (dispElm.find("[cfname]:first").attr(CF_NAME)
+							!= dispElm.find("[cfname=" + field.name + "]").attr(CF_NAME)) {
+						dispElm.find("[cfname]:first").before(tr);
+					}
+				} else {
+					dispElm.find("[cfname=" + arrFields[lastDisplayedIndex].name + "]:last").after(tr);
+				}
+				lastDisplayedIndex = i;
+			}
+
+			var dateFormat;
+			if (data.lcl == "ja" || data.lcl == "zh") {
+				dateFormat = "yy/mm/dd";
+			} else {
+				dateFormat = "mm/dd/yy";
+			}
+			$("[cfinput-type=DATE]").datepicker({
+				dateFormat 	: dateFormat,
+			});
+			$("[cfinput-type=DATETIME]").datepicker({
+				dateFormat	: dateFormat,
+				datetime	: true,
+				onSelect	: onDatetimeSelect,
+			});
+			$("[id^=cfhelp-]").each(function(){
+				$(this).hover(
+					function(){ showTips(this, $(this).attr("text")); },
+					function(){ hideTips(); }
+				);
+			});
+		}
+
+		t.css("display", t.get(0).tagName == "TABLE" ? "table" : "block");
+		for (var fieldsMapKey in fieldsMap) {
+			if (t.find("[" + CF_POS_COLUMN + "=" + fieldsMapKey + "]").find("tr").length > 0) {
+				t.find("[" + CF_POS_COLUMN + "=" + fieldsMapKey + "]").css("display", "table");
+			} else {
+				t.find("[" + CF_POS_COLUMN + "=" + fieldsMapKey + "]").css("display", "none");
+			}
+		}
+		$(".customfields-rel").removeClass("customfields-rel");
+	}
+
+	$.fn.cfValues=function(options) {
+		var arr = new Array();
+		$(this).find("[cfinput]").each(function() {
+			var o = new Object();
+			o["id"] = $(this).attr("cfinput-id");
+			o["name"] = $(this).attr("cfinput-name");
+			if ($(this).attr("cfinput-type") == CF_TYPE_CHECKBOX) {
+				o["value"] = $(this).find("input").attr("checked").toString();
+			} else if ($(this).attr("cfinput-type") == CF_TYPE_LISTBOX) {
+				var arrValues = new Array();
+				$(this).find("option:selected").each(function(){
+					arrValues.push($(this).val());
+				});
+				o["value"] = arrValues;
+			} else {
+				o["value"] = $(this).val();
+			}
+			arr.push(o);
+		});
+		return JSON.stringify(arr);
+	}
+
+	$.fn.cfValidator=function(options) {
+		var options = $.extend({
+			err			: new Array(),
+			errClass	: "",
+			args		: {},
+			success		: new Function(),
+			fail		: new Function()
+		}, options);
+		var err = options.err;
+		var errClass = options.errClass;
+		var args = options.args;
+		var success = options.success;
+		var fail = options.fail;
+		var cferr = new Array();
+		$(this).checkInvalidFields().done(function(data){
+			if (!data.result) {
+				cferr.push(createErrorInfo(null, new Array(CF_UNKNOWN_ERROR)));
+				return;
+			}
+			for (var i = 0; i < data.error.length; i++) {
+				var o = $("#cf-" + data.error[i].id);
+				cferr.push(createErrorInfo(o, new Array(data.error[i].code)));
+			}
+			if (cferr.length > 0) {
+				for (var i = 0; i < cferr.length; i++) {
+					for (var j = 0; j < cferr[i].error.length; j++) {
+						switch (cferr[i].error[j]) {
+						case CF_UNKNOWN_ERROR:
+							err.push("{!$Label.msg_00136}");
+							break;
+						case CF_INVALID_REQUIRED:
+							err.push(getMsg(new Array(cferr[i].label), "{!$Label.custom_field_message_00033}"));
+							break;
+						case CF_INVALID_UNIQUE:
+							err.push(getMsg(new Array(cferr[i].label), "{!$Label.custom_field_message_00043}"));
+							break;
+						case CF_INVALID_LENGTH_MIN:
+							err.push(getMsg(new Array(cferr[i].label, cferr[i].lenmin), "{!$Label.custom_field_message_00044}"));
+							break;
+						case CF_INVALID_LENGTH_MAX:
+							err.push(getMsg(new Array(cferr[i].label, cferr[i].lenmax), "{!$Label.custom_field_message_00034}"));
+							break;
+						case CF_INVALID_NUM_MIN:
+							err.push(getMsg(new Array(cferr[i].label, cferr[i].nummin), "{!$Label.custom_field_message_00045}"));
+							break;
+						case CF_INVALID_NUM_MAX:
+							err.push(getMsg(new Array(cferr[i].label, cferr[i].nummax), "{!$Label.custom_field_message_00046}"));
+							break;
+						case CF_INVALID_DATE:
+							err.push(getMsg(new Array(cferr[i].label), "{!$Label.custom_field_message_00038}"));
+							break;
+						case CF_INVALID_DATETIME:
+							err.push(getMsg(new Array(cferr[i].label), "{!$Label.custom_field_message_00038}"));
+							break;
+						case CF_INVALID_URL:
+							err.push(getMsg(new Array(cferr[i].label), "{!$Label.custom_field_message_00038}"));
+							break;
+						case CF_INVALID_NUMBER:
+							err.push(getMsg(new Array(cferr[i].label), "{!$Label.custom_field_message_00048}"));
+							break;
+						case CF_INVALID_CHAR:
+							err.push(getMsg(new Array(cferr[i].label, "\\ \""), "{!$Label.custom_field_message_00049}"));
+							break;
+						}
+						
+						if (err.length > 0) {
+							$("#" + cferr[i].id).addClass(errClass);
+						}
+					}
+				}
+			}
+			if(err.length > 0) {
+	       		for(var i = 0; i < err.length; i++){
+					alert(err[i]);
+				}
+				fail(args);
+	       	} else {
+	       		success(args);
+	       	}
+		});
+	}
+	
+	$.fn.checkInvalidFields=function(options) {
+		return $.ajax({
+			type		: "POST",
+			url			: _apiUrl + "/setup/customfields/checkInputValues.json",
+			data		: {
+				obj_id			: $(this).attr(CF_OBJ_ID),
+				attach			: $(this).attr(CF_ATTACH),
+				custom_values	: $(this).cfValues(),
+			},
+			dataType	: "jsonp"
+		});
+	}
+
+	function createErrorInfo(o, arrErr) {
+		var info = new Object();
+		if (o != null) {
+			info["id"] = o.attr("id");
+			info["name"] = o.attr("cfinput-name");
+			info["label"] = o.attr("cfinput-label");
+			info["lenmin"] = o.attr("cfinput-lenmin");
+			info["lenmax"] = o.attr("cfinput-lenmax");
+			info["nummin"] = o.attr("cfinput-nummin");
+			info["nummax"] = o.attr("cfinput-nummax");
+		}
+		info["error"] = arrErr;
+		return info;
+	}
+
+	function onNumberKeypress(e) {
+		if (e.keyCode == undefined
+				|| e.keyCode == 0
+				|| e.keyCode == 37
+				|| e.keyCode == 38
+				|| e.keyCode == 39
+				|| e.keyCode == 40
+				|| String.fromCharCode(e.keyCode).match(/[0-9]/gi)) {
+			return;
+		}
+		var carePos = $(this).caretPos();
+		var s = new Array();
+		var removeCount = 0; 
+		$.each($(this).val().split(""), function(i, v){
+			if ((i == 0 && v.match(/[0-9\-]/gi)) || v.match(/[0-9]/gi)) {
+				s.push(v);
+			} else {
+				removeCount++;
+			}
+		});
+		if(s.length > 0) {
+			$(this).val(s.join(""));
+		} else {
+			$(this).val("");
+		}
+		$(this).caretPos(carePos - removeCount);
+	}
+
+	function onDatetimeSelect() {
+		var date = new Date();
+		$(this).val($(this).val() + " " + (date.getHours() < 10 ? "0" : "") + date.getHours() 
+				+ ":" + (date.getMinutes() < 10 ? "0" : "") + date.getMinutes());
+	}
+
+	function checkDateFormat(str) {
+		if (!str.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
+			return false;
+		}
+		if (!isDateFormat(str)) {
+			return false;
+		}
+		return true;
+	}
+
+	function checkDatetimeFormat(str) {
+		if (!str.match(/^\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}$/)) {
+			return false;
+		}
+		if (!isDateFormat(str.substring(0, 10))) {
+			return false;
+		}
+		if (!str.substring(11).match(/([0,1][0-9]|2[0-3]):[0-5][0-9]/)) {
+			return false;
+		}
+		return true;
+	}
+
+	function isEmpty(val){
+		if(val==undefined||val==null||val==""){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	function isDateFormat(argValue) {
+		if (argValue.length != 10 ) {
+			return false;
+		}
+		var ymd = argValue.split("/");
+		if(ymd.length != 3){
+			return false;
+		}
+		for(var i = 0; i < ymd.length; i++){
+			var val = ymd[i];
+			if(!isNumeric(val)) return false;
+		}
+		var iYear = parseInt(ymd[0], 10);
+		var iMonth = parseInt(ymd[1], 10);
+		var iDay = parseInt(ymd[2], 10);
+		var iMaxDayOfMonth = Array(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+		if (iMonth < 1 || iMonth > 12) {
+			return false;
+		}
+		if (iDay < 1 || iDay > iMaxDayOfMonth[iMonth - 1]) {
+			return false;
+		}
+		if (iMonth != 2) {
+			return true;
+		}
+		if (iDay < 29) {
+			return true;
+		}
+		if ((iYear % 4) == 0 && (iYear % 100) != 0) {
+			return true;
+		}
+		if ((iYear % 400) == 0) {
+			return true;
+		}
+		return false;
+	}
+
+	function isTrue(val) {
+		if (val == false || val == "false" || val == null || val == "null" || val == "") {
+			return false;
+		}
+		return true;
+	}
+	
+	function escapeHtml(unsafe) {
+		return unsafe
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#039;");
+	}
+})($);
+
+/**
+ * jquery.caretpos.js 0.1 - jQuery Plugin
+ * http://d.hatena.ne.jp/tubureteru/
+ * Copyright (c) 2011 tubureteru
+ * Licensed under the MIT license
+ */
+(function($) {
+	var caretPos = function(pos) {
+		var item = this.get(0);
+
+		if (pos == null) {
+			return get(item);
+		}
+
+		if (pos == "first") pos = 0;
+		if (pos == "last") pos = this.val().length;
+		set(item, pos);
+		return this;
+	};
+
+	var get = function(item) {
+		var CaretPos = 0;
+		if (document.selection) { // IE
+			item.focus ();
+			var Sel = document.selection.createRange();
+			Sel.moveStart ("character", -item.value.length);
+			CaretPos = Sel.text.length;
+		} else if (item.selectionStart || item.selectionStart == "0") { // Firefox, Chrome
+			CaretPos = item.selectionStart;
+		}
+		return (CaretPos);
+	};
+
+	var set = function(item, pos) {
+		if (item.setSelectionRange) {  // Firefox, Chrome
+			item.focus();
+			item.setSelectionRange(pos, pos);
+		} else if (item.createTextRange) { // IE
+			var range = item.createTextRange();
+			range.collapse(true);
+			range.moveEnd("character", pos);
+			range.moveStart("character", pos);
+			range.select();
+		}
+	};
+
+	$.fn.extend({caretPos: caretPos});
+})($);
+</script>
+<apex:outputText escape="false" value="<span>"/>
+</apex:component>

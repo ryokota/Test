@@ -1,0 +1,951 @@
+<apex:page cache="false" sidebar="false" tabStyle="setting__tab" controller="SOLXYZCSO001.ServiceUsageController">
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_service_situation == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_service_situation == 'true' && userInfo.showErrPage == false, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/contextMenu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/document.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/_colorado.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.history.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/fg.menu.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.async.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/highcharts.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+
+
+
+<style type="text/css">
+.action{
+width: 20px;
+height: 20px;
+border: none;
+}
+
+#nowUsageTable{
+    margin: 10px;
+}
+
+#nowUsageTable td{
+padding-left: 30px;
+text-align: right;
+}
+
+#historyUsageTable{
+padding-left: 30px;
+text-align: right;
+margin-bottom: 10px;
+}
+
+.separatorDiv{
+    width: 100%;
+}
+
+.separatorDiv div{
+//    color: white;
+//    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+span.large {
+    font-size : 20px;
+    font-weight: bold;
+}
+
+td.tile {
+    width:100px;
+    margin:5px;
+    color : white;
+}
+
+.in {
+    /* cyan */
+    background-color : #00FFFF;
+    text-align : center;
+}
+
+.store {
+    /* lawngreen */
+    background-color : #7CFC00;
+    text-align : center;
+}
+
+.out {
+    /* orange */
+    background-color : #FFA500;
+    text-align : center;
+}
+
+.contents{
+    /* goldenrod */
+    background-color : #DAA520;
+    text-align : center;
+    font-size: 11px;
+}
+
+.deliv{
+    /* indigo */
+    background-color : #4B0082;
+    text-align : center;
+    font-size: 11px;
+}
+
+td.standard {
+    width:100px;
+    margin:5px;
+    font-size: 10px;
+}
+
+
+table#fixedtable {
+    width: 650px;
+    border: 1px #E3E3E3 solid;
+    border-spacing: 0;
+    background: #D5F0F0;
+    margin-left: 30px;
+}
+
+table#fixedtable th {
+    padding: 5px;
+    border: #98DCDC solid;
+    border-width: 0 0 1px 1px;
+    background: #73CECE;
+    color: #FFFFFF;
+    font-weight: bold;
+    line-height: 120%;
+    text-align: left;
+    font-size: 20px;
+}
+table#fixedtable td {
+    padding: 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #FFFFFF #8ED9D9 #8ED9D9 #FFFFFF;
+    color: #1A4444;
+}
+
+table#fixedtable .td-1{
+    border-color: #FFFFFF #D5F0F0 #D5F0F0 #FFFFFF;
+}
+
+table#fixedtable .td-2{
+    border-color: #FFFFFF #D5F0F0 #8ED9D9 #D5F0F0;
+}
+
+table#fixedtable .td-3{
+    border-color: #FFFFFF #8ED9D9 #D5F0F0 #D5F0F0;
+}
+
+table#fixedtable .td-4{
+    border-color: #D5F0F0 #D5F0F0 #D5F0F0 #FFFFFF;
+}
+
+table#fixedtable .td-5{
+    border-color: #D5F0F0 #D5F0F0 #D5F0F0 #D5F0F0;
+}
+
+table#fixedtable .td-6{
+    border-color: #D5F0F0 #8ED9D9 #D5F0F0 #D5F0F0;
+}
+
+table#fixedtable .td-7{
+    border-color: #D5F0F0 #D5F0F0 #8ED9D9 #FFFFFF;
+}
+
+table#fixedtable .td-8{
+    border-color: #D5F0F0 #D5F0F0 #8ED9D9 #D5F0F0;
+}
+
+table#fixedtable .td-9{
+    border-color: #8ED9D9 #D5F0F0 #D5F0F0 #8ED9D9;
+}
+
+table#fixedtable .title {
+    text-align: left;
+    border-color: #FFFFFF #D5F0F0 #8ED9D9 #FFFFFF;
+}
+
+table#fixedtable .right {
+    font-weight: bold;
+    padding-left: 40px;
+}
+
+.charge{
+    font-weight: bold;
+    text-align: right;
+    width: 100px;
+    border-color: #FFFFFF #8ED9D9 #8ED9D9 #D5F0F0 !important;
+}
+
+.dl-tr, .store-tr{
+     display: none;
+}
+
+.amount{
+    width: 60px;
+    text-align: right;
+    border-color: #FFFFFF #D5F0F0 #8ED9D9 #D5F0F0 !important;
+}
+
+.detail-amount{
+
+}
+
+.detail-charge{
+    font-weight: normal !important;
+}
+
+.sum{
+    font-size: 16px;
+    font-weight: bold;
+}
+</style>
+
+
+
+
+<script type="text/javascript">
+    var serviceUsage_chart;
+    var serviceUsage_domain;
+    var serviceUsage_trial;
+
+    var calc;
+    var tickInterval;
+    var dispUnit;
+
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+        //  初期処理
+        serviceUsage_initialize();
+    });
+
+
+    //============//
+    //  初期処理  //
+    //============//
+    function serviceUsage_initialize(){
+        var callback =  function(data, status){
+            //  企業ID
+            serviceUsage_domain = data["domain"];
+            //  トライアル
+            serviceUsage_trial = data["trial"];
+            //  現在日付
+            $("#serviceUsage_today").text(getMsg(new Array(data["nowdate"]), '{!$Label.label_10094}'));
+            //  利用開始日
+            $("#serviceUsage_serviceStart").text(data["serviceStart"]);
+            //  会社名
+            var corpName = data["corpName"];
+            $("#serviceUsage_corpName").text(corpName);
+            //  年
+            var rows = data["years"];
+            var count = rows.length;
+            var list = $("#serviceUsage_year");
+            list.empty();
+            for(var i = 0; i < count; i++){
+                var option = $(createOptionTagString(rows[i], rows[i]));
+                if(option.attr("value") == data["nowyear"]){
+                    option.attr("selected", "selected");
+                }
+                list.append(option);
+            }
+            //  月
+            rows = data["months"];
+            count = rows.length;
+            list = $("#serviceUsage_month");
+            list.empty();
+            for(var i = 0; i < count; i++){
+                var option = $(createOptionTagString(rows[i], rows[i]));
+                if(option.attr("value") == data["nowmonth"]){
+                    option.attr("selected", "selected");
+                }
+                list.append(option);
+            }
+
+            //  初期表示
+            serviceUsage_initView();
+        };
+
+        //  初期処理の呼び出し
+        secureGetAsync('/setup/UsageStatusInit.json', '', callback);
+    }
+    function createOptionTagString(value, label){
+        var str = "<option value='" + value + "'>" + label + "</option>";
+
+        return str;
+    }
+
+
+    //================//
+    //  初期表示処理  //
+    //================//
+    function serviceUsage_initView(){
+
+//        month_change();
+
+        $('#serviceUsage_type').change(function() {
+
+            if ($(this).val() == "corp") {
+                $('#userListDiv').hide();
+                $('#corpUsage').show();
+
+            } else if ($(this).val() == "person") {
+                $('#corpUsage').hide();
+                $('#userListDiv').show();
+                //$('#userListDiv > div').width(900);
+                //$('#pager').width('100%');
+            }
+
+           // adjust();
+            resizeUsageInfoMain();
+        });
+
+        $("#userList").jqGrid({
+            url : _apiUrl + '/setup/PersonalUsageStatusGetListV2.json',
+            datatype : "jsonp",
+            jsonReader : {
+                repeatitems: false,
+                id         : "id"
+            },
+            colNames : ['{!$Label.label_10131}',
+                        '{!$Label.label_10089}',
+                        '{!$Label.label_10090}',
+            ],
+            colModel : [
+                        {name : 'info', index : 'userid', width : 410},
+                        {name : 'useDiskSize', index : 'useDiskSize', width : 120, align : "right"},
+                        {name : 'useDeliverySize', index : 'useDeliverySize', width : 120, align : "right"},
+            ],
+            rowNum : 50,
+            height: 250,
+            width: 500,
+            rowList : [50, 100, 300],
+            sortname: 'userid',
+            viewrecords: true,
+            pager : '#pager',
+            multiselect: false,
+            loadComplete : function (k) {
+                showUsage(true, null);
+            }
+        });
+
+        $('#userListDiv').hide();
+
+        $('#usageDialog').dialog({
+            title : '{!$Label.solxyzcso001__label_10100}',
+            position : 'center',
+            autoOpen : false,
+            modal : true,
+            width : '80%',
+            heigth : 20
+        });
+        $('#usageDialog_ok').attr('value', '{!$Label.label_00071}');    //保存
+        $('#usageDialog_ok').unbind().click(function(){
+            $("#usageDialog").dialog("close");
+        });
+
+        $("#serviceUsage_year").change(year_change);
+        $("#serviceUsage_month").change(month_change);
+        $(window).resize(resizeUsageInfoMain);
+        resizeUsageInfoMain();
+    }
+
+    function resizeUsageInfoMain(){
+	    $("#usageInfoMain").height(getBrowserHeight() - 350);
+	    $("#userListDiv").width(getBrowserWidth() - 400);
+	    $("#userList").setGridWidth($("#userListDiv").innerWidth(), true);
+        $("#userList").setGridHeight(getBrowserHeight() - 450);
+    }
+
+    //============//
+    //  利用状況  //
+    //============//
+    function showUsage(company, id) {
+        var callback =  function(data, status){
+            if (data == null){
+                return;
+            }
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+            $(company ? '#companyin' : '#totalin').text(data.totalin);
+            $(company ? '#companystore' : '#totalstore').text(data.totalstore);
+            $(company ? '#companyout' : '#totalout').text(data.totalout);
+            $(company ? '#companycontent' : '#contentscount').text(data.contents);
+            $(company ? '#companydelivery' : '#deliverycount').text(data.delivery);
+
+            dispUnit = data.dispUnit;
+            tickInterval = data.tickInterval;
+            calc = data.calc;
+
+            $("#corpcontainer").height(data.list.length * 50);
+            $("#corpcontainer").width(getBrowserWidth() - 400);
+
+            // $(company ? '#corpcontainer' : '#container').height(data.list.length * 50 + 100);
+
+            showChart(company, data);
+
+            $(".highcharts-legend").hide();
+
+            if (!company) {
+            	var safeTitle = $('<div/>').text(data.title).html();
+                $('#usageDialog').dialog({'title' : safeTitle, height : 600, resizable : true});
+                $('#usageDialog').dialog('open');
+                $(".ui-dialog-buttonset *").removeClass();
+            }
+
+            //adjust();
+            resizeUsageInfoMain();
+        };
+
+        var userId = company ? serviceUsage_domain : id;
+        var year = $('#serviceUsage_year').val();
+        var month = $('#serviceUsage_month').val();
+
+        //  利用状況（詳細）取得処理の呼び出し
+        secureGetAsync('/setup/PersonalUsageStatusDetailGet.json', {"userid":userId, "year":year, "month":month}, callback);
+    }
+
+    function showChart(company, data) {
+
+        var days = new Array();
+        var outamount = new Array();
+        var inamount = new Array();
+        var storeamount = new Array();
+        for (var i in data.list) {
+            days.push(data.list[i]['date']);
+            outamount.push(data.list[i]['out']);
+            inamount.push(data.list[i]['in']);
+            storeamount.push(data.list[i]['store']);
+        }
+
+        serviceUsage_chart = new Highcharts.Chart({
+            chart : {
+                renderTo : company ? 'corpcontainer' : 'container',
+                type : 'column',
+                inverted : true
+            },
+            colors : ['#FFA500', '#7CFC00', '#00FFFF'],
+            title : {
+                text : ''
+            },
+            credits : {
+                enabled : false
+            },
+            xAxis : {
+                title : {
+                    text : '{!$Label.label_00031}'
+                },
+                categories : days,
+            },
+            yAxis : {
+                title : {
+                    text : '{!$Label.label_10160}'
+                },
+                tickInterval : tickInterval,
+
+                labels : {
+                    formatter : function() {
+                        //console.info(this);
+                        return (this.value / calc).toString() + dispUnit;
+                    }
+                },
+                stackLabels : {
+                    enabled : true,
+                    style : {
+                        color : '#000000',
+                        'font-family' : 'verdana, helvetica, arial, meiryo, sans-serif'
+                    },
+                    formatter : function() {
+                        return '<span style="font-weight:bold;">' + format(this.total) + '</span>';
+                    }
+                }
+            },
+            legend : {
+                // backgroundColor: Highcharts.theme.legendBackgroundColorSolid || '#FFFFFF',
+                reversed: true,
+            },
+            tooltip : {
+                formatter : function() {
+                    return '<span style="font-weight:bold;">' + this.series.name + '<br />' + format(this.y) + '</span>';
+                }
+            },
+            plotOptions : {
+                column : {
+                    stacking : 'normal',
+                    dataLabels : {
+                        enabled : true,
+                        color : '#000000',
+                        'font-family' : 'verdana, helvetica, arial, meiryo, sans-serif',
+                        formatter : function() {
+                            //return '<span style="font-weight:bold;">' + format(this.y) + '</span>';
+                            return "";
+                        }
+                    }
+                }
+            },
+            series : [{
+                name : '{!$Label.label_00065}',
+                data : outamount
+            }, {
+                name : '{!$Label.label_10169}',
+                data : storeamount
+            }, {
+                name : '{!$Label.label_00064}',
+                data : inamount
+            }]
+        });
+    }
+
+    //============//
+    //  利用明細  //
+    //============//
+    function edit(data) {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+//        if (data.fixed) {
+//            $('#fixeddiv').show();
+//            $('#fixedInAmount').text(data.fixedInAmount);
+//            $('#fixedInCharge').text(data.fixedInCharge);
+//            $('#fixedOutAmount').text(data.fixedOutAmount);
+//            $('#fixedOutCharge').text(data.fixedOutCharge);
+//            $('#fixedDeliveryOutAmount').text(data.fixedDeliveryOutAmount);
+//            $('#fixedDeliveryOutCharge').text(data.fixedDeliveryOutCharge);
+//            $('#fixedSpaceOutAmount').text(data.fixedSpaceOutAmount);
+//            $('#fixedSpaceOutCharge').text(data.fixedSpaceOutCharge);
+//            $('#fixedStoreAmount').text(data.fixedStoreAmount);
+//            $('#fixedStoreCharge').text(data.fixedStoreCharge);
+//            $('#fixedStoreMyAmount').text(data.fixedStoreMyAmount);
+//            $('#fixedStoreMyCharge').text(data.fixedStoreMyCharge);
+//            $('#fixedStoreCompanyAmount').text(data.fixedStoreCompanyAmount);
+//            $('#fixedStoreCompanyCharge').text(data.fixedStoreCompanyCharge);
+//            $('#fixedStoreCollaboAmount').text(data.fixedStoreCollaboAmount);
+//            $('#fixedStoreCollaboCharge').text(data.fixedStoreCollaboCharge);
+//            $('#fixedStoreArchiveAmount').text(data.fixedStoreArchiveAmount);
+//            $('#fixedStoreArchiveCharge').text(data.fixedStoreArchiveCharge);
+//            $('#fixedBaseCharge').text(data.fixedBaseCharge);
+//            var t = data.fixedTotalCharge;
+//            if(serviceUsage_trial == true){
+//                t = "<s>" + t + "</s> 0" + "{!$Label.label_10168}";
+//            }
+//            $('#fixedTotalCharge').html(t);
+//        } else {
+            $('#fixeddiv').hide();
+//        }
+
+       // adjust();
+        resizeUsageInfoMain();
+    }
+
+    //============//
+    //  年の変更  //
+    //============//
+    function year_change() {
+
+        var callback =  function(data, status){
+            if(status != 'success'){
+                return;
+            }
+            if (data == null){
+                return;
+            }
+            if (data["result"] != true){
+                return;
+            }
+            rows = data["months"];
+            for (var i=0; i<rows.length; i++) {
+                var m = rows[i];
+                var option = "<option value='" + m + "'>" + m + "</option>";
+                $("#serviceUsage_month").append($(option));
+            }
+            $("#serviceUsage_month").attr("selectedIndex", 0);
+            if(rows.length > 0){
+                month_change();
+            }
+        };
+
+        $("#serviceUsage_month option").remove();
+        var year = $('#serviceUsage_year').val();
+
+        //  利用状況月取得処理の呼び出し
+        secureGetAsync('/setup/SpaceUsageMonthsGet.json', {"year":year}, callback);
+    }
+
+    //============//
+    //  月の変更  //
+    //============//
+    function month_change() {
+
+        var callback =  function(data, status){
+            if(status != 'success'){
+                return;
+            }
+            if (data == null){
+                return;
+            }
+            if(!data.error){
+                showUsage(true, null);
+            }
+            edit(data);
+        };
+
+        var year = $('#serviceUsage_year').val();
+        var month = $('#serviceUsage_month').val();
+
+        //  利用状況（組織）取得処理の呼び出し
+        secureGetAsync('/setup/OrganizeUsageStatusGet.json', {"year":year, "month":month}, callback);
+    }
+
+    function format(size) {
+
+        var UNIT = 1024;
+
+        var kb = size / UNIT;
+        if (kb < 1) {
+            return round(size, 2).toString() + '{!$Label.label_00040}';
+        }
+
+        var mb = kb / UNIT;
+        if (mb < 1) {
+            return round(kb, 2).toString() + '{!$Label.label_00041}';
+        }
+
+        var gb = mb / UNIT;
+        if (gb < 1) {
+            return round(mb, 2).toString() + '{!$Label.label_00042}';
+        }
+
+        var tb = gb / UNIT;
+        if (tb < 1) {
+            return round(gb, 2).toString() + '{!$Label.label_00043}';
+        } else {
+            return round(tb, 2).toString() + '{!$Label.label_00044}';
+        }
+    }
+
+    function round(value, l) {
+        return value.toFixed(l);
+    }
+
+    function xxx(el){
+        if($("." + el + "-img").attr("src") == "{!URLFOR($Resource.cso, '/image/expand.png')}"){
+            $("." + el).show();
+            $("." + el + "-img").attr("src", "{!URLFOR($Resource.cso, '/image/collapse.png')}");
+        }else{
+            $("." + el).hide();
+            $("." + el + "-img").attr("src", "{!URLFOR($Resource.cso, '/image/expand.png')}");
+        }
+
+    }
+</script>
+
+
+
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/h_use_status.png')}" alt="{!$Label.solxyzcso001__label_10100}" title="{!$Label.solxyzcso001__label_10100}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10085}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10100}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+
+
+
+
+
+
+                <apex:pageBlock >
+                    {!$Label.label_10128}
+                    <div style="padding: 10px;">
+                        <span id="serviceUsage_corpName" class="large"></span>
+                        <span id="serviceUsage_serviceStart" style="float:right; margin-top:5px; margin-right:20px;">
+                        </span>
+                        <span style="float:right; margin-top:5px; margin-right:5px;">
+                            {!$Label.label_10093}
+                        </span>
+                    </div>
+                </apex:pageBlock>
+
+                <apex:pageBlock >
+                    <apex:pageBlockSection columns="1">
+                        <apex:pageblockSectionItem >
+                            <apex:outputPanel styleClass="separatorDiv" style="float:left;">
+                                <div style="float:left; width:300px;">
+                                    {!$Label.label_10092}&nbsp;&nbsp;
+                                    <apex:outputLabel rendered="{!IF(userInfo.locale != 'ja' && userInfo.locale != 'zh', true, false)}">{!$Label.solxyzcso001__label_00029}</apex:outputLabel>
+                                    <select id="serviceUsage_year">
+                                    </select>
+                                    <apex:outputLabel rendered="{!IF(userInfo.locale == 'ja' || userInfo.locale == 'zh', true, false)}">{!$Label.solxyzcso001__label_00029}</apex:outputLabel>
+                                    <apex:outputLabel rendered="{!IF(userInfo.locale != 'ja' && userInfo.locale != 'zh', true, false)}">{!$Label.solxyzcso001__label_00030}</apex:outputLabel>
+                                    <select id="serviceUsage_month">
+                                    </select>
+                                    <apex:outputLabel rendered="{!IF(userInfo.locale == 'ja' || userInfo.locale == 'zh', true, false)}">{!$Label.solxyzcso001__label_00030}</apex:outputLabel>
+                                </div>
+                                <div style="float:right; width:150px; text-align: right; padding-right: 10px;">
+                                    <span style="text-align:right; font-weight:bold;">
+                                        {!$Label.solxyzcso001__label_10171}
+                                        <select id="serviceUsage_type">
+                                            <option value="corp">{!$Label.solxyzcso001__label_10172}</option>
+                                            <option value="person">{!$Label.solxyzcso001__label_10173}</option>
+                                        </select>
+                                    </span>
+                                </div>
+                            </apex:outputPanel>
+                        </apex:pageblockSectionItem>
+                        <apex:pageblockSectionItem />
+                    </apex:pageBlockSection>
+
+
+
+
+<div style="text-left; padding:10px; clear:both;">
+    <span class="large" id="serviceUsage_today">
+    </span>
+</div>
+<div id ="usageInfoMain" style="overflow:auto;">
+<div id="corpUsage" style="padding-left:10px;">
+    <table>
+        <tr>
+            <td class="tile in">{!$Label.label_00064}</td>
+            <td id="companyin" class="standard"></td>
+            <td class="tile store">{!$Label.label_10169}</td>
+            <td id="companystore" class="standard"></td>
+            <td class="tile out">{!$Label.label_00065}</td>
+            <td id="companyout" class="standard"></td>
+            <td class="tile contents" style="width: 120px;">{!$Label.label_10095}</td>
+            <td id="companycontent" class="standard"></td>
+            <td class="tile deliv">{!$Label.label_10096}</td>
+            <td id="companydelivery" class="standard"></td>
+        </tr>
+    </table>
+    <div id="corpcontainer" style="width:95%; text-align:center; height:100%;"></div>
+</div>
+<div id="usageDialog" style="display:none; height:600px;">
+    <div>
+        <div style="padding:10px;">
+            <table>
+                <tr>
+                    <td class="tile in">
+                        {!$Label.label_00064}
+                    </td>
+                    <td id="totalin" class="standard">
+                    </td>
+                    <td class="tile store">
+                        {!$Label.label_10169}
+                    </td>
+                    <td id="totalstore" class="standard">
+                    </td>
+                    <td class="tile out">
+                        {!$Label.label_00065}
+                    </td>
+                    <td id="totalout" class="standard">
+                    </td>
+                    <td class="standard">
+                        {!$Label.label_10095}
+                    </td>
+                    <td id="contentscount" class="standard">
+                    </td>
+                    <td class="standard">
+                        {!$Label.label_10096}
+                    </td>
+                    <td id="deliverycount" class="standard">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="container" style="width:80%; height:450px; text-align:center;"></div>
+        <div style="float: right;"><input type="button" class="btn" id="usageDialog_ok"/></div>
+    </div>
+</div>
+<div id="userListDiv" style="padding:5px 10px">
+    <table id="userList"></table>
+    <div id="pager"></div>
+</div>
+<br />
+<div id="fixeddiv" style="width:90%; text-align:center; padding-bottom:20px; display:none;">
+    <table id="fixedtable">
+        <thead>
+            <tr>
+                <th colspan="3" style="font-weight: bold; color: white;">
+                    {!$Label.label_10161}
+                </th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <td colspan="2" class="sum title" style="text-align: left;">
+                    {!$Label.label_10162}
+                </td>
+                <td id="fixedTotalCharge" style="text-align:right;" class="sum charge">
+                </td>
+            </tr>
+        </tfoot>
+        <tbody>
+            <tr>
+                <td class="title">
+                    {!$Label.label_10156}
+                </td>
+                <td class="amount" id="fixedInAmount">
+                </td>
+                <td class="charge" id="fixedInCharge">
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                    <img src="{!URLFOR($Resource.cso, 'image/expand.png')}" style="vertical-align: middle;" onclick="xxx('dl-tr');" class="dl-tr-img"/>
+                    {!$Label.label_10163}
+                </td>
+                <td class="amount" id="fixedOutAmount">
+                </td>
+                <td class="charge" id="fixedOutCharge">
+                </td>
+            </tr>
+            <tr class="dl-tr">
+                <td class="title right" style="padding-left : 40px;">
+                    {!$Label.label_10164}
+                </td>
+                <td class="amount" id="fixedDeliveryOutAmount">
+                </td>
+                <td class="charge detail-charge" id="fixedDeliveryOutCharge">
+                </td>
+            </tr>
+            <tr class="dl-tr">
+                <td class="title right" style="padding-left : 40px;">
+                    {!$Label.label_10165}
+                </td>
+                <td class="amount" id="fixedSpaceOutAmount">
+                </td>
+                <td class="charge detail-charge" id="fixedSpaceOutCharge">
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                    <img src="{!URLFOR($Resource.cso, 'image/expand.png')}" style="vertical-align: middle;" onclick="xxx('store-tr');" class="store-tr-img"/>
+                    {!$Label.label_10166}
+                </td>
+                <td class="amount" id="fixedStoreAmount">
+                </td>
+                <td class="charge" id="fixedStoreCharge">
+                </td>
+            </tr>
+            <tr class="store-tr">
+                <td class="title right">
+                    {!$Label.label_00051}
+                </td>
+                <td class="amount" id="fixedStoreMyAmount">
+                </td>
+                <td class="charge detail-charge" id="fixedStoreMyCharge">
+                </td>
+            </tr>
+            <tr class="store-tr">
+                <td class="title right">
+                    {!$Label.label_00053}
+                </td>
+                <td class="amount" id="fixedStoreCompanyAmount">
+                </td>
+                <td class="charge detail-charge" id="fixedStoreCompanyCharge">
+                </td>
+            </tr>
+            <tr class="store-tr">
+                <td class="title right">
+                    {!$Label.label_00052}
+                </td>
+                <td class="amount" id="fixedStoreCollaboAmount">
+                </td>
+                <td class="charge detail-charge" id="fixedStoreCollaboCharge">
+                </td>
+            </tr>
+            <tr class="store-tr">
+                <td class="title right">
+                    {!$Label.label_00055}
+                </td>
+                <td class="amount" id="fixedStoreArchiveAmount">
+                </td>
+                <td class="charge detail-charge" id="fixedStoreArchiveCharge">
+                </td>
+            </tr>
+            <tr>
+                <td class="title">
+                    {!$Label.label_10167}
+                </td>
+                <td class="amount" id="fixedBaseAmount">
+                </td>
+                <td class="charge" id="fixedBaseCharge">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</div>
+
+
+
+
+                </apex:pageBlock>
+
+
+            </td>
+        </tr>
+
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.uid == null && userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

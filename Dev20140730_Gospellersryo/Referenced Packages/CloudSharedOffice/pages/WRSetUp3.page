@@ -1,0 +1,22 @@
+<apex:page tabStyle="overlay__tab" controller="SOLXYZCSO001.WRSetUpController" sidebar="false">
+    <apex:form >
+    <apex:sectionHeader subtitle="{!$Label.solxyzcso001__label_wf_10324}" title="{!$Label.solxyzcso001__label_cm_00002}"/>
+    <apex:pageBlock title="{!$Label.solxyzcso001__label_wf_10088}  {!$Organization.Name}">
+        <apex:pageBlockButtons dir="RTL">
+            <apex:commandButton value="{!$Label.solxyzcso001__label_wf_00021}" action="{!PreStep2}"/>
+            <apex:commandButton value="{!$Label.solxyzcso001__field_common_next}" action="{!NextStep4}"/>
+        </apex:pageBlockButtons>
+        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_wf_10328}"  collapsible="false" >
+        <apex:pageMessages />
+        <apex:outputText value="{!$Label.solxyzcso001__label_wf_10338}{!importcount}{!$Label.solxyzcso001__label_wf_10337}" />
+        <apex:pageBlockTable value="{!importUsers}" var="h">
+            <apex:column headerValue="{!$Label.solxyzcso001__label_wf_00182}" value="{!h.UserName}"/>
+            <apex:column headerValue="{!$Label.solxyzcso001__label_wf_10021}" value="{!h.UserId }"/>
+            <apex:column headerValue="{!$Label.solxyzcso001__label_wf_00183}">
+                <apex:inputCheckbox value="{!h.IsActive}" disabled="true"/>
+            </apex:column>
+        </apex:pageBlockTable>
+        </apex:pageblockSection>
+    </apex:pageBlock>
+    </apex:form>
+</apex:page>

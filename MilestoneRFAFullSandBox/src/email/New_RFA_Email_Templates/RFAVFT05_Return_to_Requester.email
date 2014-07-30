@@ -1,0 +1,45 @@
+<!--
+<messaging:emailTemplate subject="ご参考まで（Information Only）: {!relatedTo.Name}  {!relatedTo.Stage__c}" recipientType="User" relatedToType="RFA__c">
+-->
+<messaging:emailTemplate subject="差し戻し（Returned to Requester）: {!relatedTo.Name} -【{!relatedTo.RequestTitle__c}】" recipientType="User" relatedToType="RFA__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+            <!--   <p>
+                       <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="TO :"/> &nbsp;<apex:outputText value="{!relatedTo.CreatedBy.name}"/><br/>
+                    </p>
+                    <p>
+                        <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="CC :"/> &nbsp;
+                        <apex:outputText value="{!relatedTo.POC_Name__c}, " rendered="{!relatedTo.POC_Name__c!=null}"/>
+                        <apex:outputText value="{!relatedTo.CO_CREATOR_Name__c}, " rendered="{!relatedTo.CO_CREATOR_Name__c!=null}"/>
+                        <apex:outputText value="{!relatedTo.LOC_Name__c}" rendered="{!relatedTo.LOC_Name__c!=null}"/>
+                        <br/>
+                    </p> -->
+                 <div style = " font-size:14px;">                   
+                    <p>
+                    この承認申請は差し戻されました。リンク先の文書内の差し戻し理由を確認してください。:<BR/>
+                    This RFA has been returned to you for the following reason(s)  :<br/><br/>
+                    <b><apex:outputText >{!relatedTo.ReturnReason__c}</apex:outputText> </b><BR/>
+                    </p><br/>  
+                    
+                    <!--<c:RFA_C02_EmailTemplateBodyRFA rfaObj="{!relatedTo}"/><br/>-->
+                    <c:RFAVFT_C02_EmailTemplateBodyRFA rfaObj="{!relatedTo}"/><br/>
+                                        
+                    <p>
+                   このリンクをクリックし、承認申請リクエスト文書を開いてください:<BR/>
+                    Click this link to open the RFA Request Document:<BR/>
+                    <B><a href="{!$label.RFA_CL026}/{!relatedTo.Id}">{!relatedTo.Name}</a></B>
+                    </p>
+                    <!--<p>
+                    このEメールは、あなたがこの承認申請の申請者または主要連絡先であるため送られています。<BR/>
+                    You are receiving this email because you are the Requester or Primary Point of Contact(s) of this RFA.
+                    </p>-->
+                    <p>ご質問がございましたら、 <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a> へご連絡ください。<BR/>
+                    If you have any inquiries kindly contact <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a>.<BR/>
+                    <BR/>
+                    </p> <BR/>
+                 </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

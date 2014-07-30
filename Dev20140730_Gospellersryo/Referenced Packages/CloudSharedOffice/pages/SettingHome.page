@@ -1,0 +1,69 @@
+<apex:page sidebar="false"  tabStyle="setting__tab" controller="SOLXYZCSO001.SettingHomeController" action="{!init}">
+<apex:iframe src="{!$Page.SOLXYZCSO001__CSO_Error}?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == true,false,true)}">
+
+<apex:outputPanel id="c_wrapper" rendered="{!CSOAuthority}">
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+jQuery.event.add(window, "load", function(){
+	readyForSync();
+});
+</script>
+<!-- warapper -->
+<apex:pageMessages />
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td id="c_left" bgcolor="#f2f2f3" style="min-height:39px;max-height:39px;">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <td valign="top">
+                <table width="100%">
+                    <tr>
+                        <td id="c_headLeft" height="39px" style="min-height:39px;max-height:39px;">
+                            <h1 id="c_headLeftTitle">{!$Label.label_10395}</h1><br/>
+                            <h2 id="c_headLeftSubTitle">{!$Label.label_10396}</h2>
+                        </td>
+                        <!-- 操作ボックス -->
+                        <td id="c_headRight" height="39px" style="min-height:39px;max-height:39px;">
+                            <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right" colspan="2">
+                            <apex:pageBlock >
+                                {!$Label.solxyzcso001__label_10344}
+                            </apex:pageBlock>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+<apex:form >
+<apex:actionFunction name="readyForSync" action="{!readyForSync}" rerender="dummy"/>
+</apex:form>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel id="err" rendered="{!!CSOAuthority}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == false,true,false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+
+</apex:page>

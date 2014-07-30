@@ -1,0 +1,289 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.WRSupportSettingEditController" id="Page" tabStyle="setting__tab" action="{!init}">
+    <apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+        <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+    </apex:outputpanel>
+    <apex:outputpanel rendered="{!hasWR && hasPermissionWRAdmin}">
+        <apex:include pageName="SOLXYZCSO001__WRCSOBridge" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <script type="text/javascript" src="{!URLFOR($Resource.WRCSO,'js/xdr.js')}"></script>
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__WRCSOScript" />
+        <!-- warapper -->
+        <style type="text/css">
+            .contentDiv {
+            }
+            .contentDiv div {
+                margin : 15px;
+            }
+            .contentDiv table tr th {
+                font-weight : bold;
+                text-align : right;
+                padding-left : 25px;
+                width : 120px;
+            }
+            .contentDiv table tr td {
+                text-align : right;
+            }
+            .editDiv {
+                margin : 30px;
+            }
+            .editDiv table tr th {
+                font-weight : bold;
+                text-align : right;
+                padding-left : 25px;
+                width : 80px;
+            }
+            .editDiv table tr td {
+                text-align : left;
+            }
+        </style>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('input[type!="submit"][type!="button"],select').keypress(function (e) {
+                    if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+
+            });
+            
+            var addedUserArr = new Array();
+
+            jQuery.event.add(window, "load", function () {
+                secureGetAsyncSf(
+                    '/rest/support/getedit' +"{!JSENCODE(credential)}", {},
+
+                function (data, status) {
+                    if (status == "success") {
+                        // 残りサポート数の設定
+                        $('#remaingingSupportCount').text(data.remaingingSupportCount);
+                        // 利用」サポート数の設定
+                        $('#usedSupportCount').text(data.usedSupportCount);
+
+                        // 選択済みユーザの選択メニュー生成
+                        $(data.supportUserList).each(function () {
+                            var opt = $("<option value=\"" + this.id + "\"></option>");
+                            opt.text(this.name);
+                            addedUserArr.push(this.name);
+                            $('#addedusers').append(opt);
+                        });
+                        // 選択可能ユーザの選択メニュー生成
+                        $(data.selectUserList).each(function () {
+                            var opt = $("<option value=\"" + this.id + "\"></option>");
+                            opt.text(this.name);
+                            $('#addableusers').append(opt);
+                        });
+
+                    }
+                });
+
+                $(window).resize(resizeSupportSettingEditMain);
+                resizeSupportSettingEditMain();
+            });
+
+            function resizeSupportSettingEditMain() {
+                // $("#supportSettingEditMain").height($("#RightPane").height()  - $(".innerHtmlHeader").height() -10);
+            }
+
+            function move(moveFrom, moveTo, add) {
+                var count = $("#" + moveFrom + " option:selected").length;
+
+                if (count == 0) {
+                    alert('{!$Label.msg_00060}');
+                    return false;
+                }
+
+                var r = parseInt($('#remaingingSupportCount').text());
+                var u = parseInt($('#usedSupportCount').text());
+                if (add) {
+                    r -= count;
+                    u += count;
+                } else {
+                    r += count;
+                    u -= count;
+                }
+
+                if (r < 0) {
+                    alert('{!$Label.msg_00061}');
+                    return false;
+                }
+
+                $("#" + moveFrom + " option:selected").each(function () {
+                    var val = $(this).val();
+                    var text = $(this).text();
+                    $("#" + moveTo).append($("<option>").val(val).text(text));
+                    $(this).remove();
+                });
+
+                $('#remaingingSupportCount').text(r.toString());
+                $('#usedSupportCount').text(u.toString());
+
+                return true;
+            }
+
+            function clearCondition() {
+                $('#username').val('');
+                searchUser();
+                return true;
+            }
+
+            function searchUser() {
+                $(".supporteditform_control").attr("disabled", "disabled").css("color", "gray");
+
+                // 選択可能ユーザの選択メニューのクリア
+                $('#addableusers option').remove();
+
+                // サポート設定情報の取得
+                secureGetAsyncSf(
+                    '/rest/support/getedit' +"{!JSENCODE(credential)}",
+                    {"username" : $('#username').val()},
+                function (data, status) {
+                    if (status == "success") {
+                        // 選択可能ユーザの選択メニュー生成
+                        $(data.selectUserList).each(function () {
+                            var opt = $("<option value=\"" + this.id + "\"></option>");
+                            opt.text(this.name);
+                            $('#addableusers').append(opt);
+                        });
+                        $(".supporteditform_control").removeAttr("disabled").css("color", "#223344");
+                    }
+                });
+                return false;
+            }
+
+            function getId(id) {
+                return '#' + id.replace(/(:|\.)/g, '\\\\$1');
+            }
+            var collabo = getId('{!$Component.Page:Form}');
+            var addListMarge = collabo + '\\:addListhidden';
+            var addListNames = collabo + '\\:addListNameshidden';
+            var addListNamesOld = collabo + '\\:addListNamesOldhidden';
+
+            function register() {
+                // 選択済みユーザを配列にセット
+                var userid = [];
+                var userNameArr = new Array();
+                $('#addedusers option').each(function () {
+                    userid.push($(this).val());
+                    userNameArr.push($(this).text());
+                })
+
+                //　hidden項目に選択済みユーザをセット
+                $(addListMarge).val(userid.toString());
+                $(addListNames).val(userNameArr.toString());
+                $(addListNamesOld).val(addedUserArr.toString());
+            }
+        </script>
+        <apex:form id="form">
+            <div id="c_wrapper">
+                <!-- content container -->
+                <table id="c_container" cellspacing="0" border="0">
+                    <tr>
+                        <!-- left menu container -->
+                        <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                            <apex:include pageName="SOLXYZCSO001__WRSettingMenu" />
+                        </td>
+                        <!-- right header container -->
+                        <td id="c_head">
+                            <table width="100%">
+                                <tr>
+                                    <!-- 機能イメージ -->
+                                    <td id="c_headLeft" nowrap="nowrap">
+                                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/voice-support-settings.png')}" alt="{!$Label.solxyzcso001__label_10103}" title="{!$Label.solxyzcso001__label_10103}" />
+                                         <h1 id="c_headLeftTitle">{!$Label.label_10181}</h1>
+                                        <br/>
+                                         <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10103}</h2>
+
+                                    </td>
+                                    <!-- 操作ボックス -->
+                                    <td id="c_headRight">
+                                        <apex:include pageName="SOLXYZCSO001__WROptionsLink" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right">
+                            <apex:pageBlock >
+                                <apex:pageBlockButtons >
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00075}" action="{!ok}" onclick="register();" />
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!cancel}" /></apex:pageBlockButtons>
+                                <div id="supportSettingEditMain" style="overflow:auto;">
+                                    <div class="contentDiv">
+                                        <div>{!$Label.label_10130}</div>
+                                        <table>
+                                            <tr>
+                                                <th>{!$Label.label_10132}</th>
+                                                <td><span id="remaingingSupportCount">
+                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>{!$Label.label_10133}</th>
+                                                <td><span id="usedSupportCount">
+                                    </span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="editDiv">
+                                        <table>
+                                            <tr>
+                                                <th>{!$Label.label_10131}</th>
+                                                <td>
+                                                    <input id="username" type="text" style="width:250px;" maxlength="255" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" style="text-align:right;">
+                                                    <input type="button" class="btn supporteditform_control" value='{!$Label.label_00069}' onclick="searchUser();" />&nbsp;
+                                                    <input type="button" class="btn supporteditform_control" value='{!$Label.label_00070}' onclick="clearCondition();" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <hr />
+                                        <table>
+                                            <tr>
+                                                <td style="width:250px;">
+                                                    <div>{!$Label.label_10134}</div>
+                                                    <select id="addableusers" multiple="multiple" style="width:250px; height:200px;"></select>
+                                                </td>
+                                                <td style="width:100px; text-align:center;">
+                                                    <div>
+                                                        <input type="button" class="btn" value='{!$Label.label_10020}' onclick="return move('addableusers', 'addedusers', true);" />
+                                                    </div>
+                                                    <div style="margin-top:20px;">
+                                                        <input type="button" class="btn" value='{!$Label.label_00072}' onclick="return move('addedusers', 'addableusers', false);" />
+                                                    </div>
+                                                </td>
+                                                <td style="width:250px;">
+                                                    <div>{!$Label.label_10135}</div>
+                                                    <select id="addedusers" multiple="multiple" style="width:250px; height:200px;"></select>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </apex:pageBlock>
+                        </td>
+                    </tr>
+                </table>
+                <div id="copyright">{!$Label.solxyzcso001__label_00001}</div>
+            </div>
+            <apex:inputHidden value="{!addList}" id="addListhidden" />
+            <apex:inputHidden value="{!addListNames}" id="addListNameshidden" />
+            <apex:inputHidden value="{!addListNamesOld}" id="addListNamesOldhidden" />
+            </apex:form>
+        <apex:include pageName="SOLXYZCSO001__WRCSOSilverlight" /></apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(wr_userInfo.uid == null, true, false)}">{!$Label.solxyzcso001__msg_00142}</apex:outputPanel>
+</apex:page>

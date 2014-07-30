@@ -1,0 +1,756 @@
+<apex:page sidebar="false" showHeader="false" controller="SOLXYZCSO001.WorkflowDetailController">
+
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.plupload.queue.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/colorado.js')}" />
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.customfields.css')}" />
+<apex:include pageName="SOLXYZCSO001__CustomFieldsPlugin"/>
+
+<style type="text/css">
+#uploader_container {
+    padding: 0px;
+}
+#uploader_filelist > li > .plupload_file_name {
+    width:300px !important;
+}
+.plupload_scroll .plupload_filelist{
+    height: 37px;
+}
+#tooltip {
+    background-color: #F7F7F7;
+    border: 1px solid #C0C0C0;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 1px 1px 3px #C0C0C0;
+    display: none;
+    float: left;
+    height: 40px;
+    margin: 10px;
+    max-width: 1000px;
+    padding: 10px;
+    position: absolute;
+    width: 250px;
+    z-index: 1100;
+}
+</style>
+<style type="text/css">
+.checkin_main{
+    margin: 5px;
+    padding: 5px;
+    background-color: white;
+}
+
+.plupload_scroll .plupload_filelist{
+    height: 37px;
+}
+
+#update_tab {
+    margin-top: -10px;
+}
+
+#update_tab li {
+    list-style: none;
+    line-height: 10px;
+    float: left;
+    margin-right: 5px;
+    border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    display: block;
+    text-decoration: none;
+    padding: 0px 15px 3px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#update_tab a {
+    display: block;
+    text-decoration: none;
+    padding: 9px 17px;
+    font-weight: bold;
+}
+
+.update_tab_active {
+    background-color: #F8F8F8;
+    color: #445566 !important;
+}
+
+.update_tab_active a {
+    color: #445566 !important;
+}
+.update_tab_active a:hover {
+    color: #445566 !important;
+}
+
+.update_tab_deactive {
+    background-color: #0033ff;
+    filter:alpha(opacity=50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    color: white;
+}
+
+.update_tab_deactive a {
+    color: white;
+}
+
+.update_tab_deactive a:hover {
+    color: white;
+}
+.tab-div{
+    min-height: 350px;
+    overflow: auto;
+    position: relative;
+}
+</style>
+
+
+
+
+
+<script type="text/javascript">
+var isAddedFile = false;
+var docInfoList = new Array();
+var space = '';
+var defaultusedspace = '';
+var usedspace = defaultusedspace;
+var chunksize = 1 * 1024 * 1024; // 1MB
+var upload_token = '';
+var uploadfilename ="";
+var refSpaceId = '';
+var spaceSercurity = '';
+var noticeNoncopyStatus=0;
+var noncopyStatus_yes = 1;
+var doSetNCSpace = true;
+var current_runtime = '';
+var hiddenVersionHolder;
+var explanation = '';
+var comment = '';
+
+var WF_CU_file_id   = "";
+var WF_CU_file_name = "";
+var WF_CU_workflow_id   = "";
+
+//  完了画面への複数ポストを防ぐ為のフラグ
+var WF_isPostedFlag = false;
+
+function DocumentContentsUpdateInit(id, name, workflowId){
+
+    WF_CU_file_id     = id;
+    WF_CU_file_name   = "dummy";
+    WF_CU_workflow_id = workflowId;
+
+    //  初期化
+    $("#ContentsName").text(name);
+    $("#verUpType").val(['0']);
+    $("#checkinCommentDummy").val("");
+    $("#checkinExplanationDummy").val("");
+    $("#verUpMajor"    ).val("");
+    $("#verUpMinor"    ).val("");
+    $("#verUpRevision" ).val("");
+    $("#verUpBuild"    ).val("");
+    $("#hVerUpMajor"   ).val("");
+    $("#hVerUpMinor"   ).val("");
+    $("#hVerUpRevision").val("");
+    $("#hVerUpBuild"   ).val("");
+
+    //  カスタム項目
+    $("#customfieldsTbl").customfields({
+        obj_id  : WF_CU_file_id,
+        attach  : "contents",
+        edit    : true,
+    });
+    
+    $("#checkinExplanationDummy").parent().css("max-width","none");
+
+    // カウンター定義
+    $("#checkinExplanationDummy").keyup(function(){
+        viewCommentLength("checkinExplanationDummy", "explanationRemainder", 512);
+    });
+    $("#checkinCommentDummy").keyup(function(){
+        viewCommentLength("checkinCommentDummy", "commentRemainder", 512);
+    });
+
+    // plupload言語処理
+    plupload.addI18n({
+       'Filename' : '{!$Label.label_10081}',
+       'Status' : '{!$Label.label_10017}',
+       'Size' : '{!$Label.label_10140}',
+       'Add files' : '{!$Label.label_10050}',
+       'Uploaded %d/%d files': '{!$Label.msg_00032}',
+       'Drag files here.' : '{!$Label.label_10064}',
+       'Start upload': '{!$Label.label_10141}'
+    });
+
+    $('input[name="verUpType"]:radio').change(function(){
+        if($('input[name="verUpType"]:radio:checked').val() == "auto") {
+            $("#checkinVersionDummy").attr("disabled", false);
+            $(".typeManual input").attr("disabled", true);
+        } else if($('input[name="verUpType"]:radio:checked').val() == "manual") {
+            $("#checkinVersionDummy").attr("disabled", true);
+            $(".typeManual input").attr("disabled", false);
+        }
+    });
+    $('input[name="verUpType"]:radio[value="auto"]').attr("checked", "checked");
+    $("#checkinVersionDummy").attr("disabled", false);
+    $(".typeManual input").attr("disabled", true);
+
+    var retArr = new Array();
+
+    // Force IE to use the silverlight runtime
+    var uploadRuntime = '';
+    if(navigator.userAgent.indexOf('MSIE') !== -1) {
+        uploadRuntime = 'silverlight';
+    } else {
+        uploadRuntime = 'html5,silverlight';
+    }
+
+    //  plupload定義  //
+    $("#uploader").pluploadQueue({
+        runtimes : uploadRuntime, //html5,flash,gears,browserplus
+        url : _apiUrl + '/workflowmanagement/ContentsUpdateUseToken.json',
+        chunk_size : chunksize,
+        unique_names : true,
+        flash_swf_url : '{!$Resource.pluploadflash}',
+        silverlight_xap_url : '{!$Resource.pluploadsilverlight}',
+        multi_selection : false,
+        dragdrop : true,
+        preinit : {
+            Init : function(uploader) {
+
+                if(uploader.runtime == 'silverlight'){
+                    current_runtime = 'silverlight';
+                } else {
+                    current_runtime = 'html5';
+                }
+
+                $('.plupload_header').hide();
+                $('.plupload_start').after('{!$Label.label_10030} : <span id="totalcount"></span>');
+                $('.plupload_start').unbind().click(function(){if(!$(this).hasClass("plupload_disabled"))checkInValidation(uploader)});
+                $('.plupload_droptext').css('line-height', '100%');
+
+                $('#totalcount').text('0');
+
+                $('#uploading').dialog({
+                     autoOpen: false,
+                     modal: true,
+                     resizable: false,
+                     width: "400px",
+                     buttons:[{
+                         text: '{!$Label.label_00063}',
+                         click: function(){
+                             uploader.stop();
+                         }
+                     }]
+                 });
+            },
+        },
+        init : {
+            FilesAdded : function (uploader, files) {
+                if (uploader.files.length > 1) {
+                    uploader.removeFile(uploader.files[1]);
+                }
+                for (var i = uploader.files.length - 1; i >= 0; i--) {
+                    var name = uploader.files[i].name;
+                    var duplicate = false;
+                    for (var j = 0; j < i; j++) {
+                        if (name == uploader.files[j].name) {
+                            duplicate = true;
+                            break;
+                        }
+                    }
+
+                    if (duplicate) {
+                        uploader.removeFile(uploader.files[i]);
+                    }
+                }
+            },
+            QueueChanged : function (uploader) {
+
+                $('#totalcount').text(uploader.files.length.toString());
+
+                // 容量オーバー
+                if (defaultusedspace + uploader.total.size > space) {
+                    alert('{!$Label.msg_00034}');
+                    return false;
+                }
+            },
+            BeforeUpload : function(uploader, file) {
+                if (file.size == 0) {
+                   delete uploader.settings.chunk_size;
+                } else {
+                    uploader.settings.chunk_size = chunksize;
+                }
+
+                if (file.name != $("#ContentsName").text()) {
+                    if (!confirm('{!$Label.msg_00319}')) {
+                        uploader.stop();
+                        return false;
+                    }
+                }
+
+                // silverlightか？
+                if(current_runtime == 'silverlight'){
+                    // silverlightランタイムの場合には通常アップロードを行う
+                    uploader.settings.url = _apiUrl + '/workflowmanagement/ContentsUpdate.json';
+                } else {
+                    // html5ランタイムの場合にはトークン式でアップロードを行う
+                    uploader.settings.url = uploader.settings.url + '?upload_token=' + upload_token;
+                }
+                
+                // カスタム項目
+                var customFieldsVal = $("#customfieldsTbl").cfValues();
+                
+                if (getBrowserType().indexOf("IE") != -1) {
+                    explanation = explanation.replace(/\\/g, "\\\\");
+                    comment = comment.replace(/\\/g, "\\\\");
+                }
+                
+                uploader.settings.multipart_params = {
+                    fileId : WF_CU_file_id,
+                    version : $('#checkinVersionDummy').val(),
+                    comment : comment,
+                    explanation : explanation,
+                    filename : file.name,
+                    workflowID : WF_CU_workflow_id,
+                    // 簡易Verアップか、指定バージョンアップか
+                    verUpType : jQuery.trim($("input[name=verUpType]:checked").val()),
+                    // 入力したバージョン メジャー
+                    verUpMajor : $("#verUpMajor").val() ? jQuery.trim($("#verUpMajor").val()) : 0,
+                    // 入力したバージョン マイナー
+                    verUpMinor : $("#verUpMinor").val() ? jQuery.trim($("#verUpMinor").val()) : 0,
+                    // 入力したバージョン リビジョン
+                    verUpRevision : $("#verUpRevision").val() ? jQuery.trim($("#verUpRevision").val()) : 0,
+                    // 入力したバージョン ビルド
+                    verUpBuild : $("#verUpBuild").val() ? jQuery.trim($("#verUpBuild").val()) : 0,
+                    // カスタム項目
+                    customfields : customFieldsVal
+                };
+            },
+
+            UploadFile : function(uploader){
+            },
+
+            FileUploaded : function (uploader, file, obj) {
+                if (!obj.response) {
+                    return false;
+                }
+
+                var resp = JSON.parse(obj.response);
+                if (!resp.docId) {
+                   if(resp.message == null){
+                       alert("{!$Label.msg_00136}");
+                   } else {
+                       alert(resp.message);
+                   }
+                    return false;
+                }
+
+                var docInfo = new Object();
+                docInfo["doc_id"] = resp.docId;
+                docInfo["doc_name"] = resp.docName;
+                docInfo["doc_path"] = resp.savePath;
+                docInfo["size"] = resp.size;
+                docInfo["error"] = resp.error;
+                docInfo["errorMessage"] = resp.errorMessage;
+                docInfo["contentType"] = resp.contentType;
+                docInfo["saveDate"] = resp.saveDate;
+                docInfo["comment"] = resp.comment;
+                docInfo["version"] = resp.version;
+                docInfo["updateuser"] = resp.updateuser;
+                docInfo["updatedate"] = resp.updatedate;
+                docInfo["registdate"] = resp.registdate;
+                docInfoList.push(docInfo);
+
+                if(resp.moved){
+                    top.window.opener.openUploadInfo();
+                }
+
+                docInfo = new Object();
+            },
+
+            UploadComplete : function(uploader, files) {
+                if(WF_isPostedFlag){
+                    return;
+                }
+                WF_isPostedFlag = true;
+
+                var query = new Object();
+                query["doc_info_list"] = JSON.stringify(docInfoList);
+                // コンテンツ情報を登録
+                $("#query").val(JSON.stringify(query));
+                docInfoList = new Array();
+                modalDialogDivClose(true);
+            },
+
+            Error : function (uploader, error) {
+                //console.log('Error : ' + JSON.stringify(error));
+            },
+
+            StateChanged : function(uploader) {
+                if (uploader.state == plupload.STOPPED) {
+                    $('#uploading').dialog('close');
+                    $('.plupload_buttons').show();
+                    $('.plupload_upload_status').hide();
+                } else if (uploader.state == plupload.STARTED) {
+                    $('#uploading').dialog('open');
+                }
+            }
+        }
+    });
+
+
+
+    var callback = function(data,hiddenVersionHolder){
+        // アップロードトークン設定
+        upload_token = data.upload_token;
+        // スペース容量設定
+        space = data.space;
+        // 使用済みスペースサイズ設定
+        defaultusedspace = data.usedspace;
+        // 使用済みサイズ
+        usedspace = defaultusedspace;
+        // スペースセキュリティ
+        spaceSercurity = data.spaceSercurity;
+        // アップロード先スペースID設定
+        refSpaceId = data.refSpaceId;
+        $("#checkinExplanationDummy").keyup();
+        $("#checkinCommentDummy").keyup();
+        //更新前バージョン設定
+        $("#verUpMajor").val(data.verCurtMajor);
+        $("#verUpMinor").val(data.verCurtMinor);
+        $("#verUpRevision").val(data.verCurtRevision);
+        $("#verUpBuild").val(data.verCurtBuild);
+        $("#hVerUpMajor").val(data.verCurtMajor);
+        $("#hVerUpMinor").val(data.verCurtMinor);
+        $("#hVerUpRevision").val(data.verCurtRevision);
+        $("#hVerUpBuild").val(data.verCurtBuild);
+
+        $("#modalDialogDiv").dialog({modal:true, resizable:false, width:750, height:610, "title" : "{!$Label.label_10775}"});
+    };
+
+
+    var param = {
+        'id'         : WF_CU_file_id,
+        'name'       : WF_CU_file_name,
+        'workflowId' : WF_CU_workflow_id
+    };
+
+
+    // チェックイン初期化処理
+    if(current_runtime == 'silverlight'){
+        secureGetAsync('/workflowmanagement/ContentsUpdateInit.json', param, callback);
+    } else {
+        secureGetAsync('/workflowmanagement/ContentsUpdateInitUseToken.json', param, callback);
+    }
+}
+
+/*
+ * 入力チェック
+ */
+function checkInValidation(uploader){
+    var filecount = uploader.files.length;
+    var size = uploader.total.size;
+    var err = new Array();
+
+    if (filecount == 0) {
+        err.push('{!$Label.msg_00125}');
+    }
+    if (defaultusedspace + size > space) {
+        err.push('{!$Label.msg_00034}');
+    }
+
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    explanation = $("#checkinExplanationDummy").val().replace(regexp, "\r\n");
+    if(explanation.length > 512){
+        err.push(getMsg(new Array("{!$Label.label_10012}", "512"), "{!$Label.msg_00126}"));
+    } else {
+        explanation = $.trim(explanation);
+    }
+    comment = $("#checkinCommentDummy").val().replace(regexp, "\r\n");
+    if(comment.length > 512){
+        err.push(getMsg(new Array("{!$Label.label_10023}", "512"), "{!$Label.msg_00126}"));
+    } else {
+        comment = $.trim(comment);
+    }
+
+    // バージョンを手入力した場合
+    if($('input[name="verUpType"]:radio:checked').val() == "manual"){
+        // 入力したベージョンは数値か
+        var validUpVer = true;
+        var regExpIsNOTNumeric = /[^0-9]+/;
+
+        if($("#verUpMajor").val().match(regExpIsNOTNumeric)){
+            validUpVer = false;
+        }
+        if($("#verUpMinor").val().match(regExpIsNOTNumeric)){
+            validUpVer = false;
+        }
+        if($("#verUpRevision").val().match(regExpIsNOTNumeric)){
+            validUpVer = false;
+        }
+        if($("#verUpBuild").val().match(regExpIsNOTNumeric)){
+            validUpVer = false;
+        }
+
+        if(!validUpVer){
+            err.push('{!$Label.msg_01015}');
+        }
+
+        if(validUpVer){
+            // 既存のバージョン
+            var hVerUpMajor     = parseInt(jQuery.trim($("#hVerUpMajor").val()));
+            var hVerUpMinor     = parseInt(jQuery.trim($("#hVerUpMinor").val()));
+            var hVerUpRevision  = parseInt(jQuery.trim($("#hVerUpRevision").val()));
+            var hVerUpBuild     = parseInt(jQuery.trim($("#hVerUpBuild").val()));
+
+            // 入力したバージョン
+            var verUpMajor      = parseInt(jQuery.trim($("#verUpMajor").val()));
+            var verUpMinor      = parseInt(jQuery.trim($("#verUpMinor").val()));
+            var verUpRevision   = parseInt(jQuery.trim($("#verUpRevision").val()));
+            var verUpBuild      = parseInt(jQuery.trim($("#verUpBuild").val()));
+
+            // 入力したバージョンは既存と同じでないか
+            var validSameVersion = true;
+            if(hVerUpMajor == verUpMajor && hVerUpMinor == verUpMinor
+                    && hVerUpRevision == verUpRevision && hVerUpBuild == verUpBuild){
+                validSameVersion = false;
+            }
+            if(!validSameVersion){
+                err.push(getMsg(
+                        new Array(verUpMajor+"."+verUpMinor+"."+verUpRevision+"."+verUpBuild),
+                        '{!$Label.msg_01048}'
+                ));
+            }
+
+            // 入力したバージョンは既存より新しいか
+            var validVersion = true;
+
+            if(hVerUpMajor > verUpMajor){
+                validVersion = false;
+            }else if(hVerUpMajor == verUpMajor
+                    && hVerUpMinor > verUpMinor){
+                validVersion = false;
+            }else if(hVerUpMajor == verUpMajor
+                    && hVerUpMinor == verUpMinor
+                    && hVerUpRevision > verUpRevision){
+                validVersion = false;
+            }else if(hVerUpMajor == verUpMajor
+                    && hVerUpMinor == verUpMinor
+                    && hVerUpRevision == verUpRevision
+                    && hVerUpBuild > verUpBuild){
+                validVersion = false;
+            }
+            if(!validVersion){
+                err.push(getMsg(new Array(), '{!$Label.msg_01016}'));
+            }
+        }
+    }
+    
+    var args = { "uploader" : uploader };
+
+    //  カスタム項目
+    $("#customfieldsTbl").cfValidator({
+        "err"       : err,
+        "errClass"  : "",
+        "args"      : args,
+        "success"   : updateSuccess,
+        "fail"      : updateFail
+    });
+}
+
+var updateSuccess = function(args) {
+    args.uploader.start();
+}
+
+var updateFail = function(args) {
+    return false;
+}
+
+function showTips(o, msgCodes) {
+    var obj = $(o);
+    var offset = obj.offset();
+
+    $(".tooltip").css("left", offset.left)
+                 .css('top', offset.top - 137)
+                 .css('position','absolute')
+                 .css('height','auto')
+                 .css('width','auto');
+
+    $('.tooltip').html('');
+    var massage = '';
+    for(var i=0; i<msgCodes.length; i++){
+        massage += msgCodes[i];
+    }
+    $('.tooltip').html(massage);
+
+    $(".tooltip").show();
+}
+function switchTab(tabName) {
+    currentTab = tabName;
+    if (tabName == 'basic') {
+        $("#tab_basic").show();
+        $("#update_tab_basic").removeClass("update_tab_deactive").addClass("update_tab_active");
+
+        $("#tab_version").hide();
+        $("#update_tab_detail").removeClass("update_tab_active").addClass("update_tab_deactive");
+
+    } else if (tabName == 'version') {
+        $("#tab_version").show();
+        $("#update_tab_detail").removeClass("update_tab_deactive").addClass("update_tab_active");
+
+        $("#tab_basic").hide();
+        $("#update_tab_basic").removeClass("update_tab_active").addClass("update_tab_deactive");
+
+    }
+}
+</script>
+<style type="text/css">
+.checkin_main th {
+    white-space: normal;
+}
+.contentsUpdateTable th {
+    font-size: 100%;
+    font-weight: bold;
+    padding-right: 20px;
+    text-align: right;
+}
+textarea{
+    resize: none;
+}
+</style>
+
+<!-- ヘッダー -->
+<input type="hidden" id="hVerUpMajor" name="hVerUpMajor" value="" />
+<input type="hidden" id="hVerUpMinor" name="hVerUpMinor" value="" />
+<input type="hidden" id="hVerUpRevision" name="hVerUpRevision" value="" />
+<input type="hidden" id="hVerUpBuild" name="hVerUpBuild" value="" />
+
+<div id="modalDialogDiv" style="display: none; overflow: auto;">
+    <div id="tab_basic" class="checkin_main tab-div" style="width: 700px; height:450px">
+        <table id="customfieldsTbl" class="contentsUpdateTable customfields" style="width: 100%;" cellpadding="0">
+            <tr>
+                <!-- 対象コンテンツ -->
+                <th style="width: 16%;">
+                    {!$Label.label_10355}
+                </th>
+                <td id="ContentsName">
+                </td>
+            </tr>
+            <tr>
+                <!-- コンテンツ -->
+                <th>
+                    {!$Label.label_10011}
+                </th>
+                <td>
+                    <div id="uploader">
+                        {!$Label.msg_00043}<br /><a href='{!HTMLENCODE($Label.label_getsilverlight_url)}'>{!$Label.label_10232}</a>
+                    </div>
+                </td>
+            </tr>
+            <tr cfname="explanation">
+                <!-- 説明 -->
+                <th>
+                    {!$Label.label_10012}
+                </th>
+                <td>
+                    <table width="10%">
+                        <tr>
+                            <td align="right">
+                                <div id="explanationRemainder"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <textarea id="checkinExplanationDummy" rows="5" style="width: 470px;"></textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="tab_version" class="tab-div checkin_main" style="display: none; height:450px">
+        <table>
+            <tr>
+                <!-- バージョン管理 -->
+                <th>
+                    {!$Label.label_10041}
+                </th>
+                <td>
+                    <div>
+                        <input type="radio" id="verUpType" name="verUpType" value="auto"  checked="checked"/>{!$Label.label_11026}
+                        <img src="{!URLFOR($Resource.cso, 'image/tooltip.png')}" style="vertical-align: middle; margin-left: 5px;"
+                                                                                        onmouseover="showTips(this, new Array('{!$Label.msg_01045}'));"
+                                                                                        onmouseout="hideTips();"
+                                                                                        onclick="showTips(this, new Array('{!$Label.msg_01045}'));" />
+                    </div>
+                    <div style="margin-left:20px;">
+                        <select id="checkinVersionDummy" name="versionkind">
+                            <option value="0">{!$Label.label_10043}</option>
+                            <option value="1" selected="selected">{!$Label.label_10042}</option>
+                            <option value="2">{!$Label.label_11028}</option>
+                            <option value="3">{!$Label.label_11029}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="radio" id="verUpType" name="verUpType" value="manual" />{!$Label.label_11027}
+                        <img src="{!URLFOR($Resource.cso, 'image/tooltip.png')}" style="vertical-align: middle; margin-left: 5px;"
+                                                                                        onmouseover="showTips(this, new Array('{!$Label.msg_01046}','{!$Label.msg_01047}'));"
+                                                                                        onmouseout="hideTips();"
+                                                                                        onclick="showTips(this, new Array('{!$Label.msg_01046}','{!$Label.msg_01047}'));" />
+                    </div>
+                    <div style="margin-left:20px;">
+                        <input type="text" style="width: 40px;" id="verUpMajor" value=""  maxlength="4" />&nbsp;.
+                        <input type="text" style="width: 40px;" id="verUpMinor" value="" maxlength="4" />&nbsp;.
+                        <input type="text" style="width: 40px;" id="verUpRevision" value="" maxlength="4" />&nbsp;.
+                        <input type="text" style="width: 40px;" id="verUpBuild" value="" maxlength="4" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <!-- 更新理由 -->
+                <th>
+                    {!$Label.label_10066}
+                </th>
+                <td>
+                    <table width="10%">
+                        <tr>
+                            <td align="right">
+                                <div id="commentRemainder"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <textarea id="checkinCommentDummy" rows="5" style="width: 470px;"></textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="background-color: #7593D7; height:40px; width:100%;">
+        <ul id="update_tab">
+            <li id="update_tab_basic" class="update_tab update_tab_active">
+            <a href="javascript:switchTab('basic');">{!$Label.label_13008}</a>
+            </li>
+            <li id="update_tab_detail" class="update_tab update_tab_deactive">
+            <a href="javascript:switchTab('version');">{!$Label.label_10038}</a>
+            </li>
+         </ul>
+    </div>
+    <div style="text-align: center; padding-top: 15px;"><input type="button" class="btn" value="{!$Label.label_00058}" onclick="modalDialogDivClose(false);" /></div>
+</div>
+<div id="uploading" style="display: none; padding: 20px;" title="{!$Label.label_10026}">
+    <apex:image alt="uploading" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/uploading.gif')}" style="margin-right: 10px;"/>
+    {!$Label.msg_00044}
+</div>
+
+<div id="tooltip" class="tooltip"></div>
+
+</apex:page>

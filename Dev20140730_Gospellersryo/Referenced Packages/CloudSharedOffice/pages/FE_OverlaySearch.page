@@ -1,0 +1,646 @@
+<apex:page controller="SOLXYZCSO001.FE_OverlaySearchController" showHeader="false">
+
+
+    <!-- DEL START BY SUZUKI -->
+    <!-- DEL END   BY SUZUKI -->
+    <!--
+    <apex:stylesheet value="{!URLFOR($Resource.treeview,'jquery.treeview.css')}" />
+    <apex:includeScript value="{!$Resource.jquery}"/>
+    <apex:includeScript value="{!URLFOR($Resource.treeview,'jquery.treeview.js')}"/>
+
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery-ui-1.8.9.custom.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+    -->
+
+    <!-- ADD START BY SUZUKI -->
+    <!--
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/fg.menu.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery.treeview.colorado.custom.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery-ui-1.8.9.custom.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.WRCSO, 'css/ui.jqgrid.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/common.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/document.css')}" />
+    -->
+    <!-- ADD END   BY SUZUKI -->
+
+    <apex:include pageName="SOLXYZCSO001__WRCSOBridge"/>
+
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/contextMenu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'css/document.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.history.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userLocale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userLocale == 'en_US', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userLocale == 'zh_CN', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/fg.menu.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.treeview.async.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/callActiveX.js')}" />
+
+    <apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+<!-- 2012.05.28 add start -->
+<style>
+.waiting{
+    position            :fixed;
+    bottom              :40%;
+    left                :50%;
+    margin-top          :67px;
+    margin-left         :-33px;
+    display             :block;
+}
+*html .waiting{
+    position            :absolute!important;
+    top                 :expression( (document.body.scrollTop + document.body.clientHeight/2) + 'px' );
+    left                :400px;
+    margin              :-33px;
+}
+
+#control{
+    width: 240px;
+    text-align:right;
+}
+
+.layout_table td{
+    text-valign : top;
+}
+
+#spacePath .path-bold{
+    font-weight: bold;
+    color: #FFA07A;
+}
+</style>
+<!-- 2012.05.28 add end -->
+<script>
+/*jqueryの場合、$がすでに利用中なのでnoConflictを実行する*/
+//画面がロードした時に起動する
+jQuery(document).ready(function() {
+
+    //$("#tv").append('{!treeInfoText}');
+    //$("#tv").treeview();
+//    $("#tv").treeview({collapsed: true});
+
+    //loadTree('{!treeInfoText}');
+
+    // reload trees
+    side_overlay_reload(false);
+    loadSpaceInfos('root');
+
+    //$('li[id$="root"]').click();
+    //$('li[id$="root"]').addClass('open');
+    //var class = $('li[id$="root"]').attr('class');
+    //alert(class);
+
+    // load grid infos
+    init("root", "overlay", "dir");
+
+    // 各DOMのサイズ最適化
+    $(window).resize(resizeBodySize);
+    resizeBodySize();
+
+});
+
+function openOverlayInfo(_id){
+    var ret = jQuery("#listView1").jqGrid('getRowData', _id);
+
+    var obj = {
+                    'name' : ret.name,
+                    'ovlId' : ret.ovlId,
+                    'version' : ret.version,
+                    'comment' : ret.comment,
+    };
+    if(obj.ovlId == null){
+        alert("オーバレイを選択してください。");
+        return false;
+    }
+    $('input[id$="overLayId"]').val(obj.ovlId);
+    $('input[id$="returnOverLayName"]').val(obj.name);
+    overLayInfoGet();
+}
+
+//ツリーのオーバーレイ情報がクリックされた時に起動する
+function overlayTreeLink(val1,val2,val3,val4) {
+
+    //ファイルがクリックされた時のみ処理する
+    if(val1 == 'file'){
+        //暫定対応：オーバーレイIdが"見積書"でも"出荷指示書"でもない時は、
+        //          "出荷指示書"のIdに書き換える。
+        //if(val2 != 'OVL_20120425131107_lyzlT7MR6V' && val2 != 'OVL_20120416184005_Msd2YUamHi'){
+        //  val2 = 'OVL_20120416184005_Msd2YUamHi';
+        //}
+        $('input[id$="overLayId"]').val(val2);
+        $('input[id$="returnOverLayName"]').val(val4);
+        overLayInfoGet();
+    }else if(val1 == 'dir'){
+
+        //reload.
+        loadHtml(val3, val2);
+    }
+
+}
+//2012.05.28 add start
+//  画面グレー化
+function maskOpen(){
+    var ds = document.createElement('div');
+    ds.setAttribute('id','test')
+    ds.style.position='absolute';
+    ds.style.width='100%';
+    //ds.style.height=document.body.clientHeight+'px';
+    ds.style.height="100%";
+    ds.style.left='0px';
+    ds.style.top='0px';
+    var userAgent = window.navigator.userAgent.toLowerCase();
+    if (userAgent.indexOf("msie") > -1) {
+        ds.style.display = 'none';
+        ds.style.backgroundColor = '#D3D3D3';
+        ds.style.filter='alpha(opacity=50)';
+    }else {
+        ds.style.backgroundColor = '#D3D3D3';
+        ds.style.opacity=.5;
+    }
+    document.body.appendChild(ds);
+    if (userAgent.indexOf("msie") > -1) {
+        ds.style.display = '';
+    }
+}
+//  画面グレー化解除
+function maskClose() {
+    var dom_obj=document.getElementById('test');
+    var dom_obj_parent=dom_obj.parentNode;
+    dom_obj_parent.removeChild(dom_obj);
+}
+//2012.05.28 add end
+
+/////////////////////////////////////////////////
+// ツリー
+/////////////////////////////////////////////////
+
+/**
+ * オーバレイ管理のリロード実施
+ */
+function side_overlay_reload(flg){
+
+    var callback =  function(data){
+        //sideRoot["asrt"] = "overlay";
+        loadTree(data, "myspacetree", "{!$Label.label_wf_00001}", "overlay", flg);
+    };
+    //secureGetAsync('/api/overlayList.json', {"JSESSIONID":"", 'respType' : '1', 'locale':'{!userLocale}'}, callback);
+    secureGetAsync('/api/overlayList.json', {"JSESSIONID":"", 'respType' : '1', 'locale':'{!userLocale}','userid' : '{!$User.UserName}', 'credential' : '{!credential}'}, callback);
+
+    mSpaceIdentifier =1;
+    //hideCsoContextMenu();
+}
+
+/** ツリーの生成を行う。 */
+function loadTree(data, cookieId, spaceTitle, asrt, flg){
+
+    //根本
+    var branches = $("#tv").html(data["tree"]);
+
+    //treeviewの生成
+    $("#tv").treeview({
+        collapsed: true,
+        persist: "cookie",
+        cookieId: cookieId,
+        add: branches ,
+        control: "#control",
+        animated: "fast"
+    });
+    // スペースツリー表示
+    //displaySpaceTree();
+}
+
+/*
+ * 選択スペースの文字色変更
+ */
+function changeCurrentTreeColor(id){
+    var url = location.href;
+
+    if(id =="") id = "root";
+
+    $("#tv a").each(function(){
+        //alert(id + "?" + $(this).attr("onclick"));
+        if($(this).attr("onclick").toString().indexOf(id, 0) > 0){
+            $(this).css({color:"red"});
+        }else{
+            $(this).css({color:"black"});
+        }
+    });
+}
+
+/////////////////////////////////////////////////
+// ヘッダ部
+/////////////////////////////////////////////////
+
+function loadSpaceInfos(spaceId){
+
+    displaySpaceID = spaceId;
+
+    var callback =  function(data){
+
+         $("#spacePath").html(data["crumbs"]);
+         $("#spacePath a:last").addClass('path-bold');
+
+         //setSpaceName(data["name"]);
+         //setPathList(data["crumbs"]);
+         //$('#fullPathDisplay').html(data["crumbs"]);
+         //$('#fullPathDisplay').show();
+         //$("#spacePath").html(data["crumbs"]);
+    };
+
+    secureGetAsync('/api/overlaySpaceChoose.json', {id : spaceId, respType : '1','locale':'{!userLocale}','userid' : '{!$User.UserName}', 'credential' : '{!credential}'}, callback);
+    //secureGetAsync('/api/overlaySpaceChoose.json', {id : spaceId, respType : '1','locale':'{!userLocale}'}, callback);
+}
+
+/*
+ * ブレッドクラム作成・設定
+ */
+function setPathList(path){
+
+    //if(path == null || path == "") path = "";
+
+    var pathSpaceWidth,tmpPathAreaWidth;
+    var work;
+    var pathCut = false;
+    var cnt = 0;
+
+    $("#fullPathDisplay").html(path);
+
+    pathSpaceWidth =  $("#gbox_listView1").width() - 200;
+
+    $("#tmpPathArea").html(path);
+    work = path;
+    tmpPathAreaWidth = $("#tmpPathArea").width() - 0;
+
+    //do untill the path is fit in.
+    while (pathSpaceWidth < tmpPathAreaWidth) {
+        //remove the first path.
+        $("#tmpPathArea a:first").remove();
+        work=$("#tmpPathArea").html();
+        if(pathCut == true){
+            work = work.substring(6, work.length);
+        }
+
+        $("#tmpPathArea").html(work);
+        tmpPathAreaWidth = $("#tmpPathArea").width();
+        pathCut = true;
+        if(cnt >= 100){
+            break;
+        }
+        cnt += 1;
+    }
+
+    if(pathCut == true){
+        $('#spacePath div div img').show();
+        $('#spacePath div div img').attr('class', 'showListButton');
+    }else{
+        $('#spacePath div div img').css('display', 'none');
+    }
+    $("#spacePath div div h3").html(work);
+
+}
+
+
+/////////////////////////////////////////////////
+// リスト
+/////////////////////////////////////////////////
+
+/**
+ * スペースを選択
+ */
+function loadHtml(type, dir){
+    //loadHtml('/OverlayComplexList?overlayType=dir&id=DIR_20120521033746_X64LT8yWuF',null);
+    location.href = "#" + dir;
+    loadHtml2(type, dir);
+
+    //alert("location : "+location.href);
+}
+
+function loadHtml2(type, dir){
+    $(document).scrollTop(0);
+    //var url = '{!$Label.field_csowebreport_url}/api/overlayComplexList.json?overlayType='+type+'&id='+dir+'&locale={!userLocale}';
+    var url = '{!$Label.field_csowebreportSf_url}/api/overlayComplexList.json?overlayType='+type+'&id='+dir+'&locale={!userLocale}&userid='+'{!$User.UserName}'+'&credential='+'{!credential}';
+    //var url = "#" + dir;
+    reload(url, dir);
+    changeCurrentTreeColor(dir);
+}
+/*
+ * グリッド初期化
+ */
+function init(spaceId, asrt, overlayType){
+
+    if(overlayType == null) overlayType="dir";
+
+    $("#listView1").jqGrid({
+        url : '{!$Label.field_csowebreportSf_url}/api/overlayComplexList.json',
+        postData : {
+            spaceId : spaceId,
+            overlayType: overlayType,
+            locale : '{!userlocale}',
+            userid : '{!$User.UserName}',
+            credential : '{!credential}'
+        },
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id       : "_id"
+        },
+        colNames:[
+            '',
+            '{!$Label.label_wf_00006}',    //名前
+            '{!$Label.label_wf_00007}',    //説明
+            '{!$Label.label_wf_00008}',    //バージョン
+            '{!$Label.label_wf_00009}',    //作成者
+            '{!$Label.label_wf_00010}',    //作成日
+            '{!$Label.label_wf_00011}',    //更新者
+            '{!$Label.label_wf_00012}',    //更新日
+            '',
+            '',
+            '',
+            '',
+            '',
+            ''
+        ],
+        colModel:[
+                {name:'id',index:'id', hidden:true},
+                {name:'dispName',index:'dispName', width:130},
+                {name:'comment', index:'comment', width:110},
+                {name:'version', index:'version', width:60},
+                {name:'regist_uname', index:'regist_uname', width:65},
+                {name:'regist_date', index:'regist_date', width:95},
+                {name:'update_uname', index:'update_uname', width:80},
+                {name:'update_date', index:'update_date', width:95},
+                {name:'_id', index:'_id', hidden:true},
+                {name:'type', index:'type', hidden:true},
+                {name:'ovlId', index:'ovlId', hidden:true},
+                {name:'delAuth', index:'delAuth', hidden:true},
+                {name:'name',index:'name', width:439, hidden:true},
+                {name:'checkTime',index:'checkTime', width:439, hidden:true}
+
+                ],
+        rowNum:50,
+        height: 300,
+        width: 600,
+        rowList:[10,50,100],
+        sortname: 'name',
+        pager: '#listView1Pager',
+        viewrecords: true,
+        multiselect: false,
+        multiboxonly: true,
+        shrinkToFit : false,
+        loadComplete : function(data) {
+            //alert(data);
+
+            //aタグにセットする
+            $("#listView1 img").each(function(){
+                //$(this).addClass("folder_2");
+                $(this).attr("src", "{!URLFOR($Resource.WRCSO, 'image/folder_2.png')}");
+            })
+
+
+        },
+        gridComplete : function(){
+        },
+        onSortCol: function(name, index){
+        },
+        onSelectAll : function(ids, status){
+
+            /*
+            switchCsoContextMenu(flgSecurityStatus);
+                          contextMenuEnable();
+                          var list = getSelectedList();
+                          if (list.length > 0) {
+                              //updateCsocontextMenuHeader(list[0].name,list.length);
+                          }
+            */
+        },
+        onCellSelect:function(rowid, icol, cellcontent){
+            //セルが選択された時
+            //switchCsoContextMenu();
+            //contextMenuEnable();
+            /*
+            var list = getSelectedList();
+            if (list.length > 0) {
+                updateCsocontextMenuHeader(list[0].name,list.length);
+            }
+            */
+       }
+    });
+}
+
+/*
+ * グリッドリロード
+ */
+function reload(url, dir, id){
+    $("#listViewArea").show();
+    $("#listView1").setGridParam({
+        url: url
+    });
+    $("#listView1").trigger("reloadGrid");
+
+    //ぱんくずリストの変更
+    loadSpaceInfos(dir);
+
+    changeCurrentTreeColor(dir);
+}
+
+/*
+ * グリッドから選択された行の情報を取得
+ */
+function getSelectedList() {
+    var ids = jQuery("#listView1").jqGrid('getGridParam', 'selarrrow');
+    var list = new Array();
+    for (var i in ids) {
+        var ret = $("#listView1").jqGrid('getRowData', ids[i]);
+        var obj = {
+                    'id' : ret._id,
+                    '_id' : ret._id,
+                    'name' : ret.name,
+                    'ovlId' : ret.ovlId,
+                    'version' : ret.version,
+                    'update_uname' : ret.update_uname,
+                    'update_date' : ret.update_date,
+                    'comment' : ret.comment,
+                    'type' : ret.type,
+                    'rowId': ret.id,
+                    'upDate' : ret.checktime
+                  };
+        list.push(obj);
+    }
+    return list;
+}
+
+
+function viewSelected(){
+
+    var _id = jQuery("#listView1").jqGrid('getGridParam', 'selrow');
+
+    if(_id == null){
+        alert("オーバレイを選択してください。");
+        return false;
+    }
+
+    var ret = jQuery("#listView1").jqGrid('getRowData', _id);
+
+    var obj = {
+                    'name' : ret.name,
+                    'ovlId' : ret.ovlId,
+                    'version' : ret.version,
+                    'comment' : ret.comment,
+    };
+    if(obj.ovlId == null){
+        alert("オーバレイを選択してください。");
+        return false;
+    }
+    $('input[id$="overLayId"]').val(obj.ovlId);
+    $('input[id$="returnOverLayName"]').val(obj.name);
+    overLayInfoGet();
+}
+
+/*
+
+/*
+ * 画面リサイズ時の各要素のサイズをリサイズ
+ */
+function resizeBodySize(){
+    var browserWidth = getBrowserWidth();
+    var browserHeight = getBrowserHeight();
+
+    $("#listView1").setGridHeight(browserHeight - (287 - 170));
+    $("#spaceUserManager_inv_space_user_list").setGridHeight(browserHeight - (287 - 170));
+    $("#tree_div").css("height", (browserHeight - 62) + "px");
+    if((browserWidth - 300) < 600){
+        $("#listView1").setGridWidth(600);
+        //$("#spaceUserManager_inv_space_user_list").setGridWidth(600);
+    } else {
+        if(getBrowserType() != 'IE8'){
+            $("#listView1").setGridWidth(browserWidth - 300);
+            //$("#listView1").setGridWidth(600);
+            $("#spaceUserManager_inv_space_user_list").setGridWidth(browserWidth - 300);
+        } else {
+            $("#listView1").setGridWidth(browserWidth - 324);
+            //$("#listView1").setGridWidth(600);
+            $("#spaceUserManager_inv_space_user_list").setGridWidth(browserWidth - 324);
+        }
+    }
+}
+
+</script>
+<apex:form id="form">
+
+    <!-- 返却値の定義 -->
+    <apex:inputHidden id="overLayId" value="{!overLayId}" />
+    <apex:inputHidden id="returnOverLayName" value="{!returnOverLayName}" />
+    <apex:inputHidden id="returnFixedKomoku" value="{!returnFixedKomoku}"/>
+    <apex:inputHidden id="returnDetailKomoku" value="{!returnDetailKomoku}"/>
+    <apex:inputHidden id="returnThum" value="{!returnThum}"/>
+    <apex:inputHidden id="okFlg" value="{!okFlg}" />
+     <!-- 2013.01.10 地図情報 add start -->
+    <apex:inputHidden id="returnfixedMap" value="{!returnfixedMap}"/>
+    <apex:inputHidden id="returndetailMap" value="{!returndetailMap}"/>
+    <!-- 2013.01.10 地図情報 add end -->
+
+
+
+<!-- Search Table -->
+<table class="layout_table">
+    <tr>
+        <!-- Space fields -->
+        <td valign="top">
+<!-- ツリービュー領域 -->
+<div id="control">
+    <a href="?#" class="c_link_s">{!$Label.label_wf_00042}</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="?#" class="c_link_s">{!$Label.label_wf_00043}</a>
+</div>
+<div id ="tree_div">
+    <!-- ローディングエリア -->
+    <!--
+    <div id="loadingGif"><apex:image url="{!URLFOR($Resource.WRCSO, 'image/loading.gif')}" style="margin:50px 0 0 100px" alt="loading"/></div>
+    -->
+    <!-- スペースツリーエリア -->
+    <!--
+    <ul id="spaceTree" class="filetree" style="max-height: 432px;"></ul>
+    -->
+    <ul id="tv" class="filetree" style="max-height: 432px;"></ul>
+</div>
+
+        </td>
+        <!-- -->
+        <td>
+            <!-- ブレッドクラム挿入位置 -->
+            <div style="background:#38acff;">
+                <div id="spacePath" style="padding:0.5em; color:#ffffff; text-weight:bold;">
+            </div>
+            </div>
+            <div id ="fullPathDisplay"/>
+            <div id="listViewArea" class="innerContentsDiv">
+            <table id="listView1" cellspacing="0" cellpadding="0" >
+            </table>
+            <div id="listView1Pager"></div>
+            </div>
+            <div style="width:100%; text-align:right;">
+            <!--
+            <br/>
+                <button onclick="top.window.close();">キャンセル</button>
+                <button onclick="viewSelected(); return false;">OK</button>
+            -->
+            </div>
+            <span id="tmpPathArea" style="display:none;white-space:nowrap"></span>
+        </td>
+    </tr>
+</table>
+    <!-- <apex:outputtext id="tvText" value="{!treeInfoText}" /> -->
+
+    <!-- javascriptから呼び出される -->
+    <apex:actionFunction action="{!overLayInfoGet}"
+        name="overLayInfoGet"
+        immediate="false"
+        rerender="form"
+        status="chengeStatus"
+        />
+
+    <!-- 2012.085.28 add start -->
+    <apex:actionStatus id="chengeStatus" startStyleClass="waiting" onstart="maskOpen();" onstop="mappingOut();maskClose();">
+        <apex:facet name="start"><img src="{!URLFOR($Resource.searchNow)}" /></apex:facet>
+    </apex:actionStatus>
+    <!-- 2012.085.28 add end -->
+
+    <!-- formが描画された時に起動するjavascript -->
+    <script>
+        var okFlg = $('input[id$="okFlg"]').val();
+        if(okFlg == 'true'){
+            if(!top.window.opener || top.window.opener.closed){
+                //親ウィンドウが存在しない
+                alert('親ウィンドウが存在しない');
+            }
+            //親に値を戻す。
+            top.window.opener.searchReturn( '{!JSENCODE(returnFixedKomoku)}',
+                                            '{!JSENCODE(returnDetailKomoku)}',
+                                            '{!JSENCODE(returnThum)}',
+                                            '{!JSENCODE(returnOverLayName)}',
+                                            '{!JSENCODE(overLayId)}',
+                                            '{!overlayLatestVersion}',
+                                            //<!-- 2013.01.10 地図情報 追加 start-->
+                                            '{!JSENCODE(returnfixedMap)}',
+                                            '{!JSENCODE(returndetailMap)}'
+                                            );
+            top.window.close();
+        }
+    </script>
+
+</apex:form>
+</apex:page>

@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>タスク</value>
+    </caseValues>
+    <fields>
+        <label>責任者</label>
+        <name>Accountable_Owner__c</name>
+        <relationshipLabel><!-- タスク (責任者) --></relationshipLabel>
+    </fields>
+    <fields>
+        <help>このタスクの責任者。デフォルトでは現在のユーザ。</help>
+        <label>割り当て</label>
+        <name>Assigned_To__c</name>
+        <relationshipLabel>タスク</relationshipLabel>
+    </fields>
+    <fields>
+        <help>ブロックされた理由</help>
+        <label>理由</label>
+        <name>Blocked_Reason__c</name>
+    </fields>
+    <fields>
+        <help>ブロック</help>
+        <label>ブロック</label>
+        <name>Blocked__c</name>
+    </fields>
+    <fields>
+        <help>自分がわかるように分類わけを設定</help>
+        <label>クラス</label>
+        <name>Class__c</name>
+        <picklistValues>
+            <masterLabel>Ad Hoc</masterLabel>
+            <translation>一時的</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Defect</masterLabel>
+            <translation>欠陥</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Executive</masterLabel>
+            <translation><!-- Executive --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Functional</masterLabel>
+            <translation><!-- Functional --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>PMO</masterLabel>
+            <translation><!-- PMO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Re-work</masterLabel>
+            <translation>再開</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Technical</masterLabel>
+            <translation><!-- Technical --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>このタスクの完了状態。</help>
+        <label>完了</label>
+        <name>Complete__c</name>
+    </fields>
+    <fields>
+        <label>遅延日</label>
+        <name>Days_Late_Formula__c</name>
+    </fields>
+    <fields>
+        <help>このタスクの遅延日数</help>
+        <label>遅延日数</label>
+        <name>Days_Late__c</name>
+    </fields>
+    <fields>
+        <label>遅延日</label>
+        <name>Delays_Date__c</name>
+    </fields>
+    <fields>
+        <help>タスクの概要。目的などを書く。</help>
+        <label>説明</label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <help>このタスクの完了期限日。デフォルトではマイルストーンの期限日が設定される。</help>
+        <label>期限日</label>
+        <name>Due_Date__c</name>
+    </fields>
+    <fields>
+        <label>メールGUID</label>
+        <name>Email_GUID__c</name>
+    </fields>
+    <fields>
+        <help>タスクから算出された推定費用</help>
+        <label>推定費用</label>
+        <name>Estimated_Expense__c</name>
+    </fields>
+    <fields>
+        <help>タスクから算出された推定時間</help>
+        <label>推定時間</label>
+        <name>Estimated_Hours__c</name>
+    </fields>
+    <fields>
+        <help>推定される総費用</help>
+        <label>費用バランス</label>
+        <name>Expense_Balance__c</name>
+    </fields>
+    <fields>
+        <help>推定される総時間</help>
+        <label>時間バランス</label>
+        <name>Hours_Balance__c</name>
+    </fields>
+    <fields>
+        <label>インポートID</label>
+        <name>ImportID__c</name>
+    </fields>
+    <fields>
+        <label>インデックスヘルパー</label>
+        <name>Index_Helper__c</name>
+    </fields>
+    <fields>
+        <label>インデックス</label>
+        <name>Index__c</name>
+    </fields>
+    <fields>
+        <help>最後のメールを受信した日時。タスクはメール経由でも作成可能で、タスクのメモ＆添付ファイルに保存される。</help>
+        <label>最終メール受信日時</label>
+        <name>Last_Email_Received__c</name>
+    </fields>
+    <fields>
+        <label>メンバー</label>
+        <name>Members__c</name>
+        <relationshipLabel><!-- タスク (メンバー) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>大元のマイルストーン</label>
+        <name>Milestone_Grandparent__c</name>
+    </fields>
+    <fields>
+        <label>延期の理由</label>
+        <name>Missed_Deadline_explanation__c</name>
+    </fields>
+    <fields>
+        <label>後続タスク</label>
+        <name>Next_Dependency__c</name>
+        <relationshipLabel><!-- Next Dependency --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- OverAll_PickList_Status --></label>
+        <name>OverAll_PickList_Status__c</name>
+        <picklistValues>
+            <masterLabel>Blocked</masterLabel>
+            <translation><!-- Blocked --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Blocked Deferred</masterLabel>
+            <translation><!-- Blocked Deferred --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Blocked In Progress</masterLabel>
+            <translation><!-- Blocked In Progress --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Blocked Not Yet Started</masterLabel>
+            <translation><!-- Blocked Not Yet Started --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Blocked Resolved</masterLabel>
+            <translation><!-- Blocked Resolved --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Complete</masterLabel>
+            <translation><!-- Complete --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Late</masterLabel>
+            <translation><!-- Late --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Late &amp; Blocked</masterLabel>
+            <translation><!-- Late &amp; Blocked --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Late &amp; Blocked Deferred</masterLabel>
+            <translation><!-- Late &amp; Blocked Deferred --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Late &amp; Blocked In Progress</masterLabel>
+            <translation><!-- Late &amp; Blocked In Progress --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Late &amp; Blocked Not Yet Started</masterLabel>
+            <translation><!-- Late &amp; Blocked Not Yet Started --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Late &amp; Blocked Resolved</masterLabel>
+            <translation><!-- Late &amp; Blocked Resolved --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Late Deferred</masterLabel>
+            <translation><!-- Late Deferred --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Late In Progress</masterLabel>
+            <translation><!-- Late In Progress --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Late Not Yet Started</masterLabel>
+            <translation><!-- Late Not Yet Started --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Late Resolved</masterLabel>
+            <translation><!-- Late Resolved --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Open</masterLabel>
+            <translation><!-- Open --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Open Deferred</masterLabel>
+            <translation><!-- Open Deferred --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Open In Progress</masterLabel>
+            <translation><!-- Open In Progress --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Open Not Yet Started</masterLabel>
+            <translation><!-- Open Not Yet Started --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Open Resolved</masterLabel>
+            <translation><!-- Open Resolved --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>タスクが完了、進行中、遅延、ブロックまたは、遅延ブロックされていることを示す</help>
+        <label>全体の状態</label>
+        <name>Overall_Status__c</name>
+    </fields>
+    <fields>
+        <label>所有者ID</label>
+        <name>OwnerId__c</name>
+    </fields>
+    <fields>
+        <label>親タスク-Lecel4</label>
+        <name>Parent_Level4__c</name>
+    </fields>
+    <fields>
+        <label>親タスク-Level5</label>
+        <name>Parent_Level5__c</name>
+    </fields>
+    <fields>
+        <label><!-- Parent_Level6_Test --></label>
+        <name>Parent_Level6_Test__c</name>
+    </fields>
+    <fields>
+        <label><!-- Parent Level 6 --></label>
+        <name>Parent_Level6__c</name>
+    </fields>
+    <fields>
+        <label><!-- Parent Level 7 --></label>
+        <name>Parent_Level7__c</name>
+    </fields>
+    <fields>
+        <label>親タスク-Level3</label>
+        <name>Parent_Parent_Task__c</name>
+    </fields>
+    <fields>
+        <label>親タスク</label>
+        <name>Parent_Task__c</name>
+        <relationshipLabel>子タスク</relationshipLabel>
+    </fields>
+    <fields>
+        <label>延期予想期間</label>
+        <name>Plan_to_address_delays__c</name>
+    </fields>
+    <fields>
+        <label>先行タスク</label>
+        <name>Pre_Dependency__c</name>
+        <relationshipLabel><!-- Pre Dependency --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>前のタスクのインポートID</label>
+        <name>Predecessor_Task_Import_Id__c</name>
+    </fields>
+    <fields>
+        <help>このタスクの前のタスク</help>
+        <label>前のタスク</label>
+        <name>Predecessor_Task__c</name>
+        <relationshipLabel>後のタスク</relationshipLabel>
+    </fields>
+    <fields>
+        <help>このタスクの優先度。0，1，2，3，4で設定。</help>
+        <label>優先度</label>
+        <name>Priority__c</name>
+        <picklistValues>
+            <masterLabel>0</masterLabel>
+            <translation><!-- 0 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1</masterLabel>
+            <translation><!-- 1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2</masterLabel>
+            <translation><!-- 2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3</masterLabel>
+            <translation><!-- 3 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4</masterLabel>
+            <translation><!-- 4 --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>進捗率(％)</label>
+        <name>ProgressPer__c</name>
+    </fields>
+    <fields>
+        <label>進捗率の説明</label>
+        <name>Progress_Description__c</name>
+    </fields>
+    <fields>
+        <label>進捗率</label>
+        <name>Progress__c</name>
+    </fields>
+    <fields>
+        <label>進捗率</label>
+        <name>Progress_picklist__c</name>
+        <picklistValues>
+            <masterLabel>0% (Not Started)</masterLabel>
+            <translation><!-- 0% (Not Started) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>100% (Sign Off)</masterLabel>
+            <translation><!-- 100% (Sign Off) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>20% (Task Start)</masterLabel>
+            <translation><!-- 20% (Task Start) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>40% (First Review)</masterLabel>
+            <translation><!-- 40% (First Review) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>60% (Deliverable Written)</masterLabel>
+            <translation><!-- 60% (Deliverable Written) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>80% (Final Review)</masterLabel>
+            <translation><!-- 80% (Final Review) --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>プロジェクトID</label>
+        <name>ProjectId__c</name>
+    </fields>
+    <fields>
+        <label>プロジェクト状態</label>
+        <name>ProjectStatus__c</name>
+    </fields>
+    <fields>
+        <help>タスクが割り当てられているマイルストーン</help>
+        <label>マイルストーン</label>
+        <name>Project_Milestone__c</name>
+        <relationshipLabel>タスク</relationshipLabel>
+    </fields>
+    <fields>
+        <help>このタスクが属するプロジェクトへのリンク</help>
+        <label>プロジェクト</label>
+        <name>Project__c</name>
+    </fields>
+    <fields>
+        <help>全てのタスクとプロジェクトから参照可能なユニークなID</help>
+        <label>ショートID</label>
+        <name>Short_ID__c</name>
+    </fields>
+    <fields>
+        <help>タスクの開始日</help>
+        <label>開始日</label>
+        <name>Start_Date__c</name>
+    </fields>
+    <fields>
+        <help>全てのタスクとプロジェクトから参照可能なユニークなID</help>
+        <label>タスク　ショートID</label>
+        <name>Task_Number__c</name>
+    </fields>
+    <fields>
+        <help>タスクの状態</help>
+        <label>状態</label>
+        <name>Task_Stage__c</name>
+        <picklistValues>
+            <masterLabel>Completed</masterLabel>
+            <translation>完了</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Deferred</masterLabel>
+            <translation>延期</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>In Progress</masterLabel>
+            <translation>進行中</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Interruption</masterLabel>
+            <translation>中断</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Not Yet Started</masterLabel>
+            <translation>未開始</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Resolved</masterLabel>
+            <translation>解決済</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>タスク ステータス*</label>
+        <name>Task_Status_View__c</name>
+    </fields>
+    <fields>
+        <label>タスク ステータス</label>
+        <name>Task_Status__c</name>
+        <picklistValues>
+            <masterLabel>Green</masterLabel>
+            <translation><!-- Green --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Red</masterLabel>
+            <translation><!-- Red --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Yellow</masterLabel>
+            <translation><!-- Yellow --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>全ての子レコードの総費用</help>
+        <label>総費用</label>
+        <name>Total_Expense__c</name>
+    </fields>
+    <fields>
+        <help>全てのレコードの総時間</help>
+        <label>総時間</label>
+        <name>Total_Hours__c</name>
+    </fields>
+    <layouts>
+        <layout>Project Task Layout</layout>
+        <sections>
+            <label>ブロック</label>
+            <section>Blocked</section>
+        </sections>
+        <sections>
+            <label>CCユーザリスト</label>
+            <section>CC User List</section>
+        </sections>
+        <sections>
+            <label>カスタムリンク</label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>遅延</label>
+            <section>Delays</section>
+        </sections>
+        <sections>
+            <label>推定</label>
+            <section>Estimates</section>
+        </sections>
+        <sections>
+            <label>マトリックス：時間と費用</label>
+            <section>Expenses</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>プロジェクトタスク名</nameFieldLabel>
+    <validationRules>
+        <errorMessage>完了済みタスクをブロックすべきではありません。</errorMessage>
+        <name>CannotBeBlockedIfComplete</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>完了済みタスクをブロックすべきではありません。</errorMessage>
+        <name>CannotBeCompleteIfBlocked</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>期限日はマイルストーン期限日より前である必要があります。</errorMessage>
+        <name>Due_Date_Greater_Than_Milestone_Deadline</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>期限日はマイルストーン開始日より後である必要があります。</errorMessage>
+        <name>Due_Date_Smaller_Than_Milestone_Kickoff</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>「ブロック」にチェックがない場合は空白にして下さい。</errorMessage>
+        <name>Must_be_blank_if_not_blocked</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>このタスクがブロックされた場合は理由を記入して下さい。</errorMessage>
+        <name>Must_not_be_blank_if_blocked</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>期限日は開始日より後である必要があります。</errorMessage>
+        <name>Start_Date_More_Than_Due_Date</name>
+    </validationRules>
+    <webLinks>
+        <label>削除</label>
+        <name>Btn_Delete</name>
+    </webLinks>
+    <webLinks>
+        <label>新マイルストーンへ移動</label>
+        <name>Change_Milestone</name>
+    </webLinks>
+    <webLinks>
+        <label>新マイルストーンへ移動</label>
+        <name>Move_to_New_Milestone</name>
+    </webLinks>
+</CustomObjectTranslation>

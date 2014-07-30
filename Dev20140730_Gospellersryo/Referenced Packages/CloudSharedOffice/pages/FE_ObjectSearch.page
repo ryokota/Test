@@ -1,0 +1,76 @@
+<apex:page standardStylesheets="true" showHeader="false" sidebar="false" Controller="SOLXYZCSO001.FE_ObjectSearchtController" tabStyle="Opportunity" title="Create Report" Id="page1" action="{!serchObj}" >
+<head>
+  <title>{!$Label.solxyzcso001__label_wf_00029}</title>
+  <link  href="/sCSS/24.0/sprites/1331837151000/Theme3/ja/common.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css" />
+  <link  href="/sCSS/24.0/sprites/1331837151000/Theme3/ja/extended.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="setup popupTab">
+    <div id="ieBrowserFix" style="display:none;">
+        <apex:sectionHeader title="IE" subtitle="BrowserFix" />
+    </div>
+    <apex:form id="Form1">
+        <apex:actionFunction name="Reflesh" rerender="Form1"/>
+        <br/>
+        <apex:outputText value="{!$Label.solxyzcso001__label_wf_00029}" />
+        <apex:inputtext value="{!serch}" maxlength="255" />
+        <apex:commandButton value="Go!" action="{!serchObj}"/>
+        <br/>
+        <div class="bPageBlock secondaryPalette">
+            <div class="pbBody">
+                <apex:dataTable value="{!lisObjtResults}" var="mtList" id="mtList" styleClass="list" headerClass="headerRow" rowClasses="dataRow" columnClasses="dataCell" >
+                    <apex:column >
+                        <apex:facet name="header">{!$Label.solxyzcso001__label_wf_00050}</apex:facet>
+                        <apex:outputPanel >
+                            <apex:outputLink value="#" id="theLink" onclick="setObjId({!objCon},'{!JSENCODE(mtList.ID)}','{!JSENCODE(mtList.Name)}','{!JSENCODE(mtList.SOLXYZCSO001__ObjectID__c)}')">
+                                <apex:outputtext value="{!mtList.name}" id="name"/>
+                            </apex:outputLink>
+                        </apex:outputPanel>
+                        <apex:inputHidden value="{!mtList.Id}" id="id" rendered="{!$ObjectType.SOLXYZCSO001__ReportOutputObject__c.fields.Id.Accessible}"  />
+                    </apex:column>
+                </apex:dataTable>
+            </div>
+        </div>
+    </apex:form>
+</body>
+
+<SCRIPT>
+
+    function setObjId(con,name,objLabel,objName) {
+        var checkDocument = "";
+        var checkName = "";
+        var mDocument = "";
+        var mname = "";
+        var ua = navigator.userAgent;
+    if('{!JSENCODE(callType)}' != 'new'){
+        for(i = 0; i < con; i++){
+          checkDocument = "page1:Form1:mtList:" + i + ":id";
+          checkName = "page1:Form1:mtList:" + i + ":name";
+          if(ua.indexOf("Firefox") >= 0){
+            mDocument = document.getElementById(checkDocument).value;
+            mname = document.getElementById(checkName).textContent;
+            if(mDocument == name){
+                window.opener.document.getElementById("reportDetail:form:block:sectionM:section_item1:reportOutText").value = mname;
+                window.opener.document.getElementById("reportDetail:form:block:sectionM:section_item1:reportOutText_lkid").value = name;
+            }
+          }else{
+            mDocument = document.getElementById(checkDocument).value;
+            mname = document.getElementById(checkName).innerText;
+            if(mDocument == name){
+                window.opener.document.getElementById("reportDetail:form:block:sectionM:section_item1:reportOutText").value = mname;
+                window.opener.document.getElementById("reportDetail:form:block:sectionM:section_item1:reportOutText_lkid").value = name;
+            }
+          }
+        }
+        opener.inputObjectChange();
+    }else{
+        top.window.opener.objectReturn(objLabel,objName);
+    }
+        window.open("about:blank","_self").close();
+    }
+    function Action2(){
+        window.open("about:blank","_self").close();
+    }
+
+</SCRIPT>
+</apex:page>

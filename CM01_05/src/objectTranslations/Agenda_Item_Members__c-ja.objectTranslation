@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Agenda Item Members</value>
+    </caseValues>
+    <fields>
+        <label><!-- Agenda Item --></label>
+        <name>Agenda_Item__c</name>
+        <relationshipLabel><!-- Agenda Item Members --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- User --></label>
+        <name>User__c</name>
+        <relationshipLabel><!-- Agenda Item Members --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Duplicate Check for Agenda Item Members --></label>
+        <name>duplicate_check__c</name>
+    </fields>
+    <layouts>
+        <layout>Agenda Item Members Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <recordTypes>
+        <label><!-- BOD Admin --></label>
+        <name>BOD_Admin</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- BOD Advisor --></label>
+        <name>BOD_Advisor</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- BOD Guest --></label>
+        <name>BOD_Guest</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- BOD Member --></label>
+        <name>BOD_Member</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- BOD Secretary --></label>
+        <name>BOD_Secretary</name>
+    </recordTypes>
+</CustomObjectTranslation>

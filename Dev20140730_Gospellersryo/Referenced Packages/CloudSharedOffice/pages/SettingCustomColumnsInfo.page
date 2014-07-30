@@ -1,0 +1,181 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingCustomColumnsController" tabStyle="setting__tab" >
+
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_list_setting_contents == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_list_setting_contents == 'true' && cso_userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<script type="text/javascript">
+var id;
+$(function(){
+    var type = "content";
+
+    var param = {
+        type : type
+    }
+
+    var callback =  function(data){
+            console.log("test.id: " + data.id);
+            console.log("first: " + data.firstSort);
+            console.log("firstD: " + data.firstSortDirection);
+            console.log("second: " + data.dispCols);
+            id = data.id;
+//            $("#id").val(data.id);
+            $("#customColumnNames").text(data.dispCols.join(", "));
+            $("#rowNum").text(data.rowNum);
+            if(data.firstSort != undefined){
+                $("#firstSort").text(data.firstSortLabel + " (" + data.firstSortDirectionLabel + ")");
+            }else{
+                $("#firstSort").text(" - ");
+            }
+
+            if(data.secondSort != undefined){
+                $("#secondSort").text(data.secondSortLabel + " (" + data.secondSortDirectionLabel + ")");
+            }else{
+                $("#secondSort").text(" - ");
+            }
+            $('#updateUserName').text(data.uName);
+            $('#updateDate').text(data.uDate);
+    };
+
+    var callerror =  function(data){
+    };
+
+    secureGetAsync('/listsetting/DefaultSettingGet.json', param, callback, callerror);
+
+});
+
+function onEditClicked(){
+    console.log("onEdit id : " + id);
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingCustomColumnsEdit))}?type=content&id=' + id;
+//    location.href = "#/CustomColumnsEdit?type="+"${type}"+"&id=" +$("#id").val() ;
+}
+
+</script>
+
+<style type="text/css">
+
+.cstfieTbl th{
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+    height: 3em;
+}
+
+.updateTable th{
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+    height: 2em;
+}
+
+.updateTable td{
+    text-align: center;
+    padding: 0px 20px 0px 20px;
+}
+
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <!--apex:image url="{!URLFOR($Resource.cso, 'image/u_32.png')}" alt="{!$Label.label_10621}" title="{!$Label.label_10621}"/-->
+                <h1 id="c_headLeftTitle">{!$Label.label_13236}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_13237}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <!-- コマンドボタン表示 -->
+                        <apex:pageBlockButtons >
+                           <apex:commandButton id="btnEdit" value="{!$Label.solxyzcso001__label_00073}" onclick="onEditClicked();return false;"/>
+                        </apex:pageBlockButtons>
+                        <p class="step-header">{!$Label.label_13238}</p>
+                        <div style="padding: 20px 40px;">
+
+                            <table id="customColumnsTbl" class="cstfieTbl">
+                                <tr id="columnNames">
+                                    <th>{!$Label.label_13239}</th>
+                                    <td id="customColumnNames"></td>
+                                </tr>
+                                <tr >
+                                    <th>{!$Label.label_13240}</th>
+                                    <td id="firstSort"></td>
+                                </tr>
+
+                                <tr>
+                                    <th>{!$Label.label_13241}</th>
+                                    <td id="secondSort"></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_13242}</th>
+                                    <td id="rowNum"></td>
+                                </tr>
+
+                            </table>
+
+                            <table class="updateTable" style="padding: 40px;">
+                                <tr>
+                                    <th>{!$Label.label_10024}</th>
+                                    <td><span id="updateUserName"></span></td>
+                                    <th>{!$Label.label_10006}</th>
+                                    <td><span id="updateDate"></span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

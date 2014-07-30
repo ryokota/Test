@@ -1,0 +1,1514 @@
+<apex:page showHeader="false" sidebar="false">
+<script type="text/javascript">
+(function($){
+
+    var _target = null;
+    var _id             = "";
+    var _locale         = "";
+    var _loginUserId    = "";
+
+    var _data   = null;
+    
+    var _apiUrl = "{!$Label.field_CSO_URL}";
+
+    $.fn.root=function(options){
+        var options = $.extend({
+            id          : "",
+            locale      : "",
+            loginUserId : "",
+        }, options);
+
+        _target = $(this);
+        _id             = options.id;
+        _locale         = options.locale;
+        _loginUserId    = options.loginUserId;
+
+        _target.parent().css({
+            "overflow-x"        : "auto"
+        })
+                
+        setData(_id);
+
+        return $(this);
+    };
+
+    function setData(id){
+        secureGetAsync(
+            "/workflowmanagement/workflowRootInfo.json",
+            {id : id},
+            function(data){
+                _data = data;
+                showIcons(_data);
+                showSelect(_data);
+                _target.css({
+                    "position"  : "relative",
+                    "overflow"  : "hidden",
+                });
+                _target.scrollTop(_target.attr("scrollHeight"));
+                _target.width((_data.defstepsinfo.length + 1) * 158);
+            }
+        );
+    }
+
+    function showIcons(data){
+        var steps = data.wf.steps;
+
+        var step = null;
+
+        var rowCount = 0;
+        for(var i=0; i<steps.length; i++){
+            step        = null;
+            var stepBefore  = null;
+            var stepNext    = null;
+            for(var idx=0; idx<data.wf.steps.length; idx++){
+                if(steps[idx].sequenceNo == i){
+                    step = steps[idx];
+                }
+                if(steps[idx].sequenceNo == i-1){
+                    stepBefore = steps[idx];
+                }
+                if(steps[idx].sequenceNo == i+1){
+                    stepNext = steps[idx];
+                }
+                if(step!=null){
+                    if(i==0 && stepNext!=null){
+                        break;
+                    }else if(stepBefore!=null && stepNext!=null){
+                        break;
+                    }else if(i==data.wf.steps.length-1 && stepBefore!=null){
+                        break;
+                    }
+                }
+            }
+
+            if(stepBefore!=null
+                    && ((step.stepNo < stepBefore.stepNo) || (stepBefore.stepNo==0 && stepBefore.transitionInfo==4))){
+                rowCount++;
+                appendBackArrow(step, stepBefore, rowCount);
+            }
+
+            appendRootRow(step, stepNext, rowCount);
+
+            appendRootIcons(step, stepBefore, stepNext, rowCount);
+        }
+
+        appendAnticipationIcons(step, rowCount);
+    }
+
+    function appendAnticipationIcons(stepNow, rowCount){
+        var divRoot = $("#step_route_" + rowCount);
+        var sequenceNo = stepNow.sequenceNo;
+        for(var i=0; i<_data.defstepsinfo.length; i++){
+            sequenceNo++;
+
+            var step = null;
+            for(var j=0; j<_data.defstepsinfo.length; j++){
+                if(_data.defstepsinfo[j].stepno == i+1){
+                    step = _data.defstepsinfo[j];
+                }
+            }
+            if(step==null || step.stepno <= stepNow.stepNo){
+                continue;
+            }
+
+            var divArrow = $("<div>");
+            divArrow.css({
+                "width"             : "48px",
+                "height"            : "48px",
+                "margin"            : "50px 0 0 0",
+                "background-image"  : "url(" + _apiUrl + "/image/wf-arrow.png)",
+                "float"             : "left",
+            });
+            divRoot.append(divArrow);
+
+            var divApproverBack = $("<div>");
+            divApproverBack.attr({
+                "datatype"          : "step_user_back",
+                "row"               : rowCount,
+                "stepid"            : step.stepid,
+                "sequenceno"        : sequenceNo,
+                "anticipation"      : "1",
+                "stepno"        : step.stepNo,
+            });
+            divApproverBack.css({
+                "width"             : "90px",
+                "height"            : "140px",
+                "border-radius"     : "3px",
+                "padding"           : "5px 0 0 0",
+                "float"             : "left",
+                "margin"            : "0 10px 0 10px",
+                "cursor"            : "pointer",
+                "position"          : "relative",
+                "box-shadow"        : "1px 1px 3px #C0C0C0",
+                "border"            : "solid 1px silver",
+            });
+            divApproverBack.click(function(){
+                if($(this).attr("stepno") != 0){
+                    adjustmentRootPos($(this));
+                }
+                //showUsers($(this).attr("stepid"), $(this).attr("sequenceno"), $(this).attr("stepno"));
+            });
+            var $apploval = $("<div>").css({
+                "text-align"        : "center",
+                "background-color"  : "#dcdcdc",
+                "border-top"        : "solid 1px silver",
+                "border-bottom"     : "solid 1px silver",
+                "padding"           : "3px 0px",
+                "margin-bottom"     : "3px",
+                "position"          : "absolute",
+                "width"             : "100%",
+            }).html(step.procedure == 0 ? "{!$Label.label_10734}" : "{!$Label.label_10735}");
+
+            divApproverBack.append($apploval);
+            divRoot.append(divApproverBack);
+
+            var divUserIcon = $("<div>");
+            var iconType = "";
+            divUserIcon.attr({
+                "datatype"      : "step_user_icon",
+                "stepid"        : step.stepId,
+            });
+            divUserIcon.css({
+                "width"     : "48px",
+                "height"    : "48px",
+                "margin"    : "30px 0 5px 20px",
+                "cursor"    : "pointer",
+            });
+            var imagePath = "";
+            if(step.manager.length == 1){
+                if(step.manager[0].type == 0){
+                    iconType = "USER";
+                    imagePath = _apiUrl + "/image/setting-person.png";
+                }else if(step.manager[0].type == 2){
+                    iconType = "GROUP";
+                    imagePath = _apiUrl + "/image/group.png";
+                }else if(step.manager[0].type == 1){
+                    iconType = "POST";
+                    imagePath = _apiUrl + "/image/h006.png";
+                }else if(step.manager[0].type == 3){
+                    iconType = "SUPERIOR";
+                    imagePath = _apiUrl + "/image/setting-person.png";
+                }else{
+                    imagePath = _apiUrl + "/image/setting-person2.png";
+                }
+            }else{
+                imagePath = _apiUrl + "/image/setting-person2.png";
+            }
+            divUserIcon.css({
+                "background-image"  : "url(" + imagePath + ")",
+            });
+            divApproverBack.append(divUserIcon);
+
+            var divUserName = $("<div>");
+            divUserName.css({
+                "text-align"    : "center",
+            });
+            if(step.manager.length > 0){
+                if(iconType == "USER"){
+                    for(var key in step.users){
+                        divUserName.text(step.users[key]);
+                        break;
+                    }
+                }else if(iconType == "GROUP"){
+                    divUserName.text(step.manager[0].name);
+                }else if(iconType == "POST"){
+                    divUserName.text(step.manager[0].name);
+                }else if(iconType == "SUPERIOR"){
+                    for(var key in step.users){
+                        divUserName.text(step.users[key]);
+                        break;
+                    }
+                }else{
+                    if(step.manager.length > 0){
+                        var idx = 0;
+                        for(var j = 0; j < step.manager.length; j++){
+                            if(step.manager[j].id == _loginUserId){
+                                idx = j;
+                                break;
+                            }
+                        }
+                        var dispName = step.manager[idx].name;
+                        if(dispName == null){
+                            dispName = step.users[step.manager[idx].id];
+                        }
+                        divUserName.html(getMsg(new Array($("<div/>").text(dispName).html(), step.manager.length - 1 + ""), "{!$Label.label_10821}"));
+                    }
+                }
+            }
+            divApproverBack.append(divUserName);
+        }
+    }
+
+    function appendBackArrow(step, stepBefore, rowCount){
+        var stepTransStart = null;
+        var sequenceNo = step.sequenceNo;
+        for(var i=0; i<_data.wf.steps.length; i++){
+            if(_data.wf.steps[i].sequenceNo == sequenceNo - 1){
+                if((_data.wf.steps[i].decision >= 4 && _data.wf.steps[i].decision <= 6) || (_data.wf.steps[i].decision == 10)){
+                    stepTransStart = _data.wf.steps[i];
+                    break;
+                }
+                sequenceNo--;
+                i=0;
+            }
+        }
+
+        var stepTransEnd = null;
+        sequenceNo = step.sequenceNo;
+        for(var i=0; i<_data.wf.steps.length; i++){
+            if(_data.wf.steps[i].sequenceNo == sequenceNo){
+                if(_data.wf.steps[i].transitionInfo >= 2 && _data.wf.steps[i].transitionInfo <= 4){
+                    stepTransEnd = _data.wf.steps[i];
+                }
+                if((_data.wf.steps[i].decision >= 4 && _data.wf.steps[i].decision <= 6) || (_data.wf.steps[i].decision == 10)){
+                    break;
+                }else if(sequenceNo >= _data.wf.steps.length){
+                    break;
+                }else{
+                    sequenceNo++;
+                    i=0;
+                }
+            }
+        }
+
+        var divBackArrowArea = $("<div>");
+        divBackArrowArea.attr({
+            "datatype"      : "back_arrow",
+            "row"           : rowCount,
+        });
+        divBackArrowArea.css({
+            "clear" : "both",
+        });
+
+        var divBackArrow_3 = $("<div>");
+        var leftMargin = (stepTransEnd.stepNo * 159) + 37;
+        divBackArrow_3.css({
+            "width"             : "38px",
+            "height"            : "61px",
+            "background-image"  : "url(" + _apiUrl + "/image/wf-arrow-3.png)",
+            "margin-left"       : leftMargin + "px",
+            "float"             : "left",
+        });
+        divBackArrowArea.append(divBackArrow_3);
+
+        var divBackArrow_2 = $("<div>");
+        var backLength = 0;
+        if(stepBefore.stepNo==0 && stepBefore.transitionInfo==4){
+            backLength = 123;
+        }else{
+            backLength = 123 + ((stepTransStart.stepNo - stepTransEnd.stepNo - 1) * 159);
+        }
+        divBackArrow_2.css({
+            "width"                 : backLength + "px",
+            "height"                : "48px",
+            "background-image"      : "url(" + _apiUrl + "/image/wf-arrow-2.png)",
+            "background-repeat"     : "x-repeat",
+            "float"                 : "left",
+        });
+        divBackArrowArea.append(divBackArrow_2);
+
+        var divBackArrow_1 = $("<div>");
+        divBackArrow_1.css({
+            "width"             : "38px",
+            "height"            : "48px",
+            "background-image"  : "url(" + _apiUrl + "/image/wf-arrow-1.png)",
+            "float"             : "left",
+        });
+        divBackArrowArea.append(divBackArrow_1);
+
+        _target.append(divBackArrowArea);
+    }
+
+    function appendRootRow(step, stepNext, rowCount){
+        var divRoute = $("#step_route_" + rowCount);
+        if(divRoute.length == 0){
+            divRoute = $("<div>");
+            divRoute.attr({
+                "id"        : "step_route_" + rowCount,
+                "datatype"  : "step_root",
+                "row"       : rowCount,
+            });
+            divRoute.css({
+                "clear"     : "both",
+            });
+            _target.append(divRoute);
+        }
+
+        if(step.sequenceNo==0){
+            divRoute.css({
+                "margin-top"    : "25px",
+            });
+        }else if(stepNext==null){
+            divRoute.css({
+                "height"        : "169px",
+            });
+        }
+        divRoute = null;
+    }
+
+    function appendRootIcons(step, stepBefore, stepNext, rowCount){
+        var divRoot = $("#step_route_" + rowCount);
+        if(stepBefore != null && step.stepNo == stepBefore.stepNo+1){
+            var divArrow = $("<div>");
+            divArrow.css({
+                "width"             : "48px",
+                "height"            : "48px",
+                "margin"            : "50px 0 0 0",
+                "background-image"  : "url(" + _apiUrl + "/image/wf-arrow.png)",
+                "float"             : "left",
+            });
+            divRoot.append(divArrow);
+        }
+        var divApproverBack = $("<div>");
+        divApproverBack.attr({
+            "datatype"          : "step_user_back",
+            "row"               : rowCount,
+            "stepid"            : step.stepId,
+            "sequenceno"        : step.sequenceNo,
+            "stepno"            : step.stepNo,
+        });
+        divApproverBack.css({
+            "width"             : "90px",
+            "height"            : "140px",
+            "border-radius"     : "3px",
+            "padding"           : "5px 0 0 0",
+            "float"             : "left",
+            "margin"            : "0 10px 0 10px",
+            "position"          : "relative",
+            "box-shadow"        : "1px 1px 3px #C0C0C0",
+            "border"            : "solid 1px silver",
+        });
+        if(step.stepNo != 0){
+            divApproverBack.css({
+                "cursor"            : "pointer",
+            });
+        }
+        if(_data.expired && stepBefore!=null && step.stepNo!=0 && step.decision==0
+                && (stepBefore.decision!=0 || stepBefore.stepNo==0)){
+            divApproverBack.css({
+                "background-color"  : "#FFC9D4",
+            });
+        }else if((step.decision >= 3 && step.decision <= 6)
+                || (step.decision >= 8 && step.decision <= 10)){
+            divApproverBack.css({
+                "background-color"  : "#FFC9D4",
+            });
+        }else if(stepNext==null && _data.waiting){
+            divApproverBack.css({
+                "background-color"  : "#C8f9C8",
+                "border"            : "solid 2px green",
+            });
+            var $img = $("<img>").attr("src", _apiUrl + "/image/point.gif").css({
+                "position": "absolute",
+                "left": "30px",
+                "top": "-40px",
+            });
+        }
+        divApproverBack.click(function(){
+            if($(this).attr("stepno") != 0){
+                adjustmentRootPos($(this));
+            }
+        });
+
+        var divUserIcon = $("<div>");
+        var iconType = "";
+        divUserIcon.attr({
+            "datatype"      : "step_user_icon",
+            "stepid"        : step.stepId,
+            "sequenceno"    : step.sequenceNo,
+        });
+        divUserIcon.css({
+            "width"     : "48px",
+            "height"    : "48px",
+            "margin"    : "30px 0 5px 20px",
+        });
+        if(step.stepNo != 0){
+            divUserIcon.css({
+                "cursor"    : "pointer",
+            });
+        }
+        var imagePath = "";
+        if(step.stepNo==0){
+            iconType = "USER";
+            imagePath = _apiUrl + "/image/setting-person.png";
+        }else if(step.defUsers.length == 1 && step.defUsers[0].isValid && step.users.length > 0){
+            if(step.defUsers[0].type == 0 || step.defUsers[0].type == 3){
+                iconType = "USER";
+                imagePath = _apiUrl + "/image/setting-person.png";
+            }else if(step.defUsers[0].type == 2){
+                iconType = "GROUP";
+                imagePath = _apiUrl + "/image/group.png";
+            }else if(step.defUsers[0].type == 1){
+                iconType = "POST";
+                imagePath = _apiUrl + "/image/h006.png";
+            }else{
+                imagePath = _apiUrl + "/image/setting-person2.png";
+            }
+        }else{
+            imagePath = _apiUrl + "/image/setting-person2.png";
+        }
+        divUserIcon.css({
+            "background-image"  : "url(" + imagePath + ")",
+        });
+        
+        var $apploval = $("<div>").css({
+            "text-align"        : "center",
+            "padding"           : "3px 0px",
+            "margin-bottom"     : "3px",
+            "position"          : "absolute",
+            "width"             : "100%",
+        });
+        
+        if(step.stepNo == 0){
+            $apploval.html("&nbsp;");
+        }else{
+            $apploval.html(step.approveProcedure == 0 ? "{!$Label.label_10734}" : "{!$Label.label_10735}");
+            if(stepNext==null && _data.waiting){
+                $apploval.css({
+                    "border-top"        : "solid 1px green",
+                    "border-bottom"     : "solid 1px green",
+                    "background-color"  : "green",
+                    "color"             : "white",
+                });
+            }else{
+                $apploval.css({
+                    "border-top"        : "solid 1px silver",
+                    "border-bottom"     : "solid 1px silver",
+                    "background-color"  : "#dcdcdc",
+                });
+            }
+        }
+        
+        divApproverBack.append($apploval);
+        divApproverBack.append(divUserIcon);
+
+        for(var j=0; j<step.users.length; j++){
+            if(step.users[j].decisionComment != null && step.users[j].decisionComment != ""){
+                var divExistsComments = $("<div>");
+                divExistsComments.css({
+                    "height"            : "21px",
+                    "width"             : "30px",
+                    "background-image"  : "url(" + _apiUrl + "/image/comment_small.png)",
+                    "position"          : "absolute",
+                    "top"               : 5,
+                    "left"              : 60,
+                });
+                break;
+            }
+        }
+
+        if(step.decision > 0){
+            var divApproved = $("<div>");
+            divApproved.css({
+                "width"             : "85px",
+                "position"          : "absolute",
+                "top"               : 120,
+                "left"              : -1,
+                "background-color"  : "green",
+                "color"             : "white",
+                "padding"           : "3px",
+                "text-align"            : "center",
+            });
+            
+            if(step.decision == 1){
+                divApproved.html("{!$Label.label_10714}");
+                divApproved.css({"background-color":"#2E8B57"});
+            }else if(step.decision == 2){
+                divApproved.html("{!$Label.label_10715}");
+                divApproved.css({"background-color":"#4169e1"});
+            }else if(step.decision == 3){
+                divApproved.html("{!$Label.label_10713}");
+                divApproved.css({"background-color":"#e50000"});
+            }else if(step.decision == 4 || step.decision == 5){
+                divApproved.html("{!$Label.label_10722}");
+                divApproved.css({"background-color":"#c71585"});
+            }else if(step.decision == 6){
+                divApproved.html("{!$Label.label_10730}");
+                divApproved.css({"background-color":"#c71585"});
+            }else if(step.decision == 7){
+                divApproved.html("{!$Label.label_10747}");
+                divApproved.css({"background-color":"#DCDCDC", "color":"#000000"});
+            }else if(step.decision == 8){
+                divApproved.html("{!$Label.label_10716}");
+                divApproved.css({"background-color":"#e50000"});
+            }else if(step.decision == 10){
+                divApproved.html("{!$Label.label_10724}");
+                divApproved.css({"background-color":"#c71585"});
+            }
+            divUserIcon.append(divApproved);
+        }
+
+
+        var divUserName = $("<div>");
+        divUserName.css({
+            "text-align"        : "center",
+        });
+        if(step.stepNo == 0){
+            divUserName.text(_data.wf.applicantName);
+        }else{
+            if(iconType == "USER"){
+                if(step.defUsers[0].id != null){
+                    divUserName.text(_data.usersinfo[step.defUsers[0].id].name1);
+                }else if(step.users.length > 0){
+                    divUserName.text(_data.usersinfo[step.users[0].userId].name1);
+                }
+            }else if(iconType == "GROUP"){
+                divUserName.text(step.defUsers[0].name);
+            }else if(iconType == "POST"){
+                divUserName.text(step.defUsers[0].name);
+            }else{
+                if(step.users.length > 0){
+                    var isLoginUser = false;
+                    for(var i = 0; i < step.users.length; i++){
+                        if(step.users[i].userId == _loginUserId){
+                            isLoginUser = true;
+                            break;
+                        }
+                    }
+                    var stepname = "";
+                    var stepusercount = 0;
+                    var stepusers = new Object();
+                    for(var i = 0; i < step.users.length; i++){
+                        if(!stepusers[step.users[i].userId]){
+                            stepusercount++;
+                            stepusers[step.users[i].userId] = step.users[i].userId;
+                        }
+                    }
+                    if(stepusercount > 1){
+                        if(isLoginUser){
+                            stepname = getMsg(new Array($("<div/>").text(_data.usersinfo[_loginUserId].name1).html(), stepusercount - 1 + ""), "{!$Label.label_10821}");
+                        }else{
+                            stepname = getMsg(new Array($("<div/>").text(_data.usersinfo[step.users[0].userId].name1).html(), stepusercount - 1 + ""), "{!$Label.label_10821}");
+                        }
+                    }else if(step.users.length > 0){
+                        stepname = $("<div/>").text(_data.usersinfo[step.users[0].userId].name1).html();
+                    }
+                    divUserName.html(stepname);
+                    stepname        = null;
+                    stepusercount   = null;
+                    stepusers       = null;
+                }
+            }
+        }
+        divApproverBack.append(divUserName);
+        divRoot.append(divApproverBack);
+    }
+    
+    function adjustmentRootPos(obj){
+        if((obj.position().left + 100) > ($("body").width() + $("#steps").parent().scrollLeft())){
+            //$("#steps").parent().scrollLeft($("#steps").parent().scrollLeft() + 160)
+            $("#steps").parent().animate({scrollLeft : $("#steps").parent().scrollLeft() + 160}, {
+                duration : "fast",
+                complete : function(){
+                    showUsers(obj.attr("stepid"), obj.attr("sequenceno"), obj.attr("stepno"));
+                }
+            });
+        }else if(obj.position().left - $("#steps").parent().scrollLeft() < 0){
+            $("#steps").parent().animate({scrollLeft : $("#steps").parent().scrollLeft() - 160}, {
+                duration : "fast",
+                complete : function(){
+                    showUsers(obj.attr("stepid"), obj.attr("sequenceno"), obj.attr("stepno"));
+                }
+            });
+        }else{
+            showUsers(obj.attr("stepid"), obj.attr("sequenceno"), obj.attr("stepno"));
+        }
+    }
+
+    function showUsers(stepId, sequenceNo, stepNo){
+
+        if(stepNo == 0) return;
+
+        hideUsers();
+
+        var usersBack = $("[datatype=step_user_back][stepid=" + stepId + "][sequenceno=" + sequenceNo + "]");
+        bAnticipation = false;
+        if(usersBack.attr("anticipation") == 1){
+            bAnticipation = true;
+        }
+
+        var divFloat = $("<div>");
+        divFloat.attr({
+            "datatype"  : "float_users_back",
+        });
+        divFloat.css({
+            /* "position"  : "relative", */
+        });
+        //_target.after(divFloat);
+        //alert(_target.position().top);
+
+        var overWindowX = 0;
+        var yamaX       = usersBack.offset().left - divFloat.offset().left - overWindowX + 33;
+        var yamaY       = usersBack.offset().top - divFloat.offset().top + 138;
+
+        var backgroundX = 10;
+        var backgroundY = usersBack.offset().top - divFloat.offset().top + 161;
+
+        var scrollX     = $("#infoMain").scrollLeft();
+        var scrollY     = $("#infoMain").scrollTop();
+
+        var divBackgroundYama = $("<div>");
+        divBackgroundYama.attr({
+            "datatype"          : "float_users_back",
+            "init_x"            : yamaX,
+            "init_y"            : yamaY,
+            "init_scroll_x"     : scrollX,
+            "init_scroll_y"     : scrollY,
+        });
+        var divBackgroundYama = $("<div>");
+        divBackgroundYama.css({
+            "position"              : "absolute",
+            "top"                   : yamaY + "px",
+            "left"                  : yamaX + "px",
+            "border"                : "solid transparent",
+            "content"               : " ",
+            "height"                : "0",
+            "width"                 : "0",
+            "pointer-events"        : "none",
+            "border-color"          : "rgba(194, 225, 245, 0)",
+            "border-bottom-color"   : "#f0ffff",
+            "border-width"          : "12px",
+            "z-index"               : "2",
+        });
+
+        var divBackgroundYama2 = $("<div>");
+        divBackgroundYama2.css({
+            "position"              : "absolute",
+            "top"                   : yamaY - 4 + "px",
+            "left"                  : yamaX - 3 + "px",
+            "border"                : "solid transparent",
+            "content"               : " ",
+            "height"                : "0",
+            "width"                 : "0",
+            "pointer-events"        : "none",
+            "border-color"          : "rgba(194, 225, 245, 0)",
+            "border-bottom-color"   : "silver",
+            "border-width"          : "15px",
+            "z-index"               : "0",
+        });
+        divFloat.append(divBackgroundYama).append(divBackgroundYama2);
+
+        var divBackground = $("<div>");
+        divBackground.attr({
+            "datatype"          : "float_users_back",
+            "init_x"            : backgroundX,
+            "init_y"            : backgroundY,
+            "init_scroll_x"     : scrollX,
+            "init_scroll_y"     : scrollY,
+        });
+        divBackground.css({
+            "background-color"      : "#f0ffff",
+            "width"                 : "97%",
+            "height"                : "400px",
+            "border-radius"         : "1px",
+            "border"                : "solid 1px silver",
+            "-moz-box-shadow"       : "1px 1px 3px #c0c0c0",
+            "-webkit-box-shadow"    : "1px 1px 3px #c0c0c0",
+            "box-shadow"            : "1px 1px 3px #c0c0c0",
+            "position"              : "absolute",
+            "top"                   : backgroundY + "px",
+            "left"                  : backgroundX + "px",
+            "overflow"              : "hidden",
+            //"white-space"           : "nowrap",
+            "z-index"               : "1",
+        });
+        divFloat.append(divBackground);
+        $("body").append(divFloat);
+
+        if(!bAnticipation){
+            for(var i=0; i<_data.wf.steps.length; i++){
+                var step = _data.wf.steps[i];
+                if(step.stepId != stepId || step.sequenceNo != sequenceNo){
+                    continue;
+                }
+
+                var defStep = null;
+                for(var j=0; j<_data.defstepsinfo.length; j++){
+                    if(step.stepId == _data.defstepsinfo[j].stepid){
+                        defStep = _data.defstepsinfo[j];
+                    }
+                }
+
+                var $divHead = $("<div>").css({
+                    "padding"       : "10px 0 10px 10px",
+                });
+                var divTitle = $("<span>");
+                divTitle.css({
+                    "font-size"     : "16px",
+                    "margin"        : "10px 0 10px 10px",
+                });
+                if(step.decision == 0){
+                    divTitle.html("{!$Label.label_10733}");
+                }else{
+                    divTitle.html("{!$Label.label_10732}");
+                }
+
+
+                var $divCondition = $("<span>").css({"margin-left" : "50px"});
+                var $divConditionText = "{!$Label.label_10753}" + "&nbsp;:&nbsp;" + (defStep.procedure == 0 ? "{!$Label.label_10734}" : "{!$Label.label_10735}");
+                $divConditionText += "&nbsp;&nbsp;&nbsp;" + "{!$Label.label_10017}" + "&nbsp;:&nbsp;";
+                if(step.decision == 0){
+                    $divConditionText += "{!$Label.label_10712}";
+                }else if(step.decision == 1){
+                    $divConditionText += "{!$Label.label_10714}";
+                }else if(step.decision == 2){
+                    $divConditionText += "{!$Label.label_10715}";
+                }else if(step.decision == 3){
+                    $divConditionText += "{!$Label.label_10713}";
+                }else if(step.decision == 4){
+                    $divConditionText += "{!$Label.label_10722}";
+                }else if(step.decision == 5){
+                    $divConditionText += "{!$Label.label_10722}";
+                }else if(step.decision == 6){
+                    $divConditionText += "{!$Label.label_10730}";
+                }else if(step.decision == 7){
+                    $divConditionText += "{!$Label.label_10747}";
+                }else if(step.decision == 8){
+                    $divConditionText += "{!$Label.label_10748}";
+                }else if(step.decision == 9){
+                    $divConditionText += "{!$Label.label_10717}";
+                } else if (step.decision == 10) {
+                    $divConditionText += "{!$Label.label_10724}";
+                }
+
+                var $divExplanation = $("<div>").css({
+                    "float"         : "right",
+                    "margin-right"  : "10px",
+                    "margin-top"    : "10px",
+                });
+
+                var $status0 = $("<span>").css({"background-color":"#696969","padding":"3px 8px","color":"#FFFFFF"}).html("{!$Label.label_10812}");
+                var $status1 = $("<span>").css({"background-color":"#2E8B57","padding":"3px 8px","color":"#FFFFFF"}).html("{!$Label.label_10714}");
+                var $status2 = $("<span>").css({"background-color":"#4169e1","padding":"3px 8px","color":"#FFFFFF"}).html("{!$Label.label_10715}");
+                var $status3 = $("<span>").css({"background-color":"#FF0000","padding":"3px 8px","color":"#FFFFFF"}).html("{!$Label.label_10713}");
+                var $status4 = $("<span>").css({"background-color":"#c71585","padding":"3px 8px","color":"#FFFFFF"}).html("{!$Label.label_10722}");
+                var $status5 = $("<span>").css({"background-color":"#c71585","padding":"3px 8px","color":"#FFFFFF"}).html("{!$Label.label_10722}");
+                var $status6 = $("<span>").css({"background-color":"#ff6347","padding":"3px 8px","color":"#FFFFFF"}).html("{!$Label.label_10730}");
+                var $status7 = $("<span>").css({"background-color":"#a0522d","padding":"3px 8px","color":"#FFFFFF"}).html("{!$Label.label_10747}");
+                var $status8 = $("<span>").css({"background-color":"#FF0000","padding":"3px 8px","color":"#FFFFFF"}).html("{!$Label.label_10748}");
+                var $status9 = $("<span>").css({"background-color":"#c71585","padding":"3px 8px","color":"#FFFFFF"}).html("{!$Label.label_10717}");
+                var $statusEx = $("<span>").html("{!$Label.label_10012}" + " : ");
+                $divExplanation.append($statusEx).append("&nbsp;");
+                $divExplanation.append($status0).append("&nbsp;");
+                $divExplanation.append($status1).append("&nbsp;");
+                $divExplanation.append($status2).append("&nbsp;");
+                $divExplanation.append($status3).append("&nbsp;");
+                $divExplanation.append($status4).append("&nbsp;");
+                //$divExplanation.append($status5).append("&nbsp;");
+                $divExplanation.append($status6).append("&nbsp;");
+                //$divExplanation.append($status7).append("&nbsp;");
+                //$divExplanation.append($status8).append("&nbsp;");
+                //$divExplanation.append($status9);
+
+
+                $divCondition.html($divConditionText);
+                //$divHead.append(divTitle);
+                //$divHead.append($divCondition);
+                
+                $closeImg = $("<img>").attr({
+                    "src"           : _apiUrl + "/image/cancel.png",
+                }).css({
+                    "float"         : "right",
+                    "margin-right"  : "10px",
+                    "cursor"        : "pointer",
+                }).click(function(){
+                    hideUsers();
+                });
+
+                $divHead.append($closeImg);
+
+                /* $divHead.append($divExplanation); */
+                divBackground.append($divHead);
+                
+                if(step.decisionInformation){
+                    $divError = $("<span>").css({
+                        "width"             : "10px",
+                        "padding"           : "3px",
+                        "margin-left"       : "20px",
+                        "background-color"  : "#ffff00",
+                        "color"             : "#e50000",
+                        "font-weight"       : "bold",
+                    }).html(step.decisionInformation);
+                    divBackground.append($divError);
+                }
+                
+                divConditionally = null;
+
+                var $userTable = $("<table>").css({
+                    "margin"    : "10px",
+                    "clear"     : "both",
+                    "width"     : "98%"
+                });
+                var $userTableTr1 = $("<tr>");
+                var $userTableTd1 = $("<td>").attr("id", "viewArea");
+                var $userTableTd2 = $("<td>").css({
+                    "width" : "100%",
+                    "vertical-align" : "top"
+                });
+
+                //$userTableTr1.append($userTableTd1);
+                $userTableTr1.append($userTableTd2);
+
+                $userTable.append($userTableTr1);
+
+                var divBackgroundScroll = $("<div>");
+                divBackgroundScroll.css({
+                    "width"     : "350px",
+                    "height"    : "240px",
+                    "overflow"  : "auto",
+                });
+                divBackground.click(function(){
+                    $(document).unbind("click", hideUsers);
+                    setTimeout(function(){$(document).bind("click", hideUsers);}, 100);
+                });
+                divBackground.append($userTable);
+
+                for(var j=0; j<step.users.length; j++){
+                    $userTableTd1.append(getUserDetailDom(
+                            $("<div>").html(_data.usersinfo[step.users[j].userId].name2),
+                            step.users[j].decisionComment,
+                            step.users[j].decision,
+                            step.users[j].decisionDateString));
+                    $userTableTd2.append(getUserDetailListDom(step, stepNo, sequenceNo));
+                    break;
+                }
+
+                break;
+            }
+        }else{
+            var defStep = null;
+            for(var i=0; i<_data.defstepsinfo.length; i++){
+                if(_data.defstepsinfo[i].stepid == stepId){
+                    defStep = _data.defstepsinfo[i];
+                    break;
+                }
+            }
+
+            var divHead = $("<div>");
+            divHead.css({
+                "padding"       : "10px 0 10px 10px",
+            });
+
+            var divTitle = $("<span>");
+            divTitle.css({
+                "font-size"     : "16px",
+                "margin"        : "10px 0 10px 10px",
+            });
+            divTitle.html("{!$Label.label_10733}");
+
+            //divHead.append(divTitle);
+            divBackground.append(divHead);
+
+            var $divCondition = $("<span>").css({"margin-left" : "50px"});
+            var $divConditionText = "{!$Label.label_10753}" + "&nbsp;:&nbsp;" + (defStep.procedure == 0 ? "{!$Label.label_10734}" : "{!$Label.label_10735}");
+            $divConditionText += "&nbsp;&nbsp;&nbsp;" + "{!$Label.label_10017}" + "&nbsp;:&nbsp;" + "{!$Label.label_10712}";
+            $divCondition.html($divConditionText);
+            //divHead.append($divCondition)
+
+            $closeImg = $("<img>").attr({
+                "src"           : _apiUrl + "/image/cancel.png",
+            }).css({
+                "float"         : "right",
+                "margin-right"  : "10px",
+                "cursor"        : "pointer",
+            }).click(function(){
+                hideUsers();
+            });
+
+            divHead.append($closeImg);
+/*
+            var divDecision = $("<div>");
+            divDecision.css({
+                "margin"    : "0 0 0 10px",
+                "color"     : "#000000",
+            });
+
+            var text = "{!$Label.label_10712}";
+            if(defStep.procedure == 0){
+                text += "(" + "{!$Label.label_10734}" + ")";
+            }else if(defStep.procedure == 1){
+                text += "(" + "{!$Label.label_10735}" + ")";
+            }
+            divDecision.html(text);
+            divBackground.append(divDecision);*/
+            divConditionally = null;
+
+            var divBackgroundScroll = $("<div>");
+            divBackgroundScroll.css({
+                "width"     : "100%",
+                "height"    : "170px",
+                "overflow"  : "auto",
+                "margin"    : "10px",
+            });
+            divBackground.click(function(){
+                $(document).unbind("click", hideUsers);
+                setTimeout(function(){$(document).bind("click", hideUsers);}, 100);
+            });
+            divBackground.append(divBackgroundScroll);
+
+            for(var userID in defStep.users){
+                var divUser = $("<div>").html(_data.usersinfo[userID].name2);
+                divUser.css({
+                    "padding"   : "5px",
+                    "margin-right"  : "30px",
+                    "min-width" : "200px",
+                    "float" : "left"
+                });
+                divBackgroundScroll.append(divUser);
+            }
+        }
+
+        setTimeout(function(){$(document).bind("click", hideUsers);}, 100);
+    }
+
+    function hideUsers(){
+        $(document).unbind("click", hideUsers);
+        $("[datatype=float_users_back]").remove();
+    }
+    
+    $.fn.hideWFUsers = function(){
+        hideUsers();
+    }
+
+    function scrollTarget(){
+        $("[datatype=float_users_back]").each(function(){
+            $(this).css({
+                "top"   : $(this).attr("init_y") - ($("#infoMain").scrollTop() - $(this).attr("init_scroll_y")),
+            });
+        });
+    }
+
+    function showSelect(data){
+        var selRow = $("<select>");
+        selRow.attr({
+            "id"        : "sel_rows",
+        });
+        selRow.change(function(){
+            onSelRowChanged();
+        });
+        selRow.css({
+            "float"         : "left",
+            "margin-top"    : "1px",
+        });
+
+        var rowCount = 0;
+        for(var i=0; i<data.wf.steps.length; i++){
+            var step        = null;
+            var stepBefore  = null;
+            for(var idx=0; idx<data.wf.steps.length; idx++){
+                if(data.wf.steps[idx].sequenceNo == i){
+                    step = data.wf.steps[idx];
+                }
+                if(data.wf.steps[idx].sequenceNo == i-1){
+                    stepBefore = data.wf.steps[idx];
+                }
+                if(step!=null){
+                    if(i==0){
+                        break;
+                    }else if(stepBefore!=null){
+                        break;
+                    }
+                }
+            }
+
+            if(i==0 || (i > 0 && step.stepNo < stepBefore.stepNo)){
+                rowCount++;
+                var optRow = $("<option>");
+                optRow.attr({
+                    "value" : rowCount,
+                });
+                optRow.html(getMsg(new Array(String(rowCount)), "{!$Label.label_10811}"));
+                selRow.append(optRow);
+            }
+            if(i == data.wf.steps.length-1){
+                optRow.attr({
+                    "selected"  : "selected",
+                });
+            }
+        }
+
+        var divToUp = $("<div>");
+        divToUp.css({
+            "width"             : "16px",
+            "height"            : "16px",
+            "background-image"  : "url(" + _apiUrl + "/image/up_16_16.png)",
+            "padding"           : "0",
+            "margin"            : "3px 5px 0 15px",
+            "float"             : "left",
+            "cursor"            : "pointer",
+        });
+        divToUp.click(function(){
+            if(selRow.val() > 1){
+                selRow.val(selRow.val() - 1);
+                onSelRowChanged();
+            }
+        });
+
+        var divToDown = $("<div>");
+        divToDown.css({
+            "width"             : "16px",
+            "height"            : "16px",
+            "background-image"  : "url(" + _apiUrl + "/image/down_16_16.png)",
+            "padding"           : "0",
+            "margin"            : "3px 0 0 5px",
+            "float"             : "left",
+            "cursor"            : "pointer",
+        });
+        divToDown.click(function(){
+            if(selRow.find("[value=" + (Number(selRow.val()) + 1) + "]").length > 0){
+                selRow.val(Number(selRow.val()) + 1);
+                onSelRowChanged();
+            }
+        });
+
+        if(rowCount > 1){
+            var divSel = $("<div>");
+            divSel.css({
+                "display"        : "inline-block",
+                "margin"         : "-6px 0 -2px 10px",
+                "padding"        : "0",
+                "vertical-align" : "middle",
+            });
+            divSel.append(selRow);
+            divSel.append(divToUp);
+            divSel.append(divToDown);
+            $("[id$=header_steps]").find("div:first").append(divSel);
+        }
+    }
+
+    function onSelRowChanged(){
+        var s_y = ($("#sel_rows").val() - 1) * 208;
+        if(s_y < 0){
+            s_y = 0;
+        }
+        _target.animate({scrollTop:s_y}, 200);
+    }
+
+    function getUserDetailDom(user, comment, decision, datetime){
+        var $tbl = $("<table>");
+
+        var $tr_row1 = $("<tr>");
+        var $td_row1_col1 = $("<td>").attr("colspan", "2");
+        $td_row1_col1.html(user);
+        $tr_row1.append($td_row1_col1);
+
+        var $tr_row2 = $("<tr>");
+        var $td_row2_col1 = $("<td>").append($("<textarea>").css({
+            "width" : "250px",
+            "height" : "100px",
+        }).attr("disabled", "disabled").val(comment));
+
+        var $td_row2_col2 = $("<td>");
+        var decisionText;
+        var bgColor;
+        var borderColor;
+        switch(decision - 0){
+        case 0:
+            bgColor = "#DCDCDC";
+            borderColor = "#696969";
+            decisionText = "{!$Label.label_10812}";
+            break;
+        case 1:
+            bgColor = "#CCFFCC";
+            borderColor = "#2E8B57";
+            decisionText = "{!$Label.label_10714}";
+            break;
+        case 2:
+            bgColor = "#f0f8ff";
+            borderColor = "#4169e1";
+            decisionText = "{!$Label.label_10715}";
+            break;
+        case 3:
+            bgColor = "#ffc0cb";
+            borderColor = "#FF0000";
+            decisionText = "{!$Label.label_10713}";
+            break;
+        case 4:
+            bgColor = "#ffe4e1";
+            borderColor = "#c71585";
+            decisionText = "{!$Label.label_10722}";
+            break;
+        case 5:
+            bgColor = "#ffe4e1";
+            borderColor = "#c71585";
+            decisionText = "{!$Label.label_10722}";
+            break;
+        case 6:
+            bgColor = "#ffbdb2";
+            borderColor = "#ff6347";
+            decisionText = "{!$Label.label_10730}";
+            break;
+        case 7:
+            bgColor = "#a06950";
+            borderColor = "#a0522d";
+            decisionText = "{!$Label.label_10747}";
+            break;
+        case 8:
+            bgColor = "#FFFF00";
+            borderColor = "#FF0000";
+            decisionText = "{!$Label.label_10748}";
+            break;
+        case 9:
+            bgColor = "#c68bb1";
+            borderColor = "#c71585";
+            decisionText = "{!$Label.label_10717}";
+            break;
+        }
+
+        var fontSizeDef;
+        if (_locale == "en"){
+            fontSizeDef = "18px";
+        }else{
+            fontSizeDef = "24px";
+        }
+        var $div_decision = $("<div>").css({
+            "border": "solid 4px " + borderColor,
+            "background-color": bgColor,
+            "color": borderColor,
+            "min-width" : "150px",
+            "padding" : "0px 15px",
+            "text-align" : "center",
+            "font-size" : fontSizeDef,
+            "font-weight" : "bold",
+            "white-space" : "normal",
+            "height" : "60px",
+            "min-height" : "60px",
+            "display" : "table-cell",
+            "vertical-align" : "middle"
+        }).html(decisionText);
+        //}).html("Conditional approval");
+        var $div_datetime = $("<div>").css({
+            "margin-top" : "5px",
+            "margin-left" : "5px",
+            "font-size" : "16px",
+        }).html(datetime == "-" ? "&nbsp;" : datetime);
+        $td_row2_col2.append($div_decision);
+        $td_row2_col2.append($div_datetime);
+
+        $tr_row2.append($td_row2_col1);
+        $tr_row2.append($td_row2_col2);
+
+        $tbl.append($tr_row1);
+        $tbl.append($tr_row2);
+
+        return $tbl;
+    }
+    
+    function getJudgmentDom(decision, datetime){
+
+        var $div = $("<div>");
+        var decisionText;
+        var bgColor;
+        var borderColor;
+        switch(decision - 0){
+        case 0:
+            bgColor = "#DCDCDC";
+            borderColor = "#696969";
+            decisionText = "{!$Label.label_10812}";
+            break;
+        case 1:
+            bgColor = "#CCFFCC";
+            borderColor = "#2E8B57";
+            decisionText = "{!$Label.label_10802}";
+            break;
+        case 2:
+            bgColor = "#f0f8ff";
+            borderColor = "#4169e1";
+            decisionText = "{!$Label.label_10715}";
+            break;
+        case 3:
+            bgColor = "#ffc0cb";
+            borderColor = "#FF0000";
+            decisionText = "{!$Label.label_10713}";
+            break;
+        case 4:
+            bgColor = "#ffe4e1";
+            borderColor = "#c71585";
+            decisionText = "{!$Label.label_10722}";
+            break;
+        case 5:
+            bgColor = "#ffe4e1";
+            borderColor = "#c71585";
+            decisionText = "{!$Label.label_10722}";
+            break;
+        case 6:
+            bgColor = "#ffbdb2";
+            borderColor = "#ff6347";
+            decisionText = "{!$Label.label_10730}";
+            break;
+        case 7:
+            bgColor = "#a06950";
+            borderColor = "#a0522d";
+            decisionText = "{!$Label.label_10747}";
+            break;
+        case 8:
+            bgColor = "#FFFF00";
+            borderColor = "#FF0000";
+            decisionText = "{!$Label.label_10748}";
+            break;
+        case 9:
+            bgColor = "#c68bb1";
+            borderColor = "#c71585";
+            decisionText = "{!$Label.label_10717}";
+            break;
+        case 10:
+            bgColor = "#ffe4e1";
+            borderColor = "#c71585";
+            decisionText = "{!$Label.label_10724}";
+            break;
+        }
+
+        var fontSizeDef;
+        if (_locale == "en"){
+            fontSizeDef = "12px";
+        }else{
+            fontSizeDef = "16px";
+        }
+        var $div_decision = $("<div>").css({
+            "border": "solid 2px " + borderColor,
+            "background-color": bgColor,
+            "color": borderColor,
+            "min-width" : "120px",
+            "text-align" : "center",
+            "font-size" : fontSizeDef,
+            "font-weight" : "bold",
+            "white-space" : "normal",
+            //"height" : "60px",
+            "padding" : "6px 5px",
+            //"min-height" : "60px",
+            "display" : "table-cell",
+            "vertical-align" : "middle"
+        }).html(decisionText);
+        //}).html("Conditional approval");
+        var $div_datetime = $("<div>").css({
+            "margin-left" : "5px",
+            "font-size" : "12px",
+        }).html(datetime == "-" ? "&nbsp;" : datetime);
+        $div.append($div_decision);
+        $div.append($div_datetime);
+        return $div;
+    }
+
+    function getUserDetailListDom(step, stepNo, sequenceNo){
+        $div = $("<div>").css({
+            "width" : "100%",
+            "height" : "350px",
+            "overflow-y" : "auto",
+            //"border" : "solid 1px silver",
+        });
+        var topPos = 28;
+        $tbl = $("<table>").attr({
+            "border"        : "0",
+        });
+        var balloonWidth = $("[datatype=float_users_back]").width() - 500;
+        
+        for(var i=0; i<step.users.length; i++){
+        
+            var tdHeight;
+            if(_data.wf.steps[sequenceNo].users[i].decision != 0){
+                tdHeight = "80px";
+            }else{
+                tdHeight = "50px";
+            }
+
+            $tr1 = $("<tr>");
+            $td_judgment = $("<td>").css({
+                "vertical-align"    : "top",
+                "height"            : tdHeight,
+            });
+            $td_user = $("<td>").css({
+                "white-space"       : "normal",
+                "max-width"         : "200px",
+                "min-width"         : "200px",
+                "vertical-align"    : "top",
+            });
+
+            $td_judgment.html(getJudgmentDom(_data.wf.steps[sequenceNo].users[i].decision, _data.wf.steps[sequenceNo].users[i].decisionDateString));
+
+            $td_comment = $("<td>").css({
+                "vertical-align"        : "top",
+            });
+        
+            $innerDiv = $("<div>").html(_data.usersinfo[step.users[i].userId].name2).css({
+                //"cursor" : "pointer",
+                "position" : "relative",
+            }).hover(function(){
+                /*
+                $(this).css({
+                    "filter":"alpha(opacity=70)",
+                    "-moz-opacity": "0.7",
+                    "opacity": "0.7",
+                });*/
+                $(".hoverDiv", this).show();
+            },
+            function(){/*
+                $(this).css({
+                    "filter":"alpha(opacity=100)",
+                    "-moz-opacity": "1",
+                    "opacity": "1",
+                });*/
+                $(".hoverDiv", this).hide();
+            }).attr({
+                "seqNo" : step.sequenceNo,
+                "userId" : step.users[i].userId,
+            }).click(function(){
+                /* for(var j = 0; j < _data.wf.steps[$(this).attr("seqNo")].users.length; j++){
+                    if($(this).attr("userId") == _data.wf.steps[$(this).attr("seqNo")].users[j].userId){
+                        $("#viewArea").html(getUserDetailDom(
+                                $("<div>").html(_data.usersinfo[$(this).attr("userId")].name2),
+                                _data.wf.steps[$(this).attr("seqNo")].users[j].decisionComment,
+                                _data.wf.steps[$(this).attr("seqNo")].users[j].decision,
+                                _data.wf.steps[$(this).attr("seqNo")].users[j].decisionDateString));
+                        break;
+                    }
+                } */
+            });
+            /* var $status = $("<div>");
+            if(step.users[i].decision == 1){
+                $status.css({
+                    "background-color" : "#3cb371",
+                });
+            }else if(step.users[i].decision == 2){
+                $status.css({
+                    "background-color" : "#4169e1",
+                });
+            }else if(step.users[i].decision == 4 || step.users[i].decision == 5){
+                $status.css({
+                    "background-color" : "#c71585",
+                });
+            }else if(step.users[i].decision == 6){
+                $status.css({
+                    "background-color" : "#ffbdb2",
+                });
+            }else if(step.users[i].decision == 3){
+                $status.css({
+                    "background-color" : "#FF0000",
+                });
+            }else{
+                $status.css({
+                    "background-color" : "#696969",
+                });
+            }
+            $status.css({
+                "width" : "36px",
+                "height" : "10px",
+                "z-index" : "100",
+                "position" : "absolute",
+                "top" : topPos + 1,
+                "left" : "3px",
+            });
+            var $hoverDiv = $("<div>").css({
+                "position" : "absolute",
+                "width" : "100%",
+                "height" : "42px",
+                "background-color" : "#000000",
+                "z-index" : "101",
+                "filter":"alpha(opacity=10)",
+                "-moz-opacity": "0.1",
+                "opacity": "0.1",
+                "display": "none",
+                "top" : topPos - 28,
+            }).addClass("hoverDiv");
+            $innerDiv.append($status);
+            $innerDiv.append($hoverDiv); */
+            //$div.append($innerDiv);
+            
+            var $commentDiv = $("<textarea>").attr("readonly","true").css({
+                "width"             : "100%",
+                "height"            : "95%",
+                "overflow"          : "auto",
+                "border"            : "none",
+                "outline"           : "none",
+                "resize"            : "none",
+            }).val(_data.wf.steps[sequenceNo].users[i].decisionComment);
+
+            var $balloonMain = $("<div>").css({
+                "position"          : "absolute",
+                "width"             : balloonWidth + "px",
+                "background-color"  : "#FFFFFF",
+                "border"            : "solid 1px gray",
+                "height"            : "60px",
+                "padding"           : "5px 25px 5px 15px",
+                "top"               : "1px",
+                "left"              : "0px",
+                "border-radius"     : "3px",
+            }).addClass("commentBalloon").append($commentDiv);
+
+            var $balloonYama1 = $("<div>").css({
+                "position"              : "absolute",
+                "top"                   : "8px",
+                "left"                  : "-10px",
+                "border"                : "solid transparent",
+                "content"               : " ",
+                "height"                : "0",
+                "width"                 : "0",
+                "pointer-events"        : "none",
+                "border-color"          : "rgba(194, 225, 245, 0)",
+                "border-top-color"      : "#FFFFFF",
+                "border-width"          : "12px",
+                "z-index"               : "2",
+            });
+            var $balloonYama2 = $("<div>").css({
+                "position"              : "absolute",
+                "top"                   : "7px",
+                "left"                  : "-12px",
+                "border"                : "solid transparent",
+                "content"               : " ",
+                "height"                : "0",
+                "width"                 : "0",
+                "pointer-events"        : "none",
+                "border-color"          : "rgba(194, 225, 245, 0)",
+                "border-top-color"      : "gray",
+                "border-width"          : "15px",
+                "z-index"               : "0",
+            });
+
+            var $hoverImg = $("<img>").attr({
+                "src"                   : _apiUrl + "/image/expand-box.png",
+                "status"                : "0",
+            }).css({
+                "z-index"               : "4",
+                "position"              : "absolute",
+                "height"                : "24",
+                "width"                 : "24",
+                "filter"                : "alpha(opacity=50)",
+                "-moz-opacity"          : "0.5",
+                "opacity"               : "0.5",
+                "cursor"                : "pointer",
+                "left"                  : balloonWidth + 10 + "px",
+                "top"                   : "0px",
+            }).click(function(){
+                if($(this).attr("status") == "0"){
+                    $(this).attr("status",  "1");
+                    $(this).attr("src",  _apiUrl + "/image/collapse-box.png");
+                    $(this).parent().css("height", "140px");
+                    $(this).prev().css("height", "120px");
+                }else{
+                    $(this).attr("status",  "0");
+                    $(this).attr("src",  _apiUrl + "/image/expand-box.png");
+                    $(this).parent().css("height", "80px");
+                    $(this).prev().css("height", "60px");
+                }
+            });
+
+            var $commentMainDiv = $("<div>").css({
+                "position" : "relative",
+            });
+
+            if(_data.wf.steps[sequenceNo].users[i].decision != 0){
+                $commentMainDiv.append($balloonYama1).append($balloonYama2).append($balloonMain).append($hoverImg);
+                $td_comment.append($commentMainDiv);
+            }
+
+            $td_user.html($innerDiv);
+            topPos += 42;
+            
+            $tr1.append($td_judgment).append($td_user).append($td_comment);
+            $tbl.append($tr1);
+        }
+        $div.append($tbl);
+        return $div;
+    }
+})($);
+</script>
+</apex:page>

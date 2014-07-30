@@ -1,0 +1,2849 @@
+<apex:page sidebar="false" showHeader="false" controller="SOLXYZCSO001.SpacePortalController">
+
+<!-- ワークフロー定義選択 -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/chosen.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/chosen.jquery.js')}" />
+
+<apex:include pageName="SOLXYZCSO001__WorkflowDefinitionDialog" />
+
+<div>
+    <div class="space-rule-wrapper">
+        <table cellpadding="0" cellspacing="0" id="spaceRuleTable" border="0">
+            <tr>
+                <td valign="top" style="height: 10px;">
+                    <ul class="action-menu" id="actionMenu">
+                        <li id="UPLOAD_NEW" class="select-menu">{!$Label.label_10141}</li>
+                        <li id="UPLOAD_VERUP" class="none-select-menu">{!$Label.label_10478}</li>
+                        <li id="WEB_TEXT_NEW" class="none-select-menu">{!$Label.label_10479}</li>
+                        <li id="WEB_TEXT_VERUP" class="none-select-menu">{!$Label.label_10479}</li>
+                        <li id="CHECKIN" class="none-select-menu">{!$Label.label_10526}</li>
+                        <li id="MOVE_OR_COPY_IN" class="none-select-menu">{!$Label.label_10480}</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td class="space-rule-right" valign="top">
+                    <table id="ruleSettingTable" cellpadding="5">
+                        <tr>
+                            <th class="th">{!$Label.label_10517}</th>
+                            <td>
+                                <select id="srBaseTriggerAction">
+                                    <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                    <option value="UPLOAD_NEW">{!$Label.label_10141}</option>
+                                    <option value="UPLOAD_VERUP">{!$Label.label_10387}</option>
+                                    <option value="WEB_TEXT_NEW">{!$Label.label_10523}</option>
+                                    <option value="WEB_TEXT_VERUP">{!$Label.label_10388}</option>
+                                    <option value="CHECKIN">{!$Label.label_10526}</option>
+                                    <option value="MOVE_OR_COPY_IN">{!$Label.label_10390}</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="th">{!$Label.label_10518}</th>
+                            <td>
+                                <div id="ruleFrowDiv">
+                                    <table id="ruleFrowTable">
+                                        <!-- １行目  -->
+                                        <tr>
+                                            <!-- １列目  -->
+                                            <td id="o_0_0" onclick="showPropertyDialog(0,0);" x="0" y="0">
+                                                <div style="display: none;">
+                                                    <select id="s_0_0" class="ruleSel" x="0" y="0">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <option value="3">{!$Label.label_10497}</option>
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(0,0);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(0,0);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(0,0);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ２列目  -->
+                                            <td id="o_1_0" onclick="showPropertyDialog(1,0);" x="1" y="0">
+                                                <div style="display: none;">
+                                                    <select id="s_1_0" class="ruleSel" x="1" y="0">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <option value="3">{!$Label.label_10497}</option>
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(1,0);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(1,0);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(1,0);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ３列目  -->
+                                            <td id="o_2_0" onclick="showPropertyDialog(2,0);" x="2" y="0">
+                                                <div style="display: none;">
+                                                    <select id="s_2_0" class="ruleSel" x="2" y="0">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <option value="3">{!$Label.label_10497}</option>
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(2,0);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(2,0);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(2,0);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ４列目  -->
+                                            <td id="o_3_0" onclick="showPropertyDialog(3,0);" x="3" y="0">
+                                                <div style="display: none;">
+                                                    <select id="s_3_0" class="ruleSel" x="3" y="0">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <option value="3">{!$Label.label_10497}</option>
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(3,0);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(3,0);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(3,0);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ５列目  -->
+                                            <td id="o_4_0" onclick="showPropertyDialog(4,0);" x="4" y="0">
+                                                <div style="display: none;">
+                                                    <select id="s_4_0" class="ruleSel" x="4" y="0">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <option value="3">{!$Label.label_10497}</option>
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(4,0);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(4,0);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(4,0);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- ２行目  -->
+                                        <tr>
+                                            <!-- １列目  -->
+                                            <td id="o_0_1" onclick="showPropertyDialog(0,1);" x="0" y="1">
+                                                <div style="display: none;">
+                                                    <select id="s_0_1" class="ruleSel" x="0" y="1">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <!--<option value="3">{!$Label.label_10497}</option>-->
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(0,1);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(0,1);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(0,1);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ２列目  -->
+                                            <td id="o_1_1" onclick="showPropertyDialog(1,1);" x="1" y="1">
+                                                <div style="display: none;">
+                                                    <select id="s_1_1" class="ruleSel" x="1" y="1">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <!--<option value="3">{!$Label.label_10497}</option>-->
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(1,1);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(1,1);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(1,1);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ３列目  -->
+                                            <td id="o_2_1" onclick="showPropertyDialog(2,1);" x="2" y="1">
+                                                <div style="display: none;">
+                                                    <select id="s_2_1" class="ruleSel" x="2" y="1">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <!--<option value="3">{!$Label.label_10497}</option>-->
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(2,1);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(2,1);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(2,1);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ４列目  -->
+                                            <td id="o_3_1" onclick="showPropertyDialog(3,1);" x="3" y="1">
+                                                <div style="display: none;">
+                                                    <select id="s_3_1" class="ruleSel" x="3" y="1">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <!--<option value="3">{!$Label.label_10497}</option>-->
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(3,1);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(3,1);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(3,1);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ５列目  -->
+                                            <td id="o_4_1" onclick="showPropertyDialog(4,1);" x="4" y="1">
+                                                <div style="display: none;">
+                                                    <select id="s_4_1" class="ruleSel" x="4" y="1">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <!--<option value="3">{!$Label.label_10497}</option>-->
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(4,1);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(4,1);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(4,1);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- ３行目  -->
+                                        <tr>
+                                            <!-- １列目  -->
+                                            <td id="o_0_2" onclick="showPropertyDialog(0,2);" x="0" y="2">
+                                                <div style="display: none;">
+                                                    <select id="s_0_2" class="ruleSel" x="0" y="2">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <!--<option value="3">{!$Label.label_10497}</option>-->
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(0,2);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(0,2);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(0,2);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ２列目  -->
+                                            <td id="o_1_2" onclick="showPropertyDialog(1,2);" x="1" y="2">
+                                                <div style="display: none;">
+                                                    <select id="s_1_2" class="ruleSel" x="1" y="2">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <!--<option value="3">{!$Label.label_10497}</option>-->
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(1,2);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(1,2);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(1,2);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ３列目  -->
+                                            <td id="o_2_2" onclick="showPropertyDialog(2,2);" x="2" y="2">
+                                                <div style="display: none;">
+                                                    <select id="s_2_2" class="ruleSel" x="2" y="2">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <!--<option value="3">{!$Label.label_10497}</option>-->
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(2,2);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(2,2);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(2,2);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ４列目  -->
+                                            <td id="o_3_2" onclick="showPropertyDialog(3,2);" x="3" y="2">
+                                                <div style="display: none;">
+                                                    <select id="s_3_2" class="ruleSel" x="3" y="2">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <!--<option value="3">{!$Label.label_10497}</option>-->
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(3,2);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(3,2);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(3,2);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <th>
+                                                <div style="position: relative; font-weight: bold; color: gray;" class="arrow">&nbsp;</div>
+                                                <div style="display: none; margin-top: -15px;"><img alt="add" src="{!URLFOR($Resource.cso, '/image/rule-next.png')}"/></div>
+                                            </th>
+                                            <!-- ５列目  -->
+                                            <td id="o_4_2" onclick="showPropertyDialog(4,2);" x="4" y="2">
+                                                <div style="display: none;">
+                                                    <select id="s_4_2" class="ruleSel" x="4" y="2">
+                                                        <option value="0" selected="selected">{!$Label.label_10127}</option>
+                                                        <option value="1">{!$Label.label_10392}</option>
+                                                        <option value="2">{!$Label.label_10047}</option>
+                                                        <!--<option value="3">{!$Label.label_10497}</option>-->
+                                                        <option value="4">{!$Label.label_10394}</option>
+                                                    </select>
+                                                    <div style="float: right; margin-top: -10px;">
+                                                        <img alt="add" src="{!URLFOR($Resource.cso, '/image/add.png')}" class="addRuleIcon" onclick="createRule(4,2);" title="{!$Label.label_10498}"/><br/>
+                                                        <img alt="remove" src="{!URLFOR($Resource.cso, '/image/remove.png')}" class="removeRuleIcon" onclick="removeRule(4,2);" title="{!$Label.label_10499}"/><br/>
+                                                        <img alt="property" src="{!URLFOR($Resource.cso, '/image/property.png')}" class="removeRuleIcon" onclick="showPropertyDialog(4,2);" title="{!$Label.label_10500}"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    </table>
+                                </div>
+                                <div style="text-align: right; margin-top: 10px; margin-right: 10px">
+                                    <input type="button" class="btn" value="{!$Label.label_00070}" onclick="clearFlow(true);"/>
+                                    <!-- <input type="button" class="btn" value="テスト" onclick="testFlow();"> -->
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<select id="baseSel" style="display: none;">
+    <option value="0" selected="selected">{!$Label.label_10127}</option>
+    <option value="1">{!$Label.label_10392}</option>
+    <option value="2">{!$Label.label_10047}</option>
+    <option value="3">{!$Label.label_10497}</option>
+    <option value="4">{!$Label.label_10394}</option>
+</select>
+<div style="display: none;" id="actionPropertyDiv">
+    <div id="propertySettingDiv"></div>
+</div>
+
+<!-- ★★★★★★★★★★★★★★★   PDF変換   ★★★★★★★★★★★★★★★  -->
+
+<div style="display: none;" id="SpaceRuleActionPDF">
+    <table class="srPDFSettingTable" cellspacing="5" >
+        <tr>
+            <th>{!$Label.label_10501}</th>
+            <td>
+                <div><label><input type="checkbox" style="margin-right: 5px;" name="convTgt" value="0"/>{!$Label.label_10502}</label></div>
+                <div><label><input type="checkbox" style="margin-right: 5px;" name="convTgt" value="1"/>{!$Label.label_10503}</label></div>
+                <div><label><input type="checkbox" style="margin-right: 5px;" name="convTgt" value="2"/>{!$Label.label_10504}</label></div>
+                <div><label><input type="checkbox" style="margin-right: 5px;" name="convTgt" value="3"/>{!$Label.label_10505}</label></div>
+                <div><label><input type="checkbox" style="margin-right: 5px;" name="convTgt" value="4"/>{!$Label.label_10506}</label></div>
+            </td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10507}</th>
+            <td>
+                <label><input type="checkbox" style="margin-right: 5px;" id="convSourceFile" checked="checked"/>{!$Label.label_10508}</label>
+            </td>
+        </tr>
+        <tr style="display: none;">
+            <th>{!$Label.label_10509}</th>
+            <td>
+                <label><input type="checkbox" style="margin-right: 5px;" id="spPDFVerupOptionCB"/>{!$Label.label_10510}</label>
+                <select id="spPDFVerupOptionSel" style="margin-top: 10px;" disabled="disabled">
+                    <option value="0" selected="selected">{!$Label.label_10042}</option>
+                    <option value="1">{!$Label.label_10043}</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: center; padding-top: 10px;">
+                <input class="btn" type="button" id="OK_Btn" value="{!$Label.label_00075}" onclick="applySRPDF()" />
+                <input class="btn" type="button" id="Cancel_Btn" value="{!$Label.label_00058}" onclick="cancelPropDialog('SpaceRuleActionPDF');" />
+            </td>
+        </tr>
+    </table>
+
+    <!-- PDFセキュリティ設定 -->
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_pdf_security == 'true', true, false)}">
+    <table class="srPDFSettingTable" cellspacing="5" >
+        <tr>
+            <td colspan="2" style="padding-left: 30px;padding-right: 30px;">
+                <!-- PDFセキュリティ設定なし -->
+                <div id="optionSet1" style="margin-left: 10px;">
+                    <input type="checkbox"  id="securityOptionNone" name="securityOptionNone" style="margin-right: 5px;"  onclick="showSecurityOption(true);"/><label for="securityOptionNone" style="font-weight: bold;">{!$Label.label_10644}</label>
+                </div>
+                <!-- PDFセキュリティ設定あり -->
+                <div id="optionSet2" style="display: none;">
+                <fieldset id="optionLine">
+                    <legend><input type="checkbox"  id="securityOption" name="securityOption" style="margin-right: 5px;"  onclick="showSecurityOption(false);"/><label for="securityOption" style="font-weight: bold;">{!$Label.label_10644}</label></legend>
+                    <div id="pdfSecurityOption">
+                        <table id="securityOptionTable">
+                            <tr>
+                                <th>{!$Label.label_10624}</th>
+                                <td><label><input type="radio" name="rule_level" id="rule_level-128" value="0" checked="checked"/>{!$Label.label_10625}</label></td>
+                                <td><label><input type="radio" name="rule_level" id="rule_level-40" value="1"/>{!$Label.label_10626}</label></td>
+                            </tr>
+                            <tr style="display: none;">
+                                <th>{!$Label.label_10632}</th>
+                                <td><label><input type="radio" name="rule_assembly" id="rule_assembly_ok" value="true" checked="checked"/>{!$Label.label_10633}</label></td>
+                                <td><label><input type="radio" name="rule_assembly" id="rule_assembly_ng" value="false"/>{!$Label.label_10634}</label></td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_10636}</th>
+                                <td><label><input type="radio" name="rule_field_input" id="rule_field_input_ok" value="true" checked="checked"/>{!$Label.label_10633}</label></td>
+                                <td><label><input type="radio" name="rule_field_input" id="rule_field_input_ng" value="false"/>{!$Label.label_10634}</label></td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_10637}</th>
+                                <td><label><input type="radio" name="rule_explanatory_note" id="rule_explanatory_note_ok" value="true" checked="checked"/>{!$Label.label_10633}</label></td>
+                                <td><label><input type="radio" name="rule_explanatory_note" id="rule_explanatory_note_ng" value="false"/>{!$Label.label_10634}</label></td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_10638}</th>
+                                <td><label><input type="radio" name="rule_contents_edit" id="rule_contents_edit_ok" value="true" checked="checked"/>{!$Label.label_10633}</label></td>
+                                <td><label><input type="radio" name="rule_contents_edit" id="rule_contents_edit_ng" value="false"/>{!$Label.label_10634}</label></td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_10635}</th>
+                                <td><label><input type="radio" name="rule_contents_copy" id="rule_contents_copy_ok" value="true" checked="checked"/>{!$Label.label_10633}</label></td>
+                                <td><label><input type="radio" name="rule_contents_copy" id="rule_contents_copy_ng" value="false"/>{!$Label.label_10634}</label></td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_10639}</th>
+                                <td><label><input type="radio" name="rule_accessibility" id="rule_accessibility_ok" value="true" checked="checked"/>{!$Label.label_10633}</label></td>
+                                <td><label><input type="radio" name="rule_accessibility" id="rule_accessibility_ng" value="false"/>{!$Label.label_10634}</label></td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_10640}</th>
+                                <td><label><input type="radio" name="rule_print" id="rule_print_ok" value="true" checked="checked"/>{!$Label.label_10633}</label></td>
+                                <td><label><input type="radio" name="rule_print" id="rule_print_ng" value="false"/>{!$Label.label_10634}</label></td>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <td colspan="2"><input type="checkbox"  id="rule_low_resolution_print" name="rule_low_resolution_print" style="margin-right: 5px;" value="true"/><label for="rule_low_resolution_print">{!$Label.label_10641}</label></td>
+                            </tr>
+                        </table>
+                    </div>
+                </fieldset>
+                </div>
+            </td>
+        </tr>
+    </table>
+</apex:outputPanel>
+</div>
+
+<!-- ★★★★★★★★★★★★★★★   メール通知   ★★★★★★★★★★★★★★★  -->
+
+<div style="display: none;" id="SpaceRuleActionNotify">
+    <div style="margin-bottom: 5px;">
+        {!$Label.label_10511}
+        <input type="button" value="{!$Label.label_00072}" class="btn" onclick="delUserAndGroup(); return false;"/>
+        <input type="button" value="{!$Label.label_10020}" class="btn" onclick="addUser(); return false;"/>
+    </div>
+    <!-- 選択中のユーザ/グループ/部署・役職の一覧 -->
+    <div style="padding-top: 5px;">
+        <table id="settingUserList"></table>
+        <div id="settingUserListPager"></div>
+    </div>
+    <!-- Cancel, OKボタン -->
+    <div style="width: 100%; text-align: center; margin-top: 5px;">
+        <input type="button" value="{!$Label.label_00075}" class="btn" onclick="applySRNotify();"/>
+        <!--input type="button" value="{!$Label.label_00058}" class="btn" onclick="cancelPropDialog('SpaceRuleActionNotify');"/-->
+        <input type="button" value="{!$Label.label_00058}" class="btn" onclick="cancelSRNotify();"/>
+    </div>
+    <select multiple="multiple" style="display: none;" id="srNotifySel3"></select>
+</div>
+
+<!-- ユーザ追加ダイアログ -->
+<div id="addUserModalSpaceRule" title="{!$Label.label_10682}" style="display: none;">
+    <input type="text" id="spRule-user-search-txt" class="search-txt" maxlength="255" placeholder="{!$Label.label_13150}" />
+    <input type="button" class="btn" value="{!$Label.label_00069}" onclick="spRuleUserOnSearchClicked();" />
+    <input type="button" class="btn" value="{!$Label.label_00070}" onclick="spRuleUserOnClearClicked();" />
+
+    <div style="padding-top: 10px;">
+        <table id="addUserTable"></table>
+        <div id="addUserTablePager"></div>
+    </div>
+
+    <div style="width: 100%; text-align: center; margin-top: 5px;">
+        <input type="button" class="btn" value="{!$Label.label_00075}" onclick="spRuleNotifyAddOk();" />
+        <input type="button" class="btn" value="{!$Label.label_00058}" onclick="spRuleNotifyAddCancel();" />
+    </div>
+</div>
+
+<!-- ★★★★★★★★★★★★★★★   メール通知 保存   ★★★★★★★★★★★★★★★  -->
+<!--
+<div style="display: none;" id="SpaceRuleActionNotify">
+<div>
+    <div style="margin-bottom: 5px;">{!$Label.label_10511}</div>
+        <select id="op1">
+            <option value="0">{!$Label.label_10131}</option>
+            <option value="1">{!$Label.label_10576}</option>
+            <option value="2">{!$Label.label_11100}</option>
+            <option value="3">{!$Label.label_10028}</option>
+        </select>
+        <select id="op2" style="display: none; width: 140px;"></select>
+        <input type="text" class="c_text_m" placeholder="{!$Label.label_10448}" id="searchUserText" maxlength="255" />
+        <input type="button" class="btn" value="{!$Label.label_00069}" style="margin-bottom: 5px;" onclick="searchSPRuleNotifyUser(false);"/>
+        <table style="margin-top: 5px;">
+            <tr>
+                <td><select multiple="multiple" class="selectList" id="srNotifySel1"></select></td>
+                <td style="text-align: center;">
+                    <table>
+                        <tr>
+                            <td>
+                                <input type="button" class="btn" value="{!$Label.label_10020}" style="margin-bottom: 5px;" onclick="moveSPRuleNotifyUser('srNotifySel1', 'srNotifySel2');"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="button" class="btn" value="{!$Label.label_00072}" onclick="moveSPRuleNotifyUser('srNotifySel2', 'srNotifySel1');"/>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td><select multiple="multiple" class="selectList" id="srNotifySel2"></select></td>
+            </tr>
+        </table>
+    </div>
+    <div style="width: 100%; text-align: center; margin-top: 5px;">
+    <input type="button" value="{!$Label.label_00075}" class="btn" onclick="applySRNotify();"/>
+    <input type="button" value="{!$Label.label_00058}" class="btn" onclick="cancelPropDialog('SpaceRuleActionNotify');"/>
+</div>
+<select multiple="multiple" style="display: none;" id="srNotifySel3"></select>
+</div>
+ -->
+<!-- ★★★★★★★★★★★★★★★   自動ワークフロー   ★★★★★★★★★★★★★★★  -->
+
+<div style="display: none;" id="SpaceRuleActionAutoWF">
+    <table class="srWFSettingTable">
+        <tr>
+            <th class="th">{!$Label.label_10106}</th>
+            <td class="c_require"><input type="text" id="srAutowfTitle" style="width: 350px;"/></td>
+        </tr>
+        <tr style="padding-top: 5px; padding-bottom: 5px;">
+            <th class="th">{!$Label.label_10123}</th>
+            <td>
+                <input type="hidden" id="srAutowfDefinition" value="" />
+                <input type="text" id="srAutowfDefinitionName" value="" style="width: 300px;" disabled="disabled" />
+                <button id="srAutowfSelectDefinition" class="btn" onclick="return openDefinitionDialog();">
+                    {!$Label.label_00076}
+                </button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 100%; text-align: center; margin-top: 5px;">
+                <input type="button" value="{!$Label.label_00075}" class="btn" onclick="applySRAutowf();"/>
+                <input type="button" value="{!$Label.label_00058}" class="btn" onclick="cancelPropDialog('SpaceRuleActionAutoWF');"/>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- ★★★★★★★★★★★★★★★   移動   ★★★★★★★★★★★★★★★  -->
+
+<div style="display: none;" id="SpaceRuleActionMove">
+    <div class="whole">
+        <table style="width: 100%">
+                <tr>
+                    <td>
+                        <fieldset><legend>{!$Label.label_10561}</legend>
+                        <apex:outputPanel >
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <label>
+                                                <input type="radio" id="condition_filter" name="condition" checked="checked" />
+                                                {!$Label.label_11064}
+                                            </label>
+                                        </div>
+                                        <div style="margin-left:20px;">
+                                            {!$Label.label_11065}
+                                            <input id="filename_string" name="filename_string" type="text"  class="required longWidth" maxlength="255" />
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label>
+                                            <input type="radio" id="condition_none" name="condition" />
+                                            {!$Label.label_11066}
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </apex:outputPanel>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <fieldset><legend>{!$Label.label_10048}</legend>
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td colspan="2">
+                                        <input type="hidden" id="srMoveMoveToSpaceId" name="recieveId" />
+                                        <input type="text" id="srMoveMoveToSpaceName" name="moveTo" disabled="disabled" class="disabled" style="border: solid 1px silver; width: 80%;"/>
+                                        <input type="button" id="selectMoveBtn" class="btn" name="selectMoveBtn" value="{!$Label.label_10512}" onclick="moveto();"/>
+                                    </td>
+                                </tr>
+                                <tr style="display: none;">
+                                    <td style="width: 20px;">
+                                        <label><input id="versionkind_option" name="versionkind_option" type="checkbox" value="true" onclick="checkVerKindOpt()" />{!$Label.label_10510}</label>
+                                    </td>
+                                </tr>
+                                <tr style="display: none;">
+                                    <td>
+                                        <select id="versionkind" name="versionkind" disabled="disabled" class="disabled">
+                                            <option value="0" selected='selected'>{!$Label.label_10042}</option>
+                                            <option value="1">{!$Label.label_10043}</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table style="width: 100%;">
+                            <tr>
+                                <td class="invSpaceUserTbl" colspan="2" style="font-weight: bold;">{!$Label.label_10513}</td>
+                            </tr>
+                            <tr>
+                                <td class="conditionList_select">
+                                    <select id="conditionList" name="conditionList" class="conditionList" size="3" onchange="clickList();"></select>
+                                </td>
+                                <td class="conditionList_btn">
+                                    <div><input class="btn" type="button" id="addCondition_Btn" style="width: 90px;" value="{!$Label.label_10020}" onclick="addCondition();" /></div>
+                                    <div><input class="btn_disabled" type="button" id="modCondition_Btn" style="width: 90px;" value="{!$Label.label_10514}" disabled="disabled" onclick="modifyCondition();" /></div>
+                                    <div><input class="btn" type="button" id="rmvCondition_Btn" style="width: 90px;" value="{!$Label.label_00072}" onclick="removeCondition();" /></div>
+                                    <hr/>
+                                    <div><input class="btn" type="button" id="Up_Btn" style="width: 90px;" value="{!$Label.label_10515}" onclick="shift_up();" /></div>
+                                    <div><input class="btn" type="button" id="Down_Btn" style="width: 90px;" value="{!$Label.label_10516}" onclick="shift_down();" /></div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: center; padding-top: 10px;">
+                        <input class="btn" type="button" id="OK_Btn" value="{!$Label.label_00075}" onclick="applySRMove()" />
+                        <input class="btn" type="button" id="Cancel_Btn" value="{!$Label.label_00058}" onclick="cancelPropDialog('SpaceRuleActionMove');" />
+
+                    </td>
+                </tr>
+        </table>
+        <div id="srMoveModalDialogDiv" style="display: none;"></div>
+    </div>
+</div>
+
+<!-- [下位スペースにも適用する]確認メッセージ -->
+<div id="spaceRuleApplyModal" title="{!$Label.label_10009}" style="display: none;">
+    <div style="padding-top:10px;">
+            {!$Label.label_13254}
+    </div>
+
+    <div style="text-align:right; padding-top:20px;">
+        <input type="button" class="btn" value="{!$Label.label_00061}" onclick="saveSpaceRule(false);" />
+        <input type="button" class="btn" value="{!$Label.label_00060}"     onclick="saveSpaceRule(true);" />
+    </div>
+</div>
+
+<script type="text/javascript">
+
+var reloadAddUser = false;
+
+var rules = new Object();
+var branchIndex = -1;
+var spaceRuleTriggerAction = "UPLOAD_NEW";
+var sr_x, sr_y;
+var MAX = 5;
+
+var selectSpaceId;
+
+var SpaceRule = function(isShow){
+    this.isShow = isShow;
+    this.value = 0;
+    this.action;
+    this.properties;
+};
+
+// メニュー名（省略）
+var minMenuStr = {
+    "UPLOAD_NEW": "{!$Label.label_10478}",
+    "UPLOAD_VERUP": "{!$Label.label_10478}",
+    "WEB_TEXT_NEW": "{!$Label.label_10479}",
+    "WEB_TEXT_VERUP": "{!$Label.label_10479}",
+    "WEB_TEXT_OVERWRITE": "{!$Label.label_10479}",
+    "CHECKIN": "{!$Label.label_10526}",
+    "MOVE_OR_COPY_IN": "{!$Label.label_10480}",
+    "WF_VERUP": "{!$Label.label_10481}"
+};
+
+// メニュー名（フル）
+var orgMenuStr = {
+    "UPLOAD_NEW": "{!$Label.label_10141}",
+    "UPLOAD_VERUP": "{!$Label.label_10387}",
+    "WEB_TEXT_NEW": "{!$Label.label_10523}",
+    "WEB_TEXT_VERUP": "{!$Label.label_10388}",
+    "WEB_TEXT_OVERWRITE": "{!$Label.label_10389}",
+    "CHECKIN": "{!$Label.label_10526}",
+    "MOVE_OR_COPY_IN": "{!$Label.label_10390}",
+    "WF_VERUP": "{!$Label.label_10391}"
+};
+
+$(function(){
+    $("#actionPropertyDiv").dialog({
+        modal: true,
+        resizable: false,
+        autoOpen: false
+    });
+
+    $("#srSwitchBtn").click(function(){
+        if($(this).attr("btnStatus") == "0"){
+            $(this).children("span").text('{!$Label.label_10482}');
+            $(this).children("img").attr("src", "{!URLFOR($Resource.cso, '/image/sr-off.png')}");
+            $(this).attr("btnStatus", "1");
+        }else{
+            $(this).children("span").text('{!$Label.label_10483}');
+            $(this).children("img").attr("src", "{!URLFOR($Resource.cso, '/image/sr-on.png')}");
+            $(this).attr("btnStatus", "0");
+        }
+    });
+
+    // メニュー処理
+    $("#actionMenu li").hover(
+        function(){
+            // Over
+            if(!$(this).hasClass("select-menu")){
+                $(this).addClass("hover-menu");
+                $(this).removeClass("none-select-menu");
+                $(this).text(orgMenuStr[$(this).attr("id")]);
+            }
+        },
+        function(){
+            // Out
+            if(!$(this).hasClass("select-menu")){
+                $(this).removeClass("hover-menu");
+                $(this).addClass("none-select-menu");
+                $(this).text(minMenuStr[$(this).attr("id")]);
+            }
+        }
+    );
+    $("#actionMenu li").click(function(){
+        var clickId = $(this).attr("id");
+        // 現在のタブの入力内容チェック
+        if(!testFlow()){
+            return; // エラー
+        }
+        $("#actionMenu li").each(function(){
+
+            $(this).removeClass("hover-menu");
+            if($(this).attr("id") == clickId){
+                $(this).removeClass("none-select-menu");
+                $(this).addClass("select-menu");
+                $(this).text(orgMenuStr[$(this).attr("id")]);
+                spaceRuleTriggerAction = clickId;
+                if(rules[spaceRuleTriggerAction].row1.length == 0){
+                    rules[spaceRuleTriggerAction].row1.push(new SpaceRule(true));
+                    rules[spaceRuleTriggerAction].row2.push(new SpaceRule(false));
+                    rules[spaceRuleTriggerAction].row3.push(new SpaceRule(false));
+                }
+                $("#ruleFrowTable td").each(function(){
+                    $(this).removeClass("sel-td");
+                    $(this).removeClass("errAction");
+                });
+                $("#srMsgDiv").empty();
+                branchIndex = -1;
+                $("#srBaseTriggerAction").val(0);
+                $("#ruleFrowDiv").scrollLeft(0);
+                drow(false);
+            }else{
+                $(this).removeClass("select-menu");
+                $(this).addClass("none-select-menu");
+                $(this).text(minMenuStr[$(this).attr("id")]);
+            }
+        });
+    });
+    $("#srBaseTriggerAction").change(function(){
+        var baseId = $(this).val();
+        if(spaceRuleTriggerAction != baseId && baseId != "0" && confirm("{!$Label.msg_00216}")){
+            if(rules[baseId]["row1"].length == 0){
+                clearFlow(false);
+                return;
+            }
+            rules[spaceRuleTriggerAction].base = baseId;
+            var keys = new Array("row1","row2","row3");
+            for(var i = 0; i < keys.length; i++){
+                rules[spaceRuleTriggerAction][keys[i]] = new Array();
+                for(var j = 0; j < rules[baseId][keys[i]].length; j++){
+                    rules[spaceRuleTriggerAction][keys[i]].push($.cloneObject(rules[baseId][keys[i]][j], true));
+                }
+            }
+            //rules[spaceRuleTriggerAction] = $.cloneObject(rules[baseId], true);
+            drow(false);
+        }
+    });
+
+    // ルールイベント
+    $("#ruleFrowTable td").click(function(){
+        var r = getRule($(this).attr("x") - 0, $(this).attr("y") - 0);
+        if(r && r.isShow){
+            $("#ruleFrowTable td").removeClass("sel-td");
+            $(this).addClass("sel-td");
+        }
+    });
+
+    $(".ruleSel").change(function(){
+        var _x = $(this).attr("x") - 0;
+        var _y = $(this).attr("y") - 0;
+        var _r = getRule(_x + 1, _y);
+
+        //console.info(branchIndex);
+
+        if(_r != undefined && _r.isShow
+                 && ($(this).val() == 3 || ($(this).val() != 3 && branchIndex < _x + 2 && branchIndex >= 0))){
+            if(confirm("{!$Label.msg_00217}")){
+                // 削除する
+                rules[spaceRuleTriggerAction].row1.splice(_x + 1, MAX);
+                rules[spaceRuleTriggerAction].row2.splice(_x + 1, MAX);
+                rules[spaceRuleTriggerAction].row3.splice(_x + 1, MAX);
+                getRule(_x, _y).action = $(this).val();
+                branchIndex = -1;
+                drow(false);
+            }else{
+                if($(this).val() != 3){
+                    $(this).val("3");
+                }else{
+                    $(this).val(getRule(_x, _y).action);
+                }
+            }
+        }else{
+            getRule(_x, _y).action = $(this).val();
+            drow(false);
+        }
+        delete getRule(_x, _y).properties;
+    });
+
+    // イベントキャンセル
+    $(".ruleSel").click(function(e){return false;});
+    $(".addRuleIcon").click(function(e){return false;});
+    $(".removeRuleIcon").click(function(e){return false;});
+
+    setTimeout(function() {
+        setPathListText("#spacePath2","#tmpPathArea2");
+    }, 100);
+    setTimeout(function() {
+        setSpaceRuleTitle("${spaceName }");
+    }, 100);
+
+    /*-- [下位スペースにも適用する]確認ダイアログの初期化 --*/
+    $("#spaceRuleApplyModal").dialog({
+        autoOpen: false,
+        bgiframe: true,
+        modal: true,
+        resizable: false,
+        closeText: "Close",
+        width : 300,
+        height: 120
+    });
+});
+
+function setSpaceRuleTitle(name){
+
+    $("#SpaceName_innerHeader").attr("title",name);
+    $("#tmpTextArea2").html(name);
+
+    setFlexibleText("#SpaceName_innerHeader","#tmpTextArea2");
+}
+
+// ★★★★★★★★★★★★★★★   PDF変換   ★★★★★★★★★★★★★★★
+$(function(){
+    $("#spPDFVerupOptionCB").change(function(){
+        if($(this).attr("checked")){
+            $("#spPDFVerupOptionSel").removeAttr("disabled");
+        }else{
+            $("#spPDFVerupOptionSel").attr("disabled", "disabled");
+        }
+    });
+});
+// ★★★★★★★★★★★★★★★  メール通知  ★★★★★★★★★★★★★★★
+var loadUidList = new Array();
+var uidMap = new Object();
+var orgUidMap;
+var spaceId;
+
+// ユーザ、グループ、部署・役職ごとのリスト
+var uidList = new Array();
+var gidList = new Array();
+var pidList = new Array();
+
+$(function(){
+/*
+    $("#op1").change(function(e){
+        if($(this).val() != 0){
+            var categoryListGetCallback = function(data){
+                $("#op2").html(data.category_select);
+                $("#op2").show();
+            };
+
+            secureGetAsync('/setup/CategoryListGet.json',{"category" : $(this).val(), "returnType" : "html"}, categoryListGetCallback);
+        }else{
+            $("#op2").hide();
+        }
+    });
+*/
+
+    $("#settingUserList").jqGrid({
+        datatype: "local",
+        colNames:[
+            '',
+            '{!$Label.label_00039}', // 名前
+        ],
+        colModel:[
+            {name:'id',index:'id', width:60, hidden:true},
+            {name:'name',index:'name', width:400},
+        ],
+        rowNum:10,
+        height: 240,
+        rowList:[10,50,100],
+        sortname: 'name',
+        pager: '#settingUserListPager',
+        viewrecords: true,
+        shrinkToFit : false,
+        multiselect: true,
+        multiboxonly: true
+    });
+    $("#settingUserList").setGridWidth(450);
+    reloadSpaceRuleUserList();
+//    spaceId = spaceIdFromUrl; // getUrlVarsから変更
+
+});
+
+function reloadSpaceRuleUserList(){
+    $('.loading').show();
+    var params = {
+        uid    : uidList.join(","),
+        gid    : gidList.join(","),
+        pid    : pidList.join(","),
+        spaceId: spaceIdFromUrl,
+        rows   : 100000,
+        sidx   : 'name',
+        page   : 1,
+        nd     : 0,
+        sord   : 'asc'
+    };
+
+    var callback = function(data) {
+        $("#settingUserList").jqGrid('clearGridData').setGridParam({
+            data : data.rows
+        }).trigger("reloadGrid");
+        $('.loading').hide();
+    };
+    securePostAsync("/common/ColoradoSearchApi.json", params, callback);
+}
+
+// ★★★★★★★★★★★★★★★  移動  ★★★★★★★★★★★★★★★
+//条件リストが選択されたら1に変更する。0の間は一部のボタンを無効にする。
+var select_flg=0;
+//入力内容が変更された場合、1  →1の時にキャンセルで終了した場合、閉じていいのか確認する。0のままで追加・修正・OKするのはOK。
+var change_flg=0;
+//入力中の移動条件
+var input_conditions = new Array();
+//ユニークキー
+var uniq_key=0;
+
+// 子スペースがあるかどうか
+var SR_existChild = false;
+function getInitSpaceRule(spaceId){
+    // 処理中
+    CsoScript_loadingStart();
+    selectSpaceId = spaceId;
+    // ルール選択枠の初期化
+    $("#ruleFrowTable td").each(function(){
+        $(this).removeClass("sel-td");
+    });
+    // アクションタブとベースルールの選択初期化
+    spaceRuleTriggerAction = "UPLOAD_NEW";
+
+    $("#actionMenu li").each(function(){
+        $(this).removeClass("hover-menu");
+        if($(this).attr("id") == spaceRuleTriggerAction ){
+            $(this).removeClass("none-select-menu");
+            $(this).addClass("select-menu");
+            $(this).text(orgMenuStr[$(this).attr("id")]);
+            $("#srMsgDiv").empty();
+            branchIndex = -1;
+            $("#srBaseTriggerAction").val(0);
+            $("#ruleFrowDiv").scrollLeft(0);
+            drow(false);
+        }else{
+            $(this).removeClass("select-menu");
+            $(this).addClass("none-select-menu");
+            $(this).text(minMenuStr[$(this).attr("id")]);
+        }
+    });
+
+    // フローデータ整形
+    var spaceRuleInitCallback = function(data){
+        var orgRules = JSON.parse(data.ruleDetails);
+        // 画面表示項目セット
+        $('#c_headLeftSubTitle').text(data["spaceName"]);
+        setPathList(data["path"]);
+
+        // 有効・無効ボタン設定
+        if(data["enable"]){
+            $("#srSwitchBtn").children("span").text('{!$Label.label_10483}');
+            $("#srSwitchBtn").children("img").attr("src", "{!URLFOR($Resource.cso, '/image/sr-on.png')}");
+            $("#srSwitchBtn").attr("btnStatus", "0");
+        }else{
+            $("#srSwitchBtn").children("span").text('{!$Label.label_10482}');
+            $("#srSwitchBtn").children("img").attr("src", "{!URLFOR($Resource.cso, '/image/sr-off.png')}");
+            $("#srSwitchBtn").attr("btnStatus", "1");
+        }
+
+        if(data.existChild){
+            SR_existChild = true;
+        }else{
+            SR_existChild = false;
+        }
+
+        if(data.rule){
+            // 設定ルールを復元
+            $("#actionMenu li").each(function(){
+
+                branchIndex = -1;
+
+                var row1 = new Array();
+                var row2 = new Array();
+                var row3 = new Array();
+
+                if(orgRules[$(this).attr("id")][0] != undefined){
+                    convertRule(orgRules[$(this).attr("id")][0], row1, row2, row3, 0);
+                }
+
+                var o = {
+                    base : "",
+                    row1 : row1,
+                    row2 : row2,
+                    row3 : row3
+                }
+                rules[$(this).attr("id")] = o;
+            });
+
+            if(rules[spaceRuleTriggerAction].row1.length == 0){
+                rules[spaceRuleTriggerAction].row1.push(new SpaceRule(true));
+                rules[spaceRuleTriggerAction].row2.push(new SpaceRule(false));
+                rules[spaceRuleTriggerAction].row3.push(new SpaceRule(false));
+            }
+
+            drow(false);
+        }else{
+            // ルール新規
+            $("#actionMenu li").each(function(){
+                var o = {
+                    base : "",
+                    row1 : new Array(),
+                    row2 : new Array(),
+                    row3 : new Array()
+                }
+                rules[$(this).attr("id")] = o;
+            });
+            createRule(0, 0);
+        }
+        CsoScript_loadingStop();
+    };
+
+    secureGetAsync('/contentsmanagement/SpaceRuleConditionGet.json',{'spaceId' : spaceId}, spaceRuleInitCallback);
+}
+
+function convertRule(r, row1, row2, row3, row){
+
+    var cr = new SpaceRule(true);
+    cr.action = r.type + 1;
+
+    if(branchIndex < 0){
+        row1.push(cr);
+        row2.push(new SpaceRule(false));
+        row3.push(new SpaceRule(false));
+    }else{
+        var rows = [row1, row2, row3];
+        var hr = rows[row];
+        hr.push(cr);
+        //switch(r.execCondition){
+        //case 0:
+        //    row1.push(cr);
+        //    break;
+        //case 1:
+        //    row2.push(cr);
+        //    break;
+        //case 2:
+        //    row3.push(cr);
+        //    break;
+        //}
+    }
+
+    switch(cr.action){
+    case 1:
+        // メール
+        cr.properties = {
+            user : r.notifyUserList,
+            name : r.notifyUserList
+        }
+        break;
+    case 2:
+        // 移動
+        var mcl = new Array();
+        if(r.moveConditionList){
+            for(var i = 0; i < r.moveConditionList.length; i++){
+                var mc = {
+                    fileName : r.moveConditionList[i].searchPos,
+                    fileStr : r.moveConditionList[i].searchStr,
+                    isIn : r.moveConditionList[i].matchingType,
+                    moveToId : r.moveConditionList[i].moveSpaceid,
+                    moveToName : r.moveConditionList[i].moveSpaceid, // TODO とりあえずID
+                    verType : r.moveConditionList[i].verupPattern,
+                    verUp : r.moveConditionList[i].verup,
+                    useFilter : r.moveConditionList[i].useFilter,
+                }
+                //console.info(mc);
+                mcl.push(mc);
+            }
+        }
+        cr.properties = mcl;
+        break;
+    case 3:
+        // 自動WF
+        cr.properties = {
+            title : r.title,
+            definition : r.workflowDefinitionId,
+            definitionName : ""
+        }
+        branchIndex = row1.length;
+        break;
+    case 4:
+        // PDF変換
+        var tgts = new Array();
+        for(var i = 0; i < r.targets.length; i++){
+            tgts.push(r.targets[i] + "");
+        }
+        cr.properties = {
+            afterFileOption : {
+                type : r.verupType,
+                verup : r.verup
+            },
+            convTgt : tgts,
+            isSourceKeep : r.sourceKeep,
+            pdfSecurityOption : r.security
+        }
+        break;
+    }
+
+    if(r.nextActions.length != 0){
+        for(var i = 0; i < r.nextActions.length; i++){
+            convertRule(r.nextActions[i], row1, row2, row3, row + i);
+        }
+    }
+
+    return cr;
+}
+
+function createRule(x, y){
+    for (var i in rules[spaceRuleTriggerAction].row1) {
+        var k = rules[spaceRuleTriggerAction].row1[i];
+
+        if (i > parseInt(x) && parseInt(k.action) == 3 && k.isShow) {
+            alert("{!$Label.msg_00219}");
+            return;
+        }
+    }
+
+    if(rules[spaceRuleTriggerAction].row1.length != 0){
+
+        // アクションID取得
+        var sel = $("#s_" + x + "_" + y).val() - 0;
+
+        if(sel == 0){
+            // ルール未指定で次のルールを追加した場合は警告
+            alert("{!$Label.msg_00218}");
+            return;
+        }else if(branchIndex >= 0 && sel == 3){
+            if(getRule(x + 1, y) != undefined &&
+                getRule(x + 1, y + 1) != undefined &&
+                getRule(x + 1, y + 2) != undefined){
+                alert("{!$Label.msg_00219}");
+                return;
+            }
+            if(getRule(x + 1, y) == undefined) putRule(y, x + 1, new SpaceRule(true));
+            if(getRule(x + 1, y + 1) == undefined) putRule(y + 1, x + 1, new SpaceRule(true));
+            if(getRule(x + 1, y + 2) == undefined) putRule(y + 2, x + 1, new SpaceRule(true));
+            drow(true);
+            return;
+        }else if(!isSettings(y)){
+            alert("{!$Label.msg_00220}");
+            return;
+        }
+
+        // ルール追加
+        putRule(y, x + 1, new SpaceRule(true));
+
+        if(sel == 3){
+            branchIndex = x + 1;
+            putRule(y + 1, x + 1, new SpaceRule(true));
+            putRule(y + 2, x + 1, new SpaceRule(true));
+        }else{
+            if(branchIndex < 0 || branchIndex > x){
+                putRule(y + 1, x + 1, new SpaceRule(false));
+                putRule(y + 2, x + 1, new SpaceRule(false));
+                if(branchIndex >= 0){
+                    branchIndex++;
+                }
+            }
+        }
+        getRule(x, y).action = sel;
+
+        //removeSelItem(x, y);
+    }else{
+        rules[spaceRuleTriggerAction].row1.push(new SpaceRule(true));
+        rules[spaceRuleTriggerAction].row2.push(new SpaceRule(false));
+        rules[spaceRuleTriggerAction].row3.push(new SpaceRule(false));
+    }
+
+    // 描画
+    drow(true);
+
+    return false;
+}
+
+function isSettings(y){
+    var row1 = 0;
+    var row2 = 0;
+    var row3 = 0;
+    switch(y){
+    case 0:
+        for(var i = 0; i < rules[spaceRuleTriggerAction].row1.length; i++){
+            if(rules[spaceRuleTriggerAction].row1[i].isShow){
+                if(getObj(i, y, "s").val() == 0){
+                    row1++;
+                }
+            }
+        }
+        if(row1 < 1){
+            return true;
+        }else{
+            return false;
+        }
+    case 1:
+        for(var i = 0; i < rules[spaceRuleTriggerAction].row2.length; i++){
+            if(rules[spaceRuleTriggerAction].row2[i].isShow){
+                if(getObj(i, y, "s").val() == 0){
+                    row2++;
+                }
+            }
+        }
+        if(row2 < 1){
+            return true;
+        }else{
+            return false;
+        }
+    case 2:
+        for(var i = 0; i < rules[spaceRuleTriggerAction].row3.length; i++){
+            if(rules[spaceRuleTriggerAction].row3[i].isShow){
+                if(getObj(i, y, "s").val() == 0){
+                    row3++;
+                }
+            }
+        }
+        if(row3 < 1){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+}
+
+function drow(isPrimaryShow){
+    //console.info(rules);
+    $("#ruleFrowTable th").each(function(){
+        try{$(this).removeAttr("rowspan");}catch(e){}
+    });
+    $("#ruleFrowTable td").each(function(){
+        $(this).removeClass("show-td");
+    });
+    $("#ruleFrowTable td div").each(function(){
+        $(this).hide();
+    });
+    $("#ruleFrowTable th div").each(function(){
+        $(this).hide();
+    });
+
+    for(var i = 0; i < 3; i++){
+        var rmItem = new Array();
+        for(var j = 0; j < MAX; j++){
+            //$("#o_" + j + "_" + i + " option").each(function(){
+            //    $(this).show();
+            //});
+            getObj(j, i, "s").html($("#baseSel").html());
+
+            if(getRule(j, i) && getRule(j, i).isShow){
+                $("#o_" + j + "_" + i + " div").show();
+                $("#o_" + j + "_" + i + " div select").val(getRule(j, i).action == undefined ? 0 : getRule(j, i).action);
+                $("#o_" + j + "_" + i).addClass("show-td");
+                $("#o_" + j + "_" + i).prev().children().show();
+                for(var k = 0; k < rmItem.length; k++){
+                    getObj(j, i, "s").children("option[value=" + rmItem[k] + "]").remove();
+                }
+
+                if(getRule(j, i).action != undefined){
+                    rmItem.push(getRule(j, i).action);
+                }
+
+                if(getRule(j, i).action == 3){
+                    branchIndex = j + 1;
+                }
+                if(branchIndex >= 0 && branchIndex == j){
+                    switch(i){
+                    case 0:
+                        $("#o_" + j + "_" + i).prev().children(".arrow").text("{!$Label.label_10519}");
+                        break;
+                    case 1:
+                        $("#o_" + j + "_" + i).prev().children(".arrow").text("{!$Label.label_10520}");
+                        break;
+                    case 2:
+                        $("#o_" + j + "_" + i).prev().children(".arrow").text("{!$Label.label_10521}");
+                        break;
+                    }
+                }else{
+                    if(i > 1 && branchIndex < 0){
+                        branchIndex = j;
+                    }
+                    $("#o_" + j + "_" + i).prev().children(".arrow").html("&nbsp;");
+                }
+            }else{
+                if(branchIndex >= j && getRule(j, 0) && getRule(j, 0).action != undefined){
+                    rmItem.push(getRule(j, 0).action);
+                }
+            }
+        }
+    }
+
+//    // ワークフロー対応
+//    $('.ruleSel').each(function() {
+//        if($(this).val() != '3'){
+//            $(this).children().each(function(){
+//                if ( $(this).val() == '3' ) {
+//                    $(this).remove();
+//                }
+//            });
+//        }
+//    });
+
+}
+
+function getRule(col, row){
+    try{
+        switch(row){
+        case 0:
+            return rules[spaceRuleTriggerAction].row1[col];
+        case 1:
+            return rules[spaceRuleTriggerAction].row2[col];
+        case 2:
+            return rules[spaceRuleTriggerAction].row3[col];
+        }
+    }catch(e){
+        return null;
+    }
+}
+
+function putRule(row, col, obj){
+//    // ワークフロー対応
+//    var ruleAddLimit = 2;
+//    $.each($('.ruleSel'), function(){
+//        if($(this).val() == '3'){
+//            ruleAddLimit++;
+//        }
+//    });
+
+    var r;
+    try{
+        switch(row){
+        case 0:
+            r = rules[spaceRuleTriggerAction].row1;
+            //rules[spaceRuleTriggerAction].row1.splice(col, 0, obj);
+            break;
+        case 1:
+            r = rules[spaceRuleTriggerAction].row2;
+            //rules[spaceRuleTriggerAction].row2.splice(col, 0, obj);
+            break;
+        case 2:
+            r = rules[spaceRuleTriggerAction].row3
+            //rules[spaceRuleTriggerAction].row3.splice(col, 0, obj);
+            break;
+        }
+
+        // 0003859: 【スペースルール】 指定できるアクションがもう無いのに、アクションの追加が出来る 対応
+        if (r && r[3]) {
+            return false;
+        } else {
+            r.splice(col, 0, obj);
+        }
+    }catch(e){
+        return;
+    }
+}
+
+function removeRule(x, y){
+    var o = getObj(x, y , "s");
+    var r = getRule(x, y);
+
+    if(o.val() == 3 && rules[spaceRuleTriggerAction].row1.length > 1){
+        if(confirm("{!$Label.msg_00221}")){
+            if(x == 0){
+                clearFlow(false);
+            }else{
+                rules[spaceRuleTriggerAction].row1.splice(x, MAX);
+                rules[spaceRuleTriggerAction].row2.splice(x, MAX);
+                rules[spaceRuleTriggerAction].row3.splice(x, MAX);
+                branchIndex = -1;
+            }
+
+        }
+    }else{
+        switch(y){
+        case 0:
+            if(rules[spaceRuleTriggerAction].row1.length == 1){
+                alert("{!$Label.msg_00222}");
+                return;
+            }
+            for(i = x; i < rules[spaceRuleTriggerAction].row1.length; i++){
+                getObj(i, y , "s").children("option[value=" + o.val() + "]").remove();
+            }
+            rules[spaceRuleTriggerAction].row1.splice(x, 1);
+            if(branchIndex > x){
+                rules[spaceRuleTriggerAction].row2.splice(x, 1);
+                rules[spaceRuleTriggerAction].row3.splice(x, 1);
+                branchIndex--;
+            }else{
+                rules[spaceRuleTriggerAction].row2.splice(x, 1);
+                rules[spaceRuleTriggerAction].row3.splice(x, 1);
+            }
+            break;
+        case 1:
+            for(i = x; i < rules[spaceRuleTriggerAction].row2.length; i++){
+                getObj(i, y , "s").children("option[value=" + o.val() + "]").remove();
+            }
+            rules[spaceRuleTriggerAction].row2.splice(x, 1);
+            break;
+        case 2:
+            for(i = x; i < rules[spaceRuleTriggerAction].row3.length; i++){
+                getObj(i, y , "s").children("option[value=" + o.val() + "]").remove();
+            }
+            rules[spaceRuleTriggerAction].row3.splice(x, 1);
+            break;
+        }
+    }
+
+    $("#ruleFrowTable td").each(function(){
+        $(this).removeClass("sel-td");
+    });
+
+    drow(false);
+
+    return false;
+}
+
+function showPropertyDialog(x, y){
+    //console.info("x="+x+",y="+y);
+    var o = getObj(x, y, "s");
+    var r = getRule(x, y);
+
+    if(!r){
+        return;
+    }
+
+    if(r.isShow && o.val() == 0){
+        alert("{!$Label.msg_00223}");
+        return;
+    }
+
+    var target = null;
+    var title = "";
+    var width = 500;
+    var height = 300;
+    sr_x = x;
+    sr_y = y;
+
+    switch(o.val() - 0){
+    case 1:
+        target = "SpaceRuleActionNotify";
+        title = "{!$Label.label_10484}";
+        height = 430;
+        width = 500;
+        break;
+    case 2:
+        target = "SpaceRuleActionMove";
+        title = "{!$Label.label_10485}";
+        height = 520;
+        break;
+    case 3:
+        target = "SpaceRuleActionAutoWF";
+        title = "{!$Label.label_10486}";
+        width = 600;
+        break;
+    case 4:
+        target = "SpaceRuleActionPDF";
+        title = "{!$Label.label_10487}";
+        height = "auto";
+        break;
+    }
+
+    if(target){
+        // プロパティ表示
+        $("#" + target).dialog({
+            title: title,
+            width: width,
+            height: height,
+            modal:true
+        });
+
+        if(target == "SpaceRuleActionPDF"){
+            initSRAPDFDialog();
+        }else if(target == "SpaceRuleActionNotify"){
+            initSRANDialog();
+        }else if(target == "SpaceRuleActionAutoWF"){
+            initSRAWFDialog();
+        }else if(target == "SpaceRuleActionMove"){
+            initSRAMDialog();
+        }
+    }
+}
+
+function removeSelItem(x, y){
+
+    if(branchIndex != -1){
+        for(y = 0; y < 3; y++){
+            hideSelItem(x, y);
+        }
+    }else{
+        hideSelItem(x, y);
+    }
+}
+
+function hideSelItem(x, y){
+    var o = getObj(x + 1, y , "s");
+    var rms = new Array();
+
+    switch(y){
+    case 0:
+        for(i = 0; i < rules[spaceRuleTriggerAction].row1.length; i++){
+            if(rules[spaceRuleTriggerAction].row1[i].action != 0){
+                rms.push(rules[spaceRuleTriggerAction].row1[i].action);
+            }
+        }
+
+        break;
+    case 1:
+        for(i = 0; i < rules[spaceRuleTriggerAction].row2.length; i++){
+            if(rules[spaceRuleTriggerAction].row2[i].action != 0){
+                rms.push(rules[spaceRuleTriggerAction].row2[i].action);
+            }
+        }
+
+        for(i = 0; i < branchIndex + 1; i++){
+            if(rules[spaceRuleTriggerAction].row1[i].action != 0){
+                rms.push(rules[spaceRuleTriggerAction].row1[i].action);
+            }
+        }
+
+        break;
+    case 2:
+        for(i = 0; i < rules[spaceRuleTriggerAction].row3.length; i++){
+            if(rules[spaceRuleTriggerAction].row3[i].action != 0){
+                rms.push(rules[spaceRuleTriggerAction].row3[i].action);
+            }
+        }
+
+        for(i = 0; i < branchIndex + 1; i++){
+            if(rules[spaceRuleTriggerAction].row1[i].action != 0){
+                rms.push(rules[spaceRuleTriggerAction].row1[i].action);
+            }
+        }
+
+        break;
+    }
+
+    for(i = 0; i < rms.length; i++){
+        o.children("option[value=" + rms[i] + "]").hide();
+    }
+}
+
+
+function getObj(x, y, prefix){
+    return $("#" + prefix + "_" + x + "_" + y);
+}
+
+function cancelPropDialog(dialogName){
+    $("#" + dialogName).dialog("close");
+}
+
+function okPropDialog(action, props, dialogName){
+    switch(sr_y){
+    case 0:
+        rules[spaceRuleTriggerAction].row1[sr_x].action = action;
+        rules[spaceRuleTriggerAction].row1[sr_x].properties = props;
+        break;
+    case 1:
+        rules[spaceRuleTriggerAction].row2[sr_x].action = action;
+        rules[spaceRuleTriggerAction].row2[sr_x].properties = props;
+        break;
+    case 2:
+        rules[spaceRuleTriggerAction].row3[sr_x].action = action;
+        rules[spaceRuleTriggerAction].row3[sr_x].properties = props;
+        break;
+    }
+    $("#" + dialogName).dialog("close");
+}
+
+function getMoveToIdList(){
+
+	var moveToId = "";
+
+	// 自分より前にある「移動」ステップの移動先スペースIDを取得する
+	var row = sr_y;
+	for(var step=sr_x - 1; step>=0; step--){
+
+		if((row == 1) && (rules[spaceRuleTriggerAction].row2[step].isShow == false) ||
+		   (row == 2) && (rules[spaceRuleTriggerAction].row3[step].isShow == false)){
+			row = 0;
+		}
+
+		// actionを取得
+		var action = 0;
+		switch(row){
+		case 0:
+			action = rules[spaceRuleTriggerAction].row1[step].action;
+			break;
+		case 1:
+			action = rules[spaceRuleTriggerAction].row2[step].action;
+			break;
+		case 2:
+			action = rules[spaceRuleTriggerAction].row3[step].action;
+			break;
+		}
+		// actionが「移動」以外だった場合
+		if(action != 2){
+			continue;
+		}
+
+		// 移動先スペースIDを取得
+		switch(row){
+		case 0:
+			if(rules[spaceRuleTriggerAction].row1[step].properties){
+				for(var idx=0; idx<rules[spaceRuleTriggerAction].row1[step].properties.length; idx++){
+					if(rules[spaceRuleTriggerAction].row1[step].properties[idx].moveToId){
+						if(moveToId != ""){
+							moveToId = moveToId + ",";
+						}
+						moveToId = moveToId + rules[spaceRuleTriggerAction].row1[step].properties[idx].moveToId;
+					}
+				}
+			}
+			break;
+		case 1:
+			if(rules[spaceRuleTriggerAction].row2[step].properties){
+				for(var idx=0; idx<rules[spaceRuleTriggerAction].row2[step].properties.length; idx++){
+					if(rules[spaceRuleTriggerAction].row2[step].properties[idx].moveToId){
+						if(moveToId != ""){
+							moveToId = moveToId + ",";
+						}
+						moveToId = moveToId + rules[spaceRuleTriggerAction].row2[step].properties[idx].moveToId;
+					}
+				}
+			}
+			break;
+		case 2:
+			if(rules[spaceRuleTriggerAction].row3[step].properties){
+				for(var idx=0; idx<rules[spaceRuleTriggerAction].row3[step].properties.length; idx++){
+					if(rules[spaceRuleTriggerAction].row3[step].properties[idx].moveToId){
+						if(moveToId != ""){
+							moveToId = moveToId + ",";
+						}
+						moveToId = moveToId + rules[spaceRuleTriggerAction].row3[step].properties[idx].moveToId;
+					}
+				}
+			}
+			break;
+		}
+	}
+
+//console.info(rules);
+//console.info("moveToId:" + moveToId);console.info("");
+
+	return moveToId;
+}
+
+function okSRSetting(){
+    if(SR_existChild){
+        $("#spaceRuleApplyModal").dialog("open");
+    }
+    else{
+        saveSpaceRule(false);
+    }
+}
+function saveSpaceRule(apply){
+    $("#spaceRuleApplyModal").dialog("close");
+
+    if(testFlow()){
+        var spaceRuleEditCallback = function(data){
+            if(data.result) {
+        changeHashToCurrentSpace();
+                $('#listView1').trigger('reloadGrid');
+                reloadTree();
+                displayList();
+            } else {
+                alert(data.message);
+            }
+            CsoScript_loadingStop();
+        };
+        CsoScript_loadingStart();
+        securePostAsync('/contentsmanagement/SpaceRuleConditionEdit.json',
+                        {'data' : JSON.stringify(rules) , 'spaceId' : selectSpaceId , 'enable' : $("#srSwitchBtn").attr("btnStatus"), 'apply'  : apply},
+                        spaceRuleEditCallback);
+
+    }
+}
+
+function clearFlow(isConfirm){
+    if(!isConfirm || confirm("{!$Label.msg_00224}")){
+        rules[spaceRuleTriggerAction].row1 = new Array();
+        rules[spaceRuleTriggerAction].row2 = new Array();
+        rules[spaceRuleTriggerAction].row3 = new Array();
+        rules[spaceRuleTriggerAction].row1.push(new SpaceRule(true));
+        rules[spaceRuleTriggerAction].row2.push(new SpaceRule(false));
+        rules[spaceRuleTriggerAction].row3.push(new SpaceRule(false));
+        branchIndex = -1;
+        $("#ruleFrowTable td").each(function(){
+            $(this).removeClass("sel-td");
+            $(this).removeClass("errAction");
+        });
+        drow(false);
+    }
+}
+
+function testFlow(){
+    $("#ruleFrowTable td").each(function(){
+        $(this).removeClass("errAction");
+    });
+    var err1 = checkFlow(rules[spaceRuleTriggerAction].row1, 0);
+    var err2 = checkFlow(rules[spaceRuleTriggerAction].row2, 1);
+    var err3 = checkFlow(rules[spaceRuleTriggerAction].row3, 2);
+    if(err1 || err2 || err3){
+        alert("{!$Label.msg_00225}");
+        return false;
+    }else{
+        return true;
+    }
+}
+
+function checkFlow(array, row){
+    if(array.length == 1 && getObj(0, row , "s").val() == 0){
+        return null;
+    }
+    var err = new Array();
+    var checkProperties;
+    for(var i = 0; i < array.length; i++){
+        var r = array[i];
+        if(r.isShow){
+            // 表示しているものだけ
+            var o = getObj(i, row , "s");
+            if(r.action == undefined){
+                r.action = o.val();
+            }
+            switch(r.action){
+              case 1:
+                  //Notify email
+                  checkProperties = r.properties.user;
+                  break;
+              case 2:
+                  //Move
+                  checkProperties = r.properties;
+                  break;
+              case 4:
+                  //PDF Conversion
+                  checkProperties = r.properties.convTgt;
+                  break;
+              default:
+                  checkProperties = r.properties;
+                  break;
+            }
+            if(checkProperties == undefined || checkProperties .length<1){
+                o.parent().parent().addClass("errAction");
+                err.push(r.action);
+            }
+        }
+    }
+    return err.length == 0 ? null : err;
+}
+
+
+// ★★★★★★★★★★★★★★★   PDF変換   ★★★★★★★★★★★★★★★
+var LEVEL_128BIT = "0";
+var LEVEL_40BIT = "1";
+// 初期化（ダイアログ呼出）
+function initSRAPDFDialog(){
+
+    var r = getRule(sr_x, sr_y);
+
+    // デフォルト値設定
+    $("input[name=convTgt]").val(['']);
+    $("#convSourceFile").attr("checked", "checked");
+
+    $("#rule_level-128").attr("checked", "checked");
+    $("#rule_assembly_ok").attr("checked", "checked");
+    $("#rule_contents_copy_ok").attr("checked", "checked");
+    $("#rule_field_input_ok").attr("checked", "checked");
+    $("#rule_explanatory_note_ok").attr("checked", "checked");
+    $("#rule_contents_edit_ok").attr("checked", "checked");
+    $("#rule_accessibility_ok").attr("checked", "checked");
+    $("#rule_print_ok").attr("checked", "checked");
+    $("#rule_low_resolution_print").removeAttr("checked");
+    showSecurityOption(false);
+
+    if(r && r.action == 4 && r.properties != undefined){
+        // 変換対象
+        var convTgt = r.properties["convTgt"];
+        for(i = 0; i < convTgt.length; i++){
+            $("input[name=convTgt][value=" + convTgt[i] + "]").attr("checked", "checked");
+        }
+
+        // 変換元
+        if(!r.properties["isSourceKeep"]){
+            $("#convSourceFile").removeAttr("checked");
+        } else {
+            $("#convSourceFile").attr("checked", "checked");
+        }
+
+        // 変換後
+        if(r.properties["afterFileOption"]["verup"]){
+            $("#spPDFVerupOptionCB").attr("checked", "checked");
+            $("#spPDFVerupOptionSel").val(r.properties["afterFileOption"]["type"]);
+            $("#spPDFVerupOptionSel").removeAttr("disabled");
+        }
+
+        // PDFセキュリティオプション
+        var securOptions = r.properties["pdfSecurityOption"];
+        if(securOptions != null && securOptions["enabled"]){
+            $('input[name="rule_level"]').val([securOptions["level"]]);
+            $('input[name="rule_assembly"]').val([securOptions["assembly"]]);
+            $('input[name="rule_field_input"]').val([securOptions["field_input"]]);
+            $('input[name="rule_explanatory_note"]').val([securOptions["explanatory_note"]]);
+            $('input[name="rule_contents_edit"]').val([securOptions["contents_edit"]]);
+            $('input[name="rule_contents_copy"]').val([securOptions["contents_copy"]]);
+            $('input[name="rule_accessibility"]').val([securOptions["accessibility"]]);
+            $('input[name="rule_print"]').val([securOptions["print"]]);
+
+            if(securOptions["low_resolution_print"]){
+                $("#rule_low_resolution_print").attr("checked", "checked");
+            }
+        }
+        showSecurityOption(securOptions["enabled"]);
+
+    }
+
+    $("input[name='rule_explanatory_note']:radio").change(function(){
+        ruleChangeExplanatoryNote();
+    });
+    $("input[name='rule_level']:radio").change(function(){
+        ruleChangeLevel();
+    });
+    $("input[name='rule_print']:radio").change(function(){
+        ruleChangePrint();
+    });
+
+    ruleChangeLevel();
+    ruleChangeExplanatoryNote();
+    ruleChangePrint();
+
+}
+
+function applySRPDF(){
+
+    var o = new Object();
+
+    // 変換対象
+    var convTgt = new Array();
+    $("input[name=convTgt]").each(function(){
+        if($(this).attr("checked")){
+            convTgt.push($(this).val());
+        }
+    });
+    o["convTgt"] = convTgt;
+
+    // 変換元
+    o["isSourceKeep"] = $("#convSourceFile").attr("checked");
+
+    // 変換後
+    o["afterFileOption"] = {
+            verup : $("#spPDFVerupOptionCB").attr("checked"),
+            type : $("#spPDFVerupOptionSel").val()
+    }
+
+    // PDFセキュリティオプション
+var pdfSecurityOption = {!IF(cso_userInfo.proAuth_pdf_security == 'true', true, false)};
+if(eval(pdfSecurityOption)){
+    if($("#securityOption").attr("checked")){
+        var valAssembly = true;
+        if($("input[name='rule_level']:checked").val() != LEVEL_40BIT){
+            valAssembly = $("#rule_contents_edit_ok").attr("checked");  // assembly = contents_edit
+        }
+
+        o["pdfSecurityOption"] = {
+            enabled : $("#securityOption").attr("checked"),
+            level : $("input[name='rule_level']:checked").val(),
+//          assembly : $("#rule_assembly_ok").attr("checked"),
+            assembly : valAssembly,
+            field_input : $("#rule_field_input_ok").attr("checked"),
+            explanatory_note : $("#rule_explanatory_note_ok").attr("checked"),
+            contents_edit : $("#rule_contents_edit_ok").attr("checked"),
+            contents_copy : $("#rule_contents_copy_ok").attr("checked"),
+            accessibility : $("#rule_accessibility_ok").attr("checked"),
+            print : $("#rule_print_ok").attr("checked"),
+            low_resolution_print : $("#rule_low_resolution_print").attr("checked")
+        }
+    } else {
+        o["pdfSecurityOption"] = {
+            enabled : $("#securityOption").attr("checked")
+        }
+    }
+}else{
+        o["pdfSecurityOption"] = {
+            enabled : false
+        }
+}
+
+    // 共通関数をコール
+    okPropDialog(4, o, 'SpaceRuleActionPDF');
+}
+
+
+function showSecurityOption(flg){
+    //var checked = $('#securityOption').attr('checked');
+    if(flg){
+        $('#securityOption').attr('checked','checked');
+        $('#securityOptionNone').removeAttr('checked');
+
+        $("#optionSet2").show();
+        $("#optionSet1").hide();
+
+        $("#actionPropertyDiv").height(460);
+    } else {
+        $("#optionSet2").hide();
+        $("#optionSet1").show();
+        $("#actionPropertyDiv").height(230);
+    }
+
+}
+
+// 注釈のonchangeイベント
+function ruleChangeExplanatoryNote(){
+    var value = $("input:radio[name='rule_explanatory_note']:checked").val();
+    if(eval(value) == false){
+        // [注釈]が[許可しない]の場合は、
+        // [フォームフィールドの入力]も[許可しない]に設定し
+        // 変更できないように無効化する。
+        $('input[name="rule_field_input"]').val(['false']);
+        $('input[name="rule_field_input"]').attr('disabled', 'disabled');
+    }
+    else{
+        var level = $("input:radio[name='rule_level']:checked").val();
+        // [セキュリティレベル]が[40-bit RC4]の場合は、
+        // [フォームフィールドの入力]の設定は行えない。
+        // なので、
+        // [フォームフィールドの入力]を[許可する]に設定する。
+        if(level == LEVEL_40BIT){
+            $('input[name="rule_field_input"]').val(['true']);
+        }
+        // [セキュリティレベル]が[40-bit RC4]の場合は、
+        // [フォームフィールドの入力]を無効化しなければならない。
+        // なので、
+        // [セキュリティレベル]が[128-bit RC4]の場合のみ、
+        // [フォームフィールドの入力]を有効化する。
+        else{
+            $('input[name="rule_field_input"]').removeAttr("disabled");
+        }
+    }
+}
+
+// セキュリティレベルのonchangeイベント
+function ruleChangeLevel(){
+    var value = $("input:radio[name='rule_level']:checked").val();
+    if(value == LEVEL_40BIT){
+//        $('input[name="rule_assembly"]').attr('disabled', 'disabled');
+        $('input[name="rule_field_input"]').attr('disabled', 'disabled');
+        $('input[name="rule_accessibility"]').attr('disabled', 'disabled');
+        $('input[name="rule_low_resolution_print"]').attr('disabled', 'disabled');
+//        $('input[name="rule_assembly"]').val(['true']);
+        $('input[name="rule_accessibility"]').val(['true']);
+        check('rule_low_resolution_print', 'false');
+
+        // [注釈]が[許可しない]の場合は、
+        // [フォームフィールドの入力]も[許可しない]に設定しなければならない。
+        // なので、
+        // [注釈]が[許可する]の場合のみ、
+        // [フォームフィールドの入力]を[許可する]に設定する。
+        var explanatoryNote = $("input:radio[name='rule_explanatory_note']:checked").val();
+        if(eval(explanatoryNote) == true){
+            $('input[name="rule_field_input"]').val(['true']);
+        }
+    }
+    else{
+//        $('input[name="rule_assembly"]').removeAttr("disabled");
+        $('input[name="rule_accessibility"]').removeAttr("disabled");
+
+        // [注釈]が[許可しない]の場合は、
+        // [フォームフィールドの入力]も[許可しない]に設定し
+        // 無効化しなければならない。
+        // なので、
+        // [注釈]が[許可する]の場合のみ、
+        // [フォームフィールドの入力]を有効化する。
+        var explanatoryNote = $("input:radio[name='rule_explanatory_note']:checked").val();
+        if(eval(explanatoryNote) == true){
+            $('input[name="rule_field_input"]').removeAttr("disabled");
+        }
+
+        // [印刷]が[許可しない]の場合は、
+        // [低解像度での印刷]を無効化しなければならない。
+        // なので、
+        // [印刷]が[許可する]の場合のみ、
+        // [低解像度での印刷]を有効化する。
+        var print = $("input:radio[name='rule_print']:checked").val();
+        if(eval(print) == true){
+            $('input[name="rule_low_resolution_print"]').removeAttr("disabled");
+        }
+    }
+}
+
+// 印刷のonchangeイベント
+function ruleChangePrint(){
+    var value = $("input:radio[name='rule_print']:checked").val();
+    if(eval(value) == false){
+        check('rule_low_resolution_print', 'false');
+        $('input[name="rule_low_resolution_print"]').attr('disabled', 'disabled');
+    }
+    else{
+        var level = $("input:radio[name='rule_level']:checked").val();
+        if(level == LEVEL_128BIT){
+            $('input[name="rule_low_resolution_print"]').removeAttr("disabled");
+        }
+    }
+}
+
+function check(id, check){
+    $('#' + id).attr('checked', eval(check));
+}
+
+
+// ★★★★★★★★★★★★★★★  メール通知  ★★★★★★★★★★★★★★★
+// 初期化（ダイアログ呼出）
+function initSRANDialog(){
+
+    spaceId = spaceIdFromUrl; // getUrlVarsから変更
+	// 前ステップに「移動」アクションがある場合、通知先は移動先の招待ユーザとする
+	var moveToId = getMoveToIdList();
+	if((moveToId != null) && (moveToId != "")){
+		spaceId = moveToId;
+	}
+
+
+    // デフォルト値設定
+    $("#op1").val('0');
+    $("#op2").val('');
+    $("#op2").css("display", "none");
+    $("#searchUserText").val('');
+    $("#srNotifySel1").children().remove();
+    $("#srNotifySel2").children().remove();
+    $("#srNotifySel3").children().remove();
+
+    // 初期値設定
+    var r = getRule(sr_x, sr_y);
+    uidList.length = 0;
+    gidList.length = 0;
+    pidList.length = 0;
+    if(r && r.action == 1 && r.properties != undefined){
+        for(i = 0; i < r.properties["user"].length; i++){
+            var userid = r.properties["user"][i];
+            uidMap[userid] = true;
+            if(userid.indexOf("USER")==0){
+                uidList.push(userid);
+            }else if(userid.indexOf("GROUP")==0||userid.indexOf("EVERYONE")==0){
+                gidList.push(userid);
+            }else if(userid.indexOf("CORP_POSITION")==0){
+                pidList.push(userid);
+            }
+        }
+    }
+    reloadSpaceRuleUserList();
+
+    $("#addUserModalSpaceRule").dialog({
+        autoOpen: false,
+        bgiframe: true,
+        modal: true,
+        resizable: false,
+        closeText: "Close",
+        width: 720,
+        height: 505,
+//        buttons: {
+//            '{!$Label.label_00058}': function() {
+//                uidMap = $.cloneObject(orgUidMap, true);
+//                $(this).dialog('close');
+//            },
+//            '{!$Label.label_00075}': function() {
+//                loadUserGroupGrid();
+//                $(this).dialog('close');
+//            }
+//        }
+    });
+
+    $("#addUserTable").jqGrid({
+        url : _apiUrl + "/space/usermanagement/NotifyUserListApi.json",
+        postData : {
+//            spaceId : spaceIdFromUrl,
+            spaceId : spaceId,
+        },
+        colNames:[
+            '',
+            '{!$Label.label_00039}', // 名前
+            '{!$Label.label_10029}', // ロール
+        ],
+        colModel:[
+            {name:'id',index:'id', width:60, hidden:true},
+            {name:'name',index:'name', width:400},
+            {name:'role',index:'role', width:230, align:"center"},
+        ],
+        rowNum:10,
+        height: 305,
+        rowList:[10,50,100],
+        sortname: 'id',
+        pager: '#addUserTablePager',
+        viewrecords: true,
+        shrinkToFit : false,
+        multiselect: true,
+        multiboxonly: true,
+        onSelectRow : function(rowid, status, ev){
+            spRuleSelRow();
+        },
+        onSelectAll : function(aRowids, status){
+            spRuleSelRow();
+        },
+        loadComplete : function(data){
+            if(data.records<=0 && reloadAddUser){
+                alert("{!$Label.msg_spacerule_noInvitedUsers}");
+            }
+            loadUidList = new Array();
+            for(var i = 0; i < data.rows.length; i++){
+                if(uidMap[data.rows[i].id] == null){
+                    uidMap[data.rows[i].id] = false;
+                }
+                loadUidList.push(data.rows[i].id);
+                if(uidMap[data.rows[i].id]){
+                    $(this).setSelection(data.rows[i].id);
+                }
+            }
+        }
+    });
+
+    $("#addUserTable").setGridWidth(690);
+
+}
+
+function spRuleNotifyAddCancel(){
+//    uidMap = $.cloneObject(orgUidMap, true);
+    uidMap = $("#addUserTable").getRowData();
+    $("#addUserModalSpaceRule").dialog('close');
+}
+
+function spRuleNotifyAddOk(){
+    loadUserGroupGrid();
+    $("#addUserModalSpaceRule").dialog('close');
+}
+
+function spRuleSelRow(){
+    var rows;
+    rows = $("#addUserTable").jqGrid('getGridParam','selarrrow');
+    for(var i = 0; i < loadUidList.length; i++){
+        if($.inArray(loadUidList[i], rows) >= 0){
+            uidMap[loadUidList[i]] = true;
+        }else{
+            uidMap[loadUidList[i]] = false;
+        }
+    }
+}
+
+// [削除]
+function delUserAndGroup(){
+    var rows = $("#settingUserList").jqGrid('getGridParam','selarrrow');
+    if(rows.length == 0){
+        return;
+    }
+
+    for(var i = 0; i < rows.length; i++){
+        if(uidMap[rows[i]] != null){
+            uidMap[rows[i]] = false;
+        }
+    }
+    loadUserGroupGrid();
+}
+
+// [追加] ユーザ追加ダイアログを表示
+function addUser(){
+    $("#addUserTable").clearGridData();
+    reloadAddUser = true;
+    $("#addUserTable").setGridParam({
+        postData : {
+            spaceId : spaceId,
+        }}).trigger("reloadGrid");
+//    orgUidMap = $.cloneObject(uidMap, true);
+    orgUidMap = $("#addUserTable").getRowData();
+    $("#addUserModalSpaceRule").dialog("open");
+}
+
+// [検索] ユーザ追加ダイアログの検索ボタン実行
+function spRuleUserOnSearchClicked(){
+    var pd;
+    var searchText = $.trim($("#spRule-user-search-txt").val());
+    if($("#spRule-user-search-txt").val() == $("#spRule-user-search-txt").attr("placeholder")){
+        searchText = "";
+    }
+    pd = {
+        search_text : searchText,
+//        type : 1
+    };
+    $("#addUserTable").clearGridData();
+    reloadAddUser = true;
+    $("#addUserTable").setGridParam({
+        postData : pd
+    }).trigger("reloadGrid");
+}
+
+// [クリア] ユーザ追加ダイアログのクリアボタン実行
+function spRuleUserOnClearClicked(){
+    $("#spRule-user-search-txt").val("");
+    reloadAddUser = true;
+    $("#addUserTable").setGridParam({
+        postData:{
+            search_text : "",
+        }
+    }).trigger("reloadGrid");
+}
+
+function loadUserGroupGrid(){
+    uidList.length = 0;
+    gidList.length = 0;
+    pidList.length = 0;
+    // ユーザ/グループ/部署・役職にばらして保持
+    for(var u in uidMap){
+        if(uidMap[u]){
+            if(u.indexOf("USER")==0){
+                uidList.push(u);
+            }else if(u.indexOf("GROUP")==0||u.indexOf("EVERYONE")==0){
+                gidList.push(u);
+            }else if(u.indexOf("CORP_POSITION")==0){
+                pidList.push(u);
+            }
+        }
+    }
+    reloadSpaceRuleUserList();
+}
+
+// OKボタン
+function applySRNotify(){
+    var id = new Array();
+    var name = new Array();
+    var rows = $("#settingUserList").jqGrid('getGridParam','selarrrow');
+
+    for(var u in uidMap){
+        if(uidMap[u]){
+            id.push(u);
+        }
+    }
+    uidMap = new Object();
+    // 共通関数をコール
+//    okPropDialog(1, {user : id, name : name});
+    okPropDialog(1, {user : id, name : name}, 'SpaceRuleActionNotify');
+}
+// キャンセルボタン
+function cancelSRNotify(){
+    uidMap = new Object();
+    cancelPropDialog('SpaceRuleActionNotify');
+}
+/*
+// 検索
+function searchSPRuleNotifyUser(isInit){
+    var text = isInit ? "" : $("#searchUserText").val();
+    var cate1 = $("#op1").val();
+    var cate2 = $("#op2").val();
+
+    var spaceSPRuleInitCallback = function(data){
+        var options = '';
+        $.each(data.option, function(){
+            options +='<option value="' + this.value + '">' + this.name + '</option>';
+        });
+
+        // 指定済みユーザを除外して結果を表示
+        $("#srNotifySel1").html(options);
+        if(isInit){
+            $("#srNotifySel3 option").each(function(){
+                $(this).text($("#srNotifySel1").children("option[value='" + $(this).val() + "']").text());
+                $("#srNotifySel1").children("option[value='" + $(this).val() + "']").remove();
+            });
+            $("#srNotifySel2").html($("#srNotifySel3").html());
+        }else{
+            $("#srNotifySel2 option").each(function(){
+                $("#srNotifySel1").children("option[value='" + $(this).val() + "']").remove();
+            });
+        }
+
+        // SFDCステータスが有効なユーザーのみ表示
+
+//        options = '';
+//        var sfdcValidUserList = getSfdcValidUserId();
+//        $.each($('#srNotifySel1 option'), function(){
+//            for(var i = 0; i < sfdcValidUserList.length; i++){
+//                if($(this).attr('value') == sfdcValidUserList[i]){
+//                    return;
+//                }
+//            }
+//            $(this).remove();
+//        });
+
+    }
+
+    secureGetAsync('/common/MailNotificationDestinationListGet.json',{"category" : cate1 , "secondCate" : cate2 , "text" : text , "returnType" : "json"}, spaceSPRuleInitCallback);
+
+}
+
+// 追加 / 削除
+function moveSPRuleNotifyUser(from, to){
+    $("#srNotifySel1").val();
+    $("#" + from + " option:selected").each(function(){
+        // 選択/非選択を切り替える
+        var val = $(this).val();
+        var text = $(this).text();
+        $("#" + to).append($("<option>").val(val).text(text));
+        $(this).remove();
+    });
+}
+
+// OKボタン
+function applySRNotify(){
+    var id = new Array();
+    var name = new Array();
+    $("#srNotifySel2 option").each(function(){
+        id.push($(this).val());
+        name.push($(this).text());
+    });
+
+    // 共通関数をコール
+    okPropDialog(1, {user : id, name : name}, 'SpaceRuleActionNotify');
+}
+*/
+
+// ★★★★★★★★★★★★★★★  自動ワークフロー  ★★★★★★★★★★★★★★★
+// 初期化（ダイアログ呼出）
+function initSRAWFDialog(){
+
+    $("#srAutowfTitle").val('');
+    $("#srAutowfDefinition").val('');
+    $("#srAutowfDefinitionName").val('');
+
+    setReceiveItemIdOfDefinitionId("srAutowfDefinition");
+    setReceiveItemIdOfDefinitionName("srAutowfDefinitionName");
+
+    initDefinitionDialog();
+    loadCategory();
+
+    var r = getRule(sr_x, sr_y);
+
+    if(r && r.action == 3 && r.properties != undefined){
+        var definitionId = r.properties["definition"];
+
+        $("#srAutowfTitle").val(r.properties["title"]);
+        $("#srAutowfDefinition").val(definitionId);
+
+        var callbackSRAutowf = function(data) {
+            if (data.result) {
+                $("#srAutowfDefinitionName").val(data.definitionName);
+            } else {
+                alert(data.message);
+            }
+        }
+        secureGetAsync('/workflowmanagement/SpaceRuleActionAutoWF.json', {defId : definitionId}, callbackSRAutowf);
+    }
+
+}
+
+function applySRAutowf(){
+
+    var limit = 100;
+    var title = $.trim($("#srAutowfTitle").val());
+    var definition = $("#srAutowfDefinition").val();
+    var definitionName = $("#srAutowfDefinitionName").val();
+
+    if(title.length == 0){
+        alert("{!$Label.msg_010031}");
+        return;
+    }else if(title.length > limit){
+        alert(getMsg([limit], "{!$Label.msg_00307}"));
+        return;
+    }
+
+    if (definition == "") {
+        alert("{!$Label.msg_00306}");
+        return;
+    }
+
+    var o = {
+        title : title,
+        definition : definition,
+        definitionName : definitionName
+    }
+
+    // 共通関数をコール
+    okPropDialog(3, o, 'SpaceRuleActionAutoWF');
+}
+
+
+// ★★★★★★★★★★★★★★★  移動  ★★★★★★★★★★★★★★★
+// 初期化（ダイアログ呼出）
+function initSRAMDialog(){
+    //条件リストが選択されたら1に変更する。0の間は一部のボタンを無効にする。
+    select_flg=0;
+    //入力内容が変更された場合、1  →1の時にキャンセルで終了した場合、閉じていいのか確認する。0のままで追加・修正・OKするのはOK。
+    change_flg=0;
+    //入力中の移動条件
+    input_conditions = new Array();
+    //ユニークキー
+    uniq_key=0;
+
+    /* * * * */
+    var pre_cnt=0;
+    var key=0;
+
+    // 初期値設定
+    $("#filename_posission").val(0);
+    $("#filename_string").val('');
+    $("#maching_ok").val(['0']);
+    $("#srMoveMoveToSpaceId").val('');
+    $("#srMoveMoveToSpaceName").val('');
+    $("#modCondition_Btn").attr("disabled", "disabled");
+    $("#modCondition_Btn").attr("class", "btn_disabled");
+
+    $("#srMoveModalDialogDiv").dialog({modal:true, width:600, title:"{!$Label.label_10080}", autoOpen: false});
+
+    //既存の条件表示
+    $('#conditionList').empty();
+    var r = getRule(sr_x, sr_y);
+    if(r && r.action == 2 && r.properties != undefined){
+        //条件、移動は空欄のまま
+        //条件一覧とinput_conditionsに反映
+        pre_cnt=r.properties.length;
+
+        for(var i=0; i<pre_cnt; i++){
+            key = i;
+            input_conditions[key] = $.cloneObject(r.properties[i], true);
+
+            var opt_text = editOptionText2(input_conditions[key]);
+            $('#conditionList').append($('<option>').attr({ value: key }).text( opt_text ));
+        }
+
+        if (pre_cnt > 0) {
+            $('#conditionList').attr("selectedIndex", 0);
+            clickList();
+        }
+    }
+    uniq_key=pre_cnt;
+
+    $("input[name=condition]").change(function(e) {
+
+        if ($("#condition_none").attr("checked")) {
+            $("#filename_string").val("").attr("disabled", "disabled");
+        } else {
+            $("#filename_string").removeAttr("disabled");
+        }
+    });
+}
+
+function editOptionText2(edit_array){
+    var txt1="";
+    var txt2="";
+    var lang1="{!cso_userInfo.locale}";
+    var opt_txt="";
+    var opt_txt_verb="";
+
+    var fileStr = edit_array["fileStr"];
+    var filter = edit_array.useFilter;
+
+    if(edit_array["fileName"] == "1") {
+        txt1="{!$Label.label_10488}";
+    } else if(edit_array["fileName"] == "2") {
+        txt1="{!$Label.label_10489}";
+    } else {
+        //デフォルト選択の値を設定する
+        $("#filename_posission").val("0");
+        txt1="{!$Label.label_10490}";
+    }
+    if (!filter) {
+        opt_text = '{!$Label.label_11066}';
+    } else {
+        for(var i = 0; i < fileStr.length; i++){
+        }
+        opt_text = getMsg([fileStr], '{!$Label.label_11067}');
+    }
+    return opt_text;
+}
+
+function moveto(){
+    var contentsIds = new Array();
+    var contentsNames = new Array();
+    var spaceNames = new Array();
+    var errNames = new Array();
+
+    var moveoutIds = new Array();
+    var moveoutSpaceId = '';
+
+    //    コンテンツの移動用項目を初期化する
+    g_init_moveout();
+
+    g_moveout.moveoutIds= moveoutIds;
+    init_moveout('spaceRule');
+    $("#moveDialog").dialog({modal:true, width:600, title:"{!$Label.label_10080}"});    //コンテンツの移動
+
+    return false;
+
+}
+
+function loadData(){
+    $("#srMoveMoveToSpaceName").val("${spaceName}");
+    $("#title").val(wFAttr.namePrefix);
+    if($("#srMoveMoveToSpaceName").val() != null && $("#srMoveMoveToSpaceName").val() != ""){
+        $("#wfLimit").val(wFAttr.limit);
+        }
+    $("#srMoveMoveToSpaceId").val(wFAttr.moveTo);
+}
+
+
+function checkVerKindOpt(){
+    if ($("#versionkind_option")[0].checked) {
+        $("#versionkind").removeAttr("disabled");
+        $("#versionkind").css("background-color", "#FFFFFF");
+    } else {
+        $("#versionkind").attr("disabled", "disabled");
+        $("#versionkind").css("background-color", "#EEEEEE");
+    }
+}
+
+function input_check(){
+    var errFlg = false;
+    var styleClass = "error";
+    var input_text =  $("#filename_string").val();
+
+    var checked = $("#condition_filter").attr("checked");
+
+    if (checked) {
+        var input_text =  $("#filename_string").val();
+        var regex = /[\\\/<>:\"\?|]/;
+
+        if ( input_text.length == 0 ){
+            alert(getMsg(new Array('{!$Label.label_11065}'), '{!$Label.msg_00226}'));
+            return true;
+        } else if(input_text.match(regex)){
+            alert(getMsg(new Array('{!$Label.label_11065}'), '{!$Label.msg_01051}'));
+            return true;
+        } else if (input_text.match(/[\*]{2,}/)) {
+            alert(getMsg(new Array('{!$Label.label_11065}'), '{!$Label.label_11068}'));
+            return true;
+        }
+
+    }
+    if ($("#srMoveMoveToSpaceName").val().length == 0){
+        alert(getMsg(new Array('{!$Label.label_10048}'), '{!$Label.msg_00226}'));
+        return true;
+    }
+
+    var checked = $("#condition_filter").attr("checked");
+
+    return false;
+}
+
+function addCondition(){
+    var err;
+    err = input_check();
+
+    if(err){
+        return false;
+    } else {
+        var key = uniq_key++;
+        var now_input = new Object();
+
+        //ファイル名検索条件を設定
+//        now_input["fileName"]=$("#filename_posission").val();
+        now_input["fileStr"]=$("#filename_string").val();
+        if ($("#condition_filter").attr("checked")) {
+            now_input["useFilter"] = true;
+            now_input["fileStr"] = $("#filename_string").val();
+        } else {
+            now_input["useFilter"] = false;
+            now_input["fileStr"] = "";
+        }
+
+        //移動先を設定
+        now_input["moveToId"]=$("#srMoveMoveToSpaceId").val();
+        now_input["moveToName"]=$("#srMoveMoveToSpaceName").val();
+
+        //移動先のバージョンアップ指定
+        if($("#versionkind_option").attr("checked")) {
+            now_input["verUp"]=true;
+        } else {
+            now_input["verUp"]=false;
+        }
+
+        if($("#versionkind").val() != "1") {
+            //デフォルト選択値 0:マイナー を設定する
+            $("#versionkind").val("0");
+            now_input["verType"]="0";
+        } else {
+            //1:メジャー
+            now_input["verType"]=$("#versionkind").val();
+        }
+
+        input_conditions[key] = now_input;
+
+        var opt_text = editOptionText2(now_input);
+        $('#conditionList').append($('<option>').attr({ value: key }).text( opt_text ));
+
+        change_flg=1;
+    }
+    return true;
+}
+
+function modifyCondition(){
+    //入力チェック
+    var err;
+    err = input_check();
+
+    if(err){
+        return false;
+
+    } else {
+        var key=$('#conditionList option:selected').val();
+
+//        input_conditions[key]["fileName"]=$("#filename_posission").val();
+        input_conditions[key]["useFilter"] = $("#condition_filter").attr("checked");
+
+        if ( $("#condition_filter").attr("checked")) {
+            input_conditions[key]["useFilter"] = true;
+            input_conditions[key]["fileStr"] = $("#filename_string").val();
+        } else {
+            input_conditions[key]["useFilter"] = false;
+            input_conditions[key]["fileStr"] = "";
+        }
+
+        //移動先を設定
+        input_conditions[key]["moveToId"]=$("#srMoveMoveToSpaceId").val();
+        input_conditions[key]["moveToName"]=$("#srMoveMoveToSpaceName").val();
+
+        //移動先のバージョンアップ指定
+        if($("#versionkind_option").attr("checked")) {
+            input_conditions[key]["verUp"]=true;
+        } else {
+            input_conditions[key]["verUp"]=false;
+        }
+
+        if($("#versionkind").val() != "1") {
+            //デフォルト選択値 0:マイナー を設定する
+            $("#versionkind").val("0");
+        }
+        input_conditions[key]["verType"]=$("#versionkind").val();
+
+        var opt_text = editOptionText2(input_conditions[key]);
+        $('#conditionList option:selected').attr("text", opt_text);
+
+        change_flg=1;
+    }
+}
+
+function removeCondition(){
+    var elSel = document.getElementById('conditionList');
+    var i;
+    var j=elSel.length;
+    var k=0;
+    var delkey=$('#conditionList').val();
+
+    if( j > 0) {
+        for (i=0; i < j; i++) {
+            if (elSel.options[k].selected) {
+                elSel.remove(i);
+                k=i-1;
+            }
+            k++;
+        }
+    }
+    delete input_conditions[delkey];
+
+    change_flg=1;
+}
+
+function shift_up(){
+    change_flg=1;
+    var selectedOptions = $('#conditionList').children('option:selected');
+    var prev = $(selectedOptions).first().prev();
+    $(selectedOptions).insertBefore(prev);
+}
+
+function shift_down(){
+    change_flg=1;
+    var selectedOptions = $('#conditionList').children('option:selected');
+    var next = $(selectedOptions).last().next();
+    $(selectedOptions).insertAfter(next);
+}
+
+function clickList() {
+    var elSel = document.getElementById('conditionList');
+    var i;
+    var select_key=0;
+
+    if(elSel.length > 0) {
+        select_key=$('#conditionList').val();
+
+        var spacePathGetCallback = function(data){
+            //条件枠に、条件リストの値を設定
+//            $('#filename_posission').val(input_conditions[select_key]["fileName"]);
+
+            $('#filename_string').val(input_conditions[select_key]["fileStr"]);
+
+            if (input_conditions[select_key].useFilter) {
+                $("#filename_string").removeAttr("disabled");
+                $("#condition_filter").attr("checked", "checked");
+            } else {
+                $("#filename_string").attr("disabled", "disabled");
+                $("#condition_none").attr("checked", "checked");
+            }
+
+            $('#srMoveMoveToSpaceName').val(data["path"]);
+            $('#srMoveMoveToSpaceId').val(input_conditions[select_key]["moveToId"]);
+
+            if( input_conditions[select_key]["verUp"] ){
+                $('#versionkind_option').attr("checked", "checked");
+            } else {
+                $('#versionkind_option').removeAttr("checked");
+            }
+            $('#versionkind').val(input_conditions[select_key]["verType"]);
+
+            //条件リストが選択されたら、修正ボタンを有効にする
+            select_flg=1;
+            $("#modCondition_Btn").removeAttr("disabled");
+            $("#modCondition_Btn").attr("class", "btn");
+        }
+
+        secureGetAsync('/common/SpacePathGet.json',{spaceId : input_conditions[select_key]["moveToId"], "returnType" : "text"}, spacePathGetCallback);
+    }
+}
+
+function applySRMove(){
+    //スペースルールに帰す移動ルール（input_conditionsのList）
+    var o = new Array();
+
+    var cnt=$('#conditionList option').length;
+    var val=0;
+
+    for(var i=0; i<cnt; i++){
+        val=$('#conditionList option').eq(i).val();
+        o[i] = input_conditions[val];
+    }
+
+    // 共通関数をコール
+    okPropDialog(2, o, 'SpaceRuleActionMove');
+}
+
+function getSfdcValidUserId(){
+    return ids.split(',');
+}
+
+function callSecureGetAsync(url, param, callback, callerror){
+    secureGetAsync(url, param, callback, callerror);
+}
+
+function callSecurePostAsync(url, param, callback, callerror){
+    securePostAsync(url, param, callback, callerror);
+}
+
+
+ECM.spaceRule = ECM.spaceRule || { loaded: $.Deferred() };
+(function() {
+    $.extend(ECM.spaceRule, {
+        // intentionally empty
+    });
+    ECM.spaceRule.loaded.resolve();
+})();
+</script>
+
+</apex:page>

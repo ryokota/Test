@@ -1,0 +1,16 @@
+<!-- RFA Request Detail b. Application for Vending Equipment parts Component -->
+<apex:component >
+    <apex:attribute name="data" description="RFA Request Details b. Application for Vending Equipment parts data " type="CM_RequestDetails__c" required="true" />
+    
+    <apex:componentBody >
+    <apex:pageblock title="{!data.RecordType.Name}" >
+    <apex:pageBlockSection title="Request Detail" showHeader="false" columns="2">
+        <apex:outputField value="{!data.CM_Part_Name__c}" /><apex:outputLabel for="" />
+    </apex:pageBlockSection>
+    <apex:pageBlockSection title="" showHeader="false" columns="1">
+        <apex:outputLabel for="" />
+        <apex:outputField value="{!data.CM_Description__c}" />
+    </apex:pageBlockSection>
+    </apex:pageblock>
+    </apex:componentBody>
+</apex:component>

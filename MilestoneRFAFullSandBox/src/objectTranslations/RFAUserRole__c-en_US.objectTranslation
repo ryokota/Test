@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>RFA Approver/User</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>RFA Approvers/Users</value>
+    </caseValues>
+    <fields>
+        <label><!-- Agent 1 --></label>
+        <name>Agent1__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ (代理人１) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Agent 2 --></label>
+        <name>Agent2__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ (代理人２) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Agent 3 --></label>
+        <name>Agent3__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ (代理人３) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Agents Assigned? --></label>
+        <name>AgentsAssigned__c</name>
+    </fields>
+    <fields>
+        <label><!-- Alias --></label>
+        <name>Alias__c</name>
+    </fields>
+    <fields>
+        <help><!-- Add comment in both Japanese and English, if any non-Japanese recipient is involved in the approval process (either approver or info copy). --></help>
+        <label><!-- Condition / Reason --></label>
+        <name>ApprovalComments__c</name>
+    </fields>
+    <fields>
+        <label><!-- Comment --></label>
+        <name>ApprovalNotes__c</name>
+    </fields>
+    <fields>
+        <help><!-- This field is used to sequence the order of approvals during circulation.  Notifications will be sent to approvers in order from the lowest to highest number.  Approvers with the same order number will receive notifications at the same time. --></help>
+        <label><!-- Approval Order --></label>
+        <name>ApprovalOrder__c</name>
+    </fields>
+    <fields>
+        <label><!-- Approval Process --></label>
+        <name>ApprovalProcess__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- ApprovalRecieved DateTime --></label>
+        <name>ApprovalRecievedDateTime__c</name>
+    </fields>
+    <fields>
+        <label><!-- Approval Recommendation --></label>
+        <name>ApprovalRecommendation__c</name>
+        <picklistValues>
+            <masterLabel>Awaiting Approval / 承認待ち</masterLabel>
+            <translation><!-- Awaiting Approval / 承認待ち --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Conditionally Approved / 承認（条件付き）</masterLabel>
+            <translation><!-- Conditionally Approved / 承認（条件付き） --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Rejected / 否認</masterLabel>
+            <translation><!-- Rejected / 否認 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Return to Requester / 差し戻し</masterLabel>
+            <translation><!-- Return to Requester / 差し戻し --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Unconditionally Approved / 承認（条件なし）</masterLabel>
+            <translation><!-- Unconditionally Approved / 承認（条件なし） --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Approval Requested On --></label>
+        <name>ApprovalRequestedOn__c</name>
+    </fields>
+    <fields>
+        <label><!-- Approval Count --></label>
+        <name>Approval_Count__c</name>
+    </fields>
+    <fields>
+        <label><!-- Approved By --></label>
+        <name>ApprovedBy__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ (Approved By) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Approver Source --></label>
+        <name>Approver_Source__c</name>
+        <picklistValues>
+            <masterLabel>Appendix 3.B.2</masterLabel>
+            <translation><!-- Appendix 3.B.2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Approver</masterLabel>
+            <translation><!-- Approver --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>COA</masterLabel>
+            <translation><!-- COA --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>COA Group</masterLabel>
+            <translation><!-- COA Group --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>COA Single</masterLabel>
+            <translation><!-- COA Single --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Capital Mgmt.</masterLabel>
+            <translation><!-- Capital Mgmt. --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CokeOne</masterLabel>
+            <translation><!-- CokeOne --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CokeOne Gr.2</masterLabel>
+            <translation><!-- CokeOne Gr.2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CokeOne Manager</masterLabel>
+            <translation><!-- CokeOne Manager --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>ELT</masterLabel>
+            <translation><!-- ELT --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Fix Asset Mgr</masterLabel>
+            <translation><!-- Fix Asset Mgr --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Info Copy</masterLabel>
+            <translation><!-- Info Copy --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Info Copy - BOD</masterLabel>
+            <translation><!-- Info Copy - BOD --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Info Copy - Corporate Administration</masterLabel>
+            <translation><!-- Info Copy - Corporate Administration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Info Copy - Manager</masterLabel>
+            <translation><!-- Info Copy - Manager --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manager</masterLabel>
+            <translation><!-- Manager --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Project</masterLabel>
+            <translation><!-- Project --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Requester</masterLabel>
+            <translation><!-- Requester --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Seal</masterLabel>
+            <translation><!-- Seal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Treasury Mgr</masterLabel>
+            <translation><!-- Treasury Mgr --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- COA Acronym --></label>
+        <name>COA_Acronym__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA Function --></label>
+        <name>COA_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA Group --></label>
+        <name>COA_Group__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA L2 Function E --></label>
+        <name>COA_L2_Function_E__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA L3 Function E --></label>
+        <name>COA_L3_Function_E__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA L4 Function E --></label>
+        <name>COA_L4_Function_E__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA L Level --></label>
+        <name>COA_L_Level__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA Location E --></label>
+        <name>COA_Location_E__c</name>
+    </fields>
+    <fields>
+        <label><!-- Company Name --></label>
+        <name>Company_Name__c</name>
+    </fields>
+    <fields>
+        <label><!-- CountDays of Pending Approval --></label>
+        <name>CountDaysofPendingApproval__c</name>
+    </fields>
+    <fields>
+        <label><!-- Department --></label>
+        <name>Department__c</name>
+    </fields>
+    <fields>
+        <label><!-- Do Not Send E-mail --></label>
+        <name>DoNotSendEmail__c</name>
+    </fields>
+    <fields>
+        <label><!-- DuplicateRecord --></label>
+        <name>DuplicateRecord__c</name>
+    </fields>
+    <fields>
+        <label><!-- Email --></label>
+        <name>Email__c</name>
+    </fields>
+    <fields>
+        <label><!-- Active --></label>
+        <name>IsActive__c</name>
+    </fields>
+    <fields>
+        <label><!-- L2 Function --></label>
+        <name>L2_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- L3 Function --></label>
+        <name>L3_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- L4 Function --></label>
+        <name>L4_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5 Function --></label>
+        <name>L5_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6 Function --></label>
+        <name>L6_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7 Function --></label>
+        <name>L7_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- Location --></label>
+        <name>Location__c</name>
+    </fields>
+    <fields>
+        <label><!-- Note --></label>
+        <name>Note__c</name>
+    </fields>
+    <fields>
+        <label><!-- NotifyUsers --></label>
+        <name>NotifyUsers__c</name>
+    </fields>
+    <fields>
+        <label><!-- Notifyagent1firsttime --></label>
+        <name>Notifyagent1firsttime__c</name>
+    </fields>
+    <fields>
+        <label><!-- Notifyagent2firsttime --></label>
+        <name>Notifyagent2firsttime__c</name>
+    </fields>
+    <fields>
+        <label><!-- Notifyagent3firsttime --></label>
+        <name>Notifyagent3firsttime__c</name>
+    </fields>
+    <fields>
+        <label><!-- Notifyuserfirsttime --></label>
+        <name>Notifyuserfirsttime__c</name>
+    </fields>
+    <fields>
+        <label><!-- RFAStage --></label>
+        <name>RFAStage__c</name>
+    </fields>
+    <fields>
+        <label><!-- RFA RecordTypeId --></label>
+        <name>RFA_RecordTypeId__c</name>
+    </fields>
+    <fields>
+        <label><!-- RFA --></label>
+        <name>RFA__c</name>
+        <relationshipLabel><!-- RFA Approvers/Users --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Complete --></label>
+        <name>TECH_IsComplete__c</name>
+    </fields>
+    <fields>
+        <label><!-- DaysPendingApproval --></label>
+        <name>TECH_TimeInAwaitingApproval__c</name>
+    </fields>
+    <fields>
+        <label><!-- Title --></label>
+        <name>Title__c</name>
+    </fields>
+    <fields>
+        <label><!-- User Name --></label>
+        <name>UserName__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ (ユーザ名) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- User Name Unique --></label>
+        <name>User_Name_Unique__c</name>
+    </fields>
+    <fields>
+        <label><!-- isComplete --></label>
+        <name>isComplete__c</name>
+    </fields>
+    <layouts>
+        <layout>Approver Layout</layout>
+        <sections>
+            <label><!-- Approver Information --></label>
+            <section>Approver Information</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- To return to the RFA record, please click the RFA number below. --></label>
+            <section>To return to the RFA record, please click the RFA number below.</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Approver Layout for SystemAdmin</layout>
+        <sections>
+            <label><!-- Approver Information --></label>
+            <section>Approver Information</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- To return to the RFA record, please click the RFA number below. --></label>
+            <section>To return to the RFA record, please click the RFA number below.</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Info Only Copy Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- Reviewer Information --></label>
+            <section>Reviewer Information</section>
+        </sections>
+        <sections>
+            <label><!-- To return to the RFA record, please click the RFA number below. --></label>
+            <section>To return to the RFA record, please click the RFA number below.</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Primary Point of Contact Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- Primary Point of Contact Information --></label>
+            <section>Primary Point of Contact Information</section>
+        </sections>
+        <sections>
+            <label><!-- To return to the RFA record, please click the RFA number below. --></label>
+            <section>To return to the RFA record, please click the RFA number below.</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Approval Details --></nameFieldLabel>
+    <recordTypes>
+        <label>a. Approver</label>
+        <name>RUR_Approver</name>
+    </recordTypes>
+    <recordTypes>
+        <label>c. Info Copy Only</label>
+        <name>RUR_InfoCopyOnly</name>
+    </recordTypes>
+    <recordTypes>
+        <label>b. Primary Point of Contact</label>
+        <name>RUR_PrimaryPointofContact</name>
+    </recordTypes>
+    <startsWith>Consonant</startsWith>
+    <validationRules>
+        <errorMessage><!-- Could not change Approval Order! --></errorMessage>
+        <name>ApprovalOrder_01_NoChange_RFAOutOfDrAft</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Please enter the approval order --></errorMessage>
+        <name>Approval_Order_Error</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Can&apos;t change the user of Approver from COA rules! --></errorMessage>
+        <name>No_Change_for_Approvers_from_COA</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Approval Comment is required when Approval Recommendation is selected as Conditionally Approved or Rejected. --></errorMessage>
+        <name>RUR_VR01_CommentsMandatoryCondApp</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Same User can not be selected more than once as a Agent for the same Approver --></errorMessage>
+        <name>RUR_VR02_UniqueAgentSelection</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Same User can not be selected as Approver and Agent for the Same record --></errorMessage>
+        <name>RUR_VR03_ApproverCannotBeAgent</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- The Approval Recommendation field and the Approval Comments field can only be populated once the approval record has been submitted to the Approver. --></errorMessage>
+        <name>RUR_VR04_NoUpdRecom_in_Circul_Validatio</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Approver or Agent cannot be changed after Approval Recommendation has been received. --></errorMessage>
+        <name>RUR_VR05_AppandAgent_in_Circul_Validatio</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Approval Recommendation must be populated while the RFA is in Circulation. Select a valid Approval Recommendation or Cancel to return to the previous page. --></errorMessage>
+        <name>RUR_VR06_Unblank_Approval_Recommendation</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- The User Name field cannot be changed once the approval record has been submitted to the Approver. --></errorMessage>
+        <name>RUR_VR07_NoUpdApprover_in_Circulation</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Cannot Change Record Type. --></errorMessage>
+        <name>RUR_VR09_Lock_RecordType</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- This order could not be modified. --></errorMessage>
+        <name>RUR_VR10_Lock_ApproverOrder</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Could not change Approver --></errorMessage>
+        <name>RUR_VR11_Lock_ApproverChange</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Approval Comment is NOT required when Approval Recommendation is selected as Unconditionally Approved. --></errorMessage>
+        <name>RUR_VR_CommentsMandatoryCondApp</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- Requester can&apos;t be the approver. --></errorMessage>
+        <name>Requester_Same_To_Approver</name>
+    </validationRules>
+</CustomObjectTranslation>

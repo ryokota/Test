@@ -1,0 +1,578 @@
+<apex:page controller="SOLXYZCSO001.DocumentContentsInfoController">
+<style type="text/css">
+.lc-hover-icon{
+    padding: 10px;
+    cursor: pointer;
+}
+
+.lc-hover-icon:hover{
+    background-color: #b2ffe5;
+    filter:alpha(opacity=80);
+    -moz-opacity: 0.8;
+    opacity: 0.8;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+}
+
+.lc-icon{
+    width: 48px;
+    height: 48px;
+    border: none;
+    margin: 0px 5px 0px 5px;
+}
+
+.lc-icon-disabled{
+    padding: 10px;
+    background-color: #a9a9a9;
+    filter:alpha(opacity=80);
+    -moz-opacity: 0.8;
+    opacity: 0.8;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    cursor: default;
+}
+</style>
+<script type="text/javascript">
+(function(jQuery){
+
+    var data;
+    var actNum = 1;
+    var res;
+    var actSelectId;
+    var mode;
+    var objID;
+
+    // ID
+    var act_1;
+    var act_2;
+    var act_3;
+
+    var tran_num_1;
+    var tran_num_2;
+    var tran_num_3;
+
+    var tran_unit_1;
+    var tran_unit_2;
+    var tran_unit_3;
+
+    var tdIDList;
+
+    var elementIDObj;
+
+    $.fn.lifecycle = function(options){
+
+        act_1 = "LC_ACT_" + Math.floor(Math.random () * 10000000000);
+        act_2 = "LC_ACT_" + Math.floor(Math.random () * 10000000000);
+        act_3 = "LC_ACT_" + Math.floor(Math.random () * 10000000000);
+
+        tran_num_1 = "LC_TRN_NUM_" + Math.floor(Math.random () * 10000000000);
+        tran_num_2 = "LC_TRN_NUM_" + Math.floor(Math.random () * 10000000000);
+        tran_num_3 = "LC_TRN_NUM_" + Math.floor(Math.random () * 10000000000);
+
+        tran_unit_1 = "LC_TRN_UNIT_" + Math.floor(Math.random () * 10000000000);
+        tran_unit_2 = "LC_TRN_UNIT_" + Math.floor(Math.random () * 10000000000);
+        tran_unit_3 = "LC_TRN_UNIT_" + Math.floor(Math.random () * 10000000000);
+
+        tdIDList = new Array();
+
+        elementIDObj = {
+            1 : {
+                act : act_1,
+                num : tran_num_1,
+                unit : tran_unit_1,
+            },
+            2 : {
+                act : act_2,
+                num : tran_num_2,
+                unit : tran_unit_2,
+            },
+            3 : {
+                act : act_3,
+                num : tran_num_3,
+                unit : tran_unit_3,
+            },
+        }
+
+        var r = {
+            Store : "Store",
+            Archive : "Archive",
+            Trash : "Trash",
+            Delete : "Delete",
+            Day : "Day",
+            Week : "Week",
+            Month : "Month",
+            Year : "Year",
+        }
+
+        var options = $.extend({
+            data : null,
+            resource : r,
+            mode : 0,
+            actSelect : "",
+        }, options);
+
+        $(this).empty();
+        data = options.data == null ? {} : options.data;
+        res = options.resource;
+        actSelectId = options.actSelect;
+        mode = options.mode;
+        objID = $(this).attr("id");
+
+        //createLifecycleSelecter(options.resource);
+
+        var $table = $("<table>").attr({
+            "id" : "cso-lc-table"
+        }).css({
+            width : "670px"
+        });
+
+        var $tr_row1 = $("<tr>");
+        var $tr_row2 = $("<tr>");
+        var $tr_row3 = $("<tr>");
+
+        var tdList = new Array();
+        for(var i = 0; i < 9; i++){
+            var tdID = "LC_TD_" + i + Math.floor(Math.random () * 10000000000);
+            tdIDList.push(tdID);
+            tdList.push($("<td>").css({
+                "text-align":"center",
+                "width" : "160px",
+                "height" : "100px",
+                "padding" : "0px 30px 0px 30px",
+            }).attr("id", tdID));
+        }
+
+        var $div;
+        var $actImg;
+        var $actText;
+
+        var $arrowImg;
+        var $arrowNum;
+        var $arrowUnit;
+
+        // 保管セル
+        $actImg = $("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/lc-storeNew.png')}").css({
+            width : "48px",
+            height : "48px",
+            border : "none"
+        });
+        $actText = $("<div>").css({
+            "text-align" : "center"
+        }).html(res.Store);
+        tdList[1].append($actImg).append($actText);
+
+        if(mode == 1 || mode == 2 || mode == 0 && data.length > 0){
+            // 1→2アクションへの矢印
+            $arrowNum = getNum(tran_num_1);
+            $arrowUnit = getUnit(tran_unit_1);
+            $arrowImg = $("<img>").attr("src","{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/ActionArrow0.png')}").css({
+                border : "none"
+            });
+            if(mode == 0){
+                var $fixDateDiv = $("<div>").attr("id", tran_num_1);
+                tdList[2].append($fixDateDiv).append($("<br>")).append($arrowImg);
+            }else if(mode == 2){
+                var $fixDateInput = $("<input>").attr({
+                    "type" : "text",
+                    "id" : tran_num_1,
+                }).addClass("required shortWidth");
+                tdList[2].append($fixDateInput).append($("<br>")).append($arrowImg);
+            }else{
+                tdList[2].append($arrowNum).append($arrowUnit).append($("<br>")).append($arrowImg);
+            }
+
+            // 1アクション目
+            $actImg = addActDom(act_1, 1);
+            $actText = $("<div>");
+            $div = $("<div>");
+            if(mode != 0){
+                $div.addClass("lc-hover-icon").css({
+                    "position" : "relative"
+                })
+            }
+            $div.append($actImg).append($actText);
+            tdList[5].append($div);
+        }
+
+        $tr_row1.append(tdList[0]).append(tdList[1]).append(tdList[2]);
+        $tr_row2.append(tdList[3]).append(tdList[4]).append(tdList[5]);
+        $tr_row3.append(tdList[6]).append(tdList[7]).append(tdList[8]);
+        $table.append($tr_row1).append($tr_row2).append($tr_row3);
+        $(this).append($table);
+
+        // 編集モード
+        if(options.data){
+
+            // データ展開
+            for(var i = 0; i < data.length; i++){
+
+                if(!data[i].action) break;
+
+                actNum = i + 1;
+                if(mode == 0){
+                    $("#" + elementIDObj[actNum].num).html(data[i].time);
+                }else{
+                    $("#" + elementIDObj[actNum].num).val(data[i].time);
+                    $("#" + elementIDObj[actNum].unit).val(data[i].date_unit);
+                }
+
+                selectAct(data[i].action);
+            }
+        }
+
+        if(mode == 2){
+            $("#" + tran_num_1).datepicker({minDate:{!today}, dateFormat : "{!datePickerFormat}"});
+            $("#" + tran_num_2).datepicker({minDate:{!today}, dateFormat : "{!datePickerFormat}"});
+            $("#" + tran_num_3).datepicker({minDate:{!today}, dateFormat : "{!datePickerFormat}"});
+        }
+
+        return this;
+    };
+
+    function getUnit(id){
+        $select = $("<select>").attr("id", id);
+
+        $select.append($("<option>").val("0").html(res.Day));
+        $select.append($("<option>").val("1").html(res.Week));
+        $select.append($("<option>").val("2").html(res.Month));
+        $select.append($("<option>").val("3").html(res.Year));
+
+        return $select;
+    }
+
+    function getNum(id){
+        var $arrowNum = $("<input>").attr({
+            "type" : "text",
+            "maxlength" : "3",
+            "id" : id,
+        }).addClass("required").css({
+            "width" : "30px",
+            "margin-right" : "5px",
+        });
+        return $arrowNum;
+    }
+
+    function addActDom(act_id, act_num){
+        var $actImg = $("<img>").attr({
+            "id" : act_id,
+            "src" : "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/ActionUndefinedNew.png')}",
+        }).css({
+            width : "48px",
+            height : "48px",
+            border : "none"
+        }).click(function(e){
+
+            if(mode == 0) return;
+
+            actNum = act_num;
+
+            switch(act_num){
+            case 1:
+                // 第1アクション
+                actSelectStatus(true, true, true);
+                break;
+            case 2:
+                // 第2アクション
+                var actType = $("#" + act_1).attr("lcactval");
+                if(actType == 1){
+                    actSelectStatus(false, true, true);
+                }else if(actType == 2){
+                    actSelectStatus(false, false, true);
+                }
+                break;
+            case 3:
+                // 第3アクション
+                actSelectStatus(false, false, true);
+                break;
+            }
+
+            $("#" + actSelectId).csoBalloon({
+                width : $("#" + actSelectId).width(),
+                height : 100,
+                posX : e.pageX + 90,
+                posY : e.pageY - 70,
+                show : true,
+                udlr : -1,
+                align : 2,
+                zIndex : 10000,
+            });
+
+            // include元のページでasrtを宣言する
+            if(spaceAsrt != null){
+                if(spaceAsrt == 'my'){
+                    $(".selectArch").css("display", "none");
+                    $("#lifecycleviewSelectorTable").parent('div').css("width", "175px");
+                } else {
+                    $(".selectArch").css("display", "block");
+                    $("#lifecycleviewSelectorTable").parent('div').css("width", "250px");
+                }
+            }
+            $("[datatype='csoBalloon']").children("div:empty").css("display", "none");
+        });
+
+        return $actImg;
+    }
+
+    function actSelectStatus(isArc, isTrash, isDel){
+        // すべてのクラスを削除
+        $("#[lctype]").each(function(){
+            $(this).removeClass("lc-hover-icon");
+            $(this).removeClass("lc-icon-disabled");
+        });
+        // クラスを設定
+        $("#[lctype=1]").addClass(isArc ? "lc-hover-icon" : "lc-icon-disabled");
+        $("#[lctype=2]").addClass(isTrash ? "lc-hover-icon" : "lc-icon-disabled");
+        $("#[lctype=3]").addClass(isDel ? "lc-hover-icon" : "lc-icon-disabled");
+    }
+
+    // 使えないので削除予定
+    function createLifecycleSelecter(r){
+        $table = $("<table>").attr({
+            "datatype" : "lifecycle-act-selector",
+        }).css({
+            "display" : "none"
+        });
+        $tr = $("<tr>");
+        $td_1 = $("<td>").css({"text-align" : "center"}).append(createLifecycleSelectorDiv(r.Archive, 0, "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/lc-archNew.png')}"));
+        $td_2 = $("<td>").css({"text-align" : "center"}).append(createLifecycleSelectorDiv(r.Trash, 1, "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/lc-trashNew.png')}"));
+        $td_3 = $("<td>").css({"text-align" : "center"}).append(createLifecycleSelectorDiv(r.Delete, 2, "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/lc-delNew.png')}"));
+
+        $table.append($td_1).append($td_2).append($td_3);
+
+        $("body").prepend($table);
+    }
+
+    // 使えない削除予定
+    function createLifecycleSelectorDiv(text, val, url){
+        $div = $("<div>").addClass("lc-hover-icon").attr("onclick", "alert(3);");
+
+        $img = $("<img>").attr("src", url).addClass("lc-icon");
+        $text_div = $("<div>").css({"padding-top":"5px"}).html(text);
+
+        $div.append($img).append($text_div);
+
+        return $div;
+    }
+
+    function selectAct(val){
+        actClean(actNum);
+        switch(actNum){
+        case 1:
+            // 選択したアクションに表示を変更
+            $("#" + act_1).attr({
+                "src" : getActImg(val),
+                "lcactval" : val,
+            });
+            $("#" + act_1).next().html(getActText(val));
+
+            if(mode != 0){
+                // アクションの削除アイコンの追加
+                $delImg = getDelImg(act_1, actNum);
+                $("#" + act_1).parent().append($delImg);
+            }
+
+            if(val != 3){
+
+                if(mode == 1 || mode == 2 || mode == 0 && actNum < data.length){
+                    // 2番目のアクション矢印生成
+                    var $arrowNum = getNum(tran_num_2);
+                    var $arrowUnit = getUnit(tran_unit_2);
+                    var $arrowImg = $("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/ActionArrow1.png')}").css({
+                        border : "none"
+                    });
+                    if(mode == 0){
+                        var $fixDateDiv = $("<div>").attr("id", tran_num_2);
+                        $("#" + tdIDList[8]).append($arrowImg).append($("<br>")).append($fixDateDiv);
+                    }else if(mode == 2){
+                        var $fixDateInput = $("<input>").attr({
+                            "type" : "text",
+                            "id" : tran_num_2,
+                        }).addClass("required shortWidth");
+                        $("#" + tdIDList[8]).append($arrowImg).append($("<br>")).append($fixDateInput);
+                    }else{
+                        $("#" + tdIDList[8]).append($arrowImg).append($("<br>")).append($arrowNum).append($arrowUnit);
+                    }
+
+                    // 2番目のアクションを追加表示にする
+                    var $actImg = addActDom(act_2, 2);
+                    var $actText = $("<div>");
+                    var $div = $("<div>");
+                    if(mode != 0){
+                        $div.addClass("lc-hover-icon").css({
+                            "position" : "relative"
+                        })
+                    }
+                    $div.append($actImg).append($actText);
+                    $("#" + tdIDList[7]).append($div);
+
+                    if(mode == 2){
+                        $("#" + tran_num_2).datepicker({minDate:{!today}, dateFormat : "{!datePickerFormat}"});
+                    }
+                }
+
+            }
+
+            break;
+        case 2:
+            // 選択したアクションに表示を変更
+            $("#" + act_2).attr({
+                "src" : getActImg(val),
+                "lcactval" : val,
+            });
+            $("#" + act_2).next().html(getActText(val));
+
+            if(mode != 0){
+                // アクションの削除アイコンの追加
+                $delImg = getDelImg(act_2, actNum);
+                $("#" + act_2).parent().append($delImg);
+            }
+
+            if(val != 3){
+
+                if(mode == 1 || mode == 2 || mode == 0 && actNum < data.length){
+                    // 3番目のアクション矢印生成
+                    var $arrowNum = getNum(tran_num_3);
+                    var $arrowUnit = getUnit(tran_unit_3);
+                    var $arrowImg = $("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/ActionArrow2.png')}").css({
+                        border : "none"
+                    });
+                    if(mode == 0){
+                        var $fixDateDiv = $("<div>").attr("id", tran_num_3);
+                        $("#" + tdIDList[6]).append($arrowImg).append($("<br>")).append($fixDateDiv);
+                    }else if(mode == 2){
+                        var $fixDateInput = $("<input>").attr({
+                            "type" : "text",
+                            "id" : tran_num_3,
+                        }).addClass("required shortWidth");
+                        $("#" + tdIDList[6]).append($arrowImg).append($("<br>")).append($fixDateInput);
+                    }else{
+                        $("#" + tdIDList[6]).append($arrowImg).append($("<br>")).append($arrowNum).append($arrowUnit);
+                    }
+
+                    // 3番目のアクションを追加表示にする
+                    var $actImg = addActDom(act_3, 3);
+                    var $actText = $("<div>");
+                    var $div = $("<div>");
+                    if(mode != 0){
+                        $div.addClass("lc-hover-icon").css({
+                            "position" : "relative"
+                        })
+                    }
+                    $div.append($actImg).append($actText);
+                    $("#" + tdIDList[3]).append($div);
+
+                    if(mode == 2){
+                        $("#" + tran_num_3).datepicker({minDate:{!today}, dateFormat : "{!datePickerFormat}"});
+                    }
+                }
+
+            }
+
+            break;
+        case 3:
+            // 選択したアクションに表示を変更
+            $("#" + act_3).attr({
+                "src" : getActImg(val),
+                "lcactval" : val,
+            });
+            $("#" + act_3).next().html(getActText(val));
+
+            if(mode != 0){
+                // アクションの削除アイコンの追加
+                $delImg = getDelImg(act_3, actNum);
+                $("#" + act_3).parent().append($delImg);
+            }
+            break;
+        }
+
+        $(this).csoBalloonHide();
+    }
+
+    $.fn.lcSelectAct = function(val){
+        if($(this).hasClass("lc-icon-disabled")){
+            // 選択不可項目なため、何もしない
+            return;
+        }
+        selectAct(val);
+    }
+
+    function getDelImg(act_id, act_num){
+        var $delImg = $("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/cancel.png')}").css({
+            "position" : "absolute",
+            "top" : "10px",
+            "right" : "10px",
+        }).click(function(){
+            actClean(act_num);
+            $("#" + act_id).parent().html(addActDom(act_id, act_num));
+            $("#" + act_id).parent().append($("<div>"));
+        });
+        return $delImg;
+    }
+
+    function actClean(val){
+        switch(val){
+        case 1:
+            $("#" + tdIDList[3]).empty();
+            $("#" + tdIDList[6]).empty();
+            $("#" + tdIDList[7]).empty();
+            $("#" + tdIDList[8]).empty();
+            break;
+        case 2:
+            $("#" + tdIDList[3]).empty();
+            $("#" + tdIDList[6]).empty();
+            break;
+        case 3:
+            break;
+        }
+    }
+
+    function getActImg(val){
+        switch(val - 0){
+        case 1:
+            return "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/lc-archNew.png')}";
+        case 2:
+            return "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/lc-trashNew.png')}";
+        case 3:
+            return "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/lc-delNew.png')}";
+        }
+    }
+
+    function getActText(val){
+        switch(val - 0){
+        case 1:
+            return res.Archive;
+        case 2:
+            return res.Trash;
+        case 3:
+            return res.Delete;
+        }
+    }
+
+    $.fn.getLcData = function(){
+        var l = new Array();
+
+        for(var i = 0; i < 3; i++){
+            var lcData = new Object();
+            lcData.action = $("#" + elementIDObj[i + 1].act).attr("lcactval");
+            lcData.time = $("#" + elementIDObj[i + 1].num).val();
+            lcData.date_unit = $("#" + elementIDObj[i + 1].unit).val();
+            l.push(lcData);
+        }
+
+        return l;
+
+    }
+
+    $.fn.getTimeObject = function(idx){
+        return $("#" + elementIDObj[idx + 1].num);
+    }
+
+    $.fn.getActionObject = function(idx){
+        return $("#" + elementIDObj[idx + 1].act);
+    }
+})(jQuery);
+
+</script>
+</apex:page>

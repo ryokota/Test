@@ -1,0 +1,805 @@
+<apex:page showHeader="false" sidebar="false" controller="SOLXYZCSO001.SpacePortalController">
+<script type="text/javascript">
+/*
+ * Initializing context menu for CSO
+ */
+function grdContextMenuInit(){
+    //hiding CSO context menu
+    hideCsoContextMenu();
+
+    //hiding original context menu
+
+     $("#listView1").bind("contextmenu", function(){
+        return false;
+    });
+    $("#contextMenulist").bind("contextmenu", function(){
+        return false;
+    });
+
+
+    csoBindClickEvent();
+
+    contextMenuEnable();
+
+}
+
+
+function csoBindClickEvent(){
+
+    $("#contextMenuDownload").bind("click", function(){
+        if ($("#contextMenuDownload").attr("disabled")) {return;}
+        contents_download();
+    });
+
+    $("#contextMenuPlay").bind("click", function(){
+        if ($("#contextMenuPlay").attr("disabled")) {return;}
+        contextMenuPlay();
+    });
+
+    $("#contextMenuDelivery").bind("click", function(){
+        if ($("#contextMenuDelivery").attr("disabled")) {return;}
+        contents_delivery();
+    });
+
+    $("#contextMenuOnlineEdit").bind("click", function(){
+    if ($("#contextMenuOnlineEdit").attr("disabled")) {return;}
+        context_onlineEdit();
+    });
+
+    $("#contextMenuOnlineReference").bind("click", function(){
+    if ($("#contextMenuOnlineReference").attr("disabled")) {return;}
+        context_onlineReference();
+    });
+
+    $("#contextMenuMoveout").bind("click", function(){
+        if ($("#contextMenuMoveout").attr("disabled")) {return;}
+        contents_moveout();
+    });
+
+    $("#contextMenuEdit").bind("click", function(){
+        if ($("#contextMenuEdit").attr("disabled")) {return;}
+        contextMenuEdit(true);
+    });
+
+    $("#contextMenuDelete").bind("click", function(){
+        if ($("#contextMenuDelete").attr("disabled")) {return;}
+        contextMenuDelete();
+    });
+
+    $("#contextMenuUserManage").bind("click", function(){
+        if ($("#contextMenuUserManage").attr("disabled")) {return;}
+        contextMenuEditSpace(true);
+    });
+
+    $("#contextMenuArchive").bind("click", function(){
+        if ($("#contextMenuArchive").attr("disabled")) {return;}
+        contents_archive();
+    });
+
+    $("#contextMenuCheckout").bind("click", function(){
+        if ($("#contextMenuCheckout").attr("disabled")) {return;}
+        contextMenuCheckout();
+    });
+
+    $("#contextMenuCheckoutCancel").bind("click", function(){
+        if ($("#contextMenuCheckoutCancel").attr("disabled")) {return;}
+        contextMenuCheckoutCancel();
+    });
+
+    $("#contextMenuCheckin").bind("click", function(){
+        if ($("#contextMenuCheckin").attr("disabled")) {return;}
+        contextMenuCheckin();
+    });
+
+    $("#contextMenuRemove").bind("click", function(){
+        if ($("#contextMenuRemove").attr("disabled")) {return;}
+        contextMenuRemove();
+    });
+
+    $("#contextMenuRecovery").bind("click", function(){
+        if ($("#contextMenuRecovery").attr("disabled")) {return;}
+        contextMenuRecovery();
+    });
+
+    $("#contextMenuSalvage").bind("click", function(){
+        if ($("#contextMenuSalvage").attr("disabled")) {return;}
+        contextMenuSalvage();
+    });
+
+    $("#contextMenuWorkflow").bind("click", function(){
+        if ($("#contextMenuWorkflow").attr("disabled")) {return;}
+        startWorkflow(true);
+    });
+
+    $("#contextMenuTakeOut").bind("click", function(){
+        if ($("#contextMenuTakeOut").attr("disabled")) {return;}
+        Contents_TakeOut();
+    });
+
+    $("#contextMenuCopy").bind("click", function(){
+        if ($("#contextMenuCopy").attr("disabled")) {return;}
+        contents_copy(null, null,null);
+    });
+
+    $("#contextMenuSymboliclink").bind("click", function(){
+        if ($("#contextMenuSymboliclink").attr("disabled")) {return;}
+        createSymboliclink();
+    });
+
+    $("#contextMenuSpaceRule").bind("click", function(){
+        if ($("#contextMenuSpaceRule").attr("disabled")) {return;}
+        spaceRule(true);
+    });
+
+    $("#contextMenuSpaceHistory").bind("click", function() {
+        if ($("#contextMenuSpaceHistory").attr("disabled")) {return;}
+        spaceHistory(true);
+    });
+
+    $("#contextMenuLifeCycle").bind("click", function(){
+        if ($("#contextMenuLifeCycle").attr("disabled")) {return;}
+        callLifeCycle(true);
+    });
+
+    $("#contextMenuLifeCycleZwei").bind("click", function(){
+        if ($("#contextMenuLifeCycleZwei").attr("disabled")) {return;}
+        lifeCycleZwei(true);
+    });
+
+    $("#contextMenuWatermark").bind("click", function(){
+        if ($("#contextMenuWatermark").attr("disabled")) {return;}
+        watermark(true);
+    });
+
+    $("#contextMenuPdfSecurity").bind("click", function(){
+        if ($("#contextMenuPdfSecurity").attr("disabled")) {return;}
+        pdfSecurity(true);
+    });
+
+    $("#contextMenuDisclose").bind("click", function(){
+        if ($("#contextMenuDisclose").attr("disabled")) {return;}
+        disclose(true);
+    });
+/*
+    $("#contextMenuPublishContents").bind("click", function(){
+        if ($("#contextMenuPublishContents").attr("disabled")) {return;}
+        publishContents();
+    });
+*/
+    $("#contextMenuUnPublishContents").bind("click", function(){
+        if ($("#contextMenuUnPublishContents").attr("disabled")) {return;}
+        unPublishContents();
+    });
+
+    hideCsoContextMenu();
+}
+
+
+/*
+ * showContextMenu
+ *
+ * chose context menu for the space
+ *
+ *
+ * space:space id
+ *
+ */
+function showCsoContextMenu(space, flgSecurityStatus){
+/*
+    1:myspace
+    2:company
+    3:garbage
+    4:archive
+    5:collaboration
+    6:tag
+    7:search
+ */
+
+    switch(space){
+        //my space
+        case 1:
+
+             $('#contextMenuOnlineEdit').show();
+             $('#contextMenuOnlineReference').show();
+             $('#contextMenuDownload').show();
+             $("#contextMenuPlay").show();
+             $('#contextMenuDelivery').show();
+             $('#contextMenuMoveout').show();
+             $('#contextMenuCopy').show();
+//           $('#contextMenuTakeOut').show();
+             $('#contextMenuEdit').show();
+             $('#contextMenuDelete').show();
+             $('#contextMenuRemove').hide();
+             $('#contextMenuRecovery').hide();
+             $('#contextMenuSalvage').hide();
+             $('#contextMenuArchive').hide();
+             $('#contextMenuUserManage').show();
+             $('#contextMenuCheckout').show();
+             $('#contextMenuCheckoutCancel').show();
+             $('#contextMenuCheckin').show();
+             $('#contextMenuWorkflow').show();
+             $('#contextMenuSpaceRule').show();
+             $("#contextMenuSpaceHistory").show();
+             $("#contextMenuLifeCycle").show();
+             $("#contextMenuLifeCycleZwei").show();
+             $("#contextMenuDisclose").show();
+             $("#contextMenuWatermark").show();
+             $("#contextMenuPdfSecurity").show();
+             $("#contextMenuPublishContents").show();
+             $("#contextMenuUnPublishContents").show();
+             $("#contextMenuSymboliclink").show();
+
+             $(".separatorBar").show();
+
+            break;
+        //company
+        case 2:
+
+             $('#contextMenuOnlineEdit').show();
+             $('#contextMenuOnlineReference').show();
+             $('#contextMenuDownload').show();
+             $("#contextMenuPlay").show();
+             $('#contextMenuDelivery').show();
+             $('#contextMenuMoveout').show();
+             $('#contextMenuCopy').show();
+//           $('#contextMenuTakeOut').show();
+             $('#contextMenuEdit').show();
+             $('#contextMenuDelete').show();
+             $('#contextMenuRemove').hide();
+             $('#contextMenuRecovery').hide();
+             $('#contextMenuSalvage').hide();
+             $('#contextMenuArchive').show();
+             $('#contextMenuUserManage').show();
+             $('#contextMenuCheckout').show();
+             $('#contextMenuCheckoutCancel').show();
+             $('#contextMenuCheckin').show();
+             $('#contextMenuWorkflow').show();
+             $('#contextMenuSpaceRule').show();
+             $("#contextMenuSpaceHistory").show();
+             $("#contextMenuLifeCycle").show();
+             $("#contextMenuLifeCycleZwei").show();
+             $("#contextMenuDisclose").show();
+             $("#contextMenuWatermark").show();
+             $("#contextMenuPdfSecurity").show();
+             $("#contextMenuPublishContents").show();
+             $("#contextMenuUnPublishContents").show();
+             $("#contextMenuSymboliclink").show();
+
+             $(".separatorBar").show();
+
+            break;
+
+        //garbages
+        case 3:
+             $('#contextMenuOnlineEdit').hide();
+             $('#contextMenuOnlineReference').hide();
+             $('#contextMenuDownload').hide();
+             $("#contextMenuPlay").hide();
+             $('#contextMenuMoveout').hide();
+             $('#contextMenuDelivery').hide();
+             $('#contextMenuMoveout').hide();
+             $('#contextMenuCopy').hide();
+             $('#contextMenuTakeOut').hide();
+             $('#contextMenuEdit').show();
+             $('#contextMenuDelete').hide();
+             $('#contextMenuRemove').show();
+             $('#contextMenuRecovery').show();
+             $('#contextMenuSalvage').hide();
+             $('#contextMenuArchive').hide();
+             $('#contextMenuUserManage').hide();
+             $('#contextMenuCheckout').hide();
+             $('#contextMenuCheckoutCancel').hide();
+             $('#contextMenuCheckin').hide();
+             $('#contextMenuWorkflow').hide();
+             $('#contextMenuSpaceRule').hide();
+             $("#contextMenuSpaceHistory").hide();
+             $("#contextMenuLifeCycle").hide();
+             $("#contextMenuLifeCycleZwei").hide();
+             $("#contextMenuDisclose").hide();
+             $("#contextMenuWatermark").hide();
+             $("#contextMenuPdfSecurity").hide();
+             $("#contextMenuPublishContents").hide();
+             $("#contextMenuUnPublishContents").hide();
+             $("#contextMenuSymboliclink").hide();
+
+             $(".separatorBar").hide();
+
+             break;
+
+        //archive
+        case 4:
+             $('#contextMenuOnlineEdit').hide();
+             $('#contextMenuOnlineReference').hide();
+             $('#contextMenuDownload').hide();
+             $("#contextMenuPlay").hide();
+             $('#contextMenuDelivery').hide();
+             $('#contextMenuMoveout').hide();
+             $('#contextMenuCopy').hide();
+             $('#contextMenuTakeOut').hide();
+             $('#contextMenuEdit').show();
+             $('#contextMenuDelete').show();
+             $('#contextMenuRemove').hide();
+             $('#contextMenuRecovery').hide();
+             $('#contextMenuSalvage').show();
+             $('#contextMenuArchive').hide();
+             $('#contextMenuUserManage').hide();
+             $('#contextMenuCheckout').hide();
+             $('#contextMenuCheckoutCancel').hide();
+             $('#contextMenuCheckin').hide();
+             $('#contextMenuWorkflow').hide();
+             $('#contextMenuSpaceRule').hide();
+             $("#contextMenuSpaceHistory").show();
+             $("#contextMenuLifeCycle").hide();
+             $("#contextMenuLifeCycleZwei").hide();
+             $("#contextMenuDisclose").hide();
+             $("#contextMenuWatermark").hide();
+             $("#contextMenuPdfSecurity").hide();
+             $("#contextMenuPublishContents").hide();
+             $("#contextMenuUnPublishContents").hide();
+             $("#contextMenuSymboliclink").hide();
+
+             $(".separatorBar").hide();
+
+
+            break;
+
+        //collaboration
+        case 5:
+             $('#contextMenuOnlineEdit').show();
+             $('#contextMenuOnlineReference').show();
+             $('#contextMenuDownload').show();
+             $("#contextMenuPlay").show();
+             $('#contextMenuDelivery').show();
+             $('#contextMenuMoveout').show();
+             $('#contextMenuCopy').show();
+//           $('#contextMenuTakeOut').show();
+             $('#contextMenuEdit').show();
+             $('#contextMenuDelete').show();
+             $('#contextMenuRemove').hide();
+             $('#contextMenuRecovery').hide();
+             $('#contextMenuSalvage').hide();
+             $('#contextMenuArchive').show();
+             $('#contextMenuUserManage').show();
+             $('#contextMenuCheckout').show();
+             $('#contextMenuCheckoutCancel').show();
+             $('#contextMenuCheckin').show();
+             $('#contextMenuWorkflow').show();
+             $('#contextMenuSpaceRule').show();
+             $("#contextMenuSpaceHistory").show();
+             $("#contextMenuLifeCycle").show();
+             $("#contextMenuLifeCycleZwei").show();
+             $("#contextMenuDisclose").show();
+             $("#contextMenuWatermark").show();
+             $("#contextMenuPdfSecurity").show();
+             $("#contextMenuPublishContents").show();
+             $("#contextMenuUnPublishContents").show();
+             $("#contextMenuSymboliclink").show();
+
+             $(".separatorBar").show();
+
+            break;
+
+        //tag
+        case 6:
+             $('#contextMenuOnlineEdit').show();
+             $('#contextMenuOnlineReference').show();
+             $('#contextMenuDownload').show();
+             $("#contextMenuPlay").show();
+             $('#contextMenuDelivery').show();
+             $('#contextMenuMoveout').show();
+             $('#contextMenuCopy').show();
+//           $('#contextMenuTakeOut').show();
+             $('#contextMenuEdit').show();
+             $('#contextMenuDelete').show();
+             $('#contextMenuRemove').show();
+             $('#contextMenuRecovery').show();
+             $('#contextMenuSalvage').show();
+             $('#contextMenuArchive').show();
+             $('#contextMenuUserManage').hide();
+             $('#contextMenuCheckout').show();
+             $('#contextMenuCheckoutCancel').show();
+             $('#contextMenuCheckin').show();
+             $('#contextMenuWorkflow').show();
+             $('#contextMenuSpaceRule').hide();
+             $("#contextMenuSpaceHistory").hide();
+             $("#contextMenuLifeCycle").hide();
+             $("#contextMenuLifeCycleZwei").hide();
+             $("#contextMenuDisclose").hide();
+             $("#contextMenuWatermark").hide();
+             $("#contextMenuPdfSecurity").hide();
+             $("#contextMenuPublishContents").hide();
+             $("#contextMenuUnPublishContents").hide();
+             $("#contextMenuSymboliclink").show();
+
+             $(".separatorBar").show();
+
+            break;
+
+        //search
+        case 7:
+             $('#contextMenuOnlineEdit').show();
+             $('#contextMenuOnlineReference').show();
+             $('#contextMenuDownload').show();
+             $("#contextMenuPlay").show();
+             $('#contextMenuDelivery').show();
+             $('#contextMenuMoveout').show();
+             $('#contextMenuCopy').show();
+//           $('#contextMenuTakeOut').show();
+             $('#contextMenuEdit').show();
+             $('#contextMenuDelete').show();
+             $('#contextMenuRemove').show();
+             $('#contextMenuRecovery').show();
+             $('#contextMenuSalvage').show();
+             $('#contextMenuArchive').show();
+             $('#contextMenuUserManage').show();
+             $('#contextMenuCheckout').show();
+             $('#contextMenuCheckoutCancel').show();
+             $('#contextMenuCheckin').show();
+             $('#contextMenuWorkflow').show();
+             $('#contextMenuSpaceRule').show();
+             $("#contextMenuSpaceHistory").show();
+             $("#contextMenuLifeCycle").hide();
+             $("#contextMenuLifeCycleZwei").hide();
+             $("#contextMenuDisclose").hide();
+             $("#contextMenuWatermark").hide();
+             $("#contextMenuPdfSecurity").hide();
+             $("#contextMenuPublishContents").show();
+             $("#contextMenuUnPublishContents").show();
+             $("#contextMenuSymboliclink").show();
+
+             $(".separatorBar").show();
+
+            break;
+
+        default:
+            break;
+    }
+
+    if($("#galleryDiv").css('display') == 'block') {
+        //ギャラリー表示で不要なメニューを制限する
+//        $('#contextMenuSymboliclink').hide();
+        $('#contextMenuOnlineEdit').hide();
+        $('#contextMenuOnlineReference').hide();
+        $("#contextMenuPlay").hide();
+        $('#contextMenuUserManage').hide();
+        $('#contextMenuSpaceRule').hide();
+        $("#contextMenuSpaceHistory").hide();
+        $("#contextMenuLifeCycle").hide();
+        $("#contextMenuLifeCycleZwei").hide();
+        $("#contextMenuDisclose").hide();
+        $("#contextMenuWatermark").hide();
+        $("#contextMenuPdfSecurity").hide();
+    }
+
+    if(actionFromGallery){
+        // ギャラリー表示のメニューから動作を行った後
+        if(actionFromGalleryFinished){
+            // ギャラリー表示のメニューから動作を行った後
+            actionFromGallery = false;
+            actionFromGalleryFinished = false;
+        }else{
+            // ギャラリー表示からメニューを呼ぶ場合
+            $("#contextMenulist").show();
+        }
+    }else{
+        // 通常の場合
+        $("#contextMenulist").show();
+        // フラグリセット
+        actionFromGallery = false;
+        actionFromGalleryFinished = false;
+    }
+    $(".contextMenuHeader").css("background-color","#eaf4fd");
+
+}
+
+function hideCsoContextMenu(){
+    $('#spaceChatterBindFloatDiv').hide();
+    $("#contextMenulist").hide();
+    $("#invUserFloatDiv").hide();
+    $("#spaceRuleFloatDiv").hide();
+    $("#passwordFloatDiv").hide();
+    $("#lifeCycleFloatDiv").hide();
+    $("#lifecycleZweiFloatDiv").hide();
+    $("#contextMenuDisclose").hide();
+    $("#watermarkFloatDiv").hide();
+    $("#pdfSecurityFloatDiv").hide();
+    $("#digimarkFloatDiv").hide();
+}
+
+function itemDisable(sectionName){
+//    $(sectionName).removeClass("contextMenuEnable").addClass("contextMenuDisable").attr("disabled","disabled");
+    $(sectionName).hide();
+    $(sectionName).removeClass("contextMenuEnable").addClass("contextMenuDisable");
+}
+
+function itemEable(sectionName){
+//    $(sectionName).removeClass("contextMenuDisable").addClass("contextMenuEnable").removeAttr("disabled");
+    $(sectionName).removeClass("contextMenuDisable").addClass("contextMenuEnable");
+    $(sectionName).show();
+
+}
+
+/**
+ * メニュー制御 (プロファイルによるメニュー制御はも含む)
+ */
+function contextMenuEnable(cmAuth){
+    var data = act(cmAuth);
+
+    if (!data.download) {
+        itemDisable("#contextMenuDownload");
+    }else{
+        itemEable("#contextMenuDownload");
+    }
+
+    if (!data.replay) {
+        itemDisable("#contextMenuPlay");
+    }else{
+        itemEable("#contextMenuPlay");
+    }
+
+    if ((!data.delivery)||('{!cso_userInfo.proAuth_delivery_standard}' != 'true')) {
+        itemDisable("#contextMenuDelivery");
+    }else{
+        itemEable("#contextMenuDelivery");
+    }
+
+    if (!data.editonline) {
+        itemDisable("#contextMenuOnlineEdit");
+    }else{
+        itemEable("#contextMenuOnlineEdit");
+    }
+    
+    if (!data.referenceonline && !data.viewDocument) {
+    	itemDisable("#contextMenuOnlineReference");
+    }else{
+    	itemEable("#contextMenuOnlineReference");
+    }
+    if (!data.move) {
+        itemDisable("#contextMenuMoveout");
+    }else{
+        itemEable("#contextMenuMoveout");
+    }
+
+    if (!data.edit) {
+        itemDisable("#contextMenuEdit");
+    }else{
+        itemEable("#contextMenuEdit");
+    }
+
+    if (!data.del) {
+        itemDisable("#contextMenuDelete");
+    }else{
+        itemEable("#contextMenuDelete");
+    }
+
+    if (!data.manage) {
+        itemDisable("#contextMenuUserManage");
+    }else{
+        itemEable("#contextMenuUserManage");
+    }
+
+    if (!data.checkout) {
+        itemDisable("#contextMenuCheckout");
+    }else{
+        itemEable("#contextMenuCheckout");
+    }
+
+    if (!data.cancelcheckout) {
+        itemDisable("#contextMenuCheckoutCancel");
+    }else{
+        itemEable("#contextMenuCheckoutCancel");
+    }
+
+    if (!data.checkin) {
+        itemDisable("#contextMenuCheckin");
+    }else{
+        itemEable("#contextMenuCheckin");
+    }
+
+    if (!data.archive) {
+        itemDisable("#contextMenuArchive");
+    }else{
+        itemEable("#contextMenuArchive");
+    }
+
+    if (!data.recover) {
+        itemDisable("#contextMenuRecovery");
+    }else{
+        itemEable("#contextMenuRecovery");
+    }
+
+    if (!data.remove) {
+        itemDisable("#contextMenuRemove");
+    }else{
+        itemEable("#contextMenuRemove");
+    }
+
+    if (!data.salvage) {
+        itemDisable("#contextMenuSalvage");
+    }else{
+        itemEable("#contextMenuSalvage");
+    }
+
+    if ((!data.workflow)||('{!cso_userInfo.proAuth_workflow_standard}' != 'true')) {
+        itemDisable("#contextMenuWorkflow");
+    }else{
+        itemEable("#contextMenuWorkflow");
+    }
+    if(!data.copy){
+        itemDisable("#contextMenuCopy");
+    }else{
+        itemEable("#contextMenuCopy");
+    }
+    if(!data.rule){
+        itemDisable("#contextMenuSpaceRule");
+    }else{
+        itemEable("#contextMenuSpaceRule");
+    }
+    if(!data.symbolicLink){
+        itemDisable("#contextMenuSymboliclink");
+    }else{
+        itemEable("#contextMenuSymboliclink");
+    }
+    if (!data.spaceHistory) {
+        itemDisable("#contextMenuSpaceHistory");
+    } else {
+        itemEable("#contextMenuSpaceHistory");
+    }
+
+    if(data.hasSpace){
+         itemDisable("#contextMenuTakeOut");
+    } else {
+        var nonCopyStatus = data.securityStasus;
+        var noncopyStatus_yes = 1;
+
+        if(!security  || nonCopyStatus != noncopyStatus_yes){
+            itemDisable("#contextMenuTakeOut");
+        }else{
+            itemEable("#contextMenuTakeOut");
+        }
+    }
+
+    if (!data.lifecycle) {
+        itemDisable("#contextMenuLifeCycle");
+    } else {
+        itemEable("#contextMenuLifeCycle");
+    }
+
+    if (!data.lifecycleZwei) {
+        itemDisable("#contextMenuLifeCycleZwei");
+    } else {
+        itemEable("#contextMenuLifeCycleZwei");
+    }
+
+    if (!data.disclose) {
+        itemDisable("#contextMenuDisclose");
+    } else {
+        itemEable("#contextMenuDisclose");
+    }
+
+    if (!data.watermark) {
+        itemDisable("#contextMenuWatermark");
+    } else {
+        itemEable("#contextMenuWatermark");
+    }
+
+    if (!data.pdfSecurity) {
+        itemDisable("#contextMenuPdfSecurity");
+    } else {
+        itemEable("#contextMenuPdfSecurity");
+    }
+
+    if(!data.publish) {
+        itemDisable("#contextMenuPublishContents");
+    } else {
+        itemEable("#contextMenuPublishContents");
+    }
+
+    if (!data.unPublish) {
+        itemDisable("#contextMenuUnPublishContents");
+    } else {
+        itemEable("#contextMenuUnPublishContents");
+    }
+
+    if(data.publish && data.unPublish) {
+        itemDisable("#contextMenuUnPublishContents");
+        itemDisable("#contextMenuPublishContents");
+    }
+
+    // #7454 対応
+    var space = $("div#contextMenuSpaceArea").children("div.contextMenuEnable");
+    var content = $("div#contextMenuContentArea").children("div.contextMenuEnable");
+    var setting = $("div#contextMenuSettingArea").children("div.contextMenuEnable");
+    var locking = $("div#contextMenuLockingArea").children("div.contextMenuEnable");
+    if (space.length == 0 || content.length == 0) {
+        $("#contextMenuContentBar").hide();
+    } else {
+        $("#contextMenuContentBar").show();
+    }
+    if (setting.length == 0) {
+        $("#contextMenuSettingBar").hide();
+    } else {
+        $("#contextMenuSettingBar").show();
+    }
+    if (locking.length == 0) {
+        $("#contextMenuLockingBar").hide();
+    } else {
+        $("#contextMenuLockingBar").show();
+    }
+
+    if (space.length == 0 && content.length == 0 && setting.length == 0 && locking.length == 0) {
+        $("#contextMenuNothing").show();
+        $("#contextMenuNothingMessage").show();
+    } else {
+        $("#contextMenuNothing").hide();
+        $("#contextMenuNothingMessage").hide();
+    }
+
+
+}
+
+function switchCsoContextMenu(flgSecurityStatus, isForceShow){
+    var list = new Array();
+    list = getSelectedList();
+    if(isForceShow || list.length > 0){
+        showCsoContextMenu(mSpaceIdentifier,flgSecurityStatus);
+    }else{
+        hideCsoContextMenu();
+    }
+}
+
+function ajustTitleLength(dsplayArea,tempArea,itemName){
+
+    var dsplayAreaWidth,tmpAreaWidth;
+    var work;
+    var pathCut = false;
+    var terminator =0;
+    var itemNameCut = false;
+
+
+    $(dsplayArea).css("title",itemName);
+    $(tempArea).text(itemName);
+
+    dsplayAreaWidth =  $(dsplayArea).width() - 0;
+    tmpAreaWidth = $(tempArea).width() - 0;
+
+    //do untill the title fits in.
+    work = itemName;
+    while (dsplayAreaWidth < tmpAreaWidth) {
+        //remove the last letter.
+        work = itemName.substring(0, work.length -1);
+
+        $(tempArea).text(work);
+        tmpAreaWidth = $(tempArea).width() - 0;
+
+        itemNameCut = true;
+
+        //just in case
+        if(terminator >= 256){
+            break;
+        }
+        terminator++;
+    }
+
+    //put "..." if the item name has been changed.
+    if(itemNameCut == true){
+        work = itemName.substring(0, work.length -2);
+        work = work + "...";
+    }
+
+    //set item name
+    $(dsplayArea).text(work);
+
+}
+
+function updateCsocontextMenuHeader(itemName,itemNum){
+
+    if (itemNum > 1){
+        $('.contextMenuHeader').text(itemNum + ' ' + '{!$Label.label_10234}');
+    }else if (itemNum == 1){
+        $("#titleTemp").text(itemName);
+        ajustTitleLength("#contextMenuHeader", "#titleTemp",itemName);
+    }
+}
+</script>
+</apex:page>

@@ -1,0 +1,271 @@
+<apex:component id="relatedContentsDetailComp" access="global" allowDML="true" controller="SOLXYZCSO001.RelatedContentsDetailCompController">
+<apex:outputText escape="false" value="</span>"/>
+<apex:attribute name="csoUserInfo" access="global" description="required" assignTo="{!userInfo}" type="SOLXYZCSO001.CSOUserInfo" required="false"/>
+
+<apex:outputPanel rendered="{!IF(processResult == false, true, false)}">
+    <apex:pageMessages />
+</apex:outputPanel>
+<apex:iframe src="{$Page.CSO_Error}?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(processResult != false && userInfo.showErrPage == false, true, false)}">
+<!-- CSO認証共通モジュール -->
+<c:CsoBridgeComp id="csoBridgeComp"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css?20120828')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.tagit.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.customfields.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/tag-it.js')}" />
+<c:CustomFieldsPluginComp id="customFieldsPluginComp"/>
+<c:CsoScriptComp />
+<style>
+.tag-container ul {
+    width: 320px;
+}
+.tag-container li > span {
+    font-size: 80%;
+}
+</style>
+<script type="text/javascript">
+var tempVerStr="{!JSENCODE(releaseVersionString)}";
+var DATA_DELIM=',';
+$(document).ready(function(){ 
+    //  カスタム項目
+    $("#customfieldsTbl").customfields({
+        obj_id  : "{!JSENCODE(fileId)}",
+        attach  : "contents",
+        edit    : false,
+    });
+    $("#contentsTag").tagit({readOnly: true});
+    
+    if ({!reportAutoImageDto.hasWR && showReportImageNumber}) {
+        $("#reportImageRow").show();
+    } else {
+        $("#reportImageRow").hide();
+    } 
+});
+
+//==========================//
+//  ダウンロード処理        //
+//==========================//
+function contents_info_download(param){
+    var space_id;
+    var doc_id;    
+    if(param == null){
+        space_id = "{!JSENCODE(spaceId)}";
+        doc_id   = "{!JSENCODE(fileId)}";
+    }else{
+        space_id = param.refSpaceId;
+        doc_id = param.fileId;
+    }
+    var version = "[" + tempVerStr.replace(/\./g, ",") + "]";
+
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '{!$Page.SOLXYZCSO001__DownloadPopupWindow}';
+        url = url + '?downloadType=standard';
+        url = url + '&spaceId=' + space_id;
+        url = url + '&fileId='  + doc_id;
+        url = url + '&version=' + encodeURIComponent(version);
+        url = url + '&type='    + "alive";
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.solxyzcso001__msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.solxyzcso001__msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.solxyzcso001__msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.solxyzcso001__msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync('/contentsmanagement/SingleContentsDownloadApi.json', {"spaceId" : space_id, "fileId" : doc_id, "ver" : version, "type" : "alive"}, callback, callerror);
+}
+function downloadExec(url){
+    top.location.href = url;
+//  window.open(url, 'relatedcontentsdl', 'width=100, height=50, menubar=no, toolbar=no, scrollbars=no');
+}
+
+//==========================//
+//  コンテンツの関連解除    //
+//==========================//
+function deleteContentsList(){
+    var params={
+        "objid"      : "{!JSENCODE(Sf_ID)}",
+        "objname"    : "{!JSENCODE(Sf_name)}",
+        "obj_catname": "{!JSENCODE(Sf_typeName)}",
+        "docids"     : "{!JSENCODE(fileId)}",
+    };
+
+    var callback = function(data){
+        CsoScript_loadingStop();
+        if(data["result"] == false){
+            alert(data["message"]);
+            return;
+        }
+
+        var succeeded_msg='{!$Label.solxyzcso001__msg_01053}';
+        var succeededNames='';
+        for(var idx in data["succeeded"]){
+            succeededNames += '\n ' + data["succeeded"][idx];
+        }
+        succeeded_msg += succeededNames;
+/*
+        // 活動履歴登録
+         Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.RelatedContentsDetailCompController.insTask}',
+            '{!JSENCODE(Sf_ID)}', succeeded_msg,
+            function(data, event){
+               //画面遷移
+               if('{!JSENCODE(retURL)}'==''||'{!JSENCODE(retURL)}'==null){
+                    top.location.href = '/{!JSENCODE(Sf_Id)}';
+                }else{
+                    top.location.href = '{!JSENCODE(salesforceBaseUrl)}{!JSENCODE(retURL)}';
+                }
+            },
+            {escape: true}
+        );
+*/
+        //画面遷移
+        if('{!JSENCODE(retURL)}'==''||'{!JSENCODE(retURL)}'==null){
+            top.location.href = '/{!JSENCODE(Sf_Id)}';
+        }else{
+            top.location.href = '{!JSENCODE(salesforceBaseUrl)}{!JSENCODE(retURL)}';
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+        return;
+    };
+    if(window.confirm('{!$Label.solxyzcso001__msg_01056}')){
+        CsoScript_loadingStart();
+        secureGetAsync("/contentsmanagement/contentsRelationDelete.json", params, callback, callerror);
+    } else {
+        return;
+    }
+}
+
+</script>
+
+<apex:sectionHeader title="{!$Label.solxyzcso001__field_010200}" subtitle="{!titleDocName}"/>
+
+<apex:form id="contentsForm">
+  <apex:variable var="Sf_ID" value="{!Sf_ID}" />
+  <apex:variable var="Sf_name" value="{!Sf_name}" />
+  <apex:variable var="pageType" value="{!pageType}" />
+  <!-- Sf_typeとSf_typeName変数は標準オブジェクト別ページで宣言 -->
+  <apex:variable var="Sf_type" value="{!Sf_type}" />
+  <apex:variable var="Sf_typeName" value="{!Sf_typeName}" />
+  <apex:variable var="pagePrefix" value="{!pagePrefix}" />
+
+<apex:pageBlock title="" id="relatedContentsPageBlock" >
+    <apex:pageBlockButtons >
+      <apex:commandButton value="{!$Label.solxyzcso001__field_common_back}"  action="{!back}" />
+      <apex:commandButton value="{!$Label.solxyzcso001__field_common_edit}"  action="{!edit}" rendered="{!IF((asrt == 'garbage' || asrt == 'archive'), false, canEdit)}" />
+      <apex:commandButton value="{!$Label.solxyzcso001__field_010199}" onclick="deleteContentsList();return false;"/>
+      <apex:commandButton value="{!$Label.solxyzcso001__label_10010}"  onclick="contents_info_download();return false;" rendered="{!canDownload}"/>
+    </apex:pageBlockButtons>
+
+    <!-- ページボディー -->
+    <apex:inputHidden id="hidden_version" value="{!version}"/>
+    <table id="customfieldsTbl" class="customfields" style="margin-left:25%;">
+        <!-- コンテンツ名 -->
+        <tr cfname="name">
+            <th>{!$Label.label_10011}</th>
+            <td>
+            	<div id="docName">{!titleDocName}</div>
+           	</td>
+		</tr>
+        <!-- バージョン -->
+        <tr cfname="version">
+            <th>{!$Label.label_10038}</th>
+            <td>
+            	<div id="version">{!releaseVersionString}</div>
+           	</td>
+		</tr>
+        <!-- 説明 -->
+        <tr cfname="explanation">
+            <th>{!$Label.label_10012}</th>
+            <td>
+            	<textarea class="c_textarea_m" style="resize:none;" readonly="readonly" disabled="disabled">{!explanation}</textarea>
+           	</td>
+		</tr>
+        <!-- タグ -->
+        <tr cfname="tag">
+            <th>{!$Label.label_00057}</th>
+            <td>
+            	<div class="tag-container" style="margin-top:-10px; margin-bottom:-10px;">
+            		<input type="text" id="contentsTag" style="height:1.2em; width: 320px;" value="{!tagNames}" readonly="readonly" disabled="disabled"/>
+           		</div>
+           	</td>
+		</tr>
+        <!-- 帳票画像番号 -->
+        <tr id="reportImageRow">
+            <th>{!$Label.label_wf_29037}</th>
+            <td>
+            	<span id="reportImageNumber" style="height:1.2em; width:50px;">{!reportAutoImageDto.reportImageNumberStr}</span>
+            </td>
+		</tr>
+	</table>
+	<apex:pageBlockSection columns="2">
+        <!-- 作成者 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="creator" value="{!$Label.solxyzcso001__label_10015}"/>
+            <apex:variable rendered="true" var="" value="">
+           		<div id="regUserName">{!regUserName}</div>
+			</apex:variable>
+        </apex:pageBlockSectionItem>
+        <!-- 作成日時 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="created_date" value="{!$Label.solxyzcso001__label_10014}"/>
+            <div id="regDate">{!regDate}</div>
+        </apex:pageBlockSectionItem>
+        <!-- 更新者 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_person" value="{!$Label.solxyzcso001__label_10024}"/>
+            <apex:variable rendered="true" var="" value="">
+            	<div id="upUserName">{!upUserName}</div>
+           	</apex:variable>
+        </apex:pageBlockSectionItem>
+        <!-- 更新日時 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_date" value="{!$Label.solxyzcso001__label_10018}"/>
+            <div id="upDate" >{!upDateString}</div>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+</apex:pageBlock>
+
+</apex:form>
+</apex:outputPanel>
+<c:CSOSilverlightComp />
+<apex:outputText escape="false" value="<span>"/>
+</apex:component>

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <label><!-- BOD --></label>
+        <name>BOD__c</name>
+    </fields>
+    <fields>
+        <label>COA略称</label>
+        <name>COA_Acronym__c</name>
+    </fields>
+    <fields>
+        <label>COAファンクション</label>
+        <name>COA_Function__c</name>
+        <picklistValues>
+            <masterLabel>BI</masterLabel>
+            <translation><!-- BI --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CokeOne</masterLabel>
+            <translation><!-- CokeOne --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Commercial</masterLabel>
+            <translation><!-- Commercial --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Finance</masterLabel>
+            <translation><!-- Finance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>HR</masterLabel>
+            <translation><!-- HR --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>IT</masterLabel>
+            <translation><!-- IT --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Legal</masterLabel>
+            <translation><!-- Legal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>PAC</masterLabel>
+            <translation><!-- PAC --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Procurement</masterLabel>
+            <translation><!-- Procurement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Supply Chain</masterLabel>
+            <translation><!-- Supply Chain --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>COAグループ</label>
+        <name>COA_Group__c</name>
+        <picklistValues>
+            <masterLabel>Gr.1</masterLabel>
+            <translation><!-- Gr.1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Gr.2</masterLabel>
+            <translation><!-- Gr.2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Gr.3</masterLabel>
+            <translation><!-- Gr.3 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Gr.4</masterLabel>
+            <translation><!-- Gr.4 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Gr.5</masterLabel>
+            <translation><!-- Gr.5 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Gr.6</masterLabel>
+            <translation><!-- Gr.6 --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>COAレポートライン</label>
+        <name>COA_Report_Layer__c</name>
+        <picklistValues>
+            <masterLabel>L1</masterLabel>
+            <translation><!-- L1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L2</masterLabel>
+            <translation><!-- L2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L3</masterLabel>
+            <translation><!-- L3 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L4</masterLabel>
+            <translation><!-- L4 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L5</masterLabel>
+            <translation><!-- L5 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L6</masterLabel>
+            <translation><!-- L6 --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>CokeOneマネージャー</label>
+        <name>CokeOne_Manager__c</name>
+        <relationshipLabel><!-- ユーザ (CokeOneマネージャー) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- CokeOne Project --></label>
+        <name>CokeOne_Project__c</name>
+        <picklistValues>
+            <masterLabel>Full Time</masterLabel>
+            <translation><!-- Full Time --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Others</masterLabel>
+            <translation><!-- Others --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Part Time</masterLabel>
+            <translation><!-- Part Time --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- CokeOne Resource --></label>
+        <name>CokeOne_Resource__c</name>
+        <picklistValues>
+            <masterLabel>CM</masterLabel>
+            <translation><!-- CM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>PM</masterLabel>
+            <translation><!-- PM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>PMO</masterLabel>
+            <translation><!-- PMO --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- CokeOne --></label>
+        <name>CokeOne__c</name>
+    </fields>
+    <fields>
+        <help><!-- Required Fields: date, reason for update, update content and update user. / 必須入力: 日付・更新理由・更新内容・更新者 --></help>
+        <label><!-- Comment --></label>
+        <name>Comment__c</name>
+    </fields>
+    <fields>
+        <label><!-- DB Region --></label>
+        <name>DB_Region__c</name>
+        <picklistValues>
+            <masterLabel>APAC</masterLabel>
+            <translation><!-- APAC --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>EMEA</masterLabel>
+            <translation><!-- EMEA --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>LA</masterLabel>
+            <translation><!-- LA --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>NA</masterLabel>
+            <translation><!-- NA --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>職務名（英）</label>
+        <name>Job_Name_E__c</name>
+    </fields>
+    <fields>
+        <label>職務名（日）</label>
+        <name>Job_Name_J__c</name>
+    </fields>
+    <fields>
+        <label>役職</label>
+        <name>Job_Title_E__c</name>
+    </fields>
+    <fields>
+        <label>L2ファンクション</label>
+        <name>L2_Function_E__c</name>
+    </fields>
+    <fields>
+        <label>L3ファンクション</label>
+        <name>L3_Function_E__c</name>
+    </fields>
+    <fields>
+        <label>L4ファンクション</label>
+        <name>L4_Function_E__c</name>
+    </fields>
+    <fields>
+        <label>L5ファンクション</label>
+        <name>L5_Function_E__c</name>
+    </fields>
+    <fields>
+        <label>L6ファンクション</label>
+        <name>L6_Function_E__c</name>
+    </fields>
+    <fields>
+        <label>L7ファンクション</label>
+        <name>L7_Function_E__c</name>
+    </fields>
+    <fields>
+        <label><!-- L-level --></label>
+        <name>L_level__c</name>
+    </fields>
+    <fields>
+        <label>勤務地（英）</label>
+        <name>Location_E__c</name>
+    </fields>
+    <fields>
+        <label>勤務地（日）</label>
+        <name>Location_J__c</name>
+    </fields>
+    <fields>
+        <label>マイルストーン　ユーザ</label>
+        <name>Milestone_Users__c</name>
+    </fields>
+    <fields>
+        <label>RFA代理人１</label>
+        <name>RFA_Agent_1__c</name>
+        <relationshipLabel><!-- ユーザ (RFA代理人１) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>RFA代理人２</label>
+        <name>RFA_Agent_2__c</name>
+        <relationshipLabel><!-- ユーザ (RFA代理人２) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>RFA代理人３</label>
+        <name>RFA_Agent_3__c</name>
+        <relationshipLabel><!-- ユーザ (RFA代理人３) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- UserID_18 --></label>
+        <name>UserID__c</name>
+    </fields>
+    <layouts>
+        <layout>All User Layout</layout>
+        <sections>
+            <label><!-- CRS Roles &amp; Approvers --></label>
+            <section>CRS Roles &amp; Approvers</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- RFA Agent Details --></label>
+            <section>RFA Agent Details</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>RFA User Layout</layout>
+        <sections>
+            <label><!-- Edit RFA Agent Details --></label>
+            <section>Edit RFA Agent Details</section>
+        </sections>
+        <sections>
+            <label><!-- RFA Agent Details --></label>
+            <section>RFA Agent Details</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>User Layout</layout>
+        <sections>
+            <label>管理者備考</label>
+            <section>Admin Comment</section>
+        </sections>
+        <sections>
+            <label><!-- BOD --></label>
+            <section>BOD</section>
+        </sections>
+        <sections>
+            <label><!-- CokeOne --></label>
+            <section>CokeOne</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>所属・勤務地</label>
+            <section>Function &amp; Location</section>
+        </sections>
+        <sections>
+            <label><!-- Milestone --></label>
+            <section>Milestone</section>
+        </sections>
+        <sections>
+            <label><!-- RFA --></label>
+            <section>RFA</section>
+        </sections>
+        <sections>
+            <label>職位</label>
+            <section>User Info</section>
+        </sections>
+    </layouts>
+    <validationRules>
+        <errorMessage>代理人として同じユーザを複数選択することはできません。</errorMessage>
+        <name>RFA_USER_VR01_UniqueAgentSelection</name>
+    </validationRules>
+    <webLinks>
+        <label><!-- Edit_Agents --></label>
+        <name>Edit_Agents</name>
+    </webLinks>
+</CustomObjectTranslation>

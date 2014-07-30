@@ -1,0 +1,713 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>false</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>RM_Acquisition_Method__c</fullName>
+        <externalId>false</externalId>
+        <label>Acquisition Method</label>
+        <picklist>
+            <picklistValues>
+                <fullName>1.Purchase</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>2.Lease</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>RM_Asset_Category_Detail__c</fullName>
+        <externalId>false</externalId>
+        <label>Asset Category Detail</label>
+        <picklist>
+            <controllingField>RM_Asset_Category__c</controllingField>
+            <picklistValues>
+                <fullName>01.Land</fullName>
+                <controllingFieldValues>01.Land</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>02.Buildings - Plant/Distribution Center</fullName>
+                <controllingFieldValues>02.Buildings</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>02.Buildings - Office</fullName>
+                <controllingFieldValues>02.Buildings</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>03.B&amp;A - Water Supply/Electrical Facilities</fullName>
+                <controllingFieldValues>03.Buildings &amp; Accessories</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>03.B&amp;A - Air Conditioning Facilities</fullName>
+                <controllingFieldValues>03.Buildings &amp; Accessories</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>03.B&amp;A - Partition/Other</fullName>
+                <controllingFieldValues>03.Buildings &amp; Accessories</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>04.Structures - Drain Ditch/Concrete Pavement</fullName>
+                <controllingFieldValues>04.Structures</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>04.Structures - Signboard/Asphalt Pavement</fullName>
+                <controllingFieldValues>04.Structures</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>05.Machinery - Distribution Center</fullName>
+                <controllingFieldValues>05.Machinery &amp; Equipment</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>05.Machinery - Beverage Facilities</fullName>
+                <controllingFieldValues>05.Machinery &amp; Equipment</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>06.Sales Equipment - Can/Cup VM</fullName>
+                <controllingFieldValues>06.Sales Equipment - Vendors</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>07.Sales Equipment - Coolers</fullName>
+                <controllingFieldValues>07.Sales Equipment - Coolers</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>08.Sales Equipment - Dispensers</fullName>
+                <controllingFieldValues>08.Sales Equipment - Dispensers</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>09.Sales Equipment - Other</fullName>
+                <controllingFieldValues>09.Sales Equipment - Other</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>10.IT Hardware - Server/PC</fullName>
+                <controllingFieldValues>10.IT Hardware</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>11.Furniture - Desk/Chair</fullName>
+                <controllingFieldValues>11.Furniture &amp; Fixtures</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>11.Furniture - Locker/Storage</fullName>
+                <controllingFieldValues>11.Furniture &amp; Fixtures</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>11.Furniture - Refrigerator/Air Conditioner</fullName>
+                <controllingFieldValues>11.Furniture &amp; Fixtures</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>11.Furniture - Coin Counting Machine/Inspection Equipment</fullName>
+                <controllingFieldValues>11.Furniture &amp; Fixtures</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>12.Fleet - Automobiles</fullName>
+                <controllingFieldValues>12.Fleet - Automobiles</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>13.Fleet - Trucks</fullName>
+                <controllingFieldValues>13.Fleet - Trucks</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>14.Fleet - Other</fullName>
+                <controllingFieldValues>14.Fleet - Other</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>15.IT Software</fullName>
+                <controllingFieldValues>15.IT Software</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>16.Other (Not Fixed Assets)</fullName>
+                <controllingFieldValues>16.Other (Not Fixed Assets)</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>RM_Asset_Category__c</fullName>
+        <externalId>false</externalId>
+        <label>Asset Category</label>
+        <picklist>
+            <picklistValues>
+                <fullName>01.Land</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>02.Buildings</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>03.Buildings &amp; Accessories</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>04.Structures</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>05.Machinery &amp; Equipment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>06.Sales Equipment - Vendors</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>07.Sales Equipment - Coolers</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>08.Sales Equipment - Dispensers</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>09.Sales Equipment - Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>10.IT Hardware</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>11.Furniture &amp; Fixtures</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>12.Fleet - Automobiles</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>13.Fleet - Trucks</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>14.Fleet - Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>15.IT Software</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>16.Other (Not Fixed Assets)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>RM_Asset_Name__c</fullName>
+        <externalId>false</externalId>
+        <label>Asset Name</label>
+        <length>100</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Depreciation_Rule__c</fullName>
+        <externalId>false</externalId>
+        <label>Depreciation Rule</label>
+        <picklist>
+            <picklistValues>
+                <fullName>-</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>New straight-line</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>straight-line(5 years)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>RM_Detail__c</fullName>
+        <externalId>false</externalId>
+        <label>Detail</label>
+        <picklist>
+            <picklistValues>
+                <fullName>test1</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>test2</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>RM_Entity__c</fullName>
+        <externalId>false</externalId>
+        <label>Entity</label>
+        <picklist>
+            <picklistValues>
+                <fullName>test1</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>test2</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>RM_Four_Years_Later__c</fullName>
+        <externalId>false</externalId>
+        <label>Four Years Later</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Function__c</fullName>
+        <externalId>false</externalId>
+        <label>Function</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Commercial</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>IT</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SCM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Legal</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Procurement</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>PAC</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>HR</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>BI</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Finance</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>RM_Invest_Total__c</fullName>
+        <externalId>false</externalId>
+        <formula>RM_This_Year__c +  RM_Next_Year__c + RM_The_Year_After_Next__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Invest. Total</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Milestone_Synergy_Management_No__c</fullName>
+        <displayFormat>MSMH-{0000000000}</displayFormat>
+        <externalId>true</externalId>
+        <label>Milestone Synergy Management No</label>
+        <type>AutoNumber</type>
+    </fields>
+    <fields>
+        <fullName>RM_Name__c</fullName>
+        <externalId>false</externalId>
+        <label>Name</label>
+        <length>80</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Next_Year_Formula__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( OR(ISBLANK(RM_Next_Year__c) ,RM_Next_Year__c==0,RM_Next_Year__c == null),
+RM_Next_Year_Q1__c + RM_Next_Year_Q2__c + RM_Next_Year_Q3__c + RM_Next_Year_Q4__c,
+RM_Next_Year__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Next Year(Formula)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Next_Year_Q1__c</fullName>
+        <externalId>false</externalId>
+        <label>Next Year Q1</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Next_Year_Q2__c</fullName>
+        <externalId>false</externalId>
+        <label>Next Year Q2</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Next_Year_Q3__c</fullName>
+        <externalId>false</externalId>
+        <label>Next Year Q3</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Next_Year_Q4__c</fullName>
+        <externalId>false</externalId>
+        <label>Next Year Q4</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Next_Year_Text__c</fullName>
+        <externalId>false</externalId>
+        <label>Next Year</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Next_Year__c</fullName>
+        <externalId>false</externalId>
+        <label>Next Year</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_RFA__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>RFA No.</label>
+        <referenceTo>RFA__c</referenceTo>
+        <relationshipLabel>Milestone Synergy Management History</relationshipLabel>
+        <relationshipName>Milestone_Synergy_Management_History</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>RM_Remarks__c</fullName>
+        <externalId>false</externalId>
+        <label>Remarks</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Saving_or_Spending__c</fullName>
+        <externalId>false</externalId>
+        <label>Saving or Spending</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Saving</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Spending</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>RM_The_Year_After_Next_Text__c</fullName>
+        <externalId>false</externalId>
+        <label>he Year After Next</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_The_Year_After_Next__c</fullName>
+        <externalId>false</externalId>
+        <label>The Year After Next</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year_Formula__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(OR(ISBLANK(RM_This_Year__c),RM_This_Year__c==0,RM_This_Year__c == null),
+RM_This_Year_Q1__c +  RM_This_Year_Q2__c +  RM_This_Year_Q3__c +  RM_This_Year_Q4__c,
+RM_This_Year__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>This Year(Formula)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year_Q1_Text__c</fullName>
+        <externalId>false</externalId>
+        <label>This Year</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year_Q1__c</fullName>
+        <externalId>false</externalId>
+        <label>This Year Q1</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year_Q2_Text__c</fullName>
+        <externalId>false</externalId>
+        <label>This Year</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year_Q2__c</fullName>
+        <externalId>false</externalId>
+        <label>This Year Q2</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year_Q3_Text__c</fullName>
+        <externalId>false</externalId>
+        <label>This Year</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year_Q3__c</fullName>
+        <externalId>false</externalId>
+        <label>This Year Q3</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year_Q4_Text__c</fullName>
+        <externalId>false</externalId>
+        <label>This Year</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year_Q4__c</fullName>
+        <externalId>false</externalId>
+        <label>This Year Q4</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year_Text__c</fullName>
+        <externalId>false</externalId>
+        <label>This Year</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_This_Year__c</fullName>
+        <externalId>false</externalId>
+        <label>This Year</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Three_Years_Later__c</fullName>
+        <externalId>false</externalId>
+        <label>Three Years Later</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Total__c</fullName>
+        <externalId>false</externalId>
+        <formula>RM_This_Year_Formula__c  +  RM_Next_Year_Formula__c + RM_The_Year_After_Next__c  +   RM_Three_Years_Later__c + RM_Four_Years_Later__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Total</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Useful_Life_Text__c</fullName>
+        <externalId>false</externalId>
+        <label>Useful Life</label>
+        <length>3</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Useful_Life__c</fullName>
+        <externalId>false</externalId>
+        <label>Useful Life</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RM_Year__c</fullName>
+        <externalId>false</externalId>
+        <label>Year</label>
+        <length>4</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Seq_No__c</fullName>
+        <externalId>false</externalId>
+        <label>Seq No</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <label>Milestone Synergy Management History</label>
+    <nameField>
+        <displayFormat>Milestone-Synergy-{0000000000}</displayFormat>
+        <label>Milestone Synergy Management History No</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

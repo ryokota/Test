@@ -1,0 +1,29 @@
+<!--
+    Email template for sending email to Location coordinator when the RFA is in <Level> Post-Circulation stage.
+-->
+<!--
+<messaging:emailTemplate subject="要確認（Action Required）: {!relatedTo.Name} in {!relatedTo.LevelStage__c}" recipientType="User" relatedToType="RFA__c">
+-->
+<messaging:emailTemplate subject="要確認（Action Required）: {!relatedTo.Name}" recipientType="User" relatedToType="RFA__c">
+    
+    <messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = "font-size:14px">
+                    <p>下記案件の回覧が終了致しました。内容を確認のうえ最終確定を行ってください。<BR/>
+                    All Approvers have responded to this RFA. As coordinator, your action is required 
+                    to review and complete this RFA.
+                    </p>
+                    <BR/>
+                    <c:RFA_C02_EmailTemplateBodyRFA rfaObj="{!relatedTo}"/>
+                    <p><B>下記リンクをクリックし、承認申請リクエストの文書をご確認ください:<BR/>
+                    Click this link to open the RFA Request Document:<BR/>
+                    <a href="{!$label.RFA_CL026}/{!relatedTo.Id}">{!relatedTo.Name}</a></B></p>
+                    <BR/>
+                    <!--<p>If you have any inquiries kindly contact <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a></p>-->
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+               
+</messaging:emailTemplate>

@@ -1,0 +1,964 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>最終承認メール送信グループ
+Final approval mail sending group</description>
+    <enableActivities>false</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>CM_Category__c</fullName>
+        <externalId>false</externalId>
+        <label>Category</label>
+        <picklist>
+            <picklistValues>
+                <fullName>B. Approval of Customer Terms and Conditions</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>D. Credit Terms / Policies</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_Company_receiving_after_approval_mail__c</fullName>
+        <externalId>false</externalId>
+        <label>Company receiving after approval mail</label>
+        <picklist>
+            <picklistValues>
+                <fullName>TONE</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>MIKUNI</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>TOKYO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>EXS</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>CCCJ</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>MFD</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>UVXN</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>FVS</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>WEX</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>FVCe</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>CCEJ</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_Description__c</fullName>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>CM_External_ID__c</fullName>
+        <externalId>true</externalId>
+        <label>External ID</label>
+        <length>20</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CM_IsActive__c</fullName>
+        <defaultValue>true</defaultValue>
+        <externalId>false</externalId>
+        <label>Active</label>
+        <trackHistory>false</trackHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>CM_OpenCheck__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>チェックを付けると、他のユーザから参照可能となります。</inlineHelpText>
+        <label>open</label>
+        <trackHistory>false</trackHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>CM_Sub_Category1__c</fullName>
+        <externalId>false</externalId>
+        <label>Sub Category1</label>
+        <picklist>
+            <controllingField>CM_Category__c</controllingField>
+            <picklistValues>
+                <fullName>1. Approval of Field Sales Operation and VM Customer Agreement</fullName>
+                <controllingFieldValues>B. Approval of Customer Terms and Conditions</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>2. Approval of Customer Agreement for CS KAM</fullName>
+                <controllingFieldValues>B. Approval of Customer Terms and Conditions</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>3. Approval of Customer Agreement for Food KAM</fullName>
+                <controllingFieldValues>B. Approval of Customer Terms and Conditions</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4. Approval of Customer Agreement for SAKAYA KAM</fullName>
+                <controllingFieldValues>B. Approval of Customer Terms and Conditions</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</fullName>
+                <controllingFieldValues>B. Approval of Customer Terms and Conditions</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>6. Approval of Customer Agreement for Corporate KAM</fullName>
+                <controllingFieldValues>B. Approval of Customer Terms and Conditions</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>7. Approval of Customer Agreement for FV - VM</fullName>
+                <controllingFieldValues>B. Approval of Customer Terms and Conditions</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</fullName>
+                <controllingFieldValues>B. Approval of Customer Terms and Conditions</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>7. Approval of Customer Agreement for FV - Corporate Sales</fullName>
+                <controllingFieldValues>B. Approval of Customer Terms and Conditions</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>1. Initial setting of credit limits</fullName>
+                <controllingFieldValues>D. Credit Terms / Policies</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>2. Changes of credit limits</fullName>
+                <controllingFieldValues>D. Credit Terms / Policies</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>3. Credit period</fullName>
+                <controllingFieldValues>D. Credit Terms / Policies</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_Sub_Category2__c</fullName>
+        <externalId>false</externalId>
+        <label>Sub Category2</label>
+        <picklist>
+            <controllingField>CM_Sub_Category1__c</controllingField>
+            <picklistValues>
+                <fullName>01. Contract unit price</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>02. Special price / Promotion discount</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>03. FS selling price</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>04. FS commission (Variable)</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>05. FS commission (Fixed)</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>06. Key money / Rebate / Spot / Other</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>07. Only in the case of Rebate</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>08. Other support</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>09. Promotion / Other expense</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>10. Promotion (Cooperation / Sampling)</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>a. Non-standard Equipment</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>b. Vending Equipment parts</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>c. Incidental work</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>d. Vending Equipment Lease</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>e. Equipment retirement</fullName>
+                <controllingFieldValues>1. Approval of Field Sales Operation and VM Customer Agreement</controllingFieldValues>
+                <controllingFieldValues>2. Approval of Customer Agreement for CS KAM</controllingFieldValues>
+                <controllingFieldValues>3. Approval of Customer Agreement for Food KAM</controllingFieldValues>
+                <controllingFieldValues>4. Approval of Customer Agreement for SAKAYA KAM</controllingFieldValues>
+                <controllingFieldValues>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</controllingFieldValues>
+                <controllingFieldValues>6. Approval of Customer Agreement for Corporate KAM</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - Corporate Sales</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</controllingFieldValues>
+                <controllingFieldValues>7. Approval of Customer Agreement for FV - VM</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>1. Amount of Credit limit</fullName>
+                <controllingFieldValues>1. Initial setting of credit limits</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>2. Credit limit</fullName>
+                <controllingFieldValues>2. Changes of credit limits</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>3. Credit period</fullName>
+                <controllingFieldValues>3. Credit period</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CM_Sub_Category3__c</fullName>
+        <externalId>false</externalId>
+        <label>Sub Category3</label>
+        <picklist>
+            <controllingField>CM_Sub_Category2__c</controllingField>
+            <picklistValues>
+                <fullName>≦ 10,000,000 yen</fullName>
+                <controllingFieldValues>1. Amount of Credit limit</controllingFieldValues>
+                <controllingFieldValues>2. Credit limit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>＞ 10,000,000 yen</fullName>
+                <controllingFieldValues>1. Amount of Credit limit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Create less risk to the company (shortening credit terms) &gt; 10,000,000 yen</fullName>
+                <controllingFieldValues>2. Credit limit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Create more risk to the company (lengthening credit terms) &gt; 10,000,000 yen</fullName>
+                <controllingFieldValues>2. Credit limit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Create more risk to the company (lengthening credit terms) &gt; 10,000,000 yen (Initial credit limit &gt; 25,000,000 yen and change is &gt; 25%)</fullName>
+                <controllingFieldValues>2. Credit limit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Payment Terms &gt; 1 month and &lt; 2 months</fullName>
+                <controllingFieldValues>3. Credit period</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Payment Terms ≧ 2 months</fullName>
+                <controllingFieldValues>3. Credit period</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <label>最終承認メール送信グループ</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>CM_Category__c</columns>
+        <columns>CM_OpenCheck__c</columns>
+        <columns>CM_Description__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>CREATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <label>すべて選択</label>
+        <language>ja</language>
+    </listViews>
+    <listViews>
+        <fullName>Fixed_Group_View</fullName>
+        <columns>NAME</columns>
+        <columns>CM_Category__c</columns>
+        <columns>CM_Sub_Category1__c</columns>
+        <columns>CM_Sub_Category2__c</columns>
+        <columns>CM_Sub_Category3__c</columns>
+        <columns>CM_OpenCheck__c</columns>
+        <columns>CM_Description__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>CREATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>equals</operation>
+            <value>CM_FinalApprovalMailGroup__c.Fixed_Group_Member</value>
+        </filters>
+        <label>Fixed Group</label>
+        <language>ja</language>
+    </listViews>
+    <nameField>
+        <label>Group Name</label>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <namedFilters>
+        <fullName>nf_01IN00000008w31MAA_00NN0000000v4N8MAI</fullName>
+        <active>true</active>
+        <field>CM_FinalApprovalMailDestination__c.CM_FinalApprovalMailGroup__c</field>
+        <filterItems>
+            <field>CM_FinalApprovalMailGroup__c.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>Standard Group Member</value>
+        </filterItems>
+        <isOptional>true</isOptional>
+        <name>Final Approval mail destination_Final ap</name>
+    </namedFilters>
+    <recordTypeTrackHistory>false</recordTypeTrackHistory>
+    <recordTypes>
+        <fullName>Fixed_Group_Member</fullName>
+        <active>true</active>
+        <description>固定で設定されるグループを登録します。</description>
+        <label>Fixed Group Member</label>
+        <picklistValues>
+            <picklist>CM_Category__c</picklist>
+            <values>
+                <fullName>B%2E Approval of Customer Terms and Conditions</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>D%2E Credit Terms %2F Policies</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Company_receiving_after_approval_mail__c</picklist>
+            <values>
+                <fullName>CCCJ</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>CCEJ</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>EXS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>FVCe</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>FVS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>MFD</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>MIKUNI</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>TOKYO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>TONE</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UVXN</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>WEX</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Sub_Category1__c</picklist>
+            <values>
+                <fullName>1%2E Approval of Field Sales Operation and VM Customer Agreement</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>1%2E Initial setting of credit limits</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>2%2E Approval of Customer Agreement for CS KAM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>2%2E Changes of credit limits</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>3%2E Approval of Customer Agreement for Food KAM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>3%2E Credit period</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4%2E Approval of Customer Agreement for SAKAYA KAM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>5%2E Approval of Customer Agreement for VM Corporate Sales%26Hunter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>6%2E Approval of Customer Agreement for Corporate KAM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>7%2E Approval of Customer Agreement for FV - Corporate Sales</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>7%2E Approval of Customer Agreement for FV - OCS%2C Shop Caffe</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>7%2E Approval of Customer Agreement for FV - VM</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Sub_Category2__c</picklist>
+            <values>
+                <fullName>01%2E Contract unit price</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>02%2E Special price %2F Promotion discount</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>03%2E FS selling price</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>04%2E FS commission %28Variable%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>05%2E FS commission %28Fixed%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>06%2E Key money %2F Rebate %2F Spot %2F Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>07%2E Only in the case of Rebate</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>08%2E Other support</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>09%2E Promotion %2F Other expense</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>1%2E Amount of Credit limit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>10%2E Promotion %28Cooperation %2F Sampling%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>2%2E Credit limit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>3%2E Credit period</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>a%2E Non-standard Equipment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>b%2E Vending Equipment parts</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>c%2E Incidental work</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>d%2E Vending Equipment Lease</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>e%2E Equipment retirement</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Sub_Category3__c</picklist>
+            <values>
+                <fullName>%E2%89%A6 10%2C000%2C000 yen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>%EF%BC%9E 10%2C000%2C000 yen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Create less risk to the company %28shortening credit terms%29 %3E 10%2C000%2C000 yen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Create more risk to the company %28lengthening credit terms%29 %3E 10%2C000%2C000 yen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Create more risk to the company %28lengthening credit terms%29 %3E 10%2C000%2C000 yen %28Initial credit limit %3E 25%2C000%2C000 yen and change is %3E 25%25%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Payment Terms %3E 1 month and %3C 2 months</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Payment Terms %E2%89%A7 2 months</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Standard_Group_Member</fullName>
+        <active>true</active>
+        <description>各ユーザ毎にグループをカスタマイズします。</description>
+        <label>Standard Group Member</label>
+        <picklistValues>
+            <picklist>CM_Category__c</picklist>
+            <values>
+                <fullName>B%2E Approval of Customer Terms and Conditions</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>D%2E Credit Terms %2F Policies</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Company_receiving_after_approval_mail__c</picklist>
+            <values>
+                <fullName>CCCJ</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>CCEJ</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>EXS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>FVCe</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>FVS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>MFD</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>MIKUNI</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>TOKYO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>TONE</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UVXN</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>WEX</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Sub_Category1__c</picklist>
+            <values>
+                <fullName>1%2E Approval of Field Sales Operation and VM Customer Agreement</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>1%2E Initial setting of credit limits</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>2%2E Approval of Customer Agreement for CS KAM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>2%2E Changes of credit limits</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>3%2E Approval of Customer Agreement for Food KAM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>3%2E Credit period</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>4%2E Approval of Customer Agreement for SAKAYA KAM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>5%2E Approval of Customer Agreement for VM Corporate Sales%26Hunter</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>6%2E Approval of Customer Agreement for Corporate KAM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>7%2E Approval of Customer Agreement for FV - VM</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Sub_Category2__c</picklist>
+            <values>
+                <fullName>01%2E Contract unit price</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>02%2E Special price %2F Promotion discount</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>03%2E FS selling price</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>04%2E FS commission %28Variable%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>05%2E FS commission %28Fixed%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>06%2E Key money %2F Rebate %2F Spot %2F Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>07%2E Only in the case of Rebate</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>08%2E Other support</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>09%2E Promotion %2F Other expense</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>1%2E Amount of Credit limit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>10%2E Promotion %28Cooperation %2F Sampling%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>2%2E Credit limit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>3%2E Credit period</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>CM_Sub_Category3__c</picklist>
+            <values>
+                <fullName>%E2%89%A6 10%2C000%2C000 yen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>%EF%BC%9E 10%2C000%2C000 yen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Create less risk to the company %28shortening credit terms%29 %3E 10%2C000%2C000 yen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Create more risk to the company %28lengthening credit terms%29 %3E 10%2C000%2C000 yen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Payment Terms %3E 1 month and %3C 2 months</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Payment Terms %E2%89%A7 2 months</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts>
+        <customTabListAdditionalFields>CM_OpenCheck__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>CM_Description__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>RECORDTYPE</customTabListAdditionalFields>
+        <lookupDialogsAdditionalFields>CM_Description__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>RECORDTYPE</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>CM_OpenCheck__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>OWNER.ALIAS</lookupDialogsAdditionalFields>
+        <searchResultsAdditionalFields>CM_Category__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>CM_Description__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>CM_OpenCheck__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>RECORDTYPE</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>Private</sharingModel>
+</CustomObject>

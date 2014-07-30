@@ -1,0 +1,2396 @@
+<apex:page showHeader="false" sidebar="false">
+<script type="text/javascript">
+(function(jQuery){
+    var _STEPS                              = "steps";
+    
+    var _STEPS_HEADER_ID_CHECK              = "steps-header-check";
+    var _STEPS_HEADER_ID_STEP               = "steps-header-step";
+    var _STEPS_HEADER_ID_USER               = "steps-header-user";
+    var _STEPS_HEADER_ID_CONDITIONS         = "steps-header-conditions";
+    var _STEPS_HEADER_ID_APPROVE_PROCEDURE  = "steps-header-approve-procedure";
+    var _STEPS_HEADER_ID_SUBSTITUTE_APPROVE = "steps-header-substitute-approve";
+    var _STEPS_HEADER_ID_NOT_CORRESPONDS    = "steps-header-not-corresponds";
+
+    var _STEP_PREFIX_CHECK          = "step-check-";
+    var _STEP_PREFIX_INPUT_STEP     = "step-step-";
+    var _STEP_PREFIX_RADIO_APP      = "step-app-";
+    var _STEP_PREFIX_RADIO_SST      = "step-sst-";
+    var _STEP_PREFIX_RADIO_NCR      = "step-ncr-";
+    
+    var _STEP_NAME_RADIO            = "step-radio";
+
+    var _STEP_DATA_TYPE_LUMP            = "lump";
+    var _STEP_DATA_TYPE_USER            = "user";
+    var _STEP_DATA_TYPE_NEW_USER        = "new-user";
+    var _STEP_DATA_TYPE_REPLACE_LUMP    = "replace-lump";
+    var _STEP_DATA_TYPE_REPLACE_OVERLAY = "replace-overlay";
+    var _STEP_DATA_TYPE_REPLACE_BUTTON  = "replace-button";
+    
+    var _STEP_PREFIX_USER_USER              = "USER";
+    var _STEP_PREFIX_USER_GROUP             = "GROUP";
+    var _STEP_PREFIX_USER_GROUP_EVERYONE    = "EVERYONE";
+    var _STEP_PREFIX_USER_POST              = "CORP_POSITION";
+    
+    var _STEP_USER_TYPE_SUPERIOR        = "3";
+    
+    var _STEP_RADIO_APP_ALL         = "0";
+    var _STEP_RADIO_APP_ONE         = "1";
+    var _STEP_RADIO_SST_TRUE        = "true";
+    var _STEP_RADIO_SST_FALSE       = "false";
+    var _STEP_RADIO_NCR_SKP         = "0";
+    var _STEP_RADIO_NCR_ERR         = "1";
+    
+    var _REQ_STEP_APP       = "step_app";
+    var _REQ_STEP_SST       = "step_sst";
+    var _REQ_STEP_NCR       = "step_ncr";
+    
+    var _COND_MODAL_ID              = "stepConditionsModal";
+    var _COND_MODAL_ID_LUMP_DIV     = "step-conditions-modal-div";
+    var _COND_MODAL_ID_TABLE        = "step-conditions-modal-table";
+    var _COND_MODAL_PREFIX_FOOTER   = "step-conditions-modal-lump-footer-";
+    
+    var _COND_PREFIX_ROW                = "cond-row-";
+    var _COND_PREFIX_NEW_ROOT           = "new-root-";
+    var _COND_PREFIX_SEL_ITEMS          = "cond-sel-items-";
+    var _COND_PREFIX_SEL_CONDS          = "cond-sel-cond-";
+    var _COND_PREFIX_INPUT_VALUE        = "cond-input-value-";
+    var _COND_PREFIX_SEL_OPERATOR       = "cond-sel-operator-";
+    var _COND_PREFIX_A_ADD_CONDITION    = "cond-a-add-condition-";
+    var _COND_PREFIX_TD_DEL_CONDITION   = "cond-td-del-condition-";
+    var _COND_PREFIX_A_DEL_CONDITION    = "cond-a-del-condition-";
+    var _COND_PREFIX_SPAN_ADD_CONDITION = "cond-span-add-condition";
+    var _COND_PREFIX_EFFECTIVE          = "cond-effective-";
+
+    var _CONDITION_ITEM = {
+        0 : "{!$Label.label_10761}",
+        1 : "{!$Label.label_10762}",
+        2 : "{!$Label.label_10763}",
+    };
+
+    var _CONDITION_COND = {
+        0 : "{!$Label.label_10761}",
+        1 : "{!$Label.label_10764}",
+        2 : "{!$Label.label_10765}",
+        3 : "{!$Label.label_10766}",
+        4 : "{!$Label.label_10767}",
+        5 : "{!$Label.label_10768}",
+        6 : "{!$Label.label_10769}",
+    };
+
+    var _CONDITION_OPERATOR = {
+//        0 : "{!$Label.label_10761}",
+        1 : "{!$Label.label_10770}",
+        2 : "{!$Label.label_10771}",
+    };
+    
+    var _target         = null;
+    var _id             = "";
+    var _isEdit         = false;
+    var _apiUrl = "";
+    var _cssUrl         = "";
+    var _addStepButton  = "";
+    var _delStepButton  = "";
+    var _delLumpButton  = "";
+    var _replaceButton  = "";
+    var _submitButton   = "";
+    var _submitFunction = function(){};
+    
+    var _steps  = null;
+    
+    var _def                = new Object();
+    var _countRows          = new Object();
+    var _usersHtml          = new Object();
+    var _postsHtml          = new Object();
+    var _groupsHtml         = new Object();
+    var _superiorHtml       = new Object();
+    
+    var _userSelected       = new Object();
+    var _userUnselected     = new Object();
+    var _groupSelected      = new Object();
+    var _groupUnselected    = new Object();
+    
+    var _lumpId             = "";
+    var _stepId             = "";
+    
+    var _PARENT_LUMP_ID_NOT_SELECTED    = "parent_lump_id_not_selected";
+    var _parentLumpId                   = "";
+
+    var _b_userLoading  = false;
+    var _b_groupLoading = false;
+    
+    var _b_processing   = false;
+
+    var _s_replaceLump_1    = null;
+    var _s_replaceLump_2    = null;
+    
+    var _isChangedExistsSteps         = false;
+    var _isChangedExistsStepsChecking = false;
+    
+    var _optionsSaving = false;
+    
+    $.fn.wfDef=function(options){
+        var options = jQuery.extend({
+            id              : "",
+            isEdit          : false,
+            apiUrl          : "",
+            cssUrl          : "",
+            addStepButton   : null,
+            delStepButton   : null,
+            delLumpButton   : null,
+            replaceButton   : null,
+            submitButton    : null,
+            submitFunction  : function(){
+            },
+        }, options);
+        
+        _target = this;
+        _id             = options.id;
+        _isEdit         = options.isEdit;
+        _apiUrl         = options.apiUrl;
+        _cssUrl         = options.cssUrl;
+        _addStepButton  = options.addStepButton;
+        _delStepButton  = options.delStepButton;
+        _delLumpButton  = options.delLumpButton;
+        _replaceButton  = options.replaceButton;
+        _submitButton   = options.submitButton;
+        _submitFunction = options.submitFunction;
+        
+        _apiUrl = formatapiUrl(_apiUrl);
+        importCss(_cssUrl);
+        
+        refreshSteps();
+        
+        $("#" + _addStepButton).click(function(){
+            if(_b_processing){
+                return;
+            }else{
+                _b_processing = true;
+                disableButtons();
+            }
+            submitStepOptions(_def.steps);
+            addStep();
+        });
+        
+        $("#" + _delStepButton).click(function(){
+            if(_b_processing){
+                return;
+            }else{
+                _b_processing = true;
+                disableButtons();
+            }
+            submitStepOptions(_def.steps);
+            delStep();
+        });
+        
+        $("#" + _delLumpButton).click(function(){
+            if(_b_processing){
+                return;
+            }else{
+                _b_processing = true;
+                disableButtons();
+            }
+            submitStepOptions(_def.steps);
+            delLump(_def.steps);
+        });
+
+        $("#" + _replaceButton).click(function(){
+            onReplaceClicked(_target, _replaceButton);
+        });
+        
+        $("[id=" + _submitButton + "]").click(function(){
+            submitStepOptions(_def.steps);
+            
+            if(_b_processing){
+                return;
+            }else{
+                _b_processing = true;
+                disableButtons();
+            }
+            setIsChangedExistsSteps();
+            submit();
+        });
+        
+        return this;
+    };
+    
+    function submit(){
+        if(_isChangedExistsStepsChecking){
+            setTimeout(function(){
+                submit();
+            }, 50);
+            return;
+        }
+        
+        if(_isChangedExistsSteps){
+            if(!confirm("{!$Label.label_10809}")){
+                return;
+            }
+        }
+        
+        _submitFunction();
+        
+        _b_processing = false;
+        enableButtons();
+    }
+    
+    $.fn.checkZeroApprover=function(){
+        for(var i=0; i<_def.steps.length; i++){
+            for(var j=0; j<_def.steps[i].userLump.length; j++){
+                if(_def.steps[i].userLump[j].users.length < 1){
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
+    $.fn.errorZeroApprover=function(options){
+        var options = $.extend({
+            errorClass  : "",
+        }, options);
+
+        var errorClass = options.errorClass;
+
+        for(var i=0; i<_def.steps.length; i++){
+            for(var j=0; j<_def.steps[i].userLump.length; j++){
+                if(_def.steps[i].userLump[j].users.length < 1){
+                    $("td[lumpid=" + _def.steps[i].userLump[j].lumpId + "]").css({
+                        "background-color" : "#FFCCFF",
+                    });
+                }
+            }
+        }
+
+        return this;
+    };
+
+    $.fn.checkLastApprover=function(options){
+        var options = $.extend({
+            errorClass  : "",
+        }, options);
+
+        var errorClass = options.errorClass;
+
+        var ret = true;
+        
+        for(var i=0; i<_def.steps[_def.steps.length-1].userLump.length; i++){
+            if(_def.steps[_def.steps.length-1].userLump[i].users.length < 1){
+                ret = false;
+                $("td[lumpid=" + _def.steps[_def.steps.length-1].userLump[i].lumpId + "]").css({
+                    "background-color" : "#FFCCFF",
+                });
+            }
+        }
+
+        return ret;
+    };
+    
+    $(window).resize(function(){
+        resizeTarget();
+    });
+    
+    function resizeTarget(){
+        _target.css("width", $(window).width()-_target.offset().left-33);
+        if($(document).height()-_target.offset().top-$("#infoMain").scrollTop()-32 > 150){
+            _target.css("max-height", $(document).height()-_target.offset().top-$("#infoMain").scrollTop()-32);
+        }else{
+            _target.css("max-height", 150);
+        }
+    }
+    
+    function formatapiUrl(apiUrl){
+        if(isEmpty(apiUrl)){
+            apiUrl = "";
+        }else{
+            if(apiUrl.match(/.+\/$/)){
+                apiUrl = apiUrl.substring(0, apiUrl.length - 1);
+            }
+        }
+        return apiUrl;
+    }
+    
+    function importCss(cssUrl){
+        if(isEmpty(cssUrl)){
+            return;
+        }
+        var linkWfSteps = $("<link>");
+        linkWfSteps.attr("rel",     "stylesheet");
+        linkWfSteps.attr("type",    "text/css");
+        linkWfSteps.attr("href",    cssUrl);
+        $("head").append(linkWfSteps);
+    }
+    
+    function refreshSteps(){
+        _lumpId         = null;
+        _stepId         = null;
+        _parentLumpId   = _PARENT_LUMP_ID_NOT_SELECTED;
+        
+        _steps = $("<table>").attr({
+            "id"            : _STEPS,
+            "rules"         : "all",
+            "borderColor"   : "#333",
+        });
+        
+        addHeader(_steps);
+        
+        secureGetAsync(
+            '/workflowmanagement/setting/workflowDefinitionInfo.json', 
+            {id:_id, is_edit:_isEdit}, 
+            function(data){
+                if(data.result){
+                    _def = data.def;
+                    _countRows = data.count_rows;
+                    _steps.css("width", (data.def.steps.length * 258) + 63);
+                    _usersHtml      = data.users_html;
+                    _postsHtml      = data.posts_html;
+                    _groupsHtml     = data.groups_html;
+                    _superiorHtml   = data.superior_html;
+                    _target.html("");
+                    _target.append(_steps);
+                    for(var i=0; i<data.def.steps.length; i++){
+                        addBody(_steps, data.def.steps[i]);
+                    }
+                    _target.css({
+                        "overflow"  : "auto",
+                        "position"  : "relative",
+                        "z-index"   : "116",
+                    });
+                    resizeTarget();
+                } else {
+                    alert(data.message);
+                }
+                _b_processing = false;
+                enableButtons();
+            }
+        );
+    }
+    
+    function addHeader(target){
+        if(_isEdit){
+            target.append(
+                $("<tr>").append(
+                    $("<th>").text("")
+                ).attr("id", _STEPS_HEADER_ID_CHECK)
+            );
+        }
+        target.append(
+            $("<tr>").append(
+                $("<th>").text("{!$Label.label_10740}")
+            ).attr("id", _STEPS_HEADER_ID_STEP)
+        );
+        target.append(
+            $("<tr>").append(
+                $("<th>").text("{!$Label.label_10807}")
+            ).attr({
+                "id"        : _STEPS_HEADER_ID_USER,
+            })
+        );
+        target.append(
+            $("<tr>").append(
+                $("<th>").text("{!$Label.label_10741}")
+            ).attr("id", _STEPS_HEADER_ID_CONDITIONS)
+        );
+        target.append(
+            $("<tr>").append(
+                $("<th>").text("{!$Label.label_10742}")
+            ).attr("id", _STEPS_HEADER_ID_APPROVE_PROCEDURE)
+        );
+        target.append(
+            $("<tr>").append(
+                $("<th>").text("{!$Label.label_10743}")
+            ).attr("id", _STEPS_HEADER_ID_SUBSTITUTE_APPROVE)
+        );
+        target.append(
+            $("<tr>").append(
+                $("<th>").text("{!$Label.label_10744}")
+            ).attr("id", _STEPS_HEADER_ID_NOT_CORRESPONDS)
+        );
+    }
+    
+    function addBody(target, step){
+        if(_isEdit){
+            var checkbox = $("<input>");
+            checkbox.attr({
+                "type"     : "radio",
+                "id"       : _STEP_PREFIX_CHECK + step.stepId,
+                "name"     : _STEP_NAME_RADIO,
+                "value"    : step.stepId,
+                "stepno"   : step.stepNo,
+            });
+            target.find("#" + _STEPS_HEADER_ID_CHECK).append(
+                $("<td>").append(checkbox).addClass("step-td-check")
+            );
+            checkbox = null;
+        }
+        
+        displayStepNo(target, step);
+        
+        displayStepUser(target, step);
+
+        displayConditions(target, step);
+        
+        displayStepApproveProcedure(target, step);
+        
+        displayStepSubstituteApprove(target, step);
+        
+        displayStepNotCorresponds(target, step);
+    }
+
+    function displayStepNo(target, step){
+        var inputStepNo;
+        inputStepNo = $("<span>").html(step.stepNo);
+        inputStepNo.attr({
+            "id"        : _STEP_PREFIX_INPUT_STEP + step.stepId,
+            "stepid"    : step.stepId,
+        });
+        target.find("#" + _STEPS_HEADER_ID_STEP).append(
+            $("<td>").append(inputStepNo).addClass("step-td-step")
+        );
+        inputStepNo = null;
+    }
+    
+    function displayStepUser(target, step){
+        if($("#" + _STEPS_HEADER_ID_USER).find("th:first").attr("rowspan") < step.userLump.length){
+            $("#" + _STEPS_HEADER_ID_USER).find("th:first").attr("rowspan", step.userLump.length);
+        }
+        
+        var lumpId = "";
+        for(var i=0; i<step.userLump.length; i++){
+            lumpId = step.userLump[i].lumpId;
+            parentLumpId = step.userLump[i].parent;
+            
+            var tdStep = $("<td>").attr({
+                "valign"    : "top",
+                "rowspan"   : _countRows[lumpId],
+                "lumpId"    : lumpId,
+                "parent"    : parentLumpId,
+                "datatype"  : _STEP_DATA_TYPE_LUMP,
+            });
+            tdStep.addClass("step-td-user");
+            tdStep.click(function(){
+                onLumpCellClicked($(this).attr("lumpId"), $(this).attr("parent"));
+            });
+            
+            var divUser;
+            var aRemoveButton;
+            for(var j=0; j<step.userLump[i].users.length; j++){
+                if(step.userLump[i].users[j].isValid){
+                    if(_isEdit){
+                        aRemoveButton = $("<a>");
+                        aRemoveButton.attr({
+                            "href"      : "javascript:void(0);",
+                            "lumpid"    : lumpId,
+                            "userid"    : step.userLump[i].users[j].id,
+                        });
+                        aRemoveButton.addClass("step-user-remove");
+                        aRemoveButton.click(function(){
+                            submitStepOptions(_def.steps);
+                            onRemoveClicked($(this).attr("lumpid"), $(this).attr("userid"));
+                        });
+                        aRemoveButton.css({
+                            backgroundImage : "url({!$Label.field_CSO_URL}/image/remove2.png)",
+                        });
+                        tdStep.append(aRemoveButton);
+                    }
+                    divUser = $("<div>").attr({
+                        "datatype"  : _STEP_DATA_TYPE_USER,
+                    });
+                    divUser.addClass("step-user-div");
+                    if(step.userLump[i].users[j].type == _STEP_USER_TYPE_SUPERIOR){
+                        divUser.html(_superiorHtml);
+                    }else if(step.userLump[i].users[j].id.indexOf(_STEP_PREFIX_USER_USER) == 0){
+                        divUser.html(_usersHtml[step.userLump[i].users[j].id]);
+                    }else if(step.userLump[i].users[j].id.indexOf(_STEP_PREFIX_USER_POST) == 0){
+                        divUser.html(_postsHtml[step.userLump[i].users[j].id]);
+                    }else if(step.userLump[i].users[j].id.indexOf(_STEP_PREFIX_USER_GROUP) == 0 
+                            || step.userLump[i].users[j].id == _STEP_PREFIX_USER_GROUP_EVERYONE){
+                        divUser.html(_groupsHtml[step.userLump[i].users[j].id]);
+                    }
+                        
+                    tdStep.append(divUser);
+                }
+            }
+            divUser         = null;
+            aRemoveButton   = null;
+            
+            if(_isEdit){
+                var imgAddButtonShade = $("<img>");
+                imgAddButtonShade.attr({
+                    "src"       : "{!$Label.field_CSO_URL}/image/MyPhoto.png",
+                    "lumpId"    : lumpId,
+                    "datatype"  : _STEP_DATA_TYPE_NEW_USER,
+                });
+                imgAddButtonShade.addClass("step-user-add-shade");
+                imgAddButtonShade.click(function(){
+                    openAddUserModal(step.stepId, $(this).attr("lumpId"));
+                });
+                tdStep.append(imgAddButtonShade);
+                imgAddButtonShade = null;
+                
+                var imgAddButtonPlus = $("<img>");
+                imgAddButtonPlus.attr({
+                    "src"       : "{!$Label.field_CSO_URL}/image/add2.png",
+                    "lumpId"    : lumpId,
+                    "datatype"  : _STEP_DATA_TYPE_NEW_USER,
+                });
+                imgAddButtonPlus.addClass("step-user-add-plus");
+                imgAddButtonPlus.click(function(){
+                    openAddUserModal(step.stepId, $(this).attr("lumpId"));
+                });
+                tdStep.append(imgAddButtonPlus);
+                imgAddButtonPlus = null;
+            }else{
+                if(step.userLump[i].users.length == 0){
+                    var divUserSpace = $("<div>");
+                    divUserSpace.addClass("step-user-space");
+                    tdStep.append(divUserSpace);
+                    divUserSpace = null;
+                }
+            }
+            
+            if(parentLumpId==null){
+                if(i==0){
+                    target.find("#" + _STEPS_HEADER_ID_USER).append(tdStep);
+                }else{
+                    target.find("#" + _STEPS_HEADER_ID_CONDITIONS).before($("<tr>").append(tdStep));
+                }
+            }else{
+                if(target.find("td[parent=" + parentLumpId + "]").length == 0){
+                    target.find("td[lumpId=" + parentLumpId + "]").after(tdStep);
+                }else{
+                    target.find("td[parent=" + parentLumpId + "]:last").closest("tr").after($("<tr>").append(tdStep));
+                }
+            }
+        }
+        
+        tdStep = null;
+        
+    }
+
+    function displayConditions(target, step){
+        var tdConditions = $("<td>");
+        tdConditions.addClass("step-td-conditions");
+        var imgConditionsButton= $("<img>");
+        imgConditionsButton.addClass("step-conditions");
+        imgConditionsButton.click(function(){
+            openConditionsModal(step);
+        });
+        imgConditionsButton.attr({
+            "src"      : "{!$Label.field_CSO_URL}/image/branch.png?20121201",
+        });
+        tdConditions.append(imgConditionsButton);
+        target.find("#" + _STEPS_HEADER_ID_CONDITIONS).append(tdConditions);
+        imgConditionsButton = null;
+    }
+    
+    function displayStepApproveProcedure(target, step){
+        var tdApproveProcedure = $("<td>");
+
+        if(_isEdit){
+            var divApproveProcedureAll = $("<div>");
+            divApproveProcedureAll.addClass("step-app-div");
+            var radioAPP_all = $("<input>");
+            radioAPP_all.attr("type",   "radio");
+            radioAPP_all.attr("id",     _STEP_PREFIX_RADIO_APP + step.stepId + _STEP_RADIO_APP_ALL);
+            radioAPP_all.attr("name",   _STEP_PREFIX_RADIO_APP + step.stepId);
+            radioAPP_all.attr("value",  _STEP_RADIO_APP_ALL);
+            divApproveProcedureAll.append(radioAPP_all);
+            var labelAPP_all = $("<label>");
+            labelAPP_all.attr("for",    _STEP_PREFIX_RADIO_APP + step.stepId + _STEP_RADIO_APP_ALL);
+            labelAPP_all.html("{!$Label.label_10734}");
+            divApproveProcedureAll.append(labelAPP_all);
+            tdApproveProcedure.append(divApproveProcedureAll);
+            
+            var divApproveProcedureOne = $("<div>");
+            divApproveProcedureAll.addClass("step-app-div");
+            var radioAPP_one = $("<input>");
+            radioAPP_one.attr("type",   "radio");
+            radioAPP_one.attr("id",     _STEP_PREFIX_RADIO_APP + step.stepId + _STEP_RADIO_APP_ONE);
+            radioAPP_one.attr("name",   _STEP_PREFIX_RADIO_APP + step.stepId);
+            radioAPP_one.attr("value",  _STEP_RADIO_APP_ONE);
+            divApproveProcedureOne.append(radioAPP_one);
+            var labelAPP_one = $("<label>");
+            labelAPP_one.attr("for",    _STEP_PREFIX_RADIO_APP + step.stepId + _STEP_RADIO_APP_ONE);
+            labelAPP_one.html("{!$Label.label_10735}");
+            divApproveProcedureOne.append(labelAPP_one);
+            tdApproveProcedure.append(divApproveProcedureOne);
+            
+            if(step.approveProcedure == _STEP_RADIO_APP_ALL){
+                radioAPP_all.attr("checked", "checked");
+            }else if(step.approveProcedure == _STEP_RADIO_APP_ONE){
+                radioAPP_one.attr("checked", "checked");
+            }
+            
+            divApproveProcedureOne  = null;
+            radioAPP_all            = null;
+            labelAPP_all            = null;
+            divApproveProcedureOne  = null;
+            radioAPP_one            = null;
+            labelAPP_one            = null;
+        }else{
+            if(step.approveProcedure == _STEP_RADIO_APP_ALL){
+                tdApproveProcedure.html("{!$Label.label_10734}");
+            }else if(step.approveProcedure == _STEP_RADIO_APP_ONE){
+                tdApproveProcedure.html("{!$Label.label_10735}");
+            }
+        }
+        
+        target.find("#" + _STEPS_HEADER_ID_APPROVE_PROCEDURE).append(tdApproveProcedure);
+        
+        tdApproveProcedure      = null;
+    }
+    
+    function displayStepSubstituteApprove(target, step){
+        var tdSubstituteApprove = $("<td>");
+        
+        if(_isEdit){
+            var divSubstituteApproveTrue = $("<div>");
+            divSubstituteApproveTrue.addClass("step-sst-div");
+            var radioSST_true = $("<input>");
+            radioSST_true.attr("type",  "radio");
+            radioSST_true.attr("id",    _STEP_PREFIX_RADIO_SST + step.stepId + _STEP_RADIO_SST_TRUE);
+            radioSST_true.attr("name",  _STEP_PREFIX_RADIO_SST + step.stepId);
+            radioSST_true.attr("value", _STEP_RADIO_SST_TRUE);
+            divSubstituteApproveTrue.append(radioSST_true);
+            var labelSST_true = $("<label>");
+            labelSST_true.attr("for",   _STEP_PREFIX_RADIO_SST + step.stepId + _STEP_RADIO_SST_TRUE);
+            labelSST_true.html("{!$Label.label_10745}");
+            divSubstituteApproveTrue.append(labelSST_true);
+            tdSubstituteApprove.append(divSubstituteApproveTrue);
+            
+            var divSubstituteApproveFalse = $("<div>");
+            divSubstituteApproveFalse.addClass("step-sst-div");
+            var radioSST_false = $("<input>");
+            radioSST_false.attr("type", "radio");
+            radioSST_false.attr("id",       _STEP_PREFIX_RADIO_SST + step.stepId + _STEP_RADIO_SST_FALSE);
+            radioSST_false.attr("name",     _STEP_PREFIX_RADIO_SST + step.stepId);
+            radioSST_false.attr("value",    _STEP_RADIO_SST_FALSE);
+            divSubstituteApproveFalse.append(radioSST_false);
+            var labelSST_false = $("<label>");
+            labelSST_false.attr("for",      _STEP_PREFIX_RADIO_SST + step.stepId + _STEP_RADIO_SST_FALSE);
+            labelSST_false.html("{!$Label.label_10746}");
+            divSubstituteApproveFalse.append(labelSST_false);
+            tdSubstituteApprove.append(divSubstituteApproveFalse);
+            
+            if(step.substituteApprove){
+                radioSST_true.attr("checked", "checked");
+            }else{
+                radioSST_false.attr("checked", "checked");
+            }
+
+            divSubstituteApproveTrue    = null;
+            radioSST_true               = null;
+            labelSST_true               = null;
+            divSubstituteApproveFalse   = null;
+            radioSST_false              = null;
+            labelSST_false              = null;
+        }else{
+            if(step.substituteApprove){
+                tdSubstituteApprove.html("{!$Label.label_10745}");
+            }else{
+                tdSubstituteApprove.html("{!$Label.label_10746}");
+            }
+        }
+        
+        target.find("#" + _STEPS_HEADER_ID_SUBSTITUTE_APPROVE).append(tdSubstituteApprove);
+        
+        tdSubstituteApprove         = null;
+    }
+    
+    function displayStepNotCorresponds(target, step){
+        var tdNotCorresponds = $("<td>");
+
+        if(_isEdit){
+            var divNotCorrespondsSkp = $("<div>");
+            divNotCorrespondsSkp.addClass("step-ncr-div");
+            var radioNCR_skp = $("<input>");
+            radioNCR_skp.attr("type",   "radio");
+            radioNCR_skp.attr("id",     _STEP_PREFIX_RADIO_NCR + step.stepId + _STEP_RADIO_NCR_SKP);
+            radioNCR_skp.attr("name",   _STEP_PREFIX_RADIO_NCR + step.stepId);
+            radioNCR_skp.attr("value",  _STEP_RADIO_NCR_SKP);
+            divNotCorrespondsSkp.append(radioNCR_skp);
+            var labelNCR_skp = $("<label>");
+            labelNCR_skp.attr("for",    _STEP_PREFIX_RADIO_NCR + step.stepId + _STEP_RADIO_NCR_SKP);
+            labelNCR_skp.html("{!$Label.label_10747}");
+            divNotCorrespondsSkp.append(labelNCR_skp);
+            tdNotCorresponds.append(divNotCorrespondsSkp);
+            
+            var divNotCorrespondsErr = $("<div>");
+            divNotCorrespondsErr.addClass("step-ncr-div");
+            var radioNCR_err = $("<input>");
+            radioNCR_err.attr("type",   "radio");
+            radioNCR_err.attr("id",     _STEP_PREFIX_RADIO_NCR + step.stepId + _STEP_RADIO_NCR_ERR);
+            radioNCR_err.attr("name",   _STEP_PREFIX_RADIO_NCR + step.stepId);
+            radioNCR_err.attr("value",  _STEP_RADIO_NCR_ERR);
+            divNotCorrespondsErr.append(radioNCR_err);
+            var labelNCR_err = $("<label>");
+            labelNCR_err.attr("for",    _STEP_PREFIX_RADIO_NCR + step.stepId + _STEP_RADIO_NCR_ERR);
+            labelNCR_err.html("{!$Label.label_10748}");
+            divNotCorrespondsErr.append(labelNCR_err);
+            tdNotCorresponds.append(divNotCorrespondsErr);
+            
+            if(step.notCorresponds == _STEP_RADIO_NCR_SKP){
+                radioNCR_skp.attr("checked", "checked");
+            }else if(step.notCorresponds == _STEP_RADIO_NCR_ERR){
+                radioNCR_err.attr("checked", "checked");
+            }
+            
+            divNotCorrespondsSkp    = null;
+            radioNCR_skp            = null;
+            labelNCR_skp            = null;
+            divNotCorrespondsErr    = null;
+            radioNCR_err            = null;
+            labelNCR_err            = null;
+        }else{
+            if(step.notCorresponds == _STEP_RADIO_NCR_SKP){
+                tdNotCorresponds.html("{!$Label.label_10747}");
+            }else if(step.notCorresponds == _STEP_RADIO_NCR_ERR){
+                tdNotCorresponds.html("{!$Label.label_10748}");
+            }
+        }
+        
+        target.find("#" + _STEPS_HEADER_ID_NOT_CORRESPONDS).append(tdNotCorresponds);
+        
+        tdNotCorresponds        = null;
+    }
+    
+    function openAddUserModal(stepId, lumpId){
+        _stepId = stepId;
+        _lumpId = lumpId;
+        
+        _userSelected       = new Object();
+        _userUnselected     = new Object();
+        _groupSelected      = new Object();
+        _groupUnselected    = new Object();
+        
+        $("#stepAddUserModal").remove();
+        
+        var modal = $("<div>");
+        modal.attr("title", "{!$Label.label_10808}");
+        modal.attr("id",    "stepAddUserModal");
+        modal.addClass("step-add-user-modal");
+        
+        var tabDiv = $("<div>");
+        tabDiv.attr("id", "stepAddUserTabDiv");
+        
+        var tabs        = $("<ul>");
+        var tabUser     = $("<a>");
+        tabUser.attr("href", "#tabUser");
+        tabUser.html("{!$Label.label_10131}");
+        tabs.append($("<li>").append(tabUser));
+        var tabPost     = $("<a>");
+        tabPost.attr("href", "#tabPost");
+        tabPost.html("{!$Label.label_10317}");
+        tabs.append($("<li>").append(tabPost));
+        var tabGroup    = $("<a>");
+        tabGroup.attr("href", "#tabGroup");
+        tabGroup.html("{!$Label.label_10022}");
+        tabs.append($("<li>").append(tabGroup));
+        tabDiv.append(tabs);
+        
+        var divUser = $("<div>");
+        divUser.attr("id", "tabUser");
+        divUser.addClass("tab-inner");
+        var txtUserSearchText   = $("<input>");
+        txtUserSearchText.attr("type",          "text");
+        txtUserSearchText.attr("id",            "step-modal-user-search-text");
+        txtUserSearchText.attr("placeholder",   "{!$Label.label_10749}");
+        txtUserSearchText.addClass("search-txt");
+        txtUserSearchText.keydown(function(e){
+            if(e.keyCode == 13){
+                onSearchClicked('user');
+            }
+        });
+        divUser.append(txtUserSearchText);
+        var btnUserSearchSearch = $("<input>");
+        btnUserSearchSearch.attr("type",        "button");
+        btnUserSearchSearch.attr("value",       "{!$Label.label_00069}");
+        btnUserSearchSearch.addClass("btn");
+        btnUserSearchSearch.click(function(){
+            onSearchClicked('user');
+        });
+        divUser.append(btnUserSearchSearch);
+        var btnUserSearchClear  = $("<input>");
+        btnUserSearchClear.attr("type",         "button");
+        btnUserSearchClear.attr("value",        "{!$Label.label_00070}");
+        btnUserSearchClear.addClass("btn");
+        btnUserSearchClear.click(function(){
+            onClearClicked('user');
+        });
+        divUser.append(btnUserSearchClear);
+        var tblUserList = $("<table>");
+        tblUserList.attr("id", "step-modal-user-list");
+        divUser.append(tblUserList);
+        var divUserListPager = $("<div>");
+        divUserListPager.attr("id", "step-modal-user-list-pager");
+        divUser.append(divUserListPager);
+        tabDiv.append(divUser);
+        
+        
+        var divPost = $("<div>");
+        divPost.attr("id", "tabPost");
+        divPost.addClass("tab-inner");
+        var divPostList = $("<div>");
+        divPostList.attr("id", "step-modal-post-list");
+        divPost.append(divPostList);
+        tabDiv.append(divPost);
+        
+        
+        var divGroup = $("<div>");
+        divGroup.attr("id", "tabGroup");
+        divGroup.addClass("tab-inner");
+        var txtGroupSearchText  = $("<input>");
+        txtGroupSearchText.attr("type",         "text");
+        txtGroupSearchText.attr("id",           "step-modal-group-search-text");
+        txtGroupSearchText.attr("placeholder",  "{!$Label.label_10548}");
+        txtGroupSearchText.addClass("search-txt");
+        txtGroupSearchText.keydown(function(e){
+            if(e.keyCode == 13){
+                onSearchClicked('group');
+            }
+        });
+        divGroup.append(txtGroupSearchText);
+        var btnGroupSearchSearch    = $("<input>");
+        btnGroupSearchSearch.attr("type",   "button");
+        btnGroupSearchSearch.attr("value",  "{!$Label.label_00069}");
+        btnGroupSearchSearch.addClass("btn");
+        btnGroupSearchSearch.click(function(){
+            onSearchClicked('group');
+        });
+        divGroup.append(btnGroupSearchSearch);
+        var btnGroupSearchClear = $("<input>");
+        btnGroupSearchClear.attr("type",    "button");
+        btnGroupSearchClear.attr("value",   "{!$Label.label_00070}");
+        btnGroupSearchClear.addClass("btn");
+        btnGroupSearchClear.click(function(){
+            onClearClicked('group');
+        });
+        divGroup.append(btnGroupSearchClear);
+        var tblGroupList = $("<table>");
+        tblGroupList.attr("id", "step-modal-group-list");
+        divGroup.append(tblGroupList);
+        var divGroupListPager = $("<div>");
+        divGroupListPager.attr("id", "step-modal-group-list-pager");
+        divGroup.append(divGroupListPager);
+        tabDiv.append(divGroup);
+        
+        
+        modal.append(tabDiv);
+        
+        
+        var divSuperior = $("<div>");
+        divSuperior.addClass("superior2");
+        var chkSuperior = $("<input>");
+        chkSuperior.attr("type",    "checkbox");
+        chkSuperior.attr("id",      "step-modal-superior-chk");
+        divSuperior.append(chkSuperior);
+        var lblSuperior = $("<label>");
+        lblSuperior.attr("for",     "step-modal-superior-chk");
+        lblSuperior.html("{!$Label.label_10750}");
+        divSuperior.append(lblSuperior);
+        modal.append(divSuperior);
+        
+        
+        var divButtonArea = $("<div>");
+        divButtonArea.addClass("submit-button-area");
+        modal.append(divButtonArea);
+
+        var inputOkButton = $("<input>");
+        inputOkButton.attr({
+            type    : "button",
+            value   : JSMsg["field.common.ok"],
+        });
+        inputOkButton.addClass("btn");
+        inputOkButton.click(function(){
+            submitStepOptions(_def.steps);
+            submitManager();
+            $("#stepAddUserModal").dialog("close");
+        });
+        divButtonArea.append(inputOkButton);
+
+        var inputCancelButton = $("<input>");
+        inputCancelButton.attr({
+            type    : "button",
+            value   : JSMsg["field.common.cancel"],
+        });
+        inputCancelButton.addClass("btn");
+        inputCancelButton.click(function(){
+            $("#stepAddUserModal").dialog("close");
+        });
+        divButtonArea.append(inputCancelButton);
+
+        $("body").append(modal);
+        
+        $("#stepAddUserModal").dialog({
+            autoOpen  : false,
+            bgiframe  : true,
+            modal     : true,
+            resizable : false,
+            closeText : "Close",
+            width     : 770,
+            height    : 555,
+        });
+
+        $("#stepAddUserTabDiv").tabs({
+            show    : function(e, ui){
+                if(ui.index == 0){
+                    $("#step-modal-user-search-text").focus();
+                }else if(ui.index == 2){
+                    $("#step-modal-group-search-text").focus();
+                }
+            }
+        });
+
+        $("#stepAddUserModal").dialog("open");
+        $("#step-modal-user-search-text").focus();
+        
+        loadUser();
+        loadPost();
+        loadGroup();
+        loadSuperior();
+    }
+    
+    function loadUser(){
+        $("#step-modal-user-list").jqGrid({
+            url             : _apiUrl + "/workflowmanagement/setting/workflowDefinitionUserList.json",
+            postData        : {
+                tmp_id          : _id,
+                lump_id         : _lumpId,
+                row_num         : this.rowNum,
+                search          : "",
+            },
+            datatype        : "jsonp",
+            jsonReader      : {
+                id              : "id",
+                repeatitems     : false,
+            },
+            colNames        : [
+                    '',
+                    "{!$Label.label_10131}",
+                    "{!$Label.label_10650}",
+            ],
+            colModel        : [
+                    {name : 'id',   index : 'id',   hidden:true},
+                    {name : 'name', index : 'userid', width:455},
+                    {name : 'org',  index : 'org',  width:185},
+            ],
+            rowNum          : 10,
+            height          : 300,
+            width           : 700,
+            autowidth       : false,
+            rowList         : [10,30,50],
+            sortname        : 'userid',
+            sortorder       : 'asc',
+            pager           : $('#step-modal-user-list-pager'),
+            viewrecords     : true,
+            multiselect     : true,
+            multiboxonly    : true,
+            loadComplete    : function(data){
+                if(data["added"]){
+                    for(var i=0; i<data["added"].length; i++){
+                        _userSelected[data["added"][i]] = data["added"][i];
+                    }
+                }
+                _b_userLoading = true;
+                for(var id in _userSelected){
+                    $(this).setSelection(id);
+                }
+                _b_userLoading = false;
+            },
+            onSelectRow     : function(id, b_check){
+                if(!_b_userLoading){
+                    onSelectUserRow();
+                }
+            },
+            onSelectAll     : function(ids){
+                if(!_b_userLoading){
+                    onSelectUserRow();
+                }
+            },
+        });
+        $("#step-modal-user-list").jqGrid('navGrid','#step-modal-user-list-pager',{edit:false,add:false,del:false,search:false,refresh:false});
+    }
+    
+    function onSelectUserRow(){
+        var gridUserIDs = $("#step-modal-user-list").getDataIDs();
+        for(var i=0; i<gridUserIDs.length; i++){
+            var row = $("#step-modal-user-list").getRowData(gridUserIDs[i]);
+            if($("#step-modal-user-list").find("input[type=checkbox][id=jqg_" + row.id + "]").attr("checked")){
+                _userSelected[row.id] = row.id;
+                delete _userUnselected[row.id];
+            }else{
+                delete _userSelected[row.id];
+                _userUnselected[row.id] = row.id;
+            }
+        }
+    }
+    
+    function loadGroup(){
+        $("#step-modal-group-list").jqGrid({
+            url             : _apiUrl + "/workflowmanagement/setting/workflowDefinitionGroupList.json",
+            postData        : {
+                tmp_id          : _id,
+                lump_id         : _lumpId,
+                row_num         : this.rowNum,
+                search          : "",
+            },
+            datatype        : "jsonp",
+            jsonReader      : {
+                id              : "id",
+                repeatitems     : false,
+            },
+            colNames        : [
+                    '',
+                    "{!$Label.label_10576}",
+                    "{!$Label.label_10012}",
+            ],
+            colModel        : [
+                    {name : 'id',           index : 'id',           hidden:true },
+                    {name : 'group',        index : 'group',        width:320   },
+                    {name : 'explanation',  index : 'explanation',  width:320   },
+            ],
+            rowNum          : 10,
+            height          : 300,
+            width           : 700,
+            autowidth       : false,
+            rowList         : [10,30,50],
+            sortname        : 'group',
+            sortorder       : 'asc',
+            pager           : $('#step-modal-group-list-pager'),
+            viewrecords     : true,
+            multiselect     : true,
+            multiboxonly    : true,
+            loadComplete    : function(data){
+                if(data["added"]){
+                    for(var i=0; i<data["added"].length; i++){
+                        _groupSelected[data["added"][i]] = data["added"][i];
+                    }
+                }
+                _b_groupLoading = true;
+                for(var id in _groupSelected){
+                    $(this).setSelection(id);
+                }
+                _b_groupLoading = false;
+            },
+            onSelectRow     : function(id, b_check){
+                if(!_b_groupLoading){
+                    onSelectGroupRow();
+                }
+            },
+            onSelectAll     : function(ids){
+                if(!_b_groupLoading){
+                    onSelectGroupRow();
+                }
+            },
+        });
+        $("#step-modal-group-list").jqGrid('navGrid','#step-modal-group-list-pager',{edit:false,add:false,del:false,search:false,refresh:false});
+    }
+
+    function onSelectGroupRow(){
+        var gridGroupIDs = $("#step-modal-group-list").getDataIDs();
+        for(var i=0; i<gridGroupIDs.length; i++){
+            var row = $("#step-modal-group-list").getRowData(gridGroupIDs[i]);
+            if($("#step-modal-group-list").find("input[type=checkbox][id=jqg_" + row.id + "]").attr("checked")){
+                _groupSelected[row.id] = row.id;
+                delete _groupUnselected[row.id];
+            }else{
+                delete _groupSelected[row.id];
+                _groupUnselected[row.id] = row.id;
+            }
+        }
+    }
+
+    function onSearchClicked(type){
+        if(type == "user"){
+            $("#step-modal-user-list").jqGrid("clearGridData");
+            $("#step-modal-user-list").setGridParam({
+                postData : {
+                    search : $("#step-modal-user-search-text").val(),
+                },
+            }).trigger("reloadGrid");
+        }else if(type == "group"){
+            $("#step-modal-group-list").jqGrid("clearGridData");
+            $("#step-modal-group-list").setGridParam({
+                postData : {
+                    search : $("#step-modal-group-search-text").val(),
+                }
+            }).trigger("reloadGrid");
+        }
+    }
+
+    function onClearClicked(type){
+        if(type == "user"){
+            $("#step-modal-user-search-text").val("");
+            $("#step-modal-user-list").jqGrid("clearGridData");
+            $("#step-modal-user-list").setGridParam({
+                postData:{
+                    search  : "",
+                }
+            }).trigger("reloadGrid");
+        }else if(type == "group"){
+            $("#step-modal-group-search-text").val("");
+            $("#step-modal-group-list").jqGrid("clearGridData");
+            $("#step-modal-group-list").setGridParam({
+                postData:{
+                    search  : "",
+                }
+            }).trigger("reloadGrid");
+        }
+    }
+    
+    function loadPost(){
+        secureGetAsync(
+            "/workflowmanagement/setting/workflowDefinitionPostList.json",
+            {tmp_id:_id, lump_id:_lumpId,},
+            function(data){
+                var branches = $("#step-modal-post-list").html(data["tree"]);
+                $("#step-modal-post-list").treeview({
+                    animated    : "fast",
+                    collapsed   : false,
+                });
+                var expandable              = $("#step-modal-post-list").find(".expandable");
+                expandable.removeClass("expandable");
+                expandable.addClass("collapsable");
+                var expandable_hitarea      = $("#step-modal-post-list").find(".expandable-hitarea");
+                expandable_hitarea.removeClass("expandable-hitarea");
+                expandable_hitarea.addClass("collapsable-hitarea");
+                var lastExpandable          = $("#step-modal-post-list").find(".lastExpandable");
+                lastExpandable.removeClass("lastExpandable");
+                lastExpandable.addClass("lastCollapsable");
+                var lastExpandable_hitarea  = $("#step-modal-post-list").find(".lastExpandable-hitarea");
+                lastExpandable_hitarea.removeClass("lastExpandable-hitarea");
+                lastExpandable_hitarea.addClass("lastCollapsable-hitarea");
+                if(data["added"]){
+                    for(var i=0; i<data["added"].length; i++){
+                        $("input[value=" + data["added"][i] + "]").attr("checked", "checked");
+                    }
+                }
+            }
+        );
+    }
+    
+    function loadSuperior(){
+        secureGetAsync(
+            "/workflowmanagement/setting/workflowDefinitionSuperior.json",
+            {tmp_id:_id, lump_id:_lumpId},
+            function(data){
+                if(data["superior"] == "1"){
+                    $("#step-modal-superior-chk").attr("checked", "checked");
+                }else{
+                    $("#step-modal-superior-chk").attr("checked", "");
+                }
+            }
+        );
+    }
+    
+    function submitManager(){
+        if(_optionsSaving){
+            setTimeout(function(){submitManager();}, 50);
+            return;
+        }
+        
+        var addUsers = "";
+        for(var id in _userSelected){
+            if(addUsers == ""){
+                addUsers = id;
+            }else{
+                addUsers += "," + id;
+            }
+        }
+        var delUsers = "";
+        for(var id in _userUnselected){
+            if(delUsers == ""){
+                delUsers = id;
+            }else{
+                delUsers += "," + id;
+            }
+        }
+        
+        var addGroups = "";
+        for(var id in _groupSelected){
+            if(addGroups == ""){
+                addGroups = id;
+            }else{
+                addGroups += "," + id;
+            }
+        }
+        var delGroups = "";
+        for(var id in _groupUnselected){
+            if(delGroups == ""){
+                delGroups = id;
+            }else{
+                delGroups += "," + id;
+            }
+        }
+        
+        var posts = "";
+        var selectedPost = $("#stepAddUserModal").find("input:checkbox[value^=CORP_POSITION]:checked");
+        for(var i=0; i<selectedPost.length; i++){
+            if(posts == ""){
+                posts = selectedPost[i].value;
+            }else{
+                posts += "," + selectedPost[i].value;
+            }
+        }
+        
+        var superior = 0;
+        if($("#step-modal-superior-chk").attr("checked")){
+            superior = 1;
+        }
+        
+        secureGetAsync(
+            "/workflowmanagement/setting/workflowDefinitionManager.json", 
+            {
+                tmp_id      : _id, 
+                step_id     : _stepId,
+                lump_id     : _lumpId, 
+                addusers    : addUsers, 
+                delusers    : delUsers, 
+                addgroups   : addGroups, 
+                delgroups   : delGroups,
+                posts       : posts,
+                superior    : superior
+            },
+            function(){
+                refreshSteps();
+            }
+        );
+    }
+    
+    function openConditionsModal(step){
+        var isLumpSelected = false;
+        if(_parentLumpId != _PARENT_LUMP_ID_NOT_SELECTED){
+            for(var i=0; i<step.userLump.length; i++){
+                if(step.userLump[i].parent == _parentLumpId){
+                    isLumpSelected = true;
+                    break;
+                }
+            }
+        }
+        if(!isLumpSelected){
+            var isSingleParent = true;
+            for(var i=0; i<step.userLump.length; i++){
+                if(i==0){
+                    continue;
+                }else if(step.userLump[i].parent != step.userLump[i-1].parent){
+                    isSingleParent = false;
+                    break;
+                }
+            }
+            if(isSingleParent){
+                onLumpCellClicked($(step.userLump[0]).attr("lumpId"), $(step.userLump[0]).attr("parent"));
+            }else{
+                if(_isEdit){
+                    alert("{!$Label.label_10819}");
+                }else{
+                    alert("{!$Label.msg_00322}");
+                }
+                return;
+            }
+        }
+        
+        $("#" + _COND_MODAL_ID).dialog("close");
+        $("#" + _COND_MODAL_ID).remove();
+        
+        var modal = $("<div>");
+        modal.attr("id",        _COND_MODAL_ID);
+        modal.attr("title",     "{!$Label.label_10741}");
+        modal.attr("stepid",    step.stepId);
+        var modalInnerTitle = $("<div>");
+        modalInnerTitle.addClass("step-conditions-modal-innertitle");
+        modalInnerTitle.html("{!$Label.label_10751}");
+        modal.append(modalInnerTitle);
+        
+        var divLump = $("<div>");
+        divLump.attr("id", _COND_MODAL_ID_LUMP_DIV);
+        divLump.addClass("step-conditions-modal-div");
+        var tblCondition = $("<table>");
+        tblCondition.attr("id", _COND_MODAL_ID_TABLE);
+        tblCondition.addClass("step-conditions-modal-table");
+        var trConditionHead = $("<tr>");
+        trConditionHead.append($("<th>"));
+        trConditionHead.append($("<th>"));
+        trConditionHead.append($("<th>").html("{!$Label.label_10752}"));
+        trConditionHead.append($("<th>").html("{!$Label.label_10753}"));
+        trConditionHead.append($("<th>").html("{!$Label.label_10754}"));
+        trConditionHead.append($("<th>").html("{!$Label.label_10755}"));
+        tblCondition.append(trConditionHead);
+        trConditionHead = null;
+
+        var rootCounter = 0;
+        for(var i=0; i<step.userLump.length; i++){
+            if(step.userLump[i].parent != _parentLumpId){
+                continue;
+            }
+            for(var j=0; j<step.userLump[i].conditions.length; j++){
+                var trConditionBody = $("<tr>");
+                trConditionBody.attr({
+                    "id"        : _COND_PREFIX_ROW + step.userLump[i].lumpId + "-" + String(j),
+                    "lumpid"    : step.userLump[i].lumpId,
+                });
+                var tdConditionBodyHead = $("<td>");
+                tdConditionBodyHead.addClass("cond-bodyhead");
+                if(j==0){
+                    tdConditionBodyHead.html(getMsg(new Array(getOrdinalForLocale((typeof USER_LOCALE != 'undefined' ? USER_LOCALE : ''), String(++rootCounter))), "{!$Label.label_10756}"));
+                }
+                trConditionBody.append(tdConditionBodyHead);
+                
+                if(_isEdit){
+                    var tdConditionRemove = $("<td>");
+                    tdConditionRemove.attr({
+                        "id"    : _COND_PREFIX_TD_DEL_CONDITION + step.userLump[i].lumpId + "-" + String(j),
+                    });
+                    tdConditionRemove.addClass("cond-td-remove");
+                    var aConditionRemove = $("<a>");
+                    aConditionRemove.addClass("cond-a-remove");
+                    if(step.userLump[i].conditions.length <= 1){
+                        aConditionRemove.addClass("cond-a-remove-hidden");
+                    }
+                    aConditionRemove.attr({
+                        "id"        : _COND_PREFIX_A_DEL_CONDITION + step.userLump[i].lumpId + "-" + String(j),
+                        "href"      : "javascript:void(0);",
+                        "lumpid"    : step.userLump[i].lumpId,
+                        "no"        : String(j),
+                    });
+                    aConditionRemove.click(function(){
+                        deleteCondition($(this).attr("lumpid"), $(this).attr("no"));
+                    });
+                    tdConditionRemove.append(aConditionRemove);
+                    trConditionBody.append(tdConditionRemove);
+                }
+                
+                var tdConditionBodyItem = $("<td>");
+                if(_isEdit){
+                    var selItems = $("<select>");
+                    selItems.attr("id", _COND_PREFIX_SEL_ITEMS + step.userLump[i].lumpId + "-" + String(j));
+                    selItems.addClass("cond-sel-items");
+                    for(var item in _CONDITION_ITEM){
+                        var optItem = $("<option>");
+                        optItem.attr("value", item);
+                        optItem.html(_CONDITION_ITEM[item]);
+                        selItems.append(optItem);
+                    }
+                    selItems.val(step.userLump[i].conditions[j].item);
+                    tdConditionBodyItem.append(selItems);
+                    selItems    = null;
+                }else{
+                    var spanItems = $("<span>");
+                    spanItems.addClass("cond-span-items");
+                    spanItems.html(_CONDITION_ITEM[step.userLump[i].conditions[j].item]);
+                    tdConditionBodyItem.append(spanItems);
+                    spanItems   = null;
+                }
+                trConditionBody.append(tdConditionBodyItem);
+                tdConditionBodyItem = null;
+                
+                var tdConditionBodyCond = $("<td>");
+                if(_isEdit){
+                    var selConds = $("<select>");
+                    selConds.attr("id", _COND_PREFIX_SEL_CONDS + step.userLump[i].lumpId + "-" + String(j));
+                    selConds.addClass("cond-sel-conds");
+                    for(var cond in _CONDITION_COND){
+                        var optCond = $("<option>");
+                        optCond.attr("value", cond);
+                        optCond.html(_CONDITION_COND[cond]);
+                        selConds.append(optCond);
+                    }
+                    selConds.val(step.userLump[i].conditions[j].condition);
+                    tdConditionBodyCond.append(selConds);
+                    selConds    = null;
+                }else{
+                    var spanConds = $("<span>");
+                    spanConds.addClass("cond-span-conds");
+                    spanConds.html(_CONDITION_COND[step.userLump[i].conditions[j].condition]);
+                    tdConditionBodyCond.append(spanConds);
+                    spanConds   = null;
+                }
+                trConditionBody.append(tdConditionBodyCond);
+                tdConditionBodyCond = null;
+                
+                var tdConditionBodyValue = $("<td>");
+                if(_isEdit){
+                    var inputValue = $("<input>");
+                    inputValue.attr("id", _COND_PREFIX_INPUT_VALUE + step.userLump[i].lumpId + "-" + String(j));
+                   	inputValue.attr("maxlength", "255");
+                    inputValue.addClass("cond-input-value");
+                    inputValue.val(step.userLump[i].conditions[j].value);
+                    tdConditionBodyValue.append(inputValue);
+                    inputValue = null;
+                }else{
+                    var spanValue = $("<span>");
+                    spanValue.addClass("cond-span-value");
+                    spanValue.html(step.userLump[i].conditions[j].value);
+                    tdConditionBodyValue.append(spanValue);
+                    spanValue   = null;
+                }
+                trConditionBody.append(tdConditionBodyValue);
+                tdConditionBodyValue    = null;
+                
+                var tdConditionBodyOperator = $("<td>");
+                if(_isEdit){
+                    var selOperators = $("<select>");
+                    selOperators.attr({
+                        "id"        : _COND_PREFIX_SEL_OPERATOR + step.userLump[i].lumpId + "-" + String(j),
+                        "lumpid"    : step.userLump[i].lumpId,
+                        "no"        : String(j),
+                    });
+                    selOperators.addClass("cond-sel-operators");
+                    if(j > 0){
+                        selOperators.addClass("cond-sel-operators-hidden");
+                    }
+                    for(var operator in _CONDITION_OPERATOR){
+                        var optOperator = $("<option>");
+                        optOperator.attr("value", operator);
+                        optOperator.html(_CONDITION_OPERATOR[operator]);
+                        selOperators.append(optOperator);
+                    }
+                    selOperators.val(step.userLump[i].conditions[j].operator);
+                    selOperators.change(function(){
+                        onChangeConditionOperator($(this).attr("lumpid"), $(this).attr("no"));
+                    });
+                    tdConditionBodyOperator.append(selOperators);
+                    selOperators    = null;
+                }else{
+                    var spanOperators   = $("<span>");
+                    spanOperators.addClass("cond-span-operators");
+                    spanOperators.html(_CONDITION_OPERATOR[step.userLump[i].conditions[j].operator]);
+                    tdConditionBodyOperator.append(spanOperators);
+                    spanOperators   = null;
+                }
+                trConditionBody.append(tdConditionBodyOperator);
+                tdConditionBodyOperator = null;
+                
+                tblCondition.append(trConditionBody);
+            }
+            
+            if(_isEdit){
+                var trFooter = $("<tr>");
+                trFooter.attr("id", _COND_MODAL_PREFIX_FOOTER + step.userLump[i].lumpId);
+                trFooter.append($("<td>"), $("<td>"));
+                var lblNoCondition = $("<label>");
+                var inputNoCondition = $("<input>");
+                inputNoCondition.attr({
+                    "id"        : _COND_PREFIX_EFFECTIVE + step.userLump[i].lumpId,
+                    "type"      : "radio",
+                    "value"     : step.userLump[i].lumpId,
+                    "name"      : _COND_PREFIX_EFFECTIVE + step.userLump[i].parent,
+                });
+                inputNoCondition.change(function(){
+                    onNoConditionChange($(this).val());
+                });
+                var spanNoCondition = $("<span>").html("{!$Label.label_10757}");
+                lblNoCondition.append(inputNoCondition);
+                lblNoCondition.append(spanNoCondition);
+                trFooter.append($("<td>").append(lblNoCondition));
+                trFooter.append($("<td>"));
+                trFooter.append($("<td>"));
+                var tdFooterAddCondition = $("<td>");
+                var aAddCondition = $("<a>");
+                aAddCondition.attr({
+                    "id"        : _COND_PREFIX_A_ADD_CONDITION + step.userLump[i].lumpId,
+                    "lumpid"    : step.userLump[i].lumpId,
+                    "href"      : "javascript:void(0);",
+                });
+                aAddCondition.html("{!$Label.label_10758}");
+                aAddCondition.addClass("cond-a-add-condition");
+                aAddCondition.click(function(){
+                    addCondition(step, $(this).attr("lumpid"));
+                });
+                var spanAddCondition = $("<span>");
+                spanAddCondition.attr("id", _COND_PREFIX_SPAN_ADD_CONDITION + step.userLump[i].lumpId);
+                spanAddCondition.html("{!$Label.label_10758}");
+                spanAddCondition.addClass("cond-span-add-condition");
+                trFooter.append($("<td>").append(aAddCondition, spanAddCondition));
+                tblCondition.append(trFooter);
+                trFooter                = null;
+                tdFooterAddCondition    = null;
+                aAddCondition           = null;
+            }
+        }
+
+        if(_isEdit){
+            var trNewRoot = $("<tr>");
+            trNewRoot.append($("<td>"), $("<td>"));
+            var aNewRootAddRoot = $("<a>");
+            aNewRootAddRoot.html("{!$Label.label_10759}");
+            aNewRootAddRoot.attr("href", "javascript:void(0);");
+            aNewRootAddRoot.addClass("cond-a-new-root");
+            aNewRootAddRoot.click(function(){
+                addRoot(step);
+            });
+            trNewRoot.append($("<td>").append(aNewRootAddRoot));
+            trNewRoot.append($("<td>"));
+            trNewRoot.append($("<td>"));
+            trNewRoot.append($("<td>"));
+            tblCondition.append(trNewRoot);
+            trNewRoot       = null;
+            aNewRootAddRoot = null;
+        }
+        
+        divLump.append(tblCondition);
+        modal.append(divLump);
+        
+        
+        var divButtonArea = $("<div>");
+        divButtonArea.addClass("submit-button-area");
+        modal.append(divButtonArea);
+        if(_isEdit){
+            var inputOkButton = $("<input>");
+            inputOkButton.attr({
+                type    : "button",
+                value   : "{!$Label.label_00059}",
+            });
+            inputOkButton.addClass("btn");
+            inputOkButton.click(function(){
+                submitStepOptions(_def.steps);
+                submitConditions(step);
+                $("#" + _COND_MODAL_ID).dialog("close");
+            });
+            divButtonArea.append(inputOkButton);
+
+            var inputCancelButton = $("<input>");
+            inputCancelButton.attr({
+                type    : "button",
+                value   : "{!$Label.label_00058}",
+            });
+            inputCancelButton.addClass("btn");
+            inputCancelButton.click(function(){
+                $("#" + _COND_MODAL_ID).dialog("close");
+            });
+            divButtonArea.append(inputCancelButton);
+        }else{
+            var inputCancelButton = $("<input>");
+            inputCancelButton.attr({
+                type    : "button",
+                value   : "{!$Label.label_00071}",
+            });
+            inputCancelButton.addClass("btn");
+            inputCancelButton.click(function(){
+                $("#" + _COND_MODAL_ID).dialog("close");
+            });
+            divButtonArea.append(inputCancelButton);
+        }
+        modal.append(divButtonArea);
+        
+        
+        $("body").append(modal);
+
+        for(var i=0; i<step.userLump.length; i++){
+            if(step.userLump[i].parent != _parentLumpId){
+                continue;
+            }
+            if(!step.userLump[i].conditionEffective){
+                onNoConditionChange(step.userLump[i].lumpId);
+            }
+        }
+        
+        var options = {
+            autoOpen:   false,
+            bgiframe:   true,
+            modal:      true,
+            resizable:  false,
+            closeText:  "Close",
+            height:     630,
+        };
+        if(_isEdit){
+            options.width   = 915;
+        }else{
+            options.width   = 890;
+        }
+        modal.dialog(options);
+        
+        modal.dialog("open");
+    }
+    
+    function addCondition(step, lumpId){
+        var rows = $("[id^=" + _COND_PREFIX_ROW + lumpId + "]").length;
+        
+        var trConditionBody = $("<tr>");
+        trConditionBody.attr("id", _COND_PREFIX_ROW + lumpId + "-" + String(rows));
+        var tdConditionBodyHead = $("<td>");
+        tdConditionBodyHead.addClass("cond-bodyhead");
+        trConditionBody.append(tdConditionBodyHead);
+        
+        var tdConditionRemove = $("<td>");
+        tdConditionRemove.attr({
+            "id"    : _COND_PREFIX_TD_DEL_CONDITION + lumpId + "-" + String(rows),
+        });
+        tdConditionRemove.addClass("cond-td-remove");
+        var aConditionRemove = $("<a>");
+        aConditionRemove.addClass("cond-a-remove");
+        aConditionRemove.attr({
+            "id"        : _COND_PREFIX_A_DEL_CONDITION + lumpId + "-" + String(rows),
+            "href"      : "javascript:void(0);",
+            "lumpid"    : lumpId,
+            "no"        : String(rows),
+        });
+        aConditionRemove.click(function(){
+            deleteCondition($(this).attr("lumpid"), $(this).attr("no"));
+        });
+        tdConditionRemove.append(aConditionRemove);
+        trConditionBody.append(tdConditionRemove);
+        $("#" + _COND_PREFIX_A_DEL_CONDITION + lumpId + "-0").removeClass("cond-a-remove-hidden");
+        
+        var tdConditionBodyItem = $("<td>");
+        var selItems = $("<select>");
+        selItems.attr("id", _COND_PREFIX_SEL_ITEMS + lumpId + "-" + String(rows));
+        selItems.addClass("cond-sel-items");
+        for(var item in _CONDITION_ITEM){
+            var optItem = $("<option>");
+            optItem.attr("value", item);
+            optItem.html(_CONDITION_ITEM[item]);
+            selItems.append(optItem);
+        }
+        tdConditionBodyItem.append(selItems);
+        trConditionBody.append(tdConditionBodyItem);
+        
+        var tdConditionBodyCond = $("<td>");
+        var selConds = $("<select>");
+        selConds.attr("id", _COND_PREFIX_SEL_CONDS + lumpId + "-" + String(rows));
+        selConds.addClass("cond-sel-conds");
+        for(var cond in _CONDITION_COND){
+            var optCond = $("<option>");
+            optCond.attr("value", cond);
+            optCond.html(_CONDITION_COND[cond]);
+            selConds.append(optCond);
+        }
+        tdConditionBodyCond.append(selConds);
+        trConditionBody.append(tdConditionBodyCond);
+        
+        var tdConditionBodyValue = $("<td>");
+        var inputValue = $("<input>");
+        inputValue.attr("id", _COND_PREFIX_INPUT_VALUE + lumpId + "-" + String(rows));
+        inputValue.attr("maxlength", "255");
+        inputValue.addClass("cond-input-value");
+        tdConditionBodyValue.append(inputValue);
+        trConditionBody.append(tdConditionBodyValue);
+        
+        var tdConditionBodyOperator = $("<td>");
+        var selOperators = $("<select>");
+        selOperators.attr("id", _COND_PREFIX_SEL_OPERATOR + lumpId + "-" + String(rows));
+        selOperators.addClass("cond-sel-operators cond-sel-operators-hidden");
+        for(var operator in _CONDITION_OPERATOR){
+            var optOperator = $("<option>");
+            optOperator.attr("value", operator);
+            optOperator.html(_CONDITION_OPERATOR[operator]);
+            selOperators.append(optOperator);
+        }
+        tdConditionBodyOperator.append(selOperators);
+        trConditionBody.append(tdConditionBodyOperator);
+        
+        $("#" + _COND_PREFIX_ROW + lumpId + "-" + String(rows-1)).after(trConditionBody);
+    }
+    
+    function addRoot(step){
+        var lastFooter  = $("[id^=" + _COND_MODAL_PREFIX_FOOTER + "]:last");
+        var rootNo      = $("[id^=" + _COND_MODAL_PREFIX_FOOTER + "]").length;
+        var newRootsNum = $("[id^=" + _COND_PREFIX_ROW + _COND_PREFIX_NEW_ROOT + "]").length;
+        
+        var trConditionBody = $("<tr>");
+        trConditionBody.attr({
+            "id"        : _COND_PREFIX_ROW + _COND_PREFIX_NEW_ROOT + String(newRootsNum) + "-0",
+            "lumpid"    : _COND_PREFIX_NEW_ROOT + String(newRootsNum),
+        });
+        var tdConditionBodyHead = $("<td>");
+        tdConditionBodyHead.addClass("cond-bodyhead");
+        tdConditionBodyHead.html(getMsg(new Array(getOrdinalForLocale((typeof USER_LOCALE != 'undefined' ? USER_LOCALE : ''), String(rootNo+1))), "{!$Label.label_10756}"));
+        trConditionBody.append(tdConditionBodyHead);
+        
+        var tdConditionRemove = $("<td>");
+        tdConditionRemove.attr({
+            "id"    : _COND_PREFIX_TD_DEL_CONDITION + _COND_PREFIX_NEW_ROOT + String(newRootsNum) + "-0",
+        });
+        tdConditionRemove.addClass("cond-td-remove");
+        var aConditionRemove = $("<a>");
+        aConditionRemove.addClass("cond-a-remove cond-a-remove-hidden");
+        aConditionRemove.attr({
+            "id"        : _COND_PREFIX_A_DEL_CONDITION + _COND_PREFIX_NEW_ROOT + String(newRootsNum) + "-0",
+            "href"      : "javascript:void(0);",
+            "lumpid"    : _COND_PREFIX_NEW_ROOT + String(newRootsNum),
+            "no"        : 0,
+        });
+        aConditionRemove.click(function(){
+            deleteCondition($(this).attr("lumpid"), $(this).attr("no"));
+        });
+        tdConditionRemove.append(aConditionRemove);
+        trConditionBody.append(tdConditionRemove);
+        
+        var tdConditionBodyItem = $("<td>");
+        var selItems = $("<select>");
+        selItems.attr("id", _COND_PREFIX_SEL_ITEMS + _COND_PREFIX_NEW_ROOT + String(newRootsNum) + "-0");
+        selItems.addClass("cond-sel-items");
+        for(var item in _CONDITION_ITEM){
+            var optItem = $("<option>");
+            optItem.attr("value", item);
+            optItem.html(_CONDITION_ITEM[item]);
+            selItems.append(optItem);
+        }
+        selItems.val(0);
+        tdConditionBodyItem.append(selItems);
+        trConditionBody.append(tdConditionBodyItem);
+        
+        var tdConditionBodyCond = $("<td>");
+        var selConds = $("<select>");
+        selConds.attr("id", _COND_PREFIX_SEL_CONDS + _COND_PREFIX_NEW_ROOT + String(newRootsNum) + "-0");
+        selConds.addClass("cond-sel-conds");
+        for(var cond in _CONDITION_COND){
+            var optCond = $("<option>");
+            optCond.attr("value", cond);
+            optCond.html(_CONDITION_COND[cond]);
+            selConds.append(optCond);
+        }
+        selConds.val(0);
+        tdConditionBodyCond.append(selConds);
+        trConditionBody.append(tdConditionBodyCond);
+        
+        var tdConditionBodyValue = $("<td>");
+        var inputValue = $("<input>");
+        inputValue.attr("id", _COND_PREFIX_INPUT_VALUE + _COND_PREFIX_NEW_ROOT + String(newRootsNum) + "-0");
+        inputValue.attr("maxlength", "255");
+        inputValue.addClass("cond-input-value");        
+        inputValue.val("");
+        tdConditionBodyValue.append(inputValue);
+        trConditionBody.append(tdConditionBodyValue);
+        
+        var tdConditionBodyOperator = $("<td>");
+        var selOperators = $("<select>");
+        selOperators.attr({
+            "id"        : _COND_PREFIX_SEL_OPERATOR + _COND_PREFIX_NEW_ROOT + String(newRootsNum) + "-0",
+            "lumpid"    : _COND_PREFIX_NEW_ROOT + String(newRootsNum),
+            "no"        : "0",
+        });
+        selOperators.addClass("cond-sel-operators");
+        for(var operator in _CONDITION_OPERATOR){
+            var optOperator = $("<option>");
+            optOperator.attr("value", operator);
+            optOperator.html(_CONDITION_OPERATOR[operator]);
+            selOperators.append(optOperator);
+        }
+        selOperators.val(0);
+        selOperators.change(function(){
+            onChangeConditionOperator($(this).attr("lumpid"), $(this).attr("no"));
+        });
+        tdConditionBodyOperator.append(selOperators);
+        trConditionBody.append(tdConditionBodyOperator);
+        
+        lastFooter.after(trConditionBody);
+        
+        var trFooter = $("<tr>");
+        trFooter.attr("id", _COND_MODAL_PREFIX_FOOTER + _COND_PREFIX_NEW_ROOT + String(newRootsNum));
+        trFooter.append($("<td>"));
+        trFooter.append($("<td>"));
+        var lblNoCondition = $("<label>");
+        var inputNoCondition = $("<input>");
+        inputNoCondition.attr({
+            "id"    : _COND_PREFIX_EFFECTIVE + String(newRootsNum),
+            "type"  : "radio",
+            "value" : _COND_PREFIX_NEW_ROOT + String(newRootsNum),
+            "name"  : _COND_PREFIX_EFFECTIVE + step.userLump[0].parent,
+        });
+        inputNoCondition.change(function(){
+            onNoConditionChange($(this).val());
+        });
+        var spanNoCondition = $("<span>").html("{!$Label.label_10757}");
+        lblNoCondition.append(inputNoCondition);
+        lblNoCondition.append(spanNoCondition);
+        trFooter.append($("<td>").append(lblNoCondition));
+        trFooter.append($("<td>"));
+        trFooter.append($("<td>"));
+        var tdFooterAddCondition = $("<td>");
+        var aAddCondition = $("<a>");
+        aAddCondition.html("{!$Label.label_10758}");
+        aAddCondition.attr({
+            "id"    : _COND_PREFIX_A_ADD_CONDITION + _COND_PREFIX_NEW_ROOT + String(newRootsNum) + "-0",
+            "href"  : "javascript:void(0);"
+        });
+        aAddCondition.click(function(){
+            addCondition(step, _COND_PREFIX_NEW_ROOT + String(newRootsNum));
+        });
+        var spanAddCondition = $("<span>");
+        spanAddCondition.attr("id", _COND_PREFIX_SPAN_ADD_CONDITION + _COND_PREFIX_NEW_ROOT + String(newRootsNum) + "-0");
+        spanAddCondition.html(JSMsg["V400.workflow.00145"]);
+        spanAddCondition.addClass("cond-span-add-condition cond-span-add-condition-hidden");
+        trFooter.append($("<td>").append(aAddCondition, spanAddCondition));
+        trConditionBody.after(trFooter);
+        trFooter                = null;
+        lblNoCondition          = null;
+        inputNoCondition        = null;
+        lblNoCondition          = null;
+        tdFooterAddCondition    = null;
+        aAddCondition           = null;
+    }
+    
+    function onChangeConditionOperator(lumpId, no){
+        $("[id^=" + _COND_PREFIX_SEL_OPERATOR + lumpId + "]").val($("#" + _COND_PREFIX_SEL_OPERATOR + lumpId + "-" + no).val());
+    }
+    
+    function onNoConditionChange(lumpId){
+        $("#" + _COND_PREFIX_EFFECTIVE + lumpId).attr("checked", "checked");
+        
+        $("[id^=" + _COND_PREFIX_SEL_ITEMS + "]").attr("disabled", "");
+        $("[id^=" + _COND_PREFIX_SEL_CONDS + "]").attr("disabled", "");
+        $("[id^=" + _COND_PREFIX_INPUT_VALUE + "]").attr("disabled", "");
+        $("[id^=" + _COND_PREFIX_SEL_OPERATOR + "]").attr("disabled", "");
+        $("[id^=" + _COND_PREFIX_A_ADD_CONDITION + "]").removeClass("cond-a-add-condition-hidden");
+        $("[id^=" + _COND_PREFIX_SPAN_ADD_CONDITION + "]").addClass("cond-span-add-condition-hidden");
+        
+        $("[id^=" + _COND_PREFIX_SEL_ITEMS + lumpId + "]").attr("disabled", "disabled");
+        $("[id^=" + _COND_PREFIX_SEL_CONDS + lumpId + "]").attr("disabled", "disabled");
+        $("[id^=" + _COND_PREFIX_INPUT_VALUE + lumpId + "]").attr("disabled", "disabled");
+        $("[id^=" + _COND_PREFIX_SEL_OPERATOR + lumpId + "]").attr("disabled", "disabled");
+        $("[id^=" + _COND_PREFIX_A_ADD_CONDITION + lumpId + "]").addClass("cond-a-add-condition-hidden");
+        $("[id^=" + _COND_PREFIX_SPAN_ADD_CONDITION + lumpId + "]").removeClass("cond-span-add-condition-hidden");
+        
+        changeRemoveCondButtonDisplay();
+    }
+    
+    function changeRemoveCondButtonDisplay(){
+        var changed = new Object();
+        $("[id^=" + _COND_PREFIX_ROW + "]").each(function(){
+            var lumpId = $(this).attr("lumpid");
+            if(changed[lumpId]){
+                return true;
+            }
+            changed[lumpId] = true;
+
+            if($("[id^=" + _COND_PREFIX_ROW + lumpId + "]").length > 1 && !$("#" + _COND_PREFIX_EFFECTIVE + lumpId).attr("checked")){
+                $("[id^=" + _COND_PREFIX_A_DEL_CONDITION + lumpId + "]").removeClass("cond-a-remove-hidden");
+            }else{
+                $("[id^=" + _COND_PREFIX_A_DEL_CONDITION + lumpId + "]").addClass("cond-a-remove-hidden");
+            }
+        });
+    }
+    
+    function deleteCondition(lumpId, no){
+        var count = 0;
+        while(true){
+            if($("#" + _COND_PREFIX_ROW + lumpId + "-" + (parseInt(no)+count+1)).length == 0){
+                break;
+            }
+            
+            var selItem1Id  = _COND_PREFIX_SEL_ITEMS + lumpId + "-" + (parseInt(no)+count);
+            var selItem2Id  = _COND_PREFIX_SEL_ITEMS + lumpId + "-" + (parseInt(no)+count+1);
+            $("#" + selItem1Id).val($("#" + selItem2Id).val());
+
+            var selCond1Id  = _COND_PREFIX_SEL_CONDS + lumpId + "-" + (parseInt(no)+count);
+            var selCond2Id  = _COND_PREFIX_SEL_CONDS + lumpId + "-" + (parseInt(no)+count+1);
+            $("#" + selCond1Id).val($("#" + selCond2Id).val());
+
+            var inputValue1Id   = _COND_PREFIX_INPUT_VALUE + lumpId + "-" + (parseInt(no)+count);
+            var inputValue2Id   = _COND_PREFIX_INPUT_VALUE + lumpId + "-" + (parseInt(no)+count+1);
+            $("#" + inputValue1Id).val($("#" + inputValue2Id).val());
+            
+            var selOperator1Id  = _COND_PREFIX_SEL_OPERATOR + lumpId + "-" + (parseInt(no)+count);
+            var selOperator2Id  = _COND_PREFIX_SEL_OPERATOR + lumpId + "-" + (parseInt(no)+count+1);
+            $("#" + selOperator1Id).val($("#" + selOperator2Id).val());
+
+            count++;
+        }
+        
+        $("#" + _COND_PREFIX_ROW + lumpId + "-" + (parseInt(no)+count)).remove();
+        if($("[id^=" + _COND_PREFIX_ROW + lumpId + "]").length <= 1){
+            $("#" + _COND_PREFIX_A_DEL_CONDITION + lumpId + "-0").addClass("cond-a-remove-hidden");
+        }
+    }
+
+    function submitConditions(step){
+        if(_optionsSaving){
+            setTimeout(function(){submitConditions(step);}, 50);
+            return;
+        }
+        
+        var lumps = new Object();
+
+        for(var i=0; i<step.userLump.length; i++){
+            lumps[step.userLump[i].lumpId] = getLumpConditions(step.userLump[i].lumpId);
+        }
+        
+        var k=0;
+        while($("#" + _COND_PREFIX_ROW + _COND_PREFIX_NEW_ROOT + String(k) + "-0").length > 0){
+            lumps[_COND_PREFIX_NEW_ROOT + String(k)] = getLumpConditions(_COND_PREFIX_NEW_ROOT + String(k));
+            
+            k++;
+        }
+        
+        var notEffect = new Object();
+        $("[id^=" + _COND_PREFIX_EFFECTIVE + "]").each(function(){
+            notEffect[$(this).val()] = $(this).attr("checked");
+        });
+        
+        secureGetAsync(
+            "/workflowmanagement/setting/workflowDefinitionConditions.json",
+            {
+                tmp_id      : _id, 
+                step_id     : step.stepId, 
+                parent_id   : _parentLumpId, 
+                conditions  : JSON.stringify(lumps),
+                not_effect  : JSON.stringify(notEffect),
+            },
+            function(data){
+                if(data["alert"]!=null){
+                    alert(data["alert"]);
+                }else{
+                    refreshSteps();
+                }
+            }
+        );
+    }
+
+    function getLumpConditions(lumpId){
+        var conditions  = new Object();
+        var i=0;
+        while($("#" + _COND_PREFIX_ROW + lumpId + "-" + String(i)).length > 0){
+            var condition   = new Object();
+            condition["item"]       = $("#" + _COND_PREFIX_SEL_ITEMS + lumpId + "-" + String(i)).val();
+            condition["cond"]       = $("#" + _COND_PREFIX_SEL_CONDS + lumpId + "-" + String(i)).val();
+            condition["value"]      = $("#" + _COND_PREFIX_INPUT_VALUE + lumpId + "-" + String(i)).val();
+            condition["operator"]   = $("#" + _COND_PREFIX_SEL_OPERATOR + lumpId + "-" + String(i)).val();
+            conditions[i] = condition;
+            condition = null;
+            
+            i++;
+        }
+        
+        return conditions;
+    }
+
+    function onLumpCellClicked(lumpId, parentId){
+        _lumpId         = lumpId;
+        if(parentId=="null" || parentId=="" || parentId==null){
+            _parentLumpId   = null;
+        }else{
+            _parentLumpId   = parentId;
+        }
+        $(".step-td-user-clicked").removeClass("step-td-user-clicked");
+        $(".step-td-user-root").removeClass("step-td-user-root");
+        
+        $(".step-td-user[lumpId="+lumpId+"]").addClass("step-td-user-clicked");
+        
+        changeParentCellColor($(".step-td-user[lumpId="+lumpId+"]").attr("parent"));
+        changeChildrenCellColor(lumpId);
+    }
+    
+    function changeParentCellColor(parentLumpId){
+        if(!isEmpty(parentLumpId)){
+            $("td[lumpid=" + parentLumpId + "]").addClass("step-td-user-root");
+            changeParentCellColor($("td[lumpid=" + parentLumpId + "]").attr("parent"));
+        }
+    }
+    
+    function changeChildrenCellColor(parentLumpId){
+        if(!isEmpty(parentLumpId)){
+            $("td[parent=" + parentLumpId + "]").addClass("step-td-user-root");
+            $("td[parent=" + parentLumpId + "]").each(function(){
+                changeChildrenCellColor($(this).attr("lumpId"));
+            });
+        }
+    }
+    
+    function onStepNoBlur(stepId){
+        var stepNoMap = new Object();
+        $("[id^=" + _STEP_PREFIX_INPUT_STEP + "]").each(function(){
+            stepNoMap[$(this).attr("stepid")] = $(this).val();
+        });
+        
+        secureGetAsync(
+            "/workflowmanagement/setting/workflowDefinitionRearrange.json",
+            {
+                tmp_id      : _id, 
+                step_id     : stepId, 
+                step_no_map : JSON.stringify(stepNoMap)
+            },
+            function(data){
+                if(data["alert"]!=null){
+                    alert(data["alert"]);
+                }else{
+                    refreshSteps();
+                }
+            }
+        );
+    }
+
+    function onRemoveClicked(lumpId, userId){
+        if(_optionsSaving){
+            setTimeout(function(){onRemoveClicked(lumpId, userId);}, 50);
+            return;
+        }
+        
+        secureGetAsync(
+            "/workflowmanagement/setting/workflowDefinitionRemoveUser.json",
+            {
+                tmp_id      :_id, 
+                lump_id     :lumpId, 
+                user_id     :userId
+            },
+            function(data){
+                if(data["alert"]!=null){
+                    alert(data["alert"]);
+                }else{
+                    refreshSteps();
+                }
+            }
+        );
+    }
+    
+    function submitStepOptions(steps){
+        _optionsSaving = true;
+        
+        var stepOptions = new Object();
+        for(var i=0; i<steps.length; i++){
+            var stepOption = new Object();
+            stepOption[_REQ_STEP_APP] = $("input[type=radio][name=" + _STEP_PREFIX_RADIO_APP + steps[i].stepId + "]:checked").val();
+            stepOption[_REQ_STEP_SST] = $("input[type=radio][name=" + _STEP_PREFIX_RADIO_SST + steps[i].stepId + "]:checked").val();
+            stepOption[_REQ_STEP_NCR] = $("input[type=radio][name=" + _STEP_PREFIX_RADIO_NCR + steps[i].stepId + "]:checked").val();
+            stepOptions[steps[i].stepId] = stepOption;
+        }
+        
+        secureGetAsync(
+            "/workflowmanagement/setting/WorkflowDefinitionOptionsRegist.json",
+            {
+                tmp_id          : _id, 
+                step_options    : JSON.stringify(stepOptions),
+            },
+            function(data){
+                _optionsSaving = false;
+                if(data["alert"]!=null){
+                    alert(data["alert"]);
+                }else{
+                    
+                }
+            }
+        );
+    }
+    
+    function addStep(){
+        if(_optionsSaving){
+            setTimeout(function(){addStep();}, 50);
+            return;
+        }
+        
+        secureGetAsync(
+            "/workflowmanagement/setting/WorkflowDefinitionAddStep.json",
+            {tmp_id:_id},
+            function(data){
+                if(data["alert"]!=null){
+                    alert(data["alert"]);
+                }else{
+                    refreshSteps();
+                }
+            }
+        );
+    }
+    
+    function delStep(){
+        if(_optionsSaving){
+            setTimeout(function(){delStep();}, 50);
+            return;
+        }
+        
+        var existsNextStep = false;
+        var stepIDs = new Array();
+        $("input[id^=" + _STEP_PREFIX_CHECK + "]:checked").each(function(){
+            var stepno = parseInt($(this).attr("stepno"));
+            if(!existsNextStep && $("input[id^=" + _STEP_PREFIX_CHECK + "][stepno=" + (stepno+1) + "]").length > 0){
+                existsNextStep = true;
+            }
+            stepIDs.push($(this).val());
+        });
+        if(existsNextStep){
+            if(!confirm("{!$Label.label_10818}")){
+                processEnd();
+                return;
+            }
+        }
+        
+        secureGetAsync(
+            "/workflowmanagement/setting/workflowDefinitionDelStep.json",
+            {tmp_id:_id, step_ids:stepIDs.join(",")},
+            function(data){
+                if(data["alert"]!=null){
+                    alert(data["alert"]);
+                }else{
+                    refreshSteps();
+                }
+            }
+        );
+    }
+    
+    function delLump(steps){
+        if(_optionsSaving){
+            setTimeout(function(){delLump(steps);}, 50);
+            return;
+        }
+    
+        if(_lumpId==null || _lumpId=="null" || _lumpId==""){
+            alert("{!$Label.label_10837}");
+            processEnd();
+            return;
+        }
+
+        var isSetCondition = false;
+        for(var i=0; i<steps.length; i++){
+            for(var j=0; j<steps[i].userLump.length; j++){
+                if(steps[i].userLump[j].lumpId == _lumpId){
+                    if(steps[i].userLump[j].conditionEffective){
+                        isSetCondition = true;
+                    }
+                    break;
+                }
+            }
+        }
+        if(!isSetCondition){
+            alert("{!$Label.label_10838}");
+            processEnd();
+            return;
+        }
+
+        if($("td[datatype=lump][parent=" + _lumpId + "]").length > 0){
+            if(!confirm("{!$Label.label_10839}")){
+                processEnd();
+                return;
+            }
+        }
+
+        secureGetAsync(
+            "/workflowmanagement/setting/workflowDefinitionDelLump.json",
+            {tmp_id:_id, lump_id:_lumpId},
+            function(data){
+                if(data["alert"]!=null){
+                    alert(data["alert"]);
+                }else{
+                    refreshSteps();
+                }
+            }
+        );
+    }
+
+    function onReplaceClicked(target, replaceButton){
+        $("[datatype=" + _STEP_DATA_TYPE_REPLACE_OVERLAY + "]").remove();
+        $("[datatype=" + _STEP_DATA_TYPE_REPLACE_LUMP + "]").remove();
+        $("[datatype=" + _STEP_DATA_TYPE_REPLACE_BUTTON + "]").remove();
+
+        _s_replaceLump_1    = null;
+        _s_replaceLump_2    = null;
+        
+        var inputCancel     = $("<input>");
+        inputCancel.attr({
+            "type"      : "button",
+            "class"     : "btn",
+            "value"     : "{!$Label.label_00058}",
+            "datatype"  : _STEP_DATA_TYPE_REPLACE_BUTTON,
+        });
+        inputCancel.addClass("lump-replace-btn-cancel");
+        inputCancel.click(function(){
+            replaceCancel();
+        });
+        $("#replace-function-area").after(inputCancel);
+
+        var inputReplace    = $("<input>");
+        inputReplace.attr({
+            "type"  : "button",
+            "class" : "btn",
+            "value" : "{!$Label.label_10760}",
+            "datatype"  : _STEP_DATA_TYPE_REPLACE_BUTTON,
+        });
+        inputReplace.addClass("lump-replace-btn-submit");
+        inputReplace.click(function(){
+            submitStepOptions(_def.steps);
+            replaceSubmit();
+        });
+        $("#replace-function-area").after(inputReplace);
+
+        var bodyOverlay = $("<div>");
+        bodyOverlay.attr({
+            datatype    : _STEP_DATA_TYPE_REPLACE_OVERLAY,
+        });
+        bodyOverlay.css({
+            position    : "absolute",
+            top         : "0",
+            left        : "-10px",
+            width       : ($("#bodyTable").width() + 20) + "px",
+            height      : $("body").height() + "px",
+            background  : '#000000',
+            opacity     : '0.6',
+            zIndex      : '115',
+        });
+        $("body").append(bodyOverlay);
+
+        var stepOverlay = $("<div>");
+        stepOverlay.attr({
+            datatype    : _STEP_DATA_TYPE_REPLACE_OVERLAY,
+        });
+        stepOverlay.css({
+            position    : "relative",
+            marginTop   : "-" + $("#" + _STEPS).height() + "px",
+            width       : $("#" + _STEPS).width() + "px",
+            height      : $("#" + _STEPS).height() + "px",
+            background  : '#000000',
+            opacity     : '0.6',
+            zIndex      : '17',
+        });
+        target.append(stepOverlay);
+
+        $("[datatype=" + _STEP_DATA_TYPE_LUMP + "]").each(function(){
+            if($(this).find("[datatype=" + _STEP_DATA_TYPE_USER + "]").length > 0){
+                var posY = 0;
+                $(this).find("[datatype=" + _STEP_DATA_TYPE_USER + "],[datatype=" + _STEP_DATA_TYPE_NEW_USER + "]").each(function(){
+                    posY += $(this).height();
+                });
+                var divLumpCell = $("<div>").css({
+                    marginTop   : "-" + posY + "px",
+                    width       : $(this).width() + "px",
+                    height      : $(this).height() + "px",
+                });
+                divLumpCell.addClass("step-user-replace-lump");
+                divLumpCell.attr({
+                    "lumpid"    : $(this).attr("lumpid"),
+                    "datatype"  : _STEP_DATA_TYPE_REPLACE_LUMP,
+                });
+                divLumpCell.click(function(){
+                    onReplaceCellClicked($(this).attr("lumpId"));
+                });
+                $(this).find("[datatype=" + _STEP_DATA_TYPE_USER + "]").each(function(){
+                    divLumpCell.append($(this).clone());
+                });
+                $(this).append(divLumpCell);
+            }
+        });
+    }
+    
+    function onReplaceCellClicked(lumpId){
+        if(lumpId==_s_replaceLump_1){
+            $("[datatype=" + _STEP_DATA_TYPE_REPLACE_LUMP + "][lumpid=" + _s_replaceLump_1 + "]").removeClass("step-user-replace-lump-selected");
+            _s_replaceLump_1 = _s_replaceLump_2;
+            _s_replaceLump_2 = null;
+        }else if(lumpId==_s_replaceLump_2){
+            $("[datatype=" + _STEP_DATA_TYPE_REPLACE_LUMP + "][lumpid=" + _s_replaceLump_2 + "]").removeClass("step-user-replace-lump-selected");
+            _s_replaceLump_2 = null;
+        }else{
+            $("[datatype=" + _STEP_DATA_TYPE_REPLACE_LUMP + "][lumpid=" + _s_replaceLump_2 + "]").removeClass("step-user-replace-lump-selected");
+            _s_replaceLump_2 = _s_replaceLump_1;
+            _s_replaceLump_1 = lumpId;
+            $("[datatype=" + _STEP_DATA_TYPE_REPLACE_LUMP + "][lumpid=" + lumpId + "]").addClass("step-user-replace-lump-selected");
+        }
+    }
+    
+    function replaceSubmit(){
+        if(_optionsSaving){
+            setTimeout(function(){replaceSubmit();}, 50);
+            return;
+        }
+        
+        if(_s_replaceLump_1 == null || _s_replaceLump_2 == null){
+            return;
+        }
+        
+        if(_b_processing){
+            return;
+        }else{
+            _b_processing = true;
+            disableButtons();
+        }
+        
+        secureGetAsync(
+            "/workflowmanagement/setting/workflowDefinitionReplaceLumpUser.json",
+            {tmp_id:_id, lump_id_1:_s_replaceLump_1, lump_id_2:_s_replaceLump_2},
+            function(data){
+                if(data["alert"]!=null){
+                    alert(data["alert"]);
+                }else{
+                    $("[datatype=" + _STEP_DATA_TYPE_REPLACE_OVERLAY + "]").remove();
+                    $("[datatype=" + _STEP_DATA_TYPE_REPLACE_LUMP + "]").remove();
+                    $("[datatype=" + _STEP_DATA_TYPE_REPLACE_BUTTON + "]").remove();
+                    refreshSteps();
+                }
+            }
+        );
+    }
+    
+    function replaceCancel(){
+        $("[datatype=" + _STEP_DATA_TYPE_REPLACE_OVERLAY + "]").remove();
+        $("[datatype=" + _STEP_DATA_TYPE_REPLACE_LUMP + "]").remove();
+        $("[datatype=" + _STEP_DATA_TYPE_REPLACE_BUTTON + "]").remove();
+    }
+    
+    function setIsChangedExistsSteps(){
+        _isChangedExistsStepsChecking = true;
+        
+        if(_optionsSaving){
+            setTimeout(function(){setIsChangedExistsSteps();}, 50);
+            return;
+        }
+        
+        secureGetAsync(
+            "/workflowmanagement/setting/workflowDefinitionIsChangedExistsSteps.json",
+            { tmp_id      : _id },
+            function(data){
+                if(data["alert"]!=null){
+                    alert(data.toSource());
+                }else{
+                    if(data["is_changed"]!=null && data["is_changed"]){
+                        _isChangedExistsSteps   = true;
+                    }else{
+                        _isChangedExistsSteps   = false;
+                    }
+                }
+                _isChangedExistsStepsChecking = false;
+            }
+        );
+    }
+    
+    function enableButtons(){
+        $("#" + _addStepButton).attr("disabled", "");
+        $("#" + _delStepButton).attr("disabled", "");
+        $("#" + _delLumpButton).attr("disabled", "");
+        $("#" + _replaceButton).attr("disabled", "");
+        $("[id=" + _submitButton + "]").attr("disabled", "");
+    }
+    
+    function disableButtons(){
+        $("#" + _addStepButton).attr("disabled", "disabled");
+        $("#" + _delStepButton).attr("disabled", "disabled");
+        $("#" + _delLumpButton).attr("disabled", "disabled");
+        $("#" + _replaceButton).attr("disabled", "disabled");
+        $("[id=" + _submitButton + "]").attr("disabled", "disabled");
+    }
+    
+    function processEnd(){
+        _b_processing    = false;
+        enableButtons();
+    }
+    
+    function isEmpty(val){
+        if(val==null||val=="null"||val==""){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    function getOrdinalForLocale(locale, numericValue) {
+    	var strValue = numericValue;
+    	var rules = new Array();
+    
+    	switch(locale) {
+    		case 'en':
+				rules.push(['^\\d{0,}(11|12|13)$', '{0}th']);
+            	rules.push(['^\\d{0,}1$', '{0}st']);
+            	rules.push(['^\\d{0,}2$', '{0}nd']);
+            	rules.push(['^\\d{0,}3$', '{0}rd']);
+            	rules.push(['^\\d+$', '{0}th']);
+    			break;
+    	}
+    	
+    	for (var i=0; i<rules.length; i++) {
+    		if ((new RegExp(rules[i][0])).test(strValue)) {    		
+    			strValue = rules[i][1].replace('{0}', strValue);
+    			break;
+    		}
+    	}    	
+    	
+    	return strValue;
+    }
+    
+})(jQuery);
+</script>
+</apex:page>

@@ -1,0 +1,147 @@
+<apex:page controller="SOLXYZCSO001.WRUserAdminController" sidebar="false" action="{!init}">
+<apex:iframe src="/apex/CSO_WR_Error?code={!wr_userInfo.code}&massage={!wr_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(wr_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(wr_userInfo.showErrPage == false, true, false)}">
+<apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+    <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+</apex:outputpanel>
+
+<apex:outputpanel rendered="{!hasWR && hasPermissionWRAdmin}">
+
+<apex:include pageName="SOLXYZCSO001__WRCSOBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+
+<script type="text/javascript">
+
+  function checkAll(cb) {
+    var inputElem = document.getElementsByTagName("input");
+    if (inputElem.length) {
+      for(var i=0; i<inputElem.length; i++) {
+        if (inputElem[i].id.indexOf('checkedone')!=-1) {
+          inputElem[i].checked = cb;
+        }
+      }
+    } else {
+      inputElem.checked = cb.checked;
+    }
+  }
+
+  function presend(){
+    if($('input[id$=":isAlertDiskSize"]').attr('checked')  ){
+      //
+    }else{
+      $('input[id$=":AlertDiskSize"]').attr("value", '');
+    }
+    if($('input[id$=":isAlertDeliverySize"]').attr('checked')  ){
+      //
+    }else{
+      $('input[id$=":AlertDeliverySize"]').attr("value",'');
+    }
+  }
+</script>
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td id="c_left" bgcolor="#f2f2f3" style="min-height:39px;max-height:39px;">
+                <apex:include pageName="SOLXYZCSO001__WRSettingMenu"/>
+            </td>
+            <td valign="top">
+                <table width="100%">
+                    <tr>
+                        <td id="c_headLeft" height="39px" style="min-height:39px;max-height:39px;">
+                            <h1 id="c_headLeftTitle">{!$Label.label_wr_report_20007}</h1><br/>
+                            <h2 id="c_headLeftSubTitle">{!$Label.label_wr_report_20013}</h2>
+                        </td>
+                        <!-- 操作ボックス -->
+                        <td id="c_headRight" height="39px" style="min-height:39px;max-height:39px;">
+                            <apex:include pageName="SOLXYZCSO001__WROptionsLink"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right" colspan="2">
+                            <apex:pageBlock >
+
+                               <apex:form onsubmit="presend();">
+                                <apex:pageMessages />
+                                <apex:pageBlock id="IchiranBlock" mode="maindetail">
+	                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <apex:pageBlockSection >
+                          <apex:pageBlockSectionItem dataStyle="text-align:left;">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_13118}</apex:outputLabel>
+                              <apex:outputPanel styleClass="requiredInput" layout="block">
+                                  <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                  <apex:selectList value="{!selectionWRActive2}" size="1" style="width:200px;" title="{!$Label.solxyzcso001__label_13118}" id="selectionWRActive2">
+                                      <apex:selectOptions value="{!wractive2}"/>
+                                  </apex:selectList>
+                              </apex:outputPanel>
+                          </apex:pageBlockSectionItem>
+                      </apex:pageBlockSection>
+	                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	                                <apex:outputPanel layout="block" style="width:460px;">
+<fieldset>
+<legend>{!$Label.label_10524}</legend>
+	                                    <apex:outputLabel >{!$Label.solxyzcso001__label_ecm_add_user_10017}</apex:outputLabel>
+	                                    <apex:inputText value="{!searchName}" title="{!$Label.solxyzcso001__label_ecm_add_user_10018}" maxlength="255"/><br/>
+	                                    <apex:outputLabel >{!$Label.solxyzcso001__label_00083}・{!$Label.solxyzcso001__label_00084}</apex:outputLabel>
+                                        <apex:selectList value="{!selectionWRActive}" size="1" style="width:200px;" title="{!$Label.solxyzcso001__label_13118}" id="selectionWRActive">
+                                            <apex:selectOptions value="{!wractive}"/>
+                                        </apex:selectList>
+	                                    <apex:commandButton value="{!$Label.solxyzcso001__label_ecm_add_user_10019}" action="{!search}"/>
+</fieldset>
+	                                </apex:outputPanel>
+	                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	                                <apex:panelGrid columns="3" >
+	                                  <apex:commandLink onclick="checkAll(true);return false;" >{!$Label.solxyzcso001__label_ecm_add_user_10015}</apex:commandLink>
+	                                  <apex:commandLink onclick="checkAll(false);return false;" >{!$Label.solxyzcso001__label_ecm_add_user_10016}</apex:commandLink>
+	                                </apex:panelGrid>
+	                                <apex:panelGroup id="ResultGroup" rendered="{!NOT(ISNULL(MyObjectList))}">
+	                                  <apex:pageBlockTable value="{!MyObjectList}" var="result" id="IchiranTable">
+	                                    <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10020}" >
+	                                      <apex:inputCheckBox value="{!result.IsSelected}" id="checkedone"/>
+	                                    </apex:column>
+	                                    <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10021}" value="{!result.Record.Name}"/>
+                                        <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10031}" value="{!result.Record.UserName}"/>
+	                                    <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10023}" value="{!result.Record.Department}"/>
+	                                    <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10024}" value="{!result.Record.Title}" />
+	                                    <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10025}" value="{!result.Record.EmployeeNumber}" />
+                                        <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10022}" value="{!result.Record.Email}"/>
+                                        <apex:column headerValue="{!$Label.solxyzcso001__label_13118}" value="{!result.Record.WRActive__c  }"/>
+	                                  </apex:pageBlockTable>
+	                                </apex:panelGroup>
+	                                <apex:panelGrid columns="2" >
+	                                  <apex:commandButton action="{!previous}" value="{!$Label.solxyzcso001__label_ecm_add_user_10027}"
+	                                    disabled="{!NOT(HasPrevious)}" rerender="IchiranBlock"/>
+	                                  <apex:commandButton action="{!next}" value="{!$Label.solxyzcso001__label_ecm_add_user_10028}"
+	                                    disabled="{!NOT(HasNext)}" rerender="IchiranBlock"/>
+	                                </apex:panelGrid>
+                                </apex:pageBlock>
+                                <apex:pageBlock mode="maindetail" >
+                                    <apex:pageBlockButtons location="bottom">
+                                        <apex:commandButton value="{!$Label.solxyzcso001__field_common_save}" action="{!save}" onclick="CsoScript_loadingStart();"/>
+                                    </apex:pageBlockButtons>
+                                </apex:pageBlock>
+                              </apex:form>
+                            </apex:pageBlock>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div id="copyright" >{!$Label.field_CSO_copyright}</div>
+</apex:outputpanel>
+</apex:outputPanel>
+</apex:page>

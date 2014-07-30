@@ -1,0 +1,357 @@
+<apex:page sidebar="false" showHeader="false" cache="false" controller="SOLXYZCSO001.SelectUserController">
+
+<style type="text/css">
+.selectList{
+    width: 180px;
+    height: 150px;
+    max-width: 180px;
+    max-height: 150px;
+}
+</style>
+
+<script type="text/javascript">
+    //========//
+    //  変数  //
+    //========//
+    var selected;
+    var newSelected;
+
+
+    //==============//
+    //  初期化処理  //
+    //==============//
+    function initSelectUser(){
+        $("#userSelectDialog").dialog({
+            modal: true,
+            resizable: false,
+            autoOpen: false
+        });
+        $("#userSelectDialog").dialog("option", {
+            title: "{!$Label.label_10524}",
+            width: 830,
+            height: 450,
+        });
+
+
+        $("#op1").change(function(e){
+            if($(this).val() != 0){
+                secureGetAsync("/setup/CategoryListGet.json",
+                    {
+                        company : "0",
+                        category : $(this).val(),
+                        returnType : "html"
+                    },
+                    function(data){
+                        $("#op2").html(data["category_select"]);
+                        $("#op2").show();
+                    }
+                );
+            }else{
+                $("#op2").hide();
+            }
+        });
+
+
+        $("#deliveryAddressList").jqGrid(
+                {
+                    url : _apiUrl + '/setup/SearchUserListV2Get.json',
+                    postData : {
+                        corporate: "0",
+                        category :  $('#op1').val(),
+                        secondCate : "",
+                        text : ""
+                    },
+                    datatype : "jsonp",
+                    jsonReader : {
+                        repeatitems : false,
+                        id : "id"
+                    },
+                    colNames:[
+                                '',
+                                '{!$Label.label_10131}',
+                                '{!$Label.label_00039}',
+                                '{!$Label.label_10003}',
+                                '{!$Label.label_10016}',
+                                '{!$Label.label_10028}',
+                                '{!$Label.label_10022}',
+                                '{!$Label.label_10317}'
+                             ],
+                    colModel:[
+                                {name:'id',index:'id', width:60, hidden:true},
+                                {name:'user_info',index:'userId', width:360},
+                                {name:'nameStr',index:'nameStr', hidden:true},
+                                {name:'userId', index:'nameStr', hidden:true},
+                                {name:'mailAddress',index:'mailAddress', width:220},
+                                {name:'profileName',index:'profileName', width:124},
+                                {name:'group', index:'group', hidden:true},
+                                {name:'position', index:'position', hidden:true}
+                            ],
+                    rowNum:{!cso_userInfo.contentsDeliveryAddressRows},
+                    height: 250,
+                    width: 800,
+                    sortname: 'userId',
+                    pager: '#deliveryAddressListPager',
+                    rowList:[10,50,100],
+                    rowNum:10,
+                    viewrecords: true,
+                    multiboxonly: true,
+                    multiselect: true,
+                    loadComplete: function() {
+                            initSelection();
+                    },
+                    onSelectAll : function(rowIds) {
+                            var ids = $("#deliveryAddressList").getGridParam("selarrrow");
+                            var i;
+                            var j;
+                            // 選択解除の場合
+                            if (ids.length == 0) {
+                                for (i in rowIds) {
+                                    if (checkUser(rowIds[i])) {
+                                        selectUser(rowIds[i]);
+                                    }
+                                }
+                            } else {
+                                for (j in rowIds) {
+                                    if (!checkUser(rowIds[j])) {
+                                        selectUser(rowIds[j]);
+                                    }
+                                }
+                            }
+                    }
+                });
+
+        $("#deliveryAddressList").jqGrid('navGrid','#deliveryAddressListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+        $("#deliveryAddressList").setGridWidth(800);
+        createAndAssignColumnModelNameMap($("#deliveryAddressList"));
+    }
+
+    function createAndAssignColumnModelNameMap(jqgridObj) {
+		var colModel = jqgridObj.getGridParam('colModel');
+		var colModelNameMap = [];
+		for (var i=0; i<colModel.length; ++i) {
+			colModelNameMap[colModel[i].name] = i;
+		}
+		jqgridObj.data('colModelNameMap', colModelNameMap);
+	}
+
+	function getColumnModelNameMap(jqgridObj) {
+		return jqgridObj.data('colModelNameMap');
+	}
+
+	function constructObjectFromRowData(cellArray, columnModelNameMap) {
+		var obj = {};
+		for (var name in columnModelNameMap) {
+			obj[name] = $(cellArray[columnModelNameMap[name]]).html();
+		}
+		return obj;
+	}
+
+    //==========================//
+    //  ユーザの検索画面の表示  //
+    //==========================//
+    function showSelectUser(){
+        //  検索条件を初期化
+        $("#op1").attr("selectedIndex", 0);
+        $("#op2").hide();
+        $("#searchText").val("");
+
+        //  画面表示
+        $("#userSelectDialog").dialog("open");
+
+        //  共通関数(ID取得)
+        var param = initDialog();
+        selected = new Array();
+        for (var i=0; i<param.length; i++) {
+            selected.push(param[i]);
+        }
+
+        newSelected = new Array();
+
+        //  検索実行
+        searchSPRuleNotifyUser();
+    }
+
+    //==================//
+    //  選択状態にする  //
+    //==================//
+    function initSelection() {
+
+        var opt = {
+                onSelectRow:function(rowid){
+            }
+        };
+        $('#deliveryAddressList').jqGrid('setGridParam', opt);
+
+
+        for (i in selected) {
+            var id = selected[i].id;
+            var ids = $("#deliveryAddressList").getDataIDs()
+            for (j in ids) {
+                var rowData = $("#deliveryAddressList").getRowData(ids[j]);
+                if (id == rowData.id) {
+                     $("#deliveryAddressList").setSelection(ids[j]);
+                    break;
+                }
+            }
+        }
+
+        for (i in newSelected) {
+            var id = newSelected[i].id;
+            var ids = $("#deliveryAddressList").getDataIDs();
+            for (j in ids) {
+                var rowData =  $("#deliveryAddressList").getRowData(ids[j]);
+                if (id == rowData.id) {
+                     $("#deliveryAddressList").setSelection(ids[j]);
+                    break;
+                }
+            }
+        }
+
+        opt = {
+                onSelectRow: function(rowid) {
+                    selectUser(rowid);
+            }
+        };
+        $('#deliveryAddressList').jqGrid('setGridParam', opt);
+    }
+
+    //======================//
+    //  選択状態のチェック  //
+    //======================//
+    function checkUser(rowId) {
+        var data = $('#deliveryAddressList').getRowData(rowId);
+        for (i in selected) {
+            if (selected[i].id == data.id) {
+                return true;
+            }
+        }
+
+        for (i in newSelected) {
+            if (newSelected[i].id == data.id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //================//
+    //  選択時の処理  //
+    //================//
+    function selectUser(rowid) {
+    	var rawData = $('#deliveryAddressList').find("#" + rowid + " td")
+        var data = constructObjectFromRowData(rawData, getColumnModelNameMap($('#deliveryAddressList')));
+        for (i in selected) {
+            if (selected[i].id == data.id) {
+                delete this.selected[i];
+                return;
+            }
+        }
+        for (i in newSelected) {
+            if (newSelected[i].id == data.id) {
+                delete this.newSelected[i];
+                return;
+            }
+        }
+        data.info = data.user_info;
+        newSelected.push(data);
+    }
+
+    //========//
+    //  検索  //
+    //========//
+    function searchSPRuleNotifyUser(){
+        var text = $("#searchText").val();
+        var corp = "0";
+        var cate1 = $("#op1").val();
+        var cate2 = $("#op2").val();
+
+        if (text == "{!$Label.label_10448}") {
+            text = "";
+        }
+
+        var opt = {
+                url : _apiUrl + '/setup/SearchUserListV2Get.json',
+                postData : {
+                    corporate : corp,
+                    category : cate1,
+                    secondCate : cate2,
+                    text : text,
+                },
+                datatype : "jsonp"
+        };
+        $('#deliveryAddressList').jqGrid('setGridParam', opt);
+        $('#deliveryAddressList').clearGridData();
+        $('#deliveryAddressList').trigger("reloadGrid");
+
+        switch(cate1) {
+        case "1":
+            $('#deliveryAddressList').hideCol("position");
+            $('#deliveryAddressList').hideCol("profileName");
+            $('#deliveryAddressList').showCol("group");
+            break;
+
+        case "2":
+            $('#deliveryAddressList').hideCol("profileName");
+            $('#deliveryAddressList').hideCol("group");
+            $('#deliveryAddressList').showCol("position");
+            break;
+
+        default:
+            $('#deliveryAddressList').hideCol("group");
+            $('#deliveryAddressList').hideCol("position");
+            $('#deliveryAddressList').showCol("profileName");
+            break;
+        }
+
+        return false;
+
+    }
+
+    //============//
+    //  OKボタン  //
+    //============//
+    function applySRNotify(){
+        var extUsers = new Array();
+        var newUsers = new Array();
+
+        for (var i=0; i<selected.length; i++) {
+            extUsers.push(selected[i]);
+        }
+
+        for (var i=0; i<newSelected.length; i++) {
+            newUsers.push(newSelected[i]);
+        }
+
+
+        // 共通関数をコール
+        okPropDialog(extUsers, newUsers);
+    }
+
+</script>
+
+
+<div id="userSelectDialog" style="display: none;">
+    <div>
+        <div style="margin-bottom: 5px;">{!$Label.label_10511}</div>
+        <select id="op1">
+            <option value="0">{!$Label.label_10131}</option>
+            <option value="1">{!$Label.label_10022}</option>
+            <option value="2">{!$Label.label_10317}</option>
+            <option value="3">{!$Label.label_10028}</option>
+        </select>
+        <select id="op2" style="display: none; width: 140px;"></select>
+        <input type="text" class="c_text_m" placeholder="{!$Label.label_10448}" id="searchText" maxlength="255" />
+        <input type="button" value="{!$Label.label_00069}" class="btn" onclick="searchSPRuleNotifyUser();"/>
+    </div>
+    <div style="margin-top:20px">
+        <table id="deliveryAddressList"></table>
+        <div id="deliveryAddressListPager"></div>
+    </div>
+    <div style="width: 100%; text-align: center; margin-top: 5px;margin-right 10px">
+        <input type="button" value="{!$Label.label_00076}" class="btn" onclick="applySRNotify();"/>
+        <input type="button" value="{!$Label.label_00058}" class="btn" onclick="cancelPropDialog();"/>
+    </div>
+</div>
+
+
+</apex:page>

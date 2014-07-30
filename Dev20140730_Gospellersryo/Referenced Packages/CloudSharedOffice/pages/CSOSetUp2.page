@@ -1,0 +1,144 @@
+<apex:page tabStyle="setting__tab" controller="SOLXYZCSO001.CSOSetUpController" sidebar="false" id="Page">
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+<script type="text/javascript" src="/soap/ajax/20.0/connection.js"></script>
+<script type="text/javascript" src="/soap/ajax/20.0/apex.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+
+    $('label').click(function(e){
+        CsoScript_clickLabel(this);
+    });
+
+    rangeshow();
+    //追加リストの空行を削除する。
+    $(collabo + '\\:' +  'added').children().each(function(){
+        if($(this).val() == ''){
+            $(this).remove();
+        }
+    });
+});
+
+function rangeshow() {
+    if($(collabo + '\\:range\\:0').attr('checked')){
+        $('#part').hide();
+    }else{
+        $('#part').show();
+    }
+}
+
+function getId(id) {
+    return '#' + id.replace(/(:|\.)/g,'\\\\$1');
+}
+var collabo = getId('{!$Component.Page:Form:Block}');
+
+function move(moveFrom, moveTo, atc){
+
+    if($(collabo + '\\:range\\:0').attr('checked')){
+        $('#part').hide();
+    }else{
+        $('#part').show();
+    }
+
+
+    if(atc == 'add'){
+        var moveFromMarge =  collabo + '\\:'+ moveFrom + ' option:selected';
+        var moveToMarge = collabo + '\\:'+ moveTo;
+    }else{
+        var moveFromMarge = collabo + '\\:'+ moveFrom + ' option:selected';
+        var moveToMarge = collabo + '\\:' + moveTo;
+    }
+    $(moveFromMarge).each(function(){
+        var val = $(this).val();
+        var text = $(this).text();
+        $(moveToMarge ).append($("<option>").val(val).text(text));
+        $(this).remove();
+    });
+
+    var addListMarge =  collabo + '\\:addListhidden';
+
+    //追加ユーザを格納
+    var addItem = '';
+    $(collabo + '\\:' +  'added').children().each(function(){
+        addItem += ',';
+        addItem += $(this).val();
+    });
+    addItem = addItem.substring(1, addItem.length);
+    $(addListMarge).val(addItem);
+    return false;
+}
+</script>
+
+<apex:form id="Form">
+    <apex:sectionHeader subtitle="{!$Label.solxyzcso001__label_10324}" title="{!$Label.solxyzcso001__label_00002}"/>
+
+
+    <apex:pageBlock title="{!$Label.solxyzcso001__label_10088}  {!$Organization.Name}" id="Block">
+        <apex:pageBlockButtons dir="RTL">
+            <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!PreStep1}"/>
+            <apex:commandButton value="{!$Label.solxyzcso001__label_00067}" action="{!NextStep3}"/>
+        </apex:pageBlockButtons>
+        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10327}"/>
+        <apex:pageMessages />
+        <div style="padding:20px 0 0 20px;">
+            <apex:outputText value="{!$Label.solxyzcso001__label_10332}" />
+            <apex:selectRadio value="{!rangeSelection}" id="range" onclick="rangeshow();">
+                <apex:selectOptions value="{!rangeoptions}"/>
+            </apex:selectRadio>
+            <br/>
+            <div id="part">
+                <apex:outputLabel >{!$Label.solxyzcso001__label_10333}</apex:outputLabel>
+                <apex:selectList value="{!typeSelection}" size="1" id="userType">
+                    <apex:selectOptions value="{!items}"/>
+                    <apex:actionSupport event="onchange" action="{!redraw}" rerender="notAddLists"  status="searchStatus" />
+                </apex:selectList>
+                <apex:outputLabel >{!$Label.solxyzcso001__label_10334}</apex:outputLabel>
+                <apex:inputText value="{!searchWord}"/>
+                <apex:commandButton value="{!$Label.solxyzcso001__label_00069}" action="{!redraw}" rerender="notAddLists" status="searchStatus" />
+                <table width="100%">
+                <tr>
+                    <td align="right" style="width: 40%; vertical-align: top;">
+                        <div style="margin-top: 5px;">
+                            <apex:actionStatus id="searchStatus" startText="{!$Label.solxyzcso001__label_10335}" stopText=""/>
+                            <br/>
+                            <apex:outputPanel id="notAddLists">
+                                <apex:selectList size="15" style="width:350px;" multiselect="true" id="notAddUser" styleClass="notAddUser">
+                                    <apex:selectOptions value="{!Useroptions}"/>
+                                </apex:selectList>
+                            </apex:outputPanel>
+                        </div>
+                    </td>
+                    <td align="center" style="width: *; vertical-align: middle;">
+                        <!-- [リストへ追加] -->
+                        <apex:outputpanel id="counterAdd">
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_10020}" style="width:60px;" onclick="move('notAddUser', 'added', 'add'); return false; "/>
+                            <apex:actionSupport event="onclick" action="{!redraw}" rerender="counter" status="counterStatus"/>
+                        </apex:outputpanel>
+                        <br/><br/>
+                        <!-- [リストから削除] -->
+                        <apex:outputpanel id="counterDel">
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00072}" style="width:60px;" onclick="move('added', 'notAddUser', 'del'); return false; "/>
+                            <apex:actionSupport event="onclick" action="{!redraw}" rerender="counter" status="counterStatus"/>
+                        </apex:outputpanel>
+                    </td>
+                    <td align="left" style="width: 40%; vertical-align: top;">
+                        <apex:outputpanel id="counter">
+                            <apex:inputHidden value="{!addLst}" id="addListhidden" />
+                            <apex:outputText value="{!count}"/>
+                        </apex:outputpanel>
+                        <apex:actionStatus id="counterStatus" startText="{!$Label.solxyzcso001__label_10336}" stopText="{!$Label.solxyzcso001__label_10337}"/>
+                        <div style="margin-top:3px;">
+                            <apex:outputpanel id="counter2">
+                                <apex:selectList size="15" value="{!countries}" style="width:350px;" multiselect="true" id="added" styleClass="added" readonly="true"  >
+                                    <apex:selectOptions value="{!activeOptions}"/>
+                                </apex:selectList>
+                            </apex:outputpanel>
+                        </div>
+                    </td>
+                </tr>
+                </table>
+            </div>
+        </div>
+    </apex:pageBlock>
+</apex:form>
+</apex:page>

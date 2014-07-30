@@ -1,0 +1,870 @@
+<apex:page tabStyle="setting__tab" controller="SOLXYZCSO001.CSOGroupEditController" sidebar="false" action="{!init}">
+    <apex:outputPanel id="err" rendered="{!IF(csoUserInfo.proAuth_user_group_manage == 'false', true, false)}">{!$Label.solxyzcso001__msg_00137}</apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(csoUserInfo.proAuth_user_group_manage == 'true', true, false)}">
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__CsoBridge" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /></apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__CsoScript" />
+        <style type="text/css">
+            .setting-grp-comment {
+                max-width: 400px;
+                min-width: 400px;
+                max-height: 100px;
+                min-height: 100px;
+                border: 1px solid silver;
+            }
+            .address-div {
+                display: none;
+                z-index: 1000;
+                position: fixed;
+                width: 100%;
+                height: 300px;
+                top: 0px;
+                background-color: #f0f8ff;
+            }
+            #settingGrpList td, #managerUserTable td, #managerGroupTable td, #addressList td{
+                border-bottom: 1px solid #c5dbec;
+                border-right: 1px solid #c5dbec;
+            }
+        </style>
+        <script type="text/javascript">
+
+            var passInitModal = true;
+
+            function esc(myid) {
+                return myid.replace(/(:|\.)/g,'\\\\$1');
+            }
+
+            Array.prototype.contain = function(value){
+                for (var i = 0; i < this.length; i++) {
+                    if (this[i] === value) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            var loadIdList = new Array();
+            var selectedTabIndex = 0;
+
+            //SilverLight読み込み完了タイマー
+            var timerId;
+
+            //$(document).ready(function () {//この場合、IE8だとSilverlightのエラーが出る。
+            jQuery.event.add(window, "load", function(){
+
+                //実体参照をデコード（ECMプロファイルから流用）
+                $('#decodeWork').html($('.groupName').val());
+                $('.groupName').val($('#decodeWork').text());
+
+                $('#decodeWork').html($('.setting-grp-comment').val());
+                $('.setting-grp-comment').val($('#decodeWork').text());
+
+                /* コメント文字数をチェックする */
+                $('#' + esc('{!$Component.theForm.theBlock.thePageblockSection.thePageBlockSectionItem.thePageBlockSectionItem2.comment}')).keyup(function(e){
+                    viewCommentLength(
+                        esc('{!$Component.theForm.theBlock.thePageblockSection.thePageBlockSectionItem.thePageBlockSectionItem2.comment}'),
+                        esc('{!$Component.theForm.theBlock.thePageblockSection.thePageBlockSectionItem.thePageBlockSectionItem2.ViewCommentLength}'),
+                        512);
+                    }
+                );
+
+                /* 初期状態を反映する */
+                $('#' + esc('{!$Component.theForm.theBlock.thePageblockSection.thePageBlockSectionItem.thePageBlockSectionItem2.comment}')).keyup();
+
+                var uids = "{!userIds}".split(',');
+                var gids = "{!groupIds}".split(',');
+
+                for(var i =0; i < uids.length; i++){
+                    loadIdList.push(uids[i]);
+                }
+
+                for(var i =0; i < gids.length; i++){
+                    loadIdList.push(gids[i]);
+                }
+
+                $("#settingGrpList").jqGrid({
+                    datatype:"local",
+                    colNames: [
+                            '',
+                            '{!$Label.label_00039}'
+                    ],
+                    colModel: [{
+                            name: 'id',
+                            index: 'id',
+                            width: 60,
+                            hidden: true
+                        }, {
+                            name: 'name',
+                            index: 'name',
+                            width: 400
+                        }
+                    ],
+                    rowNum: 10,
+                    height: 200,
+                    rowList: [10, 50, 100],
+                    sortname: 'name',
+                    pager: '#settingGrpListPager',
+                    viewrecords: true,
+                    multiselect: true,
+                    multiboxonly: true,
+                    loadComplete: function (data) {
+                        resizeGrid();
+                        if(passInitModal){
+                            initModal();
+                        } else {
+                            passInitModal = true;
+                        }
+                    }
+                });
+
+                $(window).resize(resizeGrid).resize();
+
+
+                var userAgent = getBrowserType();
+
+
+                if ((userAgent.indexOf("Safari") > -1)||(userAgent.indexOf("Chrome") > -1)||(userAgent.indexOf("Firefox") > -1)) {
+                    initSecurePostAsync();
+                } else {
+                    if(slCtl == null){
+                        timerId = setInterval(checkOnloadSilverlight, 100);
+                    }else{
+                        initSecurePostAsync();
+                    }
+                }
+            });
+
+            /**
+             * 初期処理
+             */
+            function initSecurePostAsync(){
+
+                var param = {
+                    uid: "{!userIds}",
+                    gid: "{!groupIds}",
+                    sord        : 'asc',
+                    rows        : 100000,
+                    sidx        : 'name',
+                    page        : 1,
+                    nd          : 0,
+                    available   : 'true',
+                    _search     : 0
+                }
+
+                var callback =  function (returnData) {
+                    $("#settingGrpList").jqGrid('clearGridData').setGridParam({
+                        data: returnData.rows
+                    }).trigger("reloadGrid");
+                }
+
+                securePostAsync('/common/coloradoSearchApi.json', param, callback);
+            }
+
+            /**
+             * IEの場合は、Silverlightが読み込まれた後に初期処理を実行する
+             */
+            function checkOnloadSilverlight(){
+                if(slCtl != null){
+                    clearInterval(timerId);
+                    initSecurePostAsync();
+                }
+            }
+
+            function initModal() {
+
+                var callback = function (data) {
+                    $('#corpSelect').empty();
+                    $('#corpSelect').append(data.options);
+                };
+                secureGetAsync('/setup/postList.json', '', callback);
+
+                $('#corpSelect').show();
+                $('#corpType').hide();
+
+                $('#tabDiv').tabs({
+                    select: function (event, ui) {
+                        selectedTabIndex = ui.index;
+
+                        switch (selectedTabIndex) {
+                        case 0:
+                            $('#corpSelect').show();
+                            $('#corpType').hide();
+                            $("#applyButton").show();
+
+                            break;
+                        case 1:
+                            $('#corpSelect').hide();
+                            $('#corpType').hide();
+                            $("#applyButton").show();
+
+                            break;
+                        case 2:
+                            var corpType = $.trim($("#corpType").val());
+                            if ('Acc' == corpType) {
+                                $("#applyButton").hide();
+                            } else if ('Con' == corpType) {
+                                $("#applyButton").show();
+                            }
+
+                            $('#corpSelect').hide();
+                            $('#corpType').show();
+
+                            break;
+                        }
+                    }
+                });
+
+                $("#managerUserTable").jqGrid({
+                    url: _apiUrl + "/common/coloradoSearchApi.json",
+                    postData: {
+                        empty    : "true",
+                        available: "true",
+                        uid      : "all"
+                    },
+                    colNames: [
+                            '',
+                            '{!$Label.label_00039}',
+                            '{!$Label.label_10097}',
+                    ],
+                    colModel: [{
+                            name: 'id',
+                            index: 'id',
+                            width: 60,
+                            hidden: true
+                        }, {
+                            name: 'name',
+                            index: 'name',
+                            width: 300
+                        }, {
+                            name: 'corporation',
+                            corporation: 'name',
+                            width: 140
+                        }
+                    ],
+                    rowNum: 10,
+                    height: 205,
+                    rowList: [10, 50, 100],
+                    sortname: 'name',
+                    pager: '#managerUserTablePager',
+                    viewrecords: true,
+                    shrinkToFit: false,
+                    multiselect: true,
+                    multiboxonly: true,
+                    loadComplete: function(data){
+                        if(data != undefined){
+                            if(data.rows != undefined){
+                                for(var i =0; i < data.rows.length; i++){
+                                    if(loadIdList.contain(data.rows[i].id)){
+                                        $("#managerUserTable").jqGrid('setSelection', data.rows[i].id);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                createAndAssignColumnModelNameMap($("#managerUserTable"));
+
+                $("#managerGroupTable").jqGrid({
+                    url: _apiUrl + "/common/coloradoSearchApi.json",
+                    postData: {
+                        empty: "true",
+                        gid:   "nin{!groupId}"
+                    },
+                    colNames: [
+                            '',
+                            '{!$Label.solxyzcso001__label_13002}'
+                    ],
+                    colModel: [{
+                            name: 'id',
+                            index: 'id',
+                            width: 60,
+                            hidden: true
+                        }, {
+                            name: 'name',
+                            index: 'name',
+                            width: 250
+                        }
+                    ],
+                    rowNum: 10,
+                    height: 205,
+                    rowList: [10, 50, 100],
+                    sortname: 'name',
+                    pager: '#managerGroupTablePager',
+                    viewrecords: true,
+                    shrinkToFit: false,
+                    multiselect: true,
+                    multiboxonly: true,
+                    loadComplete: function (data) {
+                        if(data != undefined){
+                            if(data.rows != undefined){
+                                for(var i =0; i < data.rows.length; i++){
+                                    if(loadIdList.contain(data.rows[i].id)){
+                                        $("#managerGroupTable").jqGrid('setSelection', data.rows[i].id);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                createAndAssignColumnModelNameMap($("#managerGroupTable"));
+
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.CSOGroupEditController.getPartnerMemberList}',
+                    'Acc', '', function (data, event) {
+                        var res = JSON.parse($('#decodeWork').html(data).text());
+
+                        $("#addressList").jqGrid({
+                            data: JSON.parse($('#decodeWork').html(data).text()),
+                            datatype: "local",
+                            jsonReader: {
+                                //repeatitems: false,
+                                id: "id"
+                            },
+                            colNames: ['', '{!$Label.label_00039}', '{!$Label.label_00039}', '', '', '{!$Label.label_10016}', '{!$Label.label_10553}', '-', ''], // 名前 名前 メールアドレス 会社名 （オブジェクト対応のヘッダ名）
+                            colModel: [{
+                                    name: 'id',
+                                    index: 'id',
+                                    hidden: true
+                                }, {
+                                    name: 'nameStr',
+                                    index: 'nameStr',
+                                    width: 300
+                                }, {
+                                    name: 'name',
+                                    index: 'name',
+                                    width: 10,
+                                    hidden: true
+                                }, {
+                                    name: 'firstName',
+                                    index: 'firstName',
+                                    width: 10,
+                                    hidden: true
+                                }, {
+                                    name: 'lastName',
+                                    index: 'lastName',
+                                    width: 10,
+                                    hidden: true
+                                }, {
+                                    name: 'mailAddress',
+                                    index: 'address',
+                                    width: 245,
+                                    hidden: true
+                                }, {
+                                    name: 'companyName',
+                                    index: 'companyName',
+                                    width: 180,
+                                    hidden: false
+                                }, {
+                                    name: 'multipurpose',
+                                    index: 'multipurpose',
+                                    width: 100,
+                                    hidden: true
+                                }, {
+                                    name: 'assortEntry',
+                                    index: 'type',
+                                    width: 100,
+                                    align: "center",
+                                    hidden: true
+                                }
+                            ],
+                            rowNum: 10,
+                            height: 205,
+                            rowList: [10, 50, 100],
+                            sortname: 'name',
+                            pager: '#addressListPager',
+                            viewrecords: true,
+                            shrinkToFit: true,
+                            multiselect: true,
+                            multiboxonly: true,
+                            loadComplete: function(data){
+                                if(data != undefined){
+                                    if(data.rows != undefined){
+                                        for(var i =0; i < data.rows.length; i++){
+                                            if(loadIdList.contain(data.rows[i].id)){
+                                                $("#addressList").jqGrid('setSelection', data.rows[i].id);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        createAndAssignColumnModelNameMap($("#addressList"));
+
+
+                        if (res.noresult == 'true') {
+                            $("#addressList").clearGridData();
+                        } else if (res.limitover == 'true') {
+                            alert('{!$Label.msg_01073}');
+                            $("#addressList").clearGridData();
+                        } else if (res.limitoversf == 'true') {
+                            alert('{!$Label.msg_00332}{!$Label.label_13121}{!$Label.msg_00334}');
+                            $("#addressList").clearGridData();
+                        } else if (res.wordless == 'true') {
+                            alert('{!$Label.msg_00331}');
+                            $("#addressList").clearGridData();
+                        }
+                }, {
+                    escape: true
+                });
+
+                $("#managerUserTable").setGridWidth(500);
+                $("#managerGroupTable").setGridWidth(500);
+                $("#addressList").setGridWidth(500);
+
+                $("#user-search-corp").change(function (e) {
+                    var v = $("#user-search-corp").val();
+                    if (v == "none" || v == "${domain}") {
+                        $("#user-search-post").show();
+                    } else {
+                        $("#user-search-post").hide();
+                    }
+                });
+            }
+
+            function addAddress(val) {
+                $("#managerUserTable").trigger("reloadGrid");
+                $("#managerGroupTable").trigger("reloadGrid");
+                $("#addressList").trigger("reloadGrid");
+
+                var baseHeight = 380;
+
+                $("#addressBalloon").css("top", baseHeight - 0 + $("#sectionHeader").height());
+                $(".address-div").css("left", getBrowserWidth() - 900);
+                $("#addressDiv").css("height", baseHeight + $("#sectionHeader").height());
+                $("#addressDiv").css("z-index", "100");
+                $("#addressDiv").show();
+            }
+
+            function delUserAndGroup() {
+                var arrows = $("#settingGrpList").jqGrid('getGridParam', 'selarrrow');
+
+                if (arrows.length == 0) {
+                    return;
+                }
+
+                var len = arrows.length;
+                for(i = len-1; i >= 0; i--) {
+                    delete loadIdList[jQuery.inArray(arrows[i], loadIdList)]
+                    $("#settingGrpList").delRowData(arrows[i]);
+                }
+            }
+
+            function jq(myid) {
+                return '#' + myid.replace(/(:|\.)/g,'\\\$1');
+            }
+
+            function find(array, id) {
+                for (var i in array) {
+                    if (array[i].id == id) { return array[i]; }
+                }
+                return null;
+            }
+
+            function selectAddressApply() {
+                var ctx;
+
+                switch (selectedTabIndex) {
+                case 0:
+                    ctx = $("#managerUserTable");
+
+                    break;
+                case 1:
+                    ctx = $("#managerGroupTable");
+
+                    break;
+                case 2:
+                    ctx = $("#addressList");
+
+                    break;
+                }
+                var applyAddress = ctx.jqGrid("getGridParam", "selarrrow");
+
+                var selectedAddress = $("#settingGrpList").jqGrid("getRowData");
+                var selectedAddressList = new Array();
+
+                for (var i = 0; i < selectedAddress.length; i++) {
+                    selectedAddressList.push(selectedAddress[i].id);
+                }
+
+                for (var i = 0; i < applyAddress.length; i++) {
+                    if (!selectedAddressList.contain(applyAddress[i])) {
+                        var data;
+
+                        switch (selectedTabIndex) {
+                        case 0:
+//                            data = $("#managerUserTable").jqGrid("getRowData", applyAddress[i]);
+                            data = constructObjectFromRowData(ctx.find(jq(applyAddress[i] + " td")), getColumnModelNameMap(ctx));
+
+                            break;
+                        case 1:
+//                            data = $("#managerGroupTable").jqGrid("getRowData", applyAddress[i]);
+                            data = constructObjectFromRowData(ctx.find(jq(applyAddress[i] + " td")), getColumnModelNameMap(ctx));
+
+                            break;
+                        case 2:
+//                            data = $("#addressList").jqGrid("getRowData", applyAddress[i]);
+                            data = constructObjectFromRowData(ctx.find(jq(applyAddress[i] + " td")), getColumnModelNameMap(ctx));
+                            data.name = data.nameStr;
+                            break;
+                        }
+
+                        $("#settingGrpList").jqGrid('addRowData', data.id, data);
+                        passInitModal = false;
+                        $("#settingGrpList").trigger("reloadGrid");
+                        loadIdList.push(data.id);
+                    }
+                }
+
+            }
+
+            function setUserGroupIds() {
+                CsoScript_loadingStart();
+                var obj = document.getElementById('{!$Component.theForm.postIds}');
+                obj.value = loadIdList.join(",");
+
+                return true;
+            }
+
+            function addressSearch() {
+                var pd = {};
+                switch (selectedTabIndex) {
+                case 0:
+                    var searchText = $.trim($("#searchText").val());
+
+                    if ($("#searchText").val() == $("#searchText").attr("placeholder")) {
+                        searchText = "";
+                    }
+                    var csval = $("#corpSelect").val();
+
+                    if(csval == 0){
+                        delete $("#managerUserTable").getGridParam().postData.p;
+                        pd = {
+                            type: selectedTabIndex,
+                            search: searchText
+                        };
+                    } else {
+                        pd = {
+                            type: selectedTabIndex,
+                            search: searchText,
+                            p: csval
+                        };
+                    }
+
+                    $("#managerUserTable").clearGridData();
+                    $("#managerUserTable").setGridParam({
+                        postData: pd
+                    }).trigger("reloadGrid");
+
+                    break;
+                case 1:
+                    var searchText = $.trim($("#searchText").val());
+
+                    if ($("#searchText").val() == $("#searchText").attr("placeholder")) {
+                        searchText = "";
+                    }
+
+                    pd = {
+                        type: selectedTabIndex,
+                        search: searchText
+                    };
+
+                    $("#managerGroupTable").clearGridData();
+                    $("#managerGroupTable").setGridParam({
+                        postData: pd
+                    }).trigger("reloadGrid");
+
+                    break;
+                case 2:
+                    var searchText = $.trim($("#searchText").val());
+                    var corpType = $.trim($("#corpType").val());
+
+                    if ($("#searchText").val() == $("#searchText").attr("placeholder")) {
+                        searchText = "";
+                    }
+
+                    Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.CSOGroupEditController.getPartnerMemberList}',
+                        corpType, searchText, function (data, event) {
+                            var res = JSON.parse($('#decodeWork').html(data).text());
+
+                            if (res.noresult == 'true') {
+                                $("#addressList").clearGridData();
+                            } else if (res.limitover == 'true') {
+                                alert('{!$Label.msg_01073}');
+                            } else if (res.limitoversf == 'true') {
+                                alert('{!$Label.msg_00332}{!$Label.label_13121}{!$Label.msg_00334}');
+                            } else if (res.wordless == 'true') {
+                                alert('{!$Label.msg_00331}');
+                            } else {
+                                $("#addressList").clearGridData();
+
+                                if ('Acc' == corpType) {
+                                    $("#applyButton").hide();
+                                    $("#addressList").setGridParam({
+                                        data: JSON.parse($('#decodeWork').html(data).text())
+                                    }).trigger("reloadGrid");
+                                } else if ('Con' == corpType) {
+                                    $("#applyButton").show();
+                                    $("#addressList").setGridParam({
+                                        data: JSON.parse($('#decodeWork').html(data).text())
+                                    }).trigger("reloadGrid");
+                                }
+                            }
+                        }
+                    );
+                    break;
+                }
+            }
+
+            function onNameClicked(id, type) {
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.CSOGroupEditController.getAddressListOnNameClicked}',
+                    'Con', id, function (data, event) {
+                        var res = JSON.parse($('#decodeWork').html(data).text());
+
+                        $("#applyButton").show();
+                        $("#corpType").val('Con');
+
+                        if (res.noresult == 'true') {
+                            $("#addressList").clearGridData();
+                        } else if (res.limitover == 'true') {
+                            alert('{!$Label.msg_01073}');
+                        } else if (res.limitoversf == 'true') {
+                            alert('{!$Label.msg_00332}{!$Label.label_13121}{!$Label.msg_00334}');
+                        } else if (res.wordless == 'true') {
+                            alert('{!$Label.msg_00331}');
+                        } else {
+                            $("#addressList").clearGridData();
+                            $("#addressList").setGridParam({
+                                data: JSON.parse($('#decodeWork').html(data).text())
+                            }).trigger("reloadGrid");
+                        }
+                    }, {
+                        escape: true
+                    }
+                );
+            }
+
+            /*
+             * 表示サイズの調整
+             */
+            function resizeGrid() {
+                var height = getBrowserHeight() - 370;
+                $("#settingGrpList").setGridWidth(1);
+                $("#settingGrpList").setGridWidth($("#settingGrpList-container").innerWidth());
+
+                if (height >= 270) {
+                    $("#settingGrpList").setGridHeight(height);
+                }
+            }
+
+            function submitStop(e){
+                if (!e) var e = window.event;
+
+                if(e.keyCode == 13)
+                    return false;
+            }
+
+function createAndAssignColumnModelNameMap(jqgridObj) {
+    var colModel = jqgridObj.getGridParam('colModel');
+    var colModelNameMap = [];
+    for (var i=0; i<colModel.length; ++i) {
+        colModelNameMap[colModel[i].name] = i;
+    }
+    jqgridObj.data('colModelNameMap', colModelNameMap);
+}
+
+function getColumnModelNameMap(jqgridObj) {
+    return jqgridObj.data('colModelNameMap');
+}
+
+function constructObjectFromRowData(cellArray, columnModelNameMap, format) {
+    var obj = {};
+    if (format === 'text') {
+        for (var name in columnModelNameMap) {
+            obj[name] = $(cellArray[columnModelNameMap[name]]).text();
+        }
+    } else {
+        for (var name in columnModelNameMap) {
+            obj[name] = $(cellArray[columnModelNameMap[name]]).html();
+        }
+    }
+    return obj;
+}
+
+        </script>
+        <!-- warapper -->
+        <div id="c_wrapper">
+            <!-- content container -->
+            <table id="c_container" cellspacing="0" border="0">
+                <tr>
+                    <!-- left menu container -->
+                    <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                        <apex:include pageName="SOLXYZCSO001__SettingMenu" />
+                    </td>
+                    <!-- right header container -->
+                    <td id="c_headLeft" nowrap="nowrap">
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/h004.png')}" alt="{!$Label.solxyzcso001__label_10098}" title="{!$Label.solxyzcso001__label_10098}" />
+                         <h1 id="c_headLeftTitle">{!$Label.label_10260}</h1>
+                        <br/>
+                         <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10098}</h2>
+
+                    </td>
+                    <!-- 操作ボックス -->
+                    <td id="c_headRight">
+                        <apex:include pageName="SOLXYZCSO001__OperationLinks" />
+                    </td>
+                </tr>
+                <tr>
+                    <!-- right content container -->
+                    <td id="c_right" colspan="2">
+                        <apex:form id="theForm">
+                            <apex:inputHidden value="{!postIds}" id="postIds" />
+                            <apex:pageMessages />
+                            <apex:pageBlock id="theBlock" title="{!$Label.solxyzcso001__label_13001}">
+                                <apex:pageBlockButtons >
+                                    <apex:commandButton value="{!$Label.solxyzcso001__field_010166}" action="{!saveGroup}" onclick="return setUserGroupIds();" />
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!cancelGroup}" /></apex:pageBlockButtons>
+                                <apex:pageblockSection columns="1">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >{!$Label.solxyzcso001__label_13002}</apex:outputLabel>
+                                        <apex:outputPanel styleClass="requiredInput" layout="block">
+                                            <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                                            <apex:inputText value="{!groupName}" maxlength="255" styleClass="groupName" style="width:410px;"/></apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageblockSection>
+                                <apex:pageblockSection columns="1" id="thePageblockSection">
+                                    <apex:pageBlockSectionItem id="thePageBlockSectionItem">
+                                        <apex:outputLabel >{!$Label.solxyzcso001__label_10012}</apex:outputLabel>
+                                        <apex:pageBlockSectionItem id="thePageBlockSectionItem2">
+                                          <apex:outputPanel layout="block" id="theOutputPanel">
+                                              <table>
+                                                  <tr>
+                                                      <td align="right">
+                                                          <apex:outputLabel id="ViewCommentLength" value="___" />
+                                                      </td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td>
+                                                          <apex:inputTextArea id="comment" value="{!groupComment}" styleClass="setting-grp-comment" />
+                                                      </td>
+                                                  </tr>
+                                              </table>
+                                          </apex:outputPanel>
+                                       </apex:pageBlockSectionItem>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >{!$Label.solxyzcso001__label_10075}</apex:outputLabel>
+                                        <div align="left" style="float: right;">
+                                            <button class="btn icon-btn btn_monseout" onclick="delUserAndGroup(); return false;">{!$Label.field_common_remove}</button>
+                                            <button class="btn icon-btn btn_monseout" onclick="addAddress(); return false;">{!$Label.label_10020}</button>
+                                        </div>
+                                        <div id="addressDiv" class="address-div">
+                                            <div style="padding: 0px 0px 0px 10px;">
+                                                <div style="font-size: 20px; padding: 3px;"></div>
+                                                <div id="addressBookView">
+                                                    <table>
+                                                        <tr>
+                                                            <td rowspan="2">
+                                                                <div id="tabDiv">
+                                                                    <ul>
+                                                                        <li><a href="#tabUser">{!$Label.label_11107}</a>
+
+                                                                        </li>
+                                                                        <li><a href="#tabGroup">{!$Label.label_11108}</a>
+
+                                                                        </li>
+                                                                        <li><a href="#tabPartner">{!$Label.label_10143}</a>
+
+                                                                        </li>
+                                                                    </ul>
+                                                                    <div id="tabUser" class="tab-inner">
+                                                                        <div style="padding-top: 10px;">
+                                                                            <table id="managerUserTable"></table>
+                                                                            <div id="managerUserTablePager"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="tabGroup" class="tab-inner">
+                                                                        <div style="padding-top: 10px;">
+                                                                            <table id="managerGroupTable"></table>
+                                                                            <div id="managerGroupTablePager"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="tabPartner" class="tab-inner">
+                                                                        <div style="padding-top: 10px;">
+                                                                            <table id="addressList"></table>
+                                                                            <div id="addressListPager"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td valign="top">
+                                                                <fieldset style="width: 280px; margin-left: 5px;">
+                                                                    <legend>{!$Label.label_10618}</legend>
+                                                                    <div>
+                                                                        <select id="corpSelect" style="width: 250px;"></select>
+                                                                        <!--apex:selectList だとコンポーネントエラーが発生したため、HTMLを直接記述-->
+                                                                        <select id="corpType" style="width: 250px;" onchange="addressSearch();">
+                                                                            <option value="Acc">{!$ObjectType.account.Label}</option>
+                                                                            <option value="Con">{!$ObjectType.contact.Label}</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div style="margin-top: 5px;">
+                                                                        <input type="text" id="searchText" maxlength="255" placeholder="{!$Label.label_13003}" style="padding: 4px; width: 250px;" onKeyPress="return submitStop(event);"/>
+                                                                        <div style="text-align: right; margin-top: 10px;">
+                                                                            <input type="button" class="btn" value="{!$Label.label_00069}" style="padding-top: 3px; padding-bottom: 3px;" onclick="addressSearch();" />
+                                                                        </div>
+                                                                    </div>
+                                                                </fieldset>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="text-align: right;" valign="bottom">
+                                                                <input type="button" class="btn" value="{!$Label.label_00071}" onclick="$('#addressDiv').hide();" />
+                                                                <input id="applyButton" type="button" class="btn" value="{!$Label.label_10020}" onclick="selectAddressApply();" />
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div style="width: 100%; text-align: center; border-top: solid silver 1px; position: absolute; top: 300px;" id="addressBalloon">
+                                                <div style="height: 25px; width: 20px; overflow: hidden; position: absolute; left: 600px; top: -1px;" id="balloon">
+                                                    <div style="border: 10px solid; border-color: silver transparent; position: absolute; border-bottom-width: 0px;"></div>
+                                                    <div style="border: 9px solid; border-color: #f0f8ff transparent; left: 1px; position: absolute; border-bottom-width: 0px; z"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="padding-top: 30px;">
+                                            <div id="settingGrpList-container">
+                                                <table id="settingGrpList"></table>
+                                                <div id="settingGrpListPager"></div>
+                                            </div>
+                                        </div>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageblockSection>
+                            </apex:pageBlock>
+                        </apex:form>
+                    </td>
+                </tr>
+            </table>
+            <div id="decodeWork" style="display:none;"></div>
+            <div id="copyright">{!$Label.label_00001}</div>
+        </div>
+    <apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+    </apex:outputPanel>
+</apex:page>

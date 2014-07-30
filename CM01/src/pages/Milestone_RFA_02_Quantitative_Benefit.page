@@ -1,0 +1,657 @@
+<apex:page standardController="RFA__c" sidebar="false" extensions="RM_VFC_Quantitative_Benefit_Capital">
+<style>
+.borderTable {
+    border: solid 1px black;
+    border-color:#ECECEC;
+    border-collapse:collapse;
+    padding: 5px;
+    width : 100%;
+}
+
+.borderTable th{
+    font-weight: bold;
+    height:20px;
+    width:20px;
+    white-space: normal;
+    border: 1px solid black;
+    background-color: #d60016;
+    color: #FFFFFF;
+}
+.borderTable td{
+    white-space: normal;
+    height:20px;
+    width:20px;
+}
+
+.tdBorder {
+    border: 1px solid black;
+}
+.tdLeftNotBorder {
+    border: 1px solid black;
+    border-left-style:none;
+}
+.tdRightNotBorder {
+    border: 1px solid black;
+    border-right-style:none;
+}
+h1#attachment { 
+color : #ff0000;
+}
+span.dateFormat {display: none;}
+</style>
+
+<apex:includeScript value="{!URLFOR($Resource.jQueryGantt, 'jquery.min.js')}"   />
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+    inputDisable('true');
+});
+
+function inputEnable(changeLayout){
+
+var changeLayoutValue = document.getElementById(changeLayout).value;
+//alert('テストinputEnable:changeLayoutValue' + changeLayoutValue);
+	//if(changeLayoutValue == 'true'){
+
+	    $j("input[class$=editbtn]").show();
+	    $j("input[id$=editButton]").hide();
+	
+	    $j("span[id$=listPanel1]").css("display", "block");
+	    $j("span[id$=listPanel2]").css("display", "none");
+	    
+/*	}else{
+	
+	    $j("input[class$=editbtn]").hide();
+	    $j("input[id$=editButton]").show();
+	
+	    $j("span[id$=listPanel1]").css("display", "none");
+	    $j("span[id$=listPanel2]").css("display", "block");
+	    
+	}*/
+		
+	$j("td[id$=yearNumber0]").css("text-align","right");
+}
+
+function inputDisable(changeLayout){
+	
+	var cangeLayoutElement = document.getElementById(changeLayout);
+//alert('テストinputDisable:cangeLayoutElement' + cangeLayoutElement);
+	if((cangeLayoutElement == null && changeLayout == 'true') || (cangeLayoutElement.value == 'true')){
+
+	    $j("input[class$=editbtn]").hide();
+	    $j("input[id$=editButton]").show();
+	    
+	    $j("span[id$=listPanel1]").css("display", "none");
+	    $j("span[id$=listPanel2]").css("display", "block");
+	
+	}else{
+
+	    $j("input[class$=editbtn]").show();
+	    $j("input[id$=editButton]").hide();
+	    $j("span[id$=listPanel1]").css("display", "block");
+	    $j("span[id$=listPanel2]").css("display", "none");
+	
+	}
+	
+		$j("input[id$=yearNumber1]").css("text-align","right");
+		$j("input[id$=yearNumber2]").css("text-align","right");
+		$j("input[id$=yearNumber3]").css("text-align","right");
+		$j("input[id$=yearNumber4]").css("text-align","right");
+	   
+		$j("input[id$=yearNumber5]").css("text-align","right");
+		$j("input[id$=yearNumber6]").css("text-align","right");
+	   
+		$j("input[id$=yearNumber7]").css("text-align","right");
+		$j("input[id$=yearNumber8]").css("text-align","right");
+		$j("input[id$=yearNumber9]").css("text-align","right");
+		$j("span[id$=yearNumber10]").css("text-align","right");
+	   
+		$j("td[id$=yearNumber0]").css("text-align","right");
+		$j("input[id$=usefulLifeId]").css("text-align","right");
+
+}
+
+function changeAssetCategoryDetail(assetCategoryId,depreciationRuleId,usefulLifeId){
+    
+    var categoryDetail=document.getElementById(assetCategoryId).value;
+
+    if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_01}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_1}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_1};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_02_1}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_2};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_02_2}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_3};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_03_1}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_4};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_03_2}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_5};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_03_3}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_7};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_04_1}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_4};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_04_2}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_7};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_05_1}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_6};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_05_2}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_7};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_06}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_8};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_07}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_8};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_08}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_8};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_09}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_8};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_10}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_10};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_11_1}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_4};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_11_2}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_7};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_11_3}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_9};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_11_4}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_10};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_12}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_10};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_13}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_10};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_14}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_2}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_10};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_15}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_3}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_10};
+    }else if(categoryDetail == '{!$Label.RM_Asset_Category_Detail_16}'){
+        document.getElementById(depreciationRuleId).value = '{!$Label.RM_Depreciation_Rule_1}';
+        document.getElementById(usefulLifeId).value = {!$Label.RM_Useful_Life_1};
+    }else{
+        document.getElementById(depreciationRuleId).value = '';
+        document.getElementById(usefulLifeId).value = 0;
+    }
+    
+}
+
+
+</script>
+    <apex:form >
+        <apex:pageBlock >
+            <apex:pageMessages id="message"/>
+            <apex:outputPanel id="main-panel" layout="block">
+                <table>
+                    <tr >
+                        <td align="center">
+                            <input type="button" id="editButton" class="detailbtn" value="{!$Label.RM_Edit}" onclick="inputEnable('{!$Component.changeLayout}')" />
+            				<apex:inputhidden id="changeLayout" value="{!changeLayout}"/>
+                            <apex:commandButton id="saveButton" styleClass="editbtn" value="{!$Label.RM_Save}" action="{!saveSynergy}" oncomplete="inputDisable('{!$Component.changeLayout}')" reRender="changeLayout,message,listPanel1,listPanel2" />
+                            <apex:commandButton id="cancelButton" styleclass="editbtn" value="{!$Label.RM_Cancel}" action="{!editCancel}" oncomplete="inputDisable('{!$Component.changeLayout}')" reRender="changeLayout,message,listPanel1,listPanel2" />
+                        </td>
+                    </tr>
+                </table>
+                
+                <apex:outputPanel id="listPanel1" styleClass="listPanel1">
+                    <table>
+                        <tr>
+                            <td>
+                                <apex:selectList styleClass="yearlist" value="{!year}" size="1" multiselect="false" onChange="changeYear();">
+                                    <apex:selectOptions value="{!yearOption}" />
+                                </apex:selectList>
+                                <apex:actionFunction name="changeYear" action="{!changeYear}" reRender="listPanel1" />
+                            </td>
+                            <td>
+                            	{!$Label.RM_Year}
+                            </td>
+                        </tr>
+                    </table>
+                    <H1>{!$Label.RM_Quantitative_Benefit_Cost_Saving_Revenue_Growth}</H1>&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+                    <H1>{!$Label.RM_Comment}</H1>
+                    <table class="borderTable" >
+                        <thead>
+                            <tr class="year-row">
+                                <th width="20%">{!$Label.RM_Name}</th>
+                                <th width="10%">Q1</th>
+                                <th width="10%">Q2</th>
+                                <th width="10%">Q3</th>
+                                <th width="10%">Q4</th>
+                                <th width="10%">FY</th>
+                                <apex:repeat value="{!headerYearQuantitative}" var="e" >
+                                    <th width="10%"><apex:outputText value="{!e}" /></th>
+                                </apex:repeat>
+                                <th width="10%">{!$Label.RM_Total}</th>
+                                <!--  <th>{!$Label.RM_Remarks}</th>-->
+                            </tr>
+                        </thead>
+                        <apex:repeat value="{!quantitativeSynergyHistory.records}" var="v_Quantitative_Benefit">
+                            <tr>
+                                <td width="20%">
+                                	<apex:inputField id="nameId" value="{!v_Quantitative_Benefit.RM_Name__c}" style="width:90%;word-break: break-all;"/>
+                               </td>
+                                <td width="10%" id="yearNumber0">
+                                	<apex:inputField id="yearNumber1" value="{!v_Quantitative_Benefit.RM_This_Year_Q1_Text__c}" style="width:90%;"/>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+                                	<apex:inputField id="yearNumber2" value="{!v_Quantitative_Benefit.RM_This_Year_Q2_Text__c}" style="width:90%;"/>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+                                	<apex:inputField id="yearNumber3" value="{!v_Quantitative_Benefit.RM_This_Year_Q3_Text__c}" style="width:90%;"/>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+                                	<apex:inputField id="yearNumber4" value="{!v_Quantitative_Benefit.RM_This_Year_Q4_Text__c}" style="width:90%;"/>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_Quantitative_Benefit.RM_This_Year_Formula__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+                                	<apex:inputField id="yearNumber5" value="{!v_Quantitative_Benefit.RM_Next_Year_Text__c}" style="width:90%;"/>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+                                	<apex:inputField id="yearNumber6" value="{!v_Quantitative_Benefit.RM_The_Year_After_Next_Text__c}" style="width:90%;"/>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_Quantitative_Benefit.RM_Total__c}"/>
+	 								</apex:outputText>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                        <tfoot>
+                            <tr>
+                                <td width="20%">{!$Label.RM_Total}</td>
+                                <td width="10%" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.thisYearQ1}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.thisYearQ2}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.thisYearQ3}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.thisYearQ4}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.thisYear}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.nextYear}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.theYearAfterNext}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td width="10%" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.total}"/>
+	 								</apex:outputText>
+                                </td>
+                                <!--  <td></td>-->
+                            </tr>
+                        </tfoot>
+                    </table>
+                    
+                    
+                    <apex:pageblocksection columns="1" showheader="false">
+
+                        <apex:outputField Value="{!rfa.RM_PaybackPeriodYears__c}" id="paybackPeriodYears"/>
+	                    <apex:inputField Value="{!rfa.RM_Remarks_Quantitative__c}" id="Remarks" style="width:90%;height:90%;word-break: break-all;"/>
+
+                    </apex:pageblocksection>
+                    
+                    <br/><br/>
+                
+                    <H1>{!$Label.RM_CAPEX_and_Cash_Spend_Schedule}<br/></H1>
+                    <H1  Id="attachment">{!$Label.RM_Attached_File}</H1>
+                    
+
+                    <table class="borderTable" >
+                        <thead>
+                            <tr class="year-row">
+                                <th style="width:15%;">{!$Label.RM_Asset_Name}</th>
+                                <th style="width:15%;">{!$Label.RM_Asset_Category}</th>
+                                <th style="width:15%">{!$Label.RM_Asset_Category_Detail}</th>
+                                <th style="width:10%;">{!$Label.RM_Acquisition_Method}</th>
+                                <th style="width:10%;">{!$Label.RM_Depreciation_Rule}</th>
+                                <th style="width:7%;">{!$Label.RM_Useful_Life}</th>
+                                <apex:repeat value="{!headerYearCapex}" var="e" >
+                                    <th style="width:7%;"><apex:outputText value="{!e}"/></th>
+                                </apex:repeat>
+                                <th style="width:7%;">{!$Label.RM_Invest_Total}</th>
+                            </tr>
+                        </thead>
+                        <apex:repeat value="{!capexAndCashSpendSynergyHistory.records}" var="v_CapexAndCashSpend">
+                            <tr>
+                                <td style="width:15%;">
+                                	<apex:inputField value="{!v_CapexAndCashSpend.RM_Asset_Name__c}" style="width:90%;word-break: break-all;"/>
+                                </td>
+                                <td style="width:15%;">
+                                	<apex:inputField id="assetCategoryId" value="{!v_CapexAndCashSpend.RM_Asset_Category__c}" style="width:90%;word-break: break-all;"/>
+                                </td>
+                                <td style="width:15%;">
+                                    <apex:inputField id="assetCategoryDetailId" value="{!v_CapexAndCashSpend.RM_Asset_Category_Detail__c}" Onchange="changeAssetCategoryDetail('{!$Component.assetCategoryDetailId}','{!$Component.depreciationRuleId}','{!$Component.usefulLifeId}');" style="width:100%;word-break: break-all;"/>
+                                </td>
+                                <td style="width:10%;">
+                                	<apex:inputField id="acquisitionMethodId" value="{!v_CapexAndCashSpend.RM_Acquisition_Method__c}" style="width:90%;word-break: break-all;"/>
+                               </td>
+                                <td style="width:10%;">
+                                	<apex:inputField id="depreciationRuleId" value="{!v_CapexAndCashSpend.RM_Depreciation_Rule__c}" style="width:90%;word-break: break-all;"/>
+                                </td>
+                                <td style="width:7%;">
+                                	<apex:inputField id="usefulLifeId" value="{!v_CapexAndCashSpend.RM_Useful_Life_Text__c}" style="width:90%;"/>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+                                	<apex:inputField id="yearNumber7" value="{!v_CapexAndCashSpend.RM_This_Year_Text__c}"  style="width:90%;"/>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+                                	<apex:inputField id="yearNumber8" value="{!v_CapexAndCashSpend.RM_Next_Year_Text__c}" style="width:90%;" />
+                               </td>
+                                <td style="width:7%;" id="yearNumber0">
+                                	<apex:inputField id="yearNumber9" value="{!v_CapexAndCashSpend.RM_The_Year_After_Next_Text__c}" style="width:90%;" />
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_CapexAndCashSpend.RM_Invest_Total__c}"/>
+	 								</apex:outputText>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                    	<tfoot>
+                            <tr>
+                                <td style="width:15%;">{!$Label.RM_Total}</td>
+                                <td style="width:15%;"></td>
+                                <td style="width:15%;"></td>
+                                <td style="width:10%;"></td>
+                                <td style="width:10%;"></td>
+                                <td style="width:7%;"></td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!capexAndCashSpendSynergyHistory.thisYear}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!capexAndCashSpendSynergyHistory.nextYear}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!capexAndCashSpendSynergyHistory.theYearAfterNext}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!capexAndCashSpendSynergyHistory.investTotal}"/>
+	 								</apex:outputText>
+                                </td>
+                            </tr>
+                        </tfoot>
+             
+                    </table>
+	                <apex:pageblocksection columns="1" showheader="false">
+	                    <apex:inputField id="Remarks" Value="{!rfa.RM_Remarks_Capex__c}"  style="width:90%;height:90%;word-break: break-all;"/>
+	                </apex:pageBlockSection>
+	            </apex:outputPanel>
+                
+                <apex:outputPanel id="listPanel2">
+                    <H1>{!$Label.RM_Quantitative_Benefit_Cost_Saving_Revenue_Growth}</H1>&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+                    <H1>{!$Label.RM_Comment}</H1>
+                    <table class="borderTable" >
+                        <thead>
+                            <tr class="year-row">
+                                <th width="20%">{!$Label.RM_Name}</th>
+                                <th width="10%">Q1</th>
+                                <th width="10%">Q2</th>
+                                <th width="10%">Q3</th>
+                                <th width="10%">Q4</th>
+                                <th width="10%">FY</th>
+                                <apex:repeat value="{!headerYearQuantitative}" var="e" >
+                                    <th width="10%"><apex:outputText value="{!e}" /></th>
+                                </apex:repeat>
+                                <th width="10%">{!$Label.RM_Total}</th>
+                                <!--  <th>{!$Label.RM_Remarks}</th>-->
+                            </tr>
+                        </thead>
+                        <apex:repeat value="{!quantitativeSynergyHistory.records}" var="v_Quantitative_Benefit">
+                            <tr>
+                                <td width="20%">
+                                	<apex:outputText id="nameIdRead" value="{!v_Quantitative_Benefit.RM_Name__c}" style="width:90%;word-break: break-all;" />
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_Quantitative_Benefit.RM_This_Year_Q1__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_Quantitative_Benefit.RM_This_Year_Q2__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_Quantitative_Benefit.RM_This_Year_Q3__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_Quantitative_Benefit.RM_This_Year_Q4__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_Quantitative_Benefit.RM_This_Year_Formula__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_Quantitative_Benefit.RM_Next_Year__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_Quantitative_Benefit.RM_The_Year_After_Next__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_Quantitative_Benefit.RM_Total__c}"/>
+	 								</apex:outputText>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                        <tfoot>
+                            <tr>
+                                <td width="20%">{!$Label.RM_Total}</td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.thisYearQ1}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.thisYearQ2}"/>
+	 								</apex:outputText>
+ 
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.thisYearQ3}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.thisYearQ4}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.thisYear}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.nextYear}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.theYearAfterNext}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td id="yearNumber0" width="10%">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!quantitativeSynergyHistory.total}"/>
+	 								</apex:outputText>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    
+                    
+                    <apex:pageblocksection columns="1" showheader="false">
+                        <apex:outputField Value="{!rfa.RM_PaybackPeriodYears__c}" id="paybackPeriodYears"/>
+	                    <apex:outputField Value="{!rfa.RM_Remarks_Quantitative__c}" id="Remarks" style="width:90%;height:90%;word-break: break-all;"/>
+
+                    </apex:pageblocksection>
+                    
+                    <br/><br/>
+                
+                    <H1>{!$Label.RM_CAPEX_and_Cash_Spend_Schedule}<br/></H1>
+                    <H1  Id="attachment">{!$Label.RM_Attached_File}</H1>
+                    
+
+                    <table class="borderTable" >
+                        <thead>
+                            <tr class="year-row">
+                                <th style="width:15%;">{!$Label.RM_Asset_Name}</th>
+                                <th style="width:15%;">{!$Label.RM_Asset_Category}</th>
+                                <th style="width:15%">{!$Label.RM_Asset_Category_Detail}</th>
+                                <th style="width:10%;">{!$Label.RM_Acquisition_Method}</th>
+                                <th style="width:10%;">{!$Label.RM_Depreciation_Rule}</th>
+                                <th style="width:7%;">{!$Label.RM_Useful_Life}</th>
+                                <apex:repeat value="{!headerYearCapex}" var="e">
+                                    <th style="width:7%;"><apex:outputText value="{!e}" /></th>
+                                </apex:repeat>
+                                <th style="width:7%;">{!$Label.RM_Invest_Total}</th>
+                            </tr>
+                        </thead>
+                        <apex:repeat value="{!capexAndCashSpendSynergyHistory.records}" var="v_CapexAndCashSpend">
+                            <tr>
+                                <td style="width:15%;">
+                                 	<apex:outputText id="assetNameIdRead" value="{!v_CapexAndCashSpend.RM_Asset_Name__c}" style="width:90%;word-break: break-all;"/>
+                                </td>
+                                <td style="width:15%;">
+                                	<apex:outputField id="assetCategoryIdRead" value="{!v_CapexAndCashSpend.RM_Asset_Category__c}" style="width:90%;word-break: break-all;"/>
+                                </td>
+                                <td style="width:15%;">
+                                   <apex:outputField id="assetCategoryDetailIdRead" value="{!v_CapexAndCashSpend.RM_Asset_Category_Detail__c}" style="width:90%;word-break: break-all;"/>
+                                </td>
+                                <td style="width:10%;">
+                               		<apex:outputField id="acquisitionMethodIdRead" value="{!v_CapexAndCashSpend.RM_Acquisition_Method__c}" style="width:90%;word-break: break-all;"/>
+                                </td>
+                                <td style="width:10%;">
+	                               	<apex:outputField id="depreciationRuleIdRead" value="{!v_CapexAndCashSpend.RM_Depreciation_Rule__c}" style="width:90%;word-break: break-all;"/>
+                                </td>
+                                <td style="width:7%;">
+                               		<apex:outputField id="usefulLifeIdRead" value="{!v_CapexAndCashSpend.RM_Useful_Life__c}" style="width:90%;"/>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_CapexAndCashSpend.RM_This_Year__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_CapexAndCashSpend.RM_Next_Year__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_CapexAndCashSpend.RM_The_Year_After_Next__c}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!v_CapexAndCashSpend.RM_Invest_Total__c}"/>
+	 								</apex:outputText>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                    	<tfoot>
+                            <tr>
+                                <td style="width:15%;">{!$Label.RM_Total}</td>
+                                <td style="width:15%;"></td>
+                                <td style="width:15%;"></td>
+                                <td style="width:10%;"></td>
+                                <td style="width:10%;"></td>
+                                <td style="width:7%;"></td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!capexAndCashSpendSynergyHistory.thisYear}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!capexAndCashSpendSynergyHistory.nextYear}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!capexAndCashSpendSynergyHistory.theYearAfterNext}"/>
+	 								</apex:outputText>
+                                </td>
+                                <td style="width:7%;" id="yearNumber0">
+	                                <apex:outputText value="{0, number, ###,###,###,###,###,###}" style="width:90%;">
+	       								<apex:param value="{!capexAndCashSpendSynergyHistory.investTotal}"/>
+	 								</apex:outputText>
+                                </td>
+                            </tr>
+                        </tfoot>
+             
+                    </table>
+	                <apex:pageblocksection columns="1" showheader="false">
+	                    <apex:outputField id="Remarks" Value="{!rfa.RM_Remarks_Capex__c}"  style="width:90%;height:90%;word-break: break-all;"/>
+	                    <!--  <apex:outputField id="RemarksRead" Value="{!rfa.RM_Remarks_Capex__c}"  style="width:90%;height:90%;"/>-->
+	                </apex:pageBlockSection>
+	            </apex:outputPanel>
+	        </apex:outputPanel>
+	        
+	    </apex:pageBlock>
+    </apex:form>
+</apex:page>

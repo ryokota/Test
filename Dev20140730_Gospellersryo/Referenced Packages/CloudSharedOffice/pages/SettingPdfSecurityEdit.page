@@ -1,0 +1,902 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingPdfSecurityController" tabStyle="setting__tab" action="{!init}">
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_pdf_security == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_pdf_security == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+
+
+<style type="text/css">
+#editMain {
+    width:100%;
+    height: 100%;
+}
+
+.separatorDiv{
+    position:relative;
+    width: 100%;
+    vertical-align: bottom;
+}
+
+#separatorDiv div{
+    color: white;
+    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+#detailDiv{
+    padding: 5px 0px 5px 30px;
+}
+
+#detailDiv table th{
+    text-align: right;
+    padding-right: 10px;
+    font-weight: bold;
+    white-space:nowrap;
+}
+
+#detailDiv table td {
+    white-space:nowrap;
+}
+
+.historyTbl {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-left: 15px;
+}
+
+.historyTbl th{
+    font-weight: bold;
+    width: 100px;
+}
+
+.historyTbl *{
+}
+
+div.border {
+    border-style:solid;
+    border-width:1px;
+    border-color : #999999;
+    border-collapse:collapse;
+    width:500px;
+    height:400px;
+    overflow:auto;
+}
+</style>
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/pdf_security.png')}" alt="{!$Label.solxyzcso001__label_10623}" title="{!$Label.solxyzcso001__label_10623}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_11009}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10623}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+
+                        <apex:pageBlockButtons >
+                            <input class="btn" type="button" value="{!$Label.label_00075}" onclick="okOnClick();" />
+                            <input class="btn" type="button" value="{!$Label.label_00058}" onclick="cancelOnClick();" />
+                        </apex:pageBlockButtons>
+
+
+
+
+
+                        <div id ="editMain">
+                           <!-- 詳細 -->
+                            <apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}"  collapsible="false"/>
+                            <div id="detailDiv">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <table>
+                                                <!-- 有効化 -->
+                                                <tr>
+                                                    <th>{!$Label.label_10483}</th>
+                                                    <td><input type="checkbox" name="PS_enabled" id="PS_enabled" /></td>
+                                                </tr>
+                                                <!-- 定義名 -->
+                                                <tr>
+                                                    <th>{!$Label.label_11043}</th>
+                                                    <td>
+                                                        <div class="c_require" style="height:20px;">
+                                                        <input type="text" name="PS_name" id="PS_name" class="c_text_l required" maxlength="100" />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <!-- タイミング -->
+                                                <tr>
+                                                    <th>{!$Label.label_10579}</th>
+                                                    <td>
+                                                        <label><input type="checkbox" name="PS_timing" id="PS_timingSpace"    />{!$Label.label_11013}</label>
+                                                        <label><input type="checkbox" name="PS_timing" id="PS_timingDelivery" />{!$Label.label_10164}</label>
+                                                    </td>
+                                                </tr>
+                                                <!-- 優先設定 -->
+                                                <tr>
+                                                    <th>{!$Label.label_11059}</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_priority" id="PS_priorityOrganization" value="0"/>{!$Label.label_11050}</label>
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <label><input type="radio" name="PS_priority" id="PS_prioritySpace"        value="1"/>{!$Label.label_11051}</label>
+                                                    </td>
+                                                </tr>
+                                                <!-- セキュリティレベル -->
+                                                <tr>
+                                                    <th>{!$Label.label_10624}</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_level" id="PS_level128" value="0"/>{!$Label.label_10625}</label>
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <label><input type="radio" name="PS_level" id="PS_level40"  value="1"/>{!$Label.label_10626}</label>
+                                                    </td>
+                                                </tr>
+                                                <!-- パスワード -->
+                                                <tr>
+                                                    <th>{!$Label.label_10460}</th>
+                                                    <td><label><input type="radio" name="PS_password" id="PS_passwordNone" value="0"/>{!$Label.label_10627}</label></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>&nbsp;</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_password" id="PS_passwordFixed" value="1"/>{!$Label.label_10628}</label>
+                                                        <br/>
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <input id="PS_passwordValue"      type="password" name="PS_passwordValue"      size="50" disabled="disabled" maxlength="30" />
+                                                        <input id="PS_passwordValue-text" type="text"     name="PS_passwordValue-text" size="50" disabled="disabled" maxlength="30" style="display: none;"/>
+                                                        <label><input type="checkbox" id="showPW" data-for="PS_passwordValue" disabled="disabled"/>{!$Label.label_10536}</label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>&nbsp;</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_password" id="PS_passwordRandom" value="2"/>{!$Label.label_10629}</label>
+                                                        <br/>
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <input type="text" name="PS_passwordLen" id="PS_passwordLen" style="text-align:right;" maxlength="2" size="2" disabled="disabled"/>{!$Label.label_10630}
+                                                    </td>
+                                                </tr>
+                                                <!-- マスターパスワード -->
+                                                <tr>
+                                                    <th>{!$Label.label_10631}</th>
+                                                    <td><label><input type="radio" name="PS_masterPassword" id="PS_masterPassword" value="0"/>{!$Label.label_10627}</label></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>&nbsp;</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_masterPassword" id="PS_masterPasswordFixed" value="1"/>{!$Label.label_10813}</label>
+                                                        <br/>
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <input id="PS_masterPasswordValue"      type="password" name="PS_masterPasswordValue"      size="50" maxlength="30" disabled="disabled"/>
+                                                        <input id="PS_masterPasswordValue-text" type="text"     name="PS_masterPasswordValue-text" size="50" maxlength="30" disabled="disabled" style="display: none;"/>
+                                                        <label><input type="checkbox" id="showMasterPW" data-for="PS_masterPasswordValue" disabled="disabled"/>{!$Label.label_10536}</label>
+                                                    </td>
+                                                </tr>
+                                                <tr style="display:none">
+                                                    <th>&nbsp;</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_masterPassword" id="PS_masterPasswordRandom" value="2"/>{!$Label.label_10629}</label>
+                                                        <br/>
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <input type="text" name="PS_masterPasswordLen" id="PS_masterPasswordLen" style="text-align:right;" maxlength="2" size="2" disabled="disabled"/>{!$Label.label_10630}
+                                                    </td>
+                                                </tr>
+                                                <!-- 文書アセンブリ -->
+                                                <tr style="display: none;">
+                                                    <th>{!$Label.label_10632}</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_assembly" value="true" />{!$Label.label_10633}</label>
+                                                        &nbsp;&nbsp;
+                                                        <label><input type="radio" name="PS_assembly" value="false"/>{!$Label.label_10634}</label>
+                                                    </td>
+                                                </tr>
+                                                <!-- フォームフィールドの入力 -->
+                                                <tr>
+                                                    <th>{!$Label.label_10636}</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_fieldInput" value="true" />{!$Label.label_10633}</label>
+                                                        &nbsp;&nbsp;
+                                                        <label><input type="radio" name="PS_fieldInput" value="false"/>{!$Label.label_10634}</label>
+                                                    </td>
+                                                </tr>
+                                                <!-- 注釈 -->
+                                                <tr>
+                                                    <th>{!$Label.label_10637}</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_explanatoryNote" value="true" />{!$Label.label_10633}</label>
+                                                        &nbsp;&nbsp;
+                                                        <label><input type="radio" name="PS_explanatoryNote" value="false"/>{!$Label.label_10634}</label>
+                                                    </td>
+                                                </tr>
+                                                <!-- 文書の変更 -->
+                                                <tr>
+                                                    <th>{!$Label.label_10638}</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_contentsEdit" value="true" />{!$Label.label_10633}</label>
+                                                        &nbsp;&nbsp;
+                                                        <label><input type="radio" name="PS_contentsEdit" value="false"/>{!$Label.label_10634}</label>
+                                                    </td>
+                                                </tr>
+                                                <!-- 内容のコピー -->
+                                                <tr>
+                                                    <th>{!$Label.label_10635}</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_contentsCopy" value="true" />{!$Label.label_10633}</label>
+                                                        &nbsp;&nbsp;
+                                                        <label><input type="radio" name="PS_contentsCopy" value="false"/>{!$Label.label_10634}</label>
+                                                    </td>
+                                                </tr>
+                                                <!-- アクセシビリティ -->
+                                                <tr>
+                                                    <th>{!$Label.label_10639}</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_accessibility" value="true" />{!$Label.label_10633}</label>
+                                                        &nbsp;&nbsp;
+                                                        <label><input type="radio" name="PS_accessibility" value="false"/>{!$Label.label_10634}</label>
+                                                    </td>
+                                                </tr>
+                                                <!-- 印刷 -->
+                                                <tr>
+                                                    <th>{!$Label.label_10640}</th>
+                                                    <td>
+                                                        <label><input type="radio" name="PS_print" value="true" />{!$Label.label_10633}</label>
+                                                        &nbsp;&nbsp;
+                                                        <label><input type="radio" name="PS_print" value="false"/>{!$Label.label_10634}</label>
+                                                    </td>
+                                                </tr>
+                                                <!-- 低解像度での印刷 -->
+                                                <tr>
+                                                    <th>&nbsp;</th>
+                                                    <td>
+                                                        <label><input type="checkbox" name="PS_lowResolutionPrint" id="PS_lowResolutionPrint"/>{!$Label.label_10641}</label>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="historyTbl">
+                                                <tr>
+                                                    <th id="PS_HeaderCreator">{!$Label.label_10015}</th>
+                                                    <td><span id="PS_registUserName"></span></td>
+                                                    <th id="PS_HeaderCreateDate">{!$Label.label_10005}</th>
+                                                    <td><span id="PS_registDate"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th id="PS_HeaderUpdator">{!$Label.label_10024}</th>
+                                                    <td><span id="PS_updateUserName"></span></td>
+                                                    <th id="PS_HeaderUpdateDate">{!$Label.label_10006}</th>
+                                                    <td><span id="PS_updateDate"></span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <!-- 適用スペース -->
+                            <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10586}"  collapsible="false"/>
+                            <div id="applySpaceDiv" style="padding: 20px 20px 0 20px;">
+                                <div class="c_command_l">
+                                    <ul class="c_command_pipe">
+                                        <li class="item">
+                                            <input type="button" class="btn" onclick="removeSpace();" value="{!$Label.label_00072}"/>
+                                        </li>
+                                        <li class="last">
+                                            <input type="button" class="btn" onclick="openAddSpace();" value="{!$Label.label_10020}"/>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <!-- jqGrid -->
+                                <div id="spaceList-container">
+                                    <table id="spaceList" ></table>
+                                    <div id="spaceListPager" ></div>
+                                </div>
+                            </div>
+
+                            <div id="addSpaceDialog" style="display: none;" >
+                                <div>
+                                    {!$Label.msg_00275}
+                                    <div class="border">
+                                        <ul id="spaceTree" class="selectTree filetree">
+                                        </ul>
+                                        <img alt="loading" src="{!URLFOR($Resource.cso, 'image/loading.gif')}" style="position: absolute; top: 50%;left: 47%; " id="spaceTreeLoading"/>
+                                    </div>
+                                    <div style="text-align:center;margin:5px;">
+                                        <input type="button" class="btn" onclick="return addSpace();"      value="{!$Label.label_00075}" />
+                                        <input type="button" class="btn" onclick="return closeAddSpace();" value="{!$Label.label_00058}" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+
+<apex:include pageName="SOLXYZCSO001__SettingPdfSecurityEditScript"/>
+
+
+<script type="text/javascript">
+
+var PS_PdfSecurityId = "";
+var PS_spaces = [];
+var _spaceTreeList = null;
+var opened = false;
+
+jQuery.event.add(window, "load", function(){
+
+    PS_PdfSecurityId = '{!definitionId}';
+    if(PS_PdfSecurityId == ""){
+        hideRegisterInfo();
+    }
+
+
+    //-----------------------------//
+    //  PDFセキュリティ情報の取得  //
+    //-----------------------------//
+    var callback =  function(data){
+        if(data.result){
+            var detail = data.detail;
+            PS_displayInit(detail);
+            if(PS_PdfSecurityId == ""){
+                $('#PS_updateUserName').text("");
+                $('#PS_updateDate').text("");
+            }
+            $('#PS_name').val(detail.info.name);
+            $("input[name='PS_priority']").val([detail.info.priority]);
+            PS_displayInit2(detail);
+            spaces = data.spaces;
+            $("#spaceTable").clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/setup/PdfSecurityDetailApi.json?id=' + PS_PdfSecurityId ,"", callback);
+
+
+    /*--  適用スペースの初期化  --*/
+    initPdfSecuritySpaceList();
+
+    resizeGrid();
+    $(window).resize(resizeGrid);
+});
+
+function resizeGrid(){
+    var height = getBrowserHeight() - 570;
+    $("#spaceList").setGridWidth(1);
+    $("#spaceList").setGridWidth($("#spaceList-container").innerWidth());    
+
+    if (height >= 270) {
+        $("#spaceList").setGridHeight(height);
+    }
+}
+
+function hideRegisterInfo(){
+    $("#PS_HeaderCreator").text("");
+    $("#PS_HeaderCreateDate").text("");
+    $("#PS_HeaderUpdator").text("");
+    $("#PS_HeaderUpdateDate").text("");
+}
+
+function initPdfSecuritySpaceList(){
+
+	var spaceTreeListCallback =  function(data, status){
+		if (data.result) {
+			_spaceTreeList = data["tree"];
+		}
+    };
+    secureGetAsync('/setup/spaceTreeListGetApi.json', ' ', spaceTreeListCallback);
+
+    /*--  編集の場合  --*/
+    if(PS_PdfSecurityId != ""){
+
+        var callback =  function(data, status){
+            for(i=0;i<data.records;i++){
+                PS_spaces.push({
+                    id : data.rows[i].id,
+                    space_name : data.rows[i].space_name,
+                    space_info : data.rows[i].space_info
+                });
+            }
+            var opt = {
+                    data : PS_spaces,
+                    datatype: "local"
+            };
+            $('#spaceList').clearGridData();
+            $('#spaceList').setGridParam(opt);
+            $('#spaceList').trigger("reloadGrid");
+        };
+        var callerror =  function(data){
+            alert("PdfSecuritySpaceListApi:" + data);
+        };
+
+        var searchQuery = {
+                page : 1,
+                rows : 1000000,
+                sord : "asc",
+                sidx : "id",
+                nd : "_",
+                _search : "false",
+        }
+
+        secureGetAsync('/setup/PdfSecuritySpaceListApi.json?id=' + PS_PdfSecurityId, searchQuery, callback, callerror);
+    }
+
+    var rows = $.cookie("PdfSecuritySpaceRows");
+    if (!rows) {
+        rows = 50;
+    }
+
+    $("#spaceList").jqGrid({
+        data : PS_spaces,
+        datatype: "local",
+        jsonReader :{
+            repeatitems: false,
+            id : "id"
+        },
+        colNames:['',
+                  '{!$Label.label_10155}',
+                  ''],
+        colModel:[
+                    {name:'id',index:'id', hidden:true},
+                    {name:'space_info',index:'space_name', width:550},
+                    {name:'space_name',index:'space_name', hidden:true}
+                ],
+        rowNum:50,
+        height: 200,
+        width: $("#RightPane").width(),
+        rowList:[10,50,100],
+        sortname: 'space_name',
+        pager: '#spaceListPager',
+        viewrecords: true,
+        multiselect: true,
+        loadComplete: function(data){
+            var r = $(this).getGridParam("rowNum");
+            $.cookie("PdfSecuritySpaceRows", $(this).getGridParam("rowNum"));
+        }
+    });
+
+    $("#addSpaceDialog").dialog({
+        autoOpen : false,
+        modal : true,
+        title : "{!$Label.label_10155}",
+        width : 530,
+        height : 500,
+        open: function() {
+        	if (!opened) {
+        		initSpaceTree();
+        	}
+        }
+    });
+}
+
+function initSpaceTree() {
+	var spaceTreeCallback =  function(data, status){
+        if (!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+
+        $("#spaceTree").children().remove();
+        var branches = $(data["tree"]).appendTo("#spaceTree");
+        $("#spaceTree").treeview({
+            add: branches,
+            url: "/setup/SpaceTreeChildrenApi.json",
+			animated: "fast",
+			persist: "fixed-open",
+           	callback: function(elements){
+				initSpaceTreeCheckboxes(elements);
+			},
+        });
+        initSpaceTreeCheckboxes($("#spaceTree").find("ul"));
+        $("#spaceTreeLoading").hide();
+    };
+    var spaceTreeCallerror =  function(data){
+        alert("VersionSettingSpaceTreeGet:" + data);
+    };
+    secureGetAsync('/setup/SpaceTreeRootApi.json', ' ', spaceTreeCallback, spaceTreeCallerror);
+    opened = true;
+}
+
+function initSpaceTreeCheckboxes(elements) {
+	setTimeout(function(){
+		var $ul = elements;
+		var $li = $ul.children("li");
+	
+		var existInterLock = false;		//-- 下位連動フラグの有無（false:下位連動なし、true:下位連動あり） --%>
+		var interlock = "";				//-- 下位連動フラグの値（"checked":チェックする、"":チェックしない） --%>
+	
+		//-- 下位連動フラグがあった場合 --%>
+		var objChk = $("#spaceTree").find("input[id=" + elements.prevObject[0].id + "]");
+		if(objChk.attr("interlock") != null){
+			existInterLock = true;
+			if(objChk.attr("interlock") == "true"){
+				interlock = objChk.attr("interlock");
+			}
+		}
+	
+		//-- [下位連動]する場合 --%>
+		if(existInterLock == true) {
+			$li.each(function() {
+				var obj = $("#spaceTree").find("input[id=" + $(this).attr("id") + "]");
+				//-- 下位にも[下位連動]フラグ(interlock)を付加する --%>
+				obj.attr("interlock", interlock);
+				//-- 連動する --%>
+				obj.attr("checked", interlock);
+			});
+			return false;
+		}
+	
+		var ids = $("#spaceList").getGridParam("data");
+		$("input[type=checkbox]", $("#spaceTree")).each(function() {
+			var id = $(this).attr("id");
+			for (var i in ids) {
+				if (ids[i].id == id) {
+					var lookup = false;
+					$li.each(function() {
+						if ($(this).attr("id") == id) {
+							lookup = true;
+							return false;
+						}
+					});
+					if (lookup) {
+						$(this).attr("checked", true);
+					}
+					break;
+				}
+			}
+		});
+	},100);
+}
+
+function cancelOnClick(){
+    if("{!type}" == "detail"){
+        location.href = "SettingPdfSecurityDetail?id=" + PS_PdfSecurityId;
+    } else {
+        location.href = "SettingPdfSecurityList";
+    }
+}
+
+function okOnClick(){
+    $(".btn").attr("disabled", "disabled");
+
+
+    /*-- -------------- --*/
+    /*-- エラーチェック --*/
+    /*-- -------------- --*/
+    PS_err = false;
+    /*-- 定義名チェック --*/
+    if ($("#PS_name").val() == "") {
+        PS_err = true;
+        alert('{!$Label.msg_01025}');
+    } else if($("#PS_name").val().match(/^.*[(\\|/|\*|:|?|\"|\'|<|>|\|)].*$/)){
+        PS_err = true;
+        alert('{!$Label.msg_00293}');
+    } else if ($("#PS_name").val().length > 100) {
+        PS_err = true;
+        alert('{!$Label.msg_00277}');
+    }
+
+    /*-- その他のチェック --*/
+    PS_checkInputData();
+
+    /*-- エラーがあった場合 --*/
+    if (PS_err == true){
+        $(".btn").removeAttr("disabled");
+        return false;
+    }
+
+
+    /*-- ---------------- --*/
+    /*-- パラメータの生成 --*/
+    /*-- ---------------- --*/
+    var pwOpt  = "";
+    var pwType = $("input:radio[name='PS_password']:checked").val();
+    if(pwType == PASSWORD_TYPE_FIXED){
+        pwOpt = $("#PS_passwordValue").val();
+    }
+    if(pwType == PASSWORD_TYPE_RANDOM){
+        pwOpt = $("#PS_passwordLen").val();
+    }
+
+    var masterPwOpt  = "";
+    var masterPwType = $("input:radio[name='PS_masterPassword']:checked").val();
+    if(masterPwType == PASSWORD_TYPE_FIXED){
+        masterPwOpt = $("#PS_masterPasswordValue").val();
+    }
+    if(masterPwType == PASSWORD_TYPE_RANDOM){
+        masterPwOpt = $("#PS_masterPasswordLen").val();
+    }
+
+    var valAssembly = true;
+    if($("input[name=PS_level]:checked").val() != LEVEL_40BIT){
+        valAssembly = $("input[name=PS_contentsEdit]:checked").val();   // assembly = contents_edit
+    }
+
+    var query = {
+            id                  : PS_PdfSecurityId,
+            name                : $('#PS_name').val(),
+            enabled             : $("#PS_enabled").attr("checked"),
+            timingSpace         : $('#PS_timingSpace').attr('checked'),
+            timingDelivery      : $('#PS_timingDelivery').attr('checked'),
+            priority            : $("input[name=PS_priority]:checked").val(),
+            level               : $("input[name=PS_level]:checked").val(),
+
+            pw_type             : pwType,
+            pw_opt              : pwOpt,
+            master_pw_type      : masterPwType,
+            master_pw_opt       : masterPwOpt,
+
+//          assembly            : $("input[name=PS_assembly]:checked").val(),
+            assembly            : valAssembly,
+            field_input         : $("input[name=PS_fieldInput]:checked").val(),
+            explanatory_note    : $("input[name=PS_explanatoryNote]:checked").val(),
+            contents_edit       : $("input[name=PS_contentsEdit]:checked").val(),
+            contents_copy       : $("input[name=PS_contentsCopy]:checked").val(),
+            accessibility       : $("input[name=PS_accessibility]:checked").val(),
+            print               : $("input[name=PS_print]:checked").val(),
+            low_resolution_print: $("#PS_lowResolutionPrint").attr("checked"),
+
+            spaces              : JSON.stringify(PS_spaces)
+    }
+
+
+    /*-- -------- --*/
+    /*-- 登録処理 --*/
+    /*-- -------- --*/
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+        CsoScript_loadingStop();
+        cancelOnClick();
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("PdfSecurityEditApi:" + data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    CsoScript_loadingStart();
+    securePostAsync('/setup/PdfSecurityEditApi.json', query, callback, callerror);
+
+    return true;
+
+}
+
+function openAddSpace() {
+    var ids = $("#spaceList").getGridParam("data");
+    $("input[type=checkbox]", $("#spaceTree")).each(function() {
+        var id = $(this).attr("id");
+        var checked = false;
+        for (var i in ids) {
+            if (ids[i].id == id) {
+                checked = true;
+                break;
+            }
+        }
+        $(this).attr("checked", checked);
+    });
+    $("#addSpaceDialog").dialog("open");
+    return false;
+}
+
+function clickSpace(obj, id) {
+    var checked = $(obj).attr("checked");
+    var p = $(obj).parent().parent();
+    var c = $("input[type=checkbox]", p);
+
+	c.attr({checked:checked, interlock:checked});
+}
+
+function closeAddSpace() {
+    $("#addSpaceDialog").dialog("close");
+    return false;
+}
+
+function addSpace() {
+	var spaces = [];
+	$(PS_spaces).each(function() {
+		if ($("#spaceTree").find("li#" + this.id).length < 1) {
+			spaces.push(this);
+		}
+	});
+	var escaper = $('<div/>');
+    $("input[type=checkbox]:checked", $("#spaceTree")).each(function() {
+
+		var spaceId = $(this).attr("id");
+
+		var bExists = false;
+		$(PS_spaces).each(function() {
+			if (this.id == spaceId) {
+				spaces.push(this);
+				 bExists = true;
+				return false;
+			}
+		});
+
+		if(bExists == true){
+			return true;
+		}
+
+        var space = {
+            id : $(this).attr("id"),
+            space_info : "<div class='jqgrid-list-standard-name-top'>" + escaper.text($(this).attr("spacename")).html() + "</div><div class='jqgrid-list-standard-name-bottom'>" + escaper.text($(this).attr("path")).html() + "</div>",
+            space_name : $(this).attr("spacename")
+        };
+        spaces.push(space);
+
+		var $li = $("#spaceTree").find("li#" + spaceId);
+		if($li.hasClass("hasChildren")){
+			if(_spaceTreeList != null){
+				for(var i = 0; i < _spaceTreeList.length; i++){
+					var info = _spaceTreeList[i];
+					var path = info.parentPath;
+					if(!path){
+					}else{
+						//-- 重複チェック --%>
+						var bExists = false;
+						for(var idx = 0; idx < spaces.length; idx++){
+							if(spaces[idx].id == info.spaceId){
+								bExists = true;
+								break;
+							}
+						}
+						if(bExists == true){
+							continue;
+						}
+
+						if(path.indexOf(spaceId)!=-1){
+							var space = {
+								id : info.spaceId,
+								space_info : "<div class='jqgrid-list-standard-name-top'>" + escaper.text(info.spaceName).html() + "</div><div class='jqgrid-list-standard-name-bottom'>" + escaper.text(info.spacePath).html() + "</div>",
+								space_name : info.spaceName
+							};
+							spaces.push(space);
+						}
+					}
+				}
+			}
+		}
+    });
+
+	//-- 選択したスペース一覧から、下位連動で未選択とされたスペースを削除 --%>
+	$("#spaceTree").find("input[type=checkbox][interlock=false]").each(function(){
+		var spaceId = $(this).context.id;
+		var $li = $("#spaceTree").find("li#" + spaceId);
+		if($li.hasClass("hasChildren")){
+			if(_spaceTreeList != null){
+				for(var i = 0; i < _spaceTreeList.length; i++){
+					var info = _spaceTreeList[i];
+					var path = info.parentPath;
+					if(!path){
+					}else{
+						if(path.indexOf(spaceId)!=-1){
+							for(var idx = 0; idx < spaces.length; idx++){
+								if(spaces[idx].id == info.spaceId){
+									spaces.splice(idx, 1);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	});
+
+
+    $("#addSpaceDialog").dialog("close");
+
+    $("#spaceList").clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+
+    PS_spaces = spaces;
+
+    return false;
+}
+
+function removeSpace() {
+
+    var selected = $("#spaceList").getGridParam("selarrrow");
+    if (selected.length == 0) {
+        alert('{!$Label.msg_01034}');
+        return false;
+    }
+
+    if (!confirm('{!$Label.msg_00296}')) {
+        return false;
+    }
+
+    var ids = PS_spaces;
+    PS_spaces = [];
+    for (var i=0; i<ids.length; i++) {
+        var k = ids[i];
+        if (jQuery.inArray(k.id, selected) < 0) {
+            PS_spaces.push(k);
+        }
+    }
+
+    $("#spaceList").clearGridData().setGridParam({data : PS_spaces}).trigger("reloadGrid");
+
+    return false;
+}
+
+</script>
+
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+
+</apex:page>

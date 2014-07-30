@@ -1,0 +1,357 @@
+<!-- 5/10/2014 created by yoshinari@pasonatquila -->
+<!-- last update 2014.06.20 -->
+<apex:page title="{!$Label.CM_RFA_Request_Detail_List_Page_Name}" standardController="RFA__c" extensions="CM_VFC01_RequestDetailListController" action="{!Initialization}" showHeader="false" sidebar="false" readOnly="true" cache="false">
+    <style>
+        /* Business Summary css */
+        .td_label 
+        {
+            width:200px;
+            text-align:right;
+            border-bottom-style:ridge;
+        }
+        .td_value
+        {   
+            windth:200px;
+            text-align:right;
+            border-bottom-style:ridge;
+        }
+    </style>
+
+    <table width="100%">
+        <tr>
+            <td>
+               <img src="{!$Resource.CCEJ_Logo}" width="240" height="60"/> 
+            </td>
+            <td align="left">
+                <a href="javascript:self.close()">Close Window</a><br/>
+                <a href="javascript:window.print();">Print This Page</a>
+            </td>
+        </tr>
+    </table>
+
+    <apex:pageblock title="RFA:{!RFA__c.Name}" >
+        <apex:pageblocksection columns="2" title="{!$Label.CM_General_Infomation_Section_Name}"><!-- General Infomation -->
+            <apex:outputField Value="{!RFA__c.Name}" />
+            <apex:outputField Value="{!RFA__c.Related_RFA_1_Name__c}"     />
+            <apex:outputLabel for=""/>
+            <apex:outputField Value="{!RFA__c.Related_RFA_2_Name__c}"     />
+            <apex:outputLabel for=""/>
+            <apex:outputField Value="{!RFA__c.Related_RFA_3_Name__c}"     />
+        </apex:pageblocksection>
+        <apex:pageblocksection showHeader="false">
+            <apex:outputField Value="{!RFA__c.Stage__c}"     />
+            <apex:outputField Value="{!RFA__c.ReturnReason__c}"     />
+            <apex:outputLabel for=""/>
+            <apex:outputField Value="{!RFA__c.Close_Reason__c}"     />
+            <apex:outputField Value="{!RFA__c.RecordTypeId}"     />
+        </apex:pageblocksection>
+        <apex:pageblocksection showHeader="false">
+            <apex:outputText label="{!$Label.RFA_PDF_CreatedName}" Value="{!RFA__c.CreatedBy.Name}" />
+            <apex:outputField Value="{!RFA__c.Requested_By__c}" />
+            <apex:outputField Value="{!RFA__c.CM_Initiative_Department__c}" />
+            <apex:outputText label="{!$Label.RFA_PDF_LastModifiedName}" Value="{!RFA__c.LastModifiedBy.Name}" />
+            <apex:outputLabel for=""/>
+            <apex:outputField Value="{!RFA__c.CirculationDate__c}" />
+            <apex:outputLabel for=""/>
+            <apex:outputField Value="{!RFA__c.CompletionDate__c}" />
+        </apex:pageblocksection>
+        <!-- RFA Request Details -->
+        <apex:pageblocksection columns="1" title="{!$Label.CM_Request_Details_Section_Name}"  >
+            <apex:outputField Value="{!RFA__c.RequestTitle__c}"  />
+            <apex:outputField Value="{!RFA__c.CM_Customer_Dealer_Name__c}" />
+            <apex:outputField Value="{!RFA__c.Payment_type__c}" />
+        </apex:pageblocksection>
+        <!-- #Sales Chanel -->
+        <apex:pageblocksection columns="1" title="{!$Label.CM_Sales_Chanel_Section_Name}">
+            <apex:outputField value="{!RFA__c.CM_SalesChanel_FS_RTD__c}" rendered="{!RFA__c.CM_SalesChanel_FS_RTD__c}"/>
+            <apex:outputField value="{!RFA__c.CM_SalesChanel_FS_Other__c}" rendered="{!RFA__c.CM_SalesChanel_FS_Other__c}" />
+            <apex:outputField value="{!RFA__c.CM_SalesChanel_OTC_RS__c}" rendered="{!RFA__c.CM_SalesChanel_OTC_RS__c}" />
+            <apex:outputField value="{!RFA__c.CM_SalesChanel_OTC_SY__c}" rendered="{!RFA__c.CM_SalesChanel_OTC_SY__c}" />
+            <apex:outputField value="{!RFA__c.CM_SalesChanel_SM_DD__c}" rendered="{!RFA__c.CM_SalesChanel_SM_DD__c}" />
+            <apex:outputField value="{!RFA__c.CM_SalesChanel_CVS__c}" rendered="{!RFA__c.CM_SalesChanel_CVS__c}" />
+            <apex:outputField value="{!RFA__c.CM_SalesChanel_Other__c}" rendered="{!RFA__c.CM_SalesChanel_Other__c}" />
+        </apex:pageblocksection>
+        
+        <!-- #Equipment Number-->
+        <apex:pageblocksection columns="1" title="{!$Label.CM_Equipment_Section_Name}">
+            <apex:outputField value="{!RFA__c.CM_Establishment_CanPet__c}" rendered="{!Not(isBlank(RFA__c.CM_Establishment_CanPet__c))}"/>
+            <apex:outputField value="{!RFA__c.CM_Equipment_CVM__c}" rendered="{!Not(isBlank(RFA__c.CM_Equipment_CVM__c))}" />
+            <apex:outputField value="{!RFA__c.CM_Equipment_OtherVM__c}" rendered="{!Not(isBlank(RFA__c.CM_Equipment_OtherVM__c))}" />
+            <apex:outputField value="{!RFA__c.CM_Equipment_Cooler__c}" rendered="{!Not(isBlank(RFA__c.CM_Equipment_Cooler__c))}" />
+            <apex:outputField value="{!RFA__c.CM_Equipment_Dispenser__c}" rendered="{!Not(isBlank(RFA__c.CM_Equipment_Dispenser__c))}" />
+            <apex:outputField value="{!RFA__c.CM_Equipment_Other__c}" rendered="{!Not(isBlank(RFA__c.CM_Equipment_Other__c))}" />
+        </apex:pageblocksection>
+        <!-- #COA Category -->
+        <apex:pageblocksection columns="1" title="{!$Label.CM_Coa_Category_Section_Name}">
+            <apex:outputField Value="{!RFA__c.CM_PrimaryCOACategory__c}"   />
+            <apex:outputField Value="{!RFA__c.CM_PrimaryCOASubCategory__c}"     />
+            <apex:outputLabel for=""/>
+        
+        <apex:pageblocksection showHeader="false" columns="2" title="Small Category Section">
+            <apex:outputField Value="{!RFA__c.CM_Contract_unit_price__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Contract_unit_price__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_Contract_unit_price_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Contract_unit_price__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_SpecialPricePromotionDiscount__c}" rendered="{!NOT(ISNULL(RFA__c.CM_SpecialPricePromotionDiscount__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_SpecialSalesPromotionDiscount_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_SpecialPricePromotionDiscount__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_FS_selling_price__c}" rendered="{!NOT(ISNULL(RFA__c.CM_FS_selling_price__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_FS_selling_price_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_FS_selling_price__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_FS_Commission_Variable__c}" rendered="{!NOT(ISNULL(RFA__c.CM_FS_Commission_Variable__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_FS_Commission_Variable_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_FS_Commission_Variable__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_FS_Commission_Fixed__c}" rendered="{!NOT(ISNULL(RFA__c.CM_FS_Commission_Fixed__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_FS_Commission_Fixed_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_FS_Commission_Fixed__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_KeyMoney_Rebate_Sport_Other__c}" rendered="{!NOT(ISNULL(RFA__c.CM_KeyMoney_Rebate_Sport_Other__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_KeyMoney_Rebate_Sport_Other_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_KeyMoney_Rebate_Sport_Other__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_Only_in_the_case_of_Rebate__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Only_in_the_case_of_Rebate__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_Only_in_the_case_of_Rebate_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Only_in_the_case_of_Rebate__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_Other_support__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Other_support__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_Other_support_FA__c}"  rendered="{!NOT(ISNULL(RFA__c.CM_Other_support__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_Promotion_OtherExpense__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Promotion_OtherExpense__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_Promotion_OtherExpense_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Promotion_OtherExpense__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_Promotion_CooperationSampling__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Promotion_CooperationSampling__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_Promotion_CooperationSampling_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Promotion_CooperationSampling__c))}" />
+
+            <apex:outputLabel for=""/>
+        </apex:pageblocksection>
+        <!-- small category (equipment) -->
+        <apex:pageblocksection showHeader="false" columns="2" >
+            <apex:outputField Value="{!RFA__c.CM_Non_standard_Equipment__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Non_standard_Equipment__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_Non_standard_Equipment_FA__c}"  rendered="{!NOT(ISNULL(RFA__c.CM_Non_standard_Equipment__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_Vending_Equipment_parts__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Vending_Equipment_parts__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_Vending_Equipment_parts_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Vending_Equipment_parts__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_Incidental_work__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Incidental_work__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_Incidental_work_FA__c}"  rendered="{!NOT(ISNULL(RFA__c.CM_Incidental_work__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_Vending_Equipment_Lease__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Vending_Equipment_Lease__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_Vending_Equipment_Lease_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Vending_Equipment_Lease__c))}" />
+
+            <apex:outputField Value="{!RFA__c.CM_Equipment_retirement__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Equipment_retirement__c))}" />
+            <apex:outputField Value="{!RFA__c.CM_Equipment_retirement_FA__c}" rendered="{!NOT(ISNULL(RFA__c.CM_Equipment_retirement__c))}" />
+            <apex:outputLabel for=""/>
+        </apex:pageblocksection>
+        </apex:pageblocksection>
+        
+        <apex:pageblocksection showHeader="true" columns="1" title="{!$Label.CM_Final_Approver_Section_Name}">
+            <apex:outputField Value="{!RFA__c.CM_FinalApprovalBy__c}" />
+        </apex:pageblocksection>
+
+		<!-- 2014.06.20 add by yoshinari Change request -->
+        <apex:pageblocksection columns="1" title="{!$Label.CM_Credit_Terms_Policies_Section_Name}">
+            <apex:outputField Value="{!RFA__c.PrimaryCOACategory__c}"   />
+            <apex:outputField Value="{!RFA__c.PrimaryCOASubCategory__c}"     />
+            <apex:outputField Value="{!RFA__c.PrimaryCOASubCategory2__c}"     />
+            <apex:outputField Value="{!RFA__c.PrimaryCOASubCategory3__c}"     />
+            <apex:outputLabel for=""/>
+		</apex:pageblocksection>
+<!--         
+        <apex:pageblocksection showHeader="true" columns="3" title="{!$Label.CM_Business_Summary_Section_Name}">
+            <apex:outputField Value="{!RFA__c.CM_SalesValue_BAPC_Before__c}" />
+            <apex:outputField Value="{!RFA__c.CM_SalesValue_BAPC_After__c}" />
+            <apex:outputField Value="{!RFA__c.CM_SalesValue_BAPC_Difference__c}" />
+            <apex:outputField Value="{!RFA__c.CM_NSR_Before__c}" />
+            <apex:outputField Value="{!RFA__c.CM_NSR_After__c}" />
+            <apex:outputField Value="{!RFA__c.CM_NSR_Difference__c}" />
+            <apex:outputField Value="{!RFA__c.CM_GP_Before__c}" />
+            <apex:outputField Value="{!RFA__c.CM_GP_After__c}" />
+            <apex:outputField Value="{!RFA__c.CM_GP_Difference__c}" />
+            <apex:outputField Value="{!RFA__c.CM_Direct_Profit_Before__c}" />
+            <apex:outputField Value="{!RFA__c.CM_Direct_Profit_After__c}" />
+            <apex:outputField Value="{!RFA__c.CM_Direct_Profit_Difference__c}" />
+            <apex:outputField Value="{!RFA__c.CM_Contribution_margin_Before__c}" />
+            <apex:outputField Value="{!RFA__c.CM_Contribution_margin_After__c}" />
+            <apex:outputField Value="{!RFA__c.CM_Contribution_margin_Difference__c}" />
+        </apex:pageblocksection>
+ -->
+        <apex:pageblocksection showHeader="true" columns="1" title="{!$Label.CM_Business_Summary_Section_Name}">
+            <apex:outputPanel >
+            <table align="center" cellspacing="5" cellpadding="2" >
+                <tr>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_SalesValue_BAPC_Before__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number, ###,###,###}" >
+                            <apex:param value="{!RFA__c.CM_SalesValue_BAPC_Before__c}" />
+                        </apex:outputText>　
+                    </td>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_SalesValue_BAPC_After__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number, ###,###,###}" >
+                            <apex:param value="{!RFA__c.CM_SalesValue_BAPC_After__c}" />
+                        </apex:outputText>
+                    </td>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_SalesValue_BAPC_Difference__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number, ###,###,###}" >
+                            <apex:param value="{!RFA__c.CM_SalesValue_BAPC_Difference__c}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_NSR_Before__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_NSR_Before__c))}" >
+                            <apex:param value="{!RFA__c.CM_NSR_Before__c}" />
+                        </apex:outputText>
+                    </td>
+
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_NSR_After__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_NSR_After__c))}">
+                            <apex:param value="{!RFA__c.CM_NSR_After__c}" />
+                        </apex:outputText>
+                    </td>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_NSR_Difference__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_NSR_Difference__c))}">
+                            <apex:param value="{!RFA__c.CM_NSR_Difference__c}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_GP_Before__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_GP_Before__c))}">
+                            <apex:param value="{!RFA__c.CM_GP_Before__c}" />
+                        </apex:outputText>
+                    </td>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_GP_After__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_GP_After__c))}">
+                            <apex:param value="{!RFA__c.CM_GP_After__c}" />
+                        </apex:outputText>
+                    </td>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_GP_Difference__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_GP_Difference__c))}" >
+                            <apex:param value="{!RFA__c.CM_GP_Difference__c}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_Direct_Profit_Before__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_Direct_Profit_Before__c))}">
+                            <apex:param value="{!RFA__c.CM_Direct_Profit_Before__c}" />
+                        </apex:outputText>
+                    </td>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_Direct_Profit_After__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_Direct_Profit_After__c))}">
+                            <apex:param value="{!RFA__c.CM_Direct_Profit_After__c}" />
+                        </apex:outputText>
+                    </td>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_Direct_Profit_Difference__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_Direct_Profit_Difference__c))}">
+                            <apex:param value="{!RFA__c.CM_Direct_Profit_Difference__c}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_Contribution_margin_Before__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsNull(RFA__c.CM_Contribution_margin_Before__c))}">
+                            <apex:param value="{!RFA__c.CM_Contribution_margin_Before__c}" />
+                        </apex:outputText>
+                    </td>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_Contribution_margin_After__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_Contribution_margin_After__c))}" >
+                            <apex:param value="{!RFA__c.CM_Contribution_margin_After__c}" />
+                        </apex:outputText>
+                    </td>
+                    <td class="td_label"><apex:outputLabel value="{!$ObjectType.RFA__c.Fields.CM_Contribution_margin_Difference__c.label}" /></td>
+                    <td class="td_value">
+                        <apex:outputText value="{0, number,¥ ###,###,###,###}" rendered="{!Not(IsBlank(RFA__c.CM_Contribution_margin_Difference__c))}">
+                            <apex:param value="{!RFA__c.CM_Contribution_margin_Difference__c}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+            </apex:outputPanel>
+        </apex:pageblocksection>
+ 
+        <apex:pageBlockSection showHeader="true" columns="1" title="{!$Label.CM_Summary_Purpose_rationnale_background_Section_Name}">
+            <apex:outputField value="{!RFA__c.CM_Summary_Purpose_rationnale_background__c}" />
+        </apex:pageBlockSection>
+    </apex:pageblock><!-- RFA Summary end -->
+
+    <!-- Attachment List -->
+    <apex:pageblock title="{!$ObjectType.Attachment.Label}">
+        <apex:pageblocktable width="50%" value="{!AttachmentData}" var="att">
+            <apex:column headerValue="{!$ObjectType.Attachment.Fields.Name.label}">
+                <apex:outputLink value="/servlet/servlet.FileDownload" >
+                    {!att.fileName}
+                    <apex:param name="file" value="{!att.fileId}"/>
+                </apex:outputLink>
+            </apex:column>
+            <apex:column headerValue="{!$Label.CM_Attachment_File_size_title}" value="{!att.fileSize}KB" />
+            <apex:column headerValue="{!$Label.CM_LastModifiedByName}" value="{!att.lastModifiedBy}" />
+        </apex:pageblocktable>
+     </apex:pageblock>
+ 
+    <!-- Request Details -->
+    <apex:repeat value="{!RequestDetailList}" var="data">
+        <!-- 01. Contact Price -->
+        <c:CM_RFA_C01_Contract_Price data="{!data}" 
+            rendered="{!data.recordType.developerName == RECORDTYPE_Detail_Constract_unit_price}"/>
+
+        <!-- 02. Special Sales / Promotion Discount  -->
+        <c:CM_RFA_C02_SpecialSalesPromotionDiscount data="{!data}" 
+            rendered="{!data.recordType.developerName == RECORDTYPE_Detail_Special_price_promotion_discount}" />
+        <!-- 
+            03. FS sales price
+            04. FS commission (Variable) 
+        -->
+        <c:CM_RFA_C03_FS_Price data="{!data}" 
+            rendered="{!Or(data.recordType.developerName == RECORDTYPE_Detail_FS_selling_price,
+                            data.recordType.developerName == RECORDTYPE_Detail_FS_Commission_Variable)}" />
+            
+        <!-- 
+            05. FS commission (Fixed) 
+            06. Key Money/Rebate/Spot/Other
+            07. Only Rebate paid after sales
+            08. Other concession
+            09. Promotion / Other expense 
+        -->
+        <c:CM_RFA_C05_FS_Commission_Fixed data="{!data}" 
+            rendered="{!Or(data.recordType.developerName == RECORDTYPE_Detail_FS_Commission_Fixed,
+                data.recordType.developerName == RECORDTYPE_Detail_KeyMoney_Rebate_Spot_Other,
+                data.recordType.developerName == RECORDTYPE_Detail_Only_in_the_case_of_Rebate,
+                data.recordType.developerName == RECORDTYPE_Detail_Other_support,
+                data.recordType.developerName == RECORDTYPE_Detail_Promotion_OtherExpense)}" />
+
+        <!-- 10. Promotion (Cooperation/Sampling) -->
+        <c:CM_RFA_C10_Promotion_CooperationSampling data="{!data}" 
+            rendered="{!data.recordType.developerName == RECORDTYPE_Detail_Promotion_CooperationSample_Sampling}" />
+
+        <!-- a. Application for Non-standard Equipment -->
+        <c:CM_RFA_C0A_Non_Standard_Equipment data="{!data}" 
+            rendered="{!data.recordType.developerName == RECORDTYPE_Detail_NonStandard_Equipment}" />
+
+        <!-- b. Application for Vending Equipment parts -->
+        <c:CM_RFA_C0B_Vending_Equipment data="{!data}" 
+            rendered="{!data.recordType.developerName == RECORDTYPE_Detail_VendingEquipmentParts}" />
+
+        <!-- c. Application for Incidental work -->
+        <c:CM_RFA_C0C_Incidental_work data="{!data}" 
+            rendered="{!data.recordType.developerName == RECORDTYPE_Detail_IncidentalWork}" />
+
+        <!--
+            d. Application for Vending Equipment Lease
+            e. Purchasing or Selling Equipment
+        -->
+        <c:CM_RFA_C0D_Vending_Equipment_Lease data="{!data}" 
+            rendered="{!Or(data.recordType.developerName == RECORDTYPE_Detail_VendingEquipmentLease,
+                data.recordType.DeveloperName = RECORDTYPE_Detail_Equipment_retirement)}" />
+
+    </apex:repeat>
+</apex:page>

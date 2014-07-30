@@ -1,0 +1,108 @@
+<apex:page tabstyle="RFA__c" standardController="RFA__c" extensions="RM_VFC_Project_Common" action="{!isRfa}">
+<style>
+.borderTable {
+
+    border: solid 1px black;
+    border-color:#ECECEC;
+    border-collapse:collapse;
+    padding: 5px;
+    width : 70%;
+}
+.borderTable th{
+    font-weight: bold;
+    height:20px;
+    width:20px;
+    white-space: normal;
+    border: 1px solid black;
+    background-color: #d60016;
+    color: #FFFFFF;
+}
+.borderTable td{
+    white-space: normal;
+    height:20px;
+    width:20px;
+}
+
+.tdBorder {
+    border: 1px solid black;
+}
+.tdLeftNotBorder {
+    border: 1px solid black;
+    border-left-style:none;
+}
+.tdRightNotBorder {
+    border: 1px solid black;
+    border-right-style:none;
+}
+
+span.dateFormat {display: none;}
+</style>
+
+	<style>
+		.longfield {
+			width : 100%;
+		}		
+	</style>
+	
+	<apex:includeScript value="{!URLFOR($Resource.jQueryGantt, 'jquery.min.js')}"   />
+	<apex:sectionHeader subtitle="{!$Label.RM_RFA_Approver_User}" title="{!$Label.RM_RFA_Approver_User}" />
+ 	<apex:pageMessages />
+	<apex:form >
+		<apex:pageBlock id="pblock" title="{!$Label.RM_RFA_Approver_User_Edit}" mode="edit">
+	        <apex:pageBlockButtons >
+	            <apex:commandButton action="{!saveOfCloseOut}" value="{!$Label.RM_Save}"/>
+	            <apex:commandButton action="{!saveAndNewOfCloseOut}" value="{!$Label.RM_Save_New}"/>
+	            <apex:commandButton action="{!cancel}" value="{!$Label.RM_Cancel}"/>
+	        </apex:pageBlockButtons>
+	        <apex:pageBlockSection columns="2">
+	            <apex:outputField value="{!rfa.recordTypeId}"/>
+	            <apex:pageBlockSectionItem >
+	            	<apex:outputLabel value="{!$ObjectType.RFA__c.fields.OwnerId.label}"  />
+	            	<apex:outputLabel value="{!userName}"/>
+	            </apex:pageBlockSectionItem>
+	            <apex:inputField value="{!rfa.RM_Related_Project__c}" onchange="getProjectData(document.getElementById(this.id + '_lkid').value);" required="true">
+	            	<apex:actionFunction name="getProjectData" action="{!getProjectData}" immediate="true" rerender="pblock" >
+	            		<apex:param name="projectId" assignTo="{!projectId}" value=""/>
+	            	</apex:actionFunction>
+	            </apex:inputField>
+	        	<apex:inputField Value="{!rfa.Related_RFA_1__c}"  required="true"/>
+	        </apex:pageBlockSection>
+	        <apex:pageBlockSection title="{!$Label.RM_General_Information}" columns="2" collapsible="false">
+	        	<apex:outputPanel />
+	            <apex:inputField value="{!rfa.Stage__c}"/>
+	            <apex:inputField styleClass="longfield" value="{!rfa.RequestTitle__c}" required="true"/>
+	            <apex:outputPanel />
+	            <apex:inputField value="{!rfa.RM_Start_Date__c}" required="true"/>
+	            <apex:inputField value="{!rfa.RM_End_Date__c}" required="true"/>
+	            <apex:inputField value="{!rfa.RM_Project_Lead_From_Owner_Function__c}" required="true"/>
+	            <apex:inputField value="{!rfa.RM_Sponsor__c}" required="true"/>
+	        </apex:pageBlockSection>
+	        <apex:pageBlockSection title="{!$Label.RM_Taking_Over_to_Routine_Function}" columns="2" collapsible="false">
+	            <apex:inputField value="{!rfa.RM_Routine_Function__c}"/>
+	            <!-- <apex:inputField value="{!rfa.RM_Sub_Function__c}"/>  -->
+	            <!-- <apex:outputPanel />  -->
+	            <apex:inputField value="{!rfa.RM_L3_Name__c}"/>
+	        </apex:pageBlockSection>
+	        <apex:pageblocksection columns="1" showheader="false">
+	            <apex:inputField styleClass="longfield" value="{!rfa.RM_Activity_To_Pass_Open_Issue__c}" style="width:90%;"/>
+	        </apex:pageBlockSection>
+	        <apex:pageBlockSection title="{!$Label.RM_Financial_Validation}" columns="1" collapsible="false">
+			   	<apex:inputfield Value="{!rfa.RM_Detail_Document_Attached_Y_N_2__c}"/>
+			   	<apex:inputfield Value="{!rfa.RM_Financial_Validation__c}" style="width:90%;"/>
+			</apex:pageBlockSection>
+	        <apex:pageBlockSection title="{!$Label.RM_Actual_Finish_Date}" columns="2" collapsible="false">
+	            <apex:inputField value="{!rfa.RM_Plan_Date__c}"/>
+	            <apex:inputField value="{!rfa.RM_Actual_Date__c}"/>
+	        </apex:pageBlockSection>
+	        <apex:pageBlockSection title="{!$Label.RM_Lessons_for_Future_Projects}" columns="1" collapsible="false">
+	            <apex:inputField styleClass="longfield" value="{!rfa.RM_Keep__c}" style="width:90%;"/>
+	            <apex:inputField styleClass="longfield" value="{!rfa.RM_Change__c}" style="width:90%;"/>
+	        </apex:pageBlockSection>
+		</apex:pageBlock>
+	</apex:form>
+	<script type="text/javascript" >
+		$(document).ready(function(){
+		    $(".content img").remove();
+		});
+	</script>
+</apex:page>

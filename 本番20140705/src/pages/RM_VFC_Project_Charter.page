@@ -1,0 +1,162 @@
+<apex:page tabstyle="RFA__c" standardController="RFA__c" extensions="RM_VFC_Project_Common" action="{!isRfa}">
+<style>
+.borderTable {
+
+    border: solid 1px black;
+    border-color:#ECECEC;
+    border-collapse:collapse;
+    padding: 5px;
+    width : 100%;
+}
+.borderTable th{
+    font-weight: bold;
+    height:20px;
+    width:20px;
+    white-space: normal;
+    border: 1px solid black;
+    background-color: #d60016;
+    color: #FFFFFF;
+}
+.borderTable td{
+    white-space: normal;
+    height:20px;
+    width:20px;
+}
+
+.tdBorder {
+    border: 1px solid black;
+}
+.tdLeftNotBorder {
+    border: 1px solid black;
+    border-left-style:none;
+}
+.tdRightNotBorder {
+    border: 1px solid black;
+    border-right-style:none;
+}
+
+span.dateFormat {display: none;}
+</style>
+
+    <style>
+        .longfield {
+            width : 100%;
+        }       
+    </style>
+
+    
+    <apex:includeScript value="{!URLFOR($Resource.jQueryGantt, 'jquery.min.js')}"   />
+    <apex:sectionHeader subtitle="{!$Label.RM_RFA_Approver_User}" title="{!$Label.RM_RFA_Approver_User}"/>
+    <apex:outputPanel id="message">
+        <apex:pageMessages />
+    </apex:outputPanel>
+    <apex:form >
+        <apex:pageBlock id="pblock" title="{!$Label.RM_RFA_Approver_User_Edit}" mode="edit">
+            <apex:pageblockbuttons >
+                <apex:commandbutton action="{!SaveOfCharter}" value="{!$Label.RM_Save}" status="btnStatus" reRender="message, pblock" />
+                <apex:commandButton action="{!SaveAndNewOfCharter}" value="{!$Label.RM_Save_New}" status="btnStatus" reRender="message, pblock"/>
+                <apex:commandbutton action="{!cancel}" value="{!$Label.RM_Cancel}" status="btnStatus" reRender="message, pblock"/>
+            </apex:pageblockbuttons>
+            <apex:pageblocksection columns="2" >
+                <apex:outputField Value="{!rfa.RecordTypeId}"/>
+                <apex:outputField Value="{!rfa.OwnerId}"/>
+                <apex:actionStatus onstart="btnDisabled();" onstop="btnActive();" id="btnStatus"/>
+                <apex:inputField value="{!rfa.RM_Related_Project__c}" onchange="getProjectData(document.getElementById(this.id + '_lkid').value);" required="true" id="relatedProject">
+                    <apex:actionFunction name="getProjectData" action="{!getProjectData}" immediate="true" rerender="pblock" >
+                        <apex:param name="projectId" assignTo="{!projectId}" value=""/>
+                    </apex:actionFunction>
+                </apex:inputField>
+                <script>
+                    $("input[id$='relatedProject']").attr("readonly",true);
+                </script>
+            </apex:pageblocksection>
+            <apex:pageblocksection columns="2" title="{!$Label.RM_General_Information}">
+                <apex:inputfield Value="{!rfa.RM_Project_No__c}"/>
+                <apex:inputfield Value="{!rfa.Id}"/>
+                <apex:inputfield Value="{!rfa.RequestTitle__c}" required="true"/>
+                <apex:inputfield Value="{!rfa.Stage__c}"/>
+                <apex:inputfield Value="{!rfa.RM_Start_Date__c}" required="true"/>
+                <apex:inputfield Value="{!rfa.RM_End_Date__c}" required="true"/>        
+                <apex:inputfield Value="{!rfa.RM_Owner_Function_L2__c}" required="true"/>
+                <apex:inputfield Value="{!rfa.RM_Sponsor__c}" required="true"/>
+                <apex:inputfield Value="{!rfa.RM_Project_Lead_From_Owner_Function__c}" required="true"/>        
+                <apex:inputfield Value="{!rfa.RM_Project_Classification__c}" required="true"/>        
+            </apex:pageblocksection>
+            <apex:pageblocksection columns="1" title="{!$Label.RM_OverView}">
+                <apex:inputfield Value="{!rfa.RM_Background_Current_Issue__c}" style="width:80%;" required="true"/>
+                <apex:inputfield Value="{!rfa.RM_Project_Objectives__c}" style="width:80%;" required="true"/>
+                <apex:inputfield Value="{!rfa.RM_Estimated_Benefit_Overview__c}" style="width:80%;" required="true"/>        
+            </apex:pageblocksection>
+            <apex:pageblocksection columns="2" title="{!$Label.RM_Support_Function_L2_Sub_Function_L3}">
+                <apex:inputfield Value="{!rfa.RM_Commercial_Check__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_Commercial_Select__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_SCM_Check__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_SCM_Select__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_Procurement_Check__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_Procurement_Select__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_HR_Check__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_HR_Select__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_Finance_Check__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_Finance_Select__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_IS_Check__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_IS_Select__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_Legal_Check__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_Legal_Select__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_PAC_Check__c}"/>
+                <apex:inputfield Value="{!rfa.RM_PAC_Select__c}"/>    
+                <apex:inputfield Value="{!rfa.RM_BI_Check__c}"/>
+                <apex:inputfield Value="{!rfa.RM_BI_Select__c}"/>
+            </apex:pageblocksection>
+            <apex:pageblocksection columns="2" title="{!$Label.RM_Only_SCM}">
+                <apex:inputfield Value="{!rfa.RM_Category_No__c}"/>
+                <apex:inputfield Value="{!rfa.RM_Category_Title__c}"/>
+                <apex:outputLabel for=""/>
+                <apex:inputfield Value="{!rfa.RM_Priority_Level__c}"/>
+            </apex:pageblocksection>
+            <apex:pageblocksection columns="2" title="{!$Label.RM_Only_Procurement}">
+                <apex:inputfield Value="{!rfa.RM_CCPP_Status__c}"/>
+                <apex:inputfield Value="{!rfa.RM_Individual_or_With_ATK__c}"/>
+                <apex:inputfield Value="{!rfa.RM_Opex_or_CAPEX__c}"/>
+                <apex:inputfield Value="{!rfa.RM_ABP_Incl_or_Not_incl__c}"/>
+            </apex:pageblocksection>
+            <apex:pageblocksection columns="1" title="{!$Label.RM_Solution_Proposal}">
+                <apex:inputfield Value="{!rfa.RM_Detail_Document_Attached_Y_N_1__c}"/>
+                <apex:inputfield Value="{!rfa.RM_Details_of_Solution__c}" style="width:80%;"/>
+            </apex:pageblocksection>
+            <apex:pageblocksection columns="1" title="{!$Label.RM_Quantitative_Benefit_Spending_Rough_Estimate_in_MM_Yen}">
+
+    
+
+                
+            
+                <apex:inputfield Value="{!rfa.RM_Detail_Document_Attached_Y_N_2__c}" />
+                <apex:inputfield Value="{!rfa.RM_Quantitative_Benefit_Spending__c}" style="width:80%;"/>
+            </apex:pageblocksection>
+            <apex:pageblocksection columns="2" showheader="false">
+                <apex:inputfield Value="{!rfa.RM_PaybackPeriodYears__c}"/>
+            </apex:pageblocksection>
+            <apex:pageblocksection columns="1" title="{!$Label.RM_Communication_Change_Management}">
+                <apex:inputfield Value="{!rfa.RM_Detail_Document_Attached_Y_N_3__c}" />
+                <apex:inputfield Value="{!rfa.RM_Communication_Change__c}" style="width:80%;"/>
+            </apex:pageblocksection>
+            <apex:pageblocksection columns="2" title="{!$Label.RM_System_Information}">
+                <apex:inputfield Value="{!rfa.LastModifiedById}" style="width:80%;"/>
+                <apex:inputfield Value="{!rfa.CreatedById}" style="width:80%;"/>
+            </apex:pageblocksection>
+            
+        </apex:pageBlock>
+    </apex:form>
+    <script type="text/javascript" >
+        $(document).ready(function(){
+            $(".content img").remove();
+            $("select[multiple=multiple]").css("width", "60%");
+            $("input[id$='relatedProject']").attr("readonly",true);
+        });
+        function btnDisabled() {
+            $(".btn").attr("disabled", true);
+        }
+        function btnActive() {
+            $(".btn").attr("disabled", false);
+        }
+    </script>
+</apex:page>

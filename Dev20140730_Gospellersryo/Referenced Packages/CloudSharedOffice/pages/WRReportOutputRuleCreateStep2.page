@@ -1,0 +1,217 @@
+<apex:page controller="SOLXYZCSO001.WRReportOutputRuleCreateController" tabStyle="WRRuleTab__tab">
+<script type="text/javascript">
+var __sfdcSessionId = '{!GETSESSIONID()}';
+</script>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<script type="text/javascript" src="/soap/ajax/21.0/connection.js"></script>
+<script type="text/javascript" src="/soap/ajax/21.0/apex.js"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.metadatajs,'salesforce-metadata.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip-load.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip-inflate.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip-deflate.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'encoding.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'base64.js')}" charset="utf-8"></script>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<style type="text/css">
+.navi_message{
+    font-size:1.1em;
+    margin:40px 0 15px 60px;
+}
+.form_table {
+    margin-left:50px;
+}
+.form_table_label {
+    font-size:0.9em;
+    padding-top:5px;
+    padding-right:15px;
+    width:130px;
+    min-width:130px;
+    text-align:right;
+    font-weight:bold;
+    color:#4a4a56 !important;
+}
+.form_table_label_sub {
+    font-size:0.9em;
+    width:75px;
+    min-width:75px;
+}
+.form_table_label_normal {
+    text-align:right;
+}
+.form_table_radio{
+    width:120px;
+}
+.form_table_data {
+}
+.ios-checkbox-container{
+    width:120px;
+}
+.fieldset_style_containar{
+    border:1px solid silver;
+    background-color:white; 
+    padding:8px 8px 8px 8px;
+    display:none;
+}
+.c_require{
+    width:4px;
+    height:23px;
+    float: left;
+}
+</style>
+<script type="text/javascript">
+var condition_listview_store = new Object();
+$(document).ready(function(){
+    var def = $.cookie('wr_outputrule_def');
+    $('option[value*="' + def + '"]').attr('selected', 'selected');
+    changeDefinition();
+});
+// 帳票定義変更
+function changeDefinition(){
+    $.cookie('wr_outputrule_def', $('.reportDefinition').val().split(',')[0]);
+    var outputInstruction = '{!JSENCODE(outputInstruction)}';
+    // 出力指示がシステムの場合のみ検索条件を取得
+    if(outputInstruction == 'System'){
+        CsoScript_loadingStart();
+        var objectName = $('.reportDefinition').val();
+        objectName = objectName.split(',')[1];
+        var req, result;
+        req = new sforce.RetrieveRequest();
+        req.apiVersion = "27.0";
+        req.singlePackage = false;
+        req.unpackaged = {
+            types: [{name: "CustomObject", members:[objectName]}]
+        };
+
+        sforce.metadata.retrieve(req, waitForDone(function (result) {
+            var zip = new JSZip(result.zipFile, {base64:true});
+            var xml = '';
+//console.log(zip);
+            $.each(zip.files, function(){
+                if(this.name.indexOf('.object') > 0){
+                    xml = this.data;
+                }
+            });
+            condition_listview_store = new Object();
+            if(xml != ''){
+                $('.searchCondition').empty();
+                var storeNo = 0;
+                $.each($(xml).find('listViews'), function(){
+                    var listView = new Object();
+                    // 検索ロジック追加
+                    listView.booleanFilter = $(this).find('booleanFilter').text();
+
+                    // 検索条件追加
+                    var filters = new Array();
+                    var no = 1;
+                    $.each($(this).find('filters'), function(){
+                        var filter = new Object();
+                        filter.no = no;
+                        filter.field = $(this).find('field').text();
+                        filter.operation = $(this).find('operation').text();
+                        filter.value = $(this).find('value').text();
+                        filters.push(filter);
+                        no++;
+                    });
+                    // 検索条件にoption追加
+                    listView.filters = filters;
+                    var text = encodeToString($(this).find('label').text());
+                    var fullname = $(this).find('fullname').text();
+                    var option = $('<option/>');
+//                    $(option).attr('value', objectName + storeNo).text(text);
+                    $(option).attr('value', fullname).text(text);
+                    $('.searchCondition').append(option);
+
+                    // ストアプール
+//                    condition_listview_store[objectName + storeNo] = objectName + storeNo + ',' + text + ',' + JSON.stringify(listView);
+                    condition_listview_store[fullname] = fullname + ',' + Base64.encode(text) + ',' + encodeToString(JSON.stringify(listView));
+                    storeNo++;
+                });
+            }
+            restoreCondition();
+            changeCondition();
+            setTimeout('CsoScript_loadingStop()', 300);
+        }));
+    }
+}
+function waitForDone(callback) {
+    function getResult(id) {
+        sforce.metadata.checkRetrieveStatus(id, callback);
+    }
+    function check(results) {
+        var done = results[0].getBoolean("done");
+        if (!done) {
+            sforce.metadata.checkStatus([results[0].id], check);
+        } else {
+            getResult(results[0].id);
+        }
+    }
+    return function (result) {
+        check([result]);
+    };
+}
+function changeCondition(){
+    CsoScript_loadingStart();
+    var storeNo = $('.searchCondition').val();
+    $('.searchConditionHidden').val(condition_listview_store[storeNo]);
+    CsoScript_loadingStop();
+}
+function restoreCondition(){
+    var condition = $('.searchConditionHidden').val();
+    var storeNo = condition.substr(0, condition.indexOf(','));
+    $('.searchCondition').val(storeNo);
+}
+function encodeToString(str){
+    var bytes = new Array();
+    for(var i = 0; i < str.length; i++){
+        bytes.push(str.charCodeAt(i));
+    }
+    var unicodes = Encoding.convert(bytes, 'UNICODE', 'UTF8');
+    return Encoding.codeToString(unicodes);
+}
+</script>
+<apex:sectionHeader title="{!$Label.solxyzcso001__label_wr_outputrule_00016}" subtitle="{!$Label.solxyzcso001__label_wr_outputrule_00034}" />    <!-- 帳票出力ルール 新規帳票出力ルール（ステップ２/４） -->
+<apex:pageMessages />
+<apex:form >
+<apex:pageBlock >
+    <apex:pageBlockSection title="{!$Label.solxyzcso001__label_wr_outputrule_00035}" collapsible="false"/>    <!-- ステップ２: 帳票定義選択 -->
+    <apex:pageBlockButtons dir="RTL">
+        <apex:commandButton action="{!cancel}" value="{!$Label.solxyzcso001__label_wr_outputrule_00024}"/>    <!-- キャンセル -->
+        <apex:commandButton action="{!next2}" onclick="changeCondition();" value="{!$Label.solxyzcso001__label_wr_outputrule_00025}"/>    <!-- 次へ -->
+        <apex:commandButton action="{!prev2}" onclick="changeCondition();" value="{!$Label.solxyzcso001__label_wr_outputrule_00036}"/>    <!-- 前へ -->
+    </apex:pageBlockButtons>
+
+    <apex:outputPanel rendered="{!IF(outputInstruction == 'User', true, false)}">
+        <div class="navi_message">{!$Label.solxyzcso001__msg_wr_outputrule_00009}</div>    <!-- ルールの適用対象の帳票定義を選択してください -->
+    </apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(outputInstruction == 'System', true, false)}">
+        <div class="navi_message">{!$Label.solxyzcso001__msg_wr_outputrule_00047}</div>    <!-- ルールの適用対象の帳票定義を選択してください -->
+    </apex:outputPanel>
+    <table class="form_table" cellspacing="5">
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00018}</td>    <!-- 帳票定義 -->
+            <td class="form_table_data" nowrap="nowrap">
+                <img src="{!URLFOR($Resource.iosstyle, 'require.png')}" class="c_require"/>
+                <apex:selectList value="{!reportDefinition}" size="1" onchange="changeDefinition()" styleClass="reportDefinition">
+                    <apex:selectOptions value="{!reportDefinitionOptions}"/>
+                </apex:selectList>
+                <!-- 実装保留 -->
+                <!-- input type="button" onclick="viewReportDefinition()" class="btn" value="帳票定義を見る" / -->
+            </td>
+        </tr>
+        <tr style="display:{!IF(outputInstruction == 'System', 'table-row', 'none')}">
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00038}</td>    <!-- レコード検索条件 -->
+            <td class="form_table_data" nowrap="nowrap">
+                <img src="{!URLFOR($Resource.iosstyle, 'require.png')}" class="c_require"/>
+                <select class="searchCondition" onchange="changeCondition()"></select>
+                <apex:inputText value="{!searchConditionHidden}" style="display:none" styleClass="searchConditionHidden"/>
+            </td>
+        </tr>
+    </table>
+</apex:pageBlock>
+</apex:form>
+</apex:page>

@@ -1,0 +1,70 @@
+<apex:page showHeader="false" sidebar="false">
+<style type="text/css">
+#content_container{
+    margin:10px 0 0 20px;
+    width:710px;
+}
+h1{
+    font-size:22px;
+}
+h2{
+    font-size:16px;
+}
+</style>
+
+
+<div id="content_container">
+
+    <h1>{!$Label.solxyzcso001__label_wr_outputrule_00099}</h1>
+    
+    <p>{!$Label.solxyzcso001__msg_wr_outputrule_00025}<br/>
+    {!$Label.solxyzcso001__msg_wr_outputrule_00026}</p>
+    
+    <h2>{!$Label.solxyzcso001__label_wr_outputrule_00100}</h2>
+    <table border="1" cellpadding="8">
+        <tr>
+            <td width="120px">{YY} {YYYY}</td>
+            <td>{!$Label.solxyzcso001__msg_wr_outputrule_00027}</td>
+        </tr>
+        <tr>
+            <td>{MM}</td>
+            <td>{!$Label.solxyzcso001__msg_wr_outputrule_00028}</td>
+        </tr>
+        <tr>
+            <td>{DD}</td>
+            <td>{!$Label.solxyzcso001__msg_wr_outputrule_00029}</td>
+        </tr>
+        <tr>
+            <td>{HH} {hh}</td>
+            <td>{!$Label.solxyzcso001__msg_wr_outputrule_00030}</td>
+        </tr>
+        <tr>
+            <td>{mm}</td>
+            <td>{!$Label.solxyzcso001__msg_wr_outputrule_00031}</td>
+        </tr>
+        <tr>
+            <td>{ss}</td>
+            <td>{!$Label.solxyzcso001__msg_wr_outputrule_00032}</td>
+        </tr>
+        <tr>
+            <td>{SSS}</td>
+            <td>{!$Label.solxyzcso001__msg_wr_outputrule_00033}</td>
+        </tr>
+    </table>
+    <br/>
+    <br/>
+    <br/>
+    <h2>{!$Label.solxyzcso001__label_wr_outputrule_00101}</h2>
+    <table border="1" cellpadding="8">
+        <tr>
+            <td width="120px">{{!$Label.solxyzcso001__label_wr_outputrule_00102}}</td>
+            <td>
+                {!$Label.solxyzcso001__msg_wr_outputrule_00034}<br/>
+                {!$Label.solxyzcso001__msg_wr_outputrule_00035}
+            </td>
+        </tr>
+    </table>
+    
+</div>
+
+</apex:page>

@@ -1,0 +1,1463 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.DeliveryInfoController" tabStyle="delivery__tab" id="dlvInfoPage">
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid != null, true, false)}">
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/document.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/delivery.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+<apex:include pageName="SOLXYZCSO001__CSOPreviewPlugin"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.csopreview.css')}" />
+<script type="text/javascript" src="{!$Label.field_CSO_DVURL}/js/document-viewer.js?v100"></script>
+<!--[if lte IE 8]>
+<script type="text/javascript" src="{!$Label.field_CSO_URL}/js/jquery.backgroundSize.js"></script>
+<![endif]-->
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+var firstTime = true;
+var firstId = "";
+var cLoadFin = false;
+$(document).ready(function(){
+    $('input[type!="submit"][type!="button"],select').keypress(function(e){
+      if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+        return false;
+      }else{
+        return true;
+      }
+    });
+    if(getBrowserType().indexOf('IE') >= 0){
+        $("#dummyInputDiv").append("<input style='height:0px; width:0px;' zindex='0'></input>");
+    }
+
+    //show file preview with navigator
+    var options = {
+        showNavigator : true,
+        loadComplete : function(){
+            $("#preview-area").editLink(false);
+        },
+        resource : {
+            zoomWidthFit        : '{!$Label.label_fileviewer_zoomWidthFit}',
+            zoomHeightFit       : '{!$Label.label_fileviewer_zoomHeightFit}',
+            downloadMsg         : '{!$Label.label_fileviewer_downloadMsg}',
+            download            : '{!$Label.label_fileviewer_download}',
+            search_s            : '{!$Label.label_fileviewer_searchS}',
+            search_e            : '{!$Label.label_fileviewer_searchE}',
+            no_hit              : '{!$Label.label_fileviewer_noHit}',
+            password_1          : '{!$Label.label_fileviewer_password1}',
+            password_2          : '{!$Label.label_fileviewer_password2}',
+            dialog_info         : "INFO",
+        },
+    };
+    $("#preview-area").csopreview(options);
+
+});
+
+/*
+ * 画面読込処理
+ */
+jQuery.event.add(window, "load", function(){
+
+    $("#inputFromDate").datepicker({dateFormat : "{!datePickerFormat}"});
+    $("#inputToDate").datepicker({dateFormat : "{!datePickerFormat}"});
+    if(getBrowserType().indexOf('IE') >= 0){
+        $("#dummyInputDiv").remove();
+    }
+
+    // DeliveryStatus
+    $("#deliveryStatusList").jqGrid({
+        url:_apiUrl + "/deliverymanagement/deliveryDestListGet.json",
+        postData : {
+          id : "{!id}",
+        },
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id       : "access_key"
+        },
+        colNames:['','','{!$Label.label_00039}','{!$Label.label_10016}','{!$Label.label_10464}',
+                  '{!$Label.label_10465}','{!$Label.label_10466}'],
+        colModel:[
+                    {name:'access_key',index:'access_key', width:60, hidden:true},
+                    {name:'isDeliveryStop',index:'isDeliveryStop', width:60, hidden:true},
+                    {name:'addressName',index:'addressName', width:220},
+                    {name:'address',index:'address', width:330},
+                    {name:'access_date',index:'updateDate', width:80, align:"center", hidden:true},
+                    {name:'delivery_stop',index:'delivery_stop', width:105,align:"center"},
+                    {name:'err_message',index:'errMessage', width:200,align:"center", hidden:true}
+                ],
+        rowNum: {!cso_userInfo.statusListDocRows},
+        width: $("#jqgrid_view_div").width() -2,
+        height: 170,
+        rowList:[10,50,100],
+        sortname: 'addressName',
+        pager: '#deliveryStatusListPager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        subGrid: true,
+        shrinkToFit : false,
+        subGridRowExpanded: function(subgrid_id, row_id) {
+            // 行のデータを取得
+            var ret = jQuery("#deliveryStatusList").jqGrid('getRowData',row_id);
+            // サブグリッドの設定
+            var subgrid_table_id, pager_id;
+            subgrid_table_id = subgrid_id+"_t";
+            pager_id = "p_"+subgrid_table_id;
+            $("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table><div id='"+pager_id+"' class='scroll'></div>");
+            jQuery("#"+subgrid_table_id).jqGrid({
+                url: _apiUrl + '/deliverymanagement/deliveryFileDetailListGet.json',
+                datatype: "jsonp",
+                postData : {
+                    id : "{!id}",
+                    accessKey : row_id,
+                },
+                jsonReader :{
+                    repeatitems: false,
+                    id       : "id"
+                },
+                colNames: ['','{!$Label.label_10081}','{!$Label.label_10017}',
+                           '{!$Label.label_10467}','{!$Label.solxyzcso001__label_10468}',''],
+                colModel: [
+                            {name:'id',index:'id', width:60, hidden:true},
+                            {name:'doc_name',index:'doc_name', width:200},
+                            {name:'status',index:'status', width:100, align:"center"},
+                            {name:'access_date',index:'access_date', width:175, align:"center"},
+                            {name:'dl_num',index:'dl_num', width:145,align:"center"},
+                            {name:'accesskey', index:'accesskey', hidden:true}
+                ],
+                rowNum: {!cso_userInfo.statusListDocRows},
+                sortname: 'doc_name',
+                sortorder: "asc",
+                height: '100%',
+                subGrid : true,
+                shrinkToFit : false,
+                subGridRowExpanded : function (subgrid_id_h, row_id_h) {
+                    // 行のデータを取得
+                    var ret_h = jQuery("#"+subgrid_table_id).jqGrid('getRowData', row_id_h);
+                    var doc_id = ret_h.id;
+                    // サブグリッドの設定
+                    var subgrid_table_id_h, pager_id_h;
+                    subgrid_table_id_h = subgrid_id_h + "_th";
+                    pager_id_h = "ph_"+subgrid_table_id;
+                    $("#" + subgrid_id_h).html("<table id='"  +subgrid_table_id_h + "' class='scroll'></table><div id='" + pager_id_h + "' class='scroll'></div>");
+                    jQuery("#"+subgrid_table_id_h).jqGrid({
+                        url: _apiUrl + '/deliverymanagement/deliveryDownloadHistoryGet.json',
+                        datatype: "jsonp",
+                        postData : {
+                            id : "{!id}",
+                            accessKey : ret_h.accesskey,
+                            "doc_id" : doc_id
+                        },
+                        jsonReader :{
+                            repeatitems: false,
+                            id       : "id"
+                        },
+                        colNames : ['', '{!$Label.label_10469}', '{!$Label.label_10017}'],
+                        colModel : [
+                                    {name:'id', index:'id', width:60, hidden:true},
+                                    {name:'download_date', index:'download_date', width:150, align:"center"},
+                                    {name:'status',index:'status', width:100, align:"center"}
+                        ],
+                        rowNum : 10, //TODO
+                        sortname : 'download_date',
+                        sortorder : 'asc',
+                        shrinkToFit : false,
+                        height : 100
+                    });
+                }
+            });
+        },
+
+        loadComplete : function(data) {
+            var aa = data["rows"];
+            var isStop = false;
+            var i = 0;
+            while (i < aa.length) {
+                if (aa[i].isDeliveryStop == "false") {
+                    isStop = true;
+                }
+                i++;
+            }
+            if (!isStop) {
+                $("#buttonStopDelivery").attr("disabled","disabled");
+                $("#buttonStopDelivery").addClass("disabledBtn");
+            }else{
+                $("#buttonStopDelivery").removeAttr("disabled");
+                $("#buttonStopDelivery").removeClass("disabledBtn");
+            }
+
+        }
+    });
+    $("#deliveryStatusList").jqGrid('navGrid','#deliveryStatusListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+
+    $("#deliveryInfoUserList").jqGrid({
+        url: _apiUrl + '/deliverymanagement/deliveryUserListListGet.json',
+        datatype: "jsonp",
+        postData : {
+            delivId : "{!id}",
+            retType  : "SF",
+        },
+        jsonReader :{
+            repeatitems: false,
+            id       : "id"
+        },
+        colNames:[
+                'id',
+                '{!$Label.label_00039}',
+                '{!$Label.label_13283}',
+                '{!$Label.label_13290}',
+                '',
+                '',
+                ],
+        colModel:[
+                    {name:'id',index:'id', width:60, hidden:true},
+                    {name:'name',index:'name', width:400},
+                    {name:'status',index:'status', width:150, align:"center"},
+                    {name:'deliveryStatus',index:'deliveryStatus', width:110, align:"center"},
+                    {name:'isDeliveryStop',index:'isDeliveryStop', hidden:true},
+                    {name:'simpleName',index:'simpleName', hidden:true},
+                ],
+        rowNum:50,
+        width: 450,
+        height: 162,
+        rowList:[10,50,100],
+        sortname: 'name',
+        pager: '#deliveryInfoUserListPager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        shrinkToFit : true,
+        onSelectRow: function(id, status) {
+            var serrowCount = $(this).jqGrid('getGridParam','selarrrow').length;
+            if(serrowCount == 0) return;
+            if(serrowCount == 1 || (serrowCount > 1 && !status)){
+                id = $(this).jqGrid('getGridParam','selarrrow')[0];
+            }
+            $("#deliveryInfoContentsStatusList").setGridParam({
+                postData : {
+                    ak : id,
+                },
+            }).trigger("reloadGrid");
+//            $("#targetName").text($($(this).find("#" + id + " td")[getColumnModelNameMap($(this))["simpleName"]]).text() + " - ");
+        },
+        loadComplete : function(data) {
+            var aa = data["rows"];
+            var isStop = false;
+            var i = 0;
+            while (i < aa.length) {
+                if (aa[i].isDeliveryStop == "false") {
+                    isStop = true;
+                }
+                i++;
+            }
+            if (!isStop) {
+                $("#buttonStopDelivery").attr("disabled","disabled");
+                $("#buttonStopDelivery").addClass("disabledBtn");
+            }else{
+                $("#buttonStopDelivery").removeAttr("disabled");
+                $("#buttonStopDelivery").removeClass("disabledBtn");
+            }
+            firstId = data.rows[0].id;
+            if(firstTime){
+                $("#deliveryInfoUserList").setSelection(firstId, false);
+                var moveSelection = setInterval(function() {
+                    //終了条件
+                    if (cLoadFin) {
+                        var serrowCount = $("#deliveryInfoUserList").jqGrid('getGridParam','selarrrow').length;
+                        if(serrowCount == 1 || (serrowCount > 1 && !status)){
+                            id = $("#deliveryInfoUserList").jqGrid('getGridParam','selarrrow')[0];
+                        }
+                        $("#deliveryInfoContentsStatusList").setGridParam({
+                            postData : {
+                                ak : id,
+                            },
+                        }).trigger("reloadGrid");
+                        clearInterval(moveSelection);
+                    }
+                }, 50);
+                firstTime = false;
+            }
+        }
+    });
+    $("#deliveryInfoUserList").jqGrid('navGrid','#deliveryInfoUserListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+    createAndAssignColumnModelNameMap($("#deliveryInfoUserList"));
+
+    $("#deliveryInfoContentsStatusList").jqGrid({
+        url: _apiUrl + '/deliverymanagement/deliveryContentsDownloadStatusListGet.json',
+        datatype: "jsonp",
+        postData : {
+            delivId : "{!id}",
+            mxdw : "{!downloadNumMax}"
+        },
+        jsonReader :{
+            repeatitems: false,
+            id       : "id"
+        },
+        colNames:[
+                'id',
+                '{!$Label.label_10081}',
+                '{!$Label.label_13285}',
+                '{!$Label.label_13286}',
+                '',
+                '{!$Label.label_13282}'
+                ],
+        colModel:[
+                    {name:'id',index:'id', width:60, hidden:true},
+                    {name:'name',index:'name', width:400},
+                    {name:'lastDownloadDatetime',index:'lastDownloadDatetime', width:100, align:"center"},
+                    {name:'downloadCount',index:'downloadCount', width:100,align:"center"},
+                    {name:'downloadHistory',index:'downloadHistory', width:60,align:"center", hidden: true},
+                    {name:'path',index:'path', width:300, align:"left", sortable: false},
+                ],
+        rowNum:50,
+        width: 450,
+        height: 150,
+        rowList:[10,50,100],
+        sortname: 'name',
+        pager: '#deliveryInfoContentsStatusListPager',
+        viewrecords: true,
+        shrinkToFit: true,
+        loadComplete: function(){
+            cLoadFin = true;
+        }
+    });
+    $("#deliveryInfoContentsStatusList").jqGrid('navGrid','#deliveryInfoContentsStatusListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+/*
+    $("#docList").jqGrid({
+        url: _apiUrl + '/deliverymanagement/deliveryFileListV2Get.json',
+        datatype: "jsonp",
+        postData : {
+            delivId : "{!id}" ,
+        },
+        jsonReader :{
+            repeatitems: false,
+            id       : "id"
+        },
+        colNames:[
+                'id',
+                '{!$Label.label_10081}',
+                '{!$Label.label_10140}',
+                '{!$Label.label_10038}',
+                '{!$Label.label_10476}'
+                ],
+        colModel:[
+                    {name:'id',index:'id', width:60, hidden:true},
+                    {name:'name',index:'name', width:300},
+                    {name:'size',index:'size', hidden:true},
+                    {name:'ver',index:'ver', hidden:true},
+                    {name : "path", index : "path", width : 399, align : "left"}
+                ],
+        rowNum:50,
+        width: 450,
+        height: 400,
+        rowList:[10,50,100],
+        sortname: 'name',
+        pager: '#docListPager',
+        viewrecords: true,
+        loadComplete: function(){
+            //$("#docList").setGridWidth($("#RightPane").width() - 100);
+        },
+        onRightClickRow: function() {return false;}
+    });
+    $("#docList").jqGrid('navGrid','#docListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+*/
+    secureGetAsync('/deliverymanagement/deliveryMailContentsGet.json', {delivId:"{!id}", returnType:'text'}, function(data){
+        $("#mailMassage").val(data["contents"]);
+    });
+
+    $(window).resize(resizeGrid);
+    resizeGrid();
+
+    $("#delivUserSearchFrom").submit(function(e){
+        searchDelivUser();
+        e.preventDefault();
+    });
+
+    if({!isExpired}){
+        $("#expired").show();
+    }else{
+        $("#expired").hide();
+    }
+
+    $("#delivery_info_tab_1").click(function(){tab(1);});
+    $("#delivery_info_tab_2").click(function(){tab(2);});
+//    $("#delivery_info_tab_3").click(function(){tab(3);});
+    $("#dlvInfoPage\\:dlvInfoForm\\:j_id60\\:topPHeader > div").css("margin-top","0px");
+
+});
+
+function returnHyperLink(cellValue, options, rowdata, action){
+    var contentHtml = $('<div/>').html(rowdata.name).contents();
+    var contentName = contentHtml.find(".contents-top-text").html();
+    contentHtml.find(".contents-top-text").html('<a href="javascript:void(0);" onclick="viewing(\''+rowdata.id+'\','+'\''+rowdata.files+'\')">'+contentName+'</a>');
+    return contentHtml.html();
+}
+
+function downloadExec(url){
+    location.href = url;
+}
+
+function contents_info_download(param){
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '{!$Page.DownloadPopupWindow}';
+        url = url + '?downloadType=ContentsInfo';
+        url = url + '&fileId='  + fileId;
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+    var ver = param.ver.replace(/\./g,', ');
+    if(ver.length >0){
+        ver = "[" + ver + "]";
+    }
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SingleContentsDownloadApi.json', JSON.stringify({"fileId" : param.fileId, "refSpaceId" : param.refSpaceId, "ver" : ver}), callback, callerror);
+}
+
+function viewing(id, fileIds, isDelete){
+    if(isDelete == "1"){
+        alert('{!$Label.label_13293}');
+    }else{
+        $("#preview-area").loadPreview(id, null, "", "", "", "", changeOrder(fileIds), 1);
+    }
+}
+
+function changeOrder(fileIds){
+    var before = fileIds.split(",");
+    var after = [];
+    var nowGrid = $("#deliveryInfoContentsStatusList").getDataIDs();
+    for(var i=0; i<nowGrid.length; i++){
+        for(var ii=0; ii<before.length; ii++){
+            if(nowGrid[i] == before[ii]){
+                after.push(nowGrid[i]);
+                break;
+            }
+        }
+    }
+    return after;
+}
+
+function convertDateFormat(date) {
+    var d = new Date(date || Date.now()),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('/');
+}
+
+function createAndAssignColumnModelNameMap(jqgridObj) {
+    var colModel = jqgridObj.getGridParam('colModel');
+    var colModelNameMap = [];
+    for (var i=0; i<colModel.length; ++i) {
+        colModelNameMap[colModel[i].name] = i;
+    }
+    jqgridObj.data('colModelNameMap', colModelNameMap);
+}
+
+function getColumnModelNameMap(jqgridObj) {
+    return jqgridObj.data('colModelNameMap');
+}
+
+/*
+ * タブ切り替え
+ */
+function tab(tab){
+    var i = 1;
+    $(".delivery_info_tab").each(function(){
+        if(tab == i){
+            $("#tab_" + i).show();
+            $(this).removeClass("delivery_info_tab_deactive");
+            $(this).addClass("delivery_info_tab_active");
+        }else{
+            $("#tab_" + i).hide();
+            $(this).removeClass("delivery_info_tab_active");
+            $(this).addClass("delivery_info_tab_deactive");
+        }
+        i++;
+    });
+
+}
+
+/*
+ * グリッドのリサイズ
+ */
+function resizeGrid(){
+    var browserWidth = getBrowserWidth();
+    var browserHeight = getBrowserHeight();
+/*
+    if (browserHeight < 505) {
+        $("#deliveryStatusList").setGridHeight(100);
+    } else {
+        if ($("*").hasClass("showListButton")) {
+             $("#deliveryStatusList").setGridHeight(browserHeight - 505 + 149);
+        } else {
+            $("#deliveryStatusList").setGridHeight(browserHeight - 505);
+        }
+    }
+*/
+    var gridHeight = browserHeight - 470 + 200;
+    if(gridHeight > 391){
+        gridHeight = 391;
+    }
+    $("#deliveryInfoUserList").setGridHeight(gridHeight);
+    $("#deliveryInfoContentsStatusList").setGridHeight(gridHeight);
+
+    if((browserWidth - 362) < 700){
+        $("#deliveryInfoUserList").setGridWidth(356);
+        $("#deliveryInfoContentsStatusList").setGridWidth(356);
+//        $("#docList").setGridWidth(713);
+    } else {
+        if(getBrowserType() != 'IE8'){
+            $("#deliveryInfoUserList").setGridWidth(browserWidth/2 - 300);
+            $("#deliveryInfoContentsStatusList").setGridWidth(browserWidth/2 - 40);
+//            $("#docList").setGridWidth(browserWidth - 340);
+        } else {
+            $("#deliveryInfoUserList").setGridWidth(browserWidth/2 - 292);
+            $("#deliveryInfoContentsStatusList").setGridWidth(browserWidth/2 - 32);
+//            $("#docList").setGridWidth(browserWidth - 324);
+        }
+    }
+}
+
+/*
+ * ページ戻り
+ */
+function backPage(){
+    location.href='{!$Page.DeliveryList}?searchstr={!searchstr}&status={!status}&_=' + new Date().getTime();
+}
+
+/*
+ * 配信情報更新
+ */
+function updateDeliveryInfo(){
+    // クエリパラメータを初期化
+    query = new Object();
+    // 入力チェック
+    if(validate()){
+       var callback = function(data){
+                CsoScript_loadingStop();
+                if(!data.result){
+                    alert(data.message);
+                }
+                //正常
+                backPage();
+//                location.href='DeliveryList?status={!status}&_=<%= new java.util.Date().getTime() %>';
+
+            };
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+
+        CsoScript_loadingStart();
+
+        // 配信詳細情報更新
+        securePostAsync('/deliverymanagement/deliveryDetailEdit.json',
+            {"id" : "{!id}",
+             "fromDate" : convertDateFormat($.trim($("#inputFromDate").val())),
+             "toDate" : convertDateFormat($.trim($("#inputToDate").val())),
+             "fromDateStr" : $.trim($("#inputFromDate").val()),
+             "toDateStr" : $.trim($("#inputToDate").val()),
+             "downloadNum" : $.trim($("#inputDownloadLimit").val()),
+            },
+            callback, callerror);
+    }
+}
+
+function convertDateFormat(date) {
+    var d = new Date(date || Date.now()),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('/');
+}
+
+function isPastDate(date){
+    var now = new Date();
+
+    var nYear = now.getYear() < 2000 ? 1900 + now.getYear() : now.getYear();
+    var nMonth = now.getMonth() + 1;
+    var nDay = now.getDate();
+
+    if("{!datePickerFormat}" == "yy/mm/dd"){
+        var iYear = parseInt(date.substr(0, 4), 10);
+        var iMonth = parseInt(date.substr(5, 2), 10);
+        var iDay = parseInt(date.substr(8, 2), 10);
+    }else{
+        var iYear = parseInt(date.substr(6, 4), 10);
+        var iMonth = parseInt(date.substr(0, 2), 10);
+        var iDay = parseInt(date.substr(3, 2), 10);
+    }
+
+    if(nYear > iYear){
+        return true;
+    } else if (nYear < iYear) {
+        return false;
+    }
+
+    if(nMonth > iMonth){
+        return true;
+    } else if (nMonth < iMonth) {
+        return false;
+    }
+
+    if(nDay > iDay){
+        return true;
+    } else if (nDay < iDay) {
+        return false;
+    }
+
+    return false;
+}
+
+function isRightDate(from, to){
+
+    if("{!datePickerFormat}" == "yy/mm/dd"){
+        var fYear = parseInt(from.substr(0, 4), 10);
+        var fMonth = parseInt(from.substr(5, 2), 10);
+        var fDay = parseInt(from.substr(8, 2), 10);
+
+        var tYear = parseInt(to.substr(0, 4), 10);
+        var tMonth = parseInt(to.substr(5, 2), 10);
+        var tDay = parseInt(to.substr(8, 2), 10);
+    }else{
+        var fYear = parseInt(from.substr(6, 4), 10);
+        var fMonth = parseInt(from.substr(0, 2), 10);
+        var fDay = parseInt(from.substr(3, 2), 10);
+
+        var tYear = parseInt(to.substr(6, 4), 10);
+        var tMonth = parseInt(to.substr(0, 2), 10);
+        var tDay = parseInt(to.substr(3, 2), 10);
+    }
+
+    if(fYear > tYear){
+        return false;
+    } else if (fYear < tYear) {
+        return true;
+    }
+
+    if(fMonth > tMonth){
+        return false;
+    } else if (fMonth < tMonth) {
+        return true;
+    }
+
+    if(fDay > tDay){
+        return false;
+    } else if (fDay < tDay) {
+        return true;
+    }
+
+    return true;
+
+}
+
+function isDateFormat(argValue)
+{
+    if (argValue.length != 10 )
+    {
+        // 10桁以外の場合
+        return false;
+    }
+    var ymd = argValue.split("/");
+    if(ymd.length != 3){
+        // 区切りがスラッシュでない場合
+        return false;
+    }
+
+    for(var i = 0; i < ymd.length; i++){
+        var val = ymd[i];
+        if(!isNumeric(val)) return false;
+    }
+
+    if("{!datePickerFormat}" == "yy/mm/dd"){
+        var iYear = parseInt(ymd[0], 10);
+        var iMonth = parseInt(ymd[1], 10);
+        var iDay = parseInt(ymd[2], 10);
+    }else{
+        var iYear = parseInt(ymd[2], 10);
+        var iMonth = parseInt(ymd[0], 10);
+        var iDay = parseInt(ymd[1], 10);
+    }
+
+    var iMaxDayOfMonth = Array(31, 29, 31, 30, 31, 30,
+        31, 31, 30, 31, 30, 31);
+
+    if (iMonth < 1 || iMonth > 12)
+    {
+        return false;
+    }
+    if (iDay < 1 || iDay > iMaxDayOfMonth[iMonth - 1])
+    {
+        return false;
+    }
+    if (iMonth != 2)
+    {
+        return true;
+    }
+    if (iDay < 29)
+    {
+        return true;
+    }
+    if ((iYear % 4) == 0 && (iYear % 100) != 0)
+    {
+        return true;
+    }
+    if ((iYear % 400) == 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+/*
+ * 入力チェック
+ */
+function validate(){
+/************************************
+    // エラー表示のスタイル削除
+    $("#inputFromDate").removeClass(styleClass);
+    $("#inputToDate").removeClass(styleClass);
+    $("#inputDownloadLimit").removeClass(styleClass);
+
+    // エラー情報を初期化
+    var styleClass = "error";
+************************************/
+    //--------------------------------------------
+    // 公開期間
+    //--------------------------------------------
+    // 公開開始日
+    valStart = $.trim($("#inputFromDate").val());
+    if(valStart.length == 0){
+        // 公開開始日が空
+        alert(getMsg(new Array("{!$Label.label_10470}"), '{!$Label.msg_00196}'));
+        return false;
+    }else if(!isDateFormat(valStart)){
+        //公開開始日エラー
+        alert(getMsg(new Array("{!$Label.label_10470}"), '{!$Label.msg_00204}'));
+        return false;
+    } else {
+    }
+
+    // 公開終了日
+    valEnd = $.trim($("#inputToDate").val());
+    if(valEnd.length == 0){
+        // 公開終了日が空
+        alert(getMsg(new Array("{!$Label.label_10471}"), '{!$Label.msg_00196}'));
+        return false;
+    } else if(!isDateFormat(valEnd)){
+        //公開終了日エラー
+        alert(getMsg(new Array("{!$Label.label_10471}"), '{!$Label.msg_00204}'));
+        return false;
+    } else if(isPastDate(valEnd)){
+        // 公開終了日に過去の日付が指定された
+        alert(getMsg(new Array("{!$Label.label_10471}"), '{!$Label.msg_00205}'));
+        return false;
+    } else {
+    }
+
+    if(isDateFormat(valStart) && isDateFormat(valEnd) && (!isRightDate(valStart,valEnd))){
+        //公開開始日＞公開終了日は指定できません。
+        alert(getMsg(new Array("{!$Label.label_10459}"), '{!$Label.msg_00206}'));
+        return false;
+    } else if(isDateFormat(valStart) && isDateFormat(valEnd) && !isPastDate(valEnd)){
+    }
+
+    query["fromDate"] = valStart;
+    query["toDate"] = valEnd;
+
+    // ダウンロード回数
+    var dlNum = $.trim($("#inputDownloadLimit").val());
+    if(dlNum.length == 0){
+        alert(getMsg(new Array("{!$Label.solxyzcso001__label_10468}"), '{!$Label.msg_00196}'));
+        return false;
+    }else if(!isNumeric(dlNum)){
+         alert(getMsg(new Array("{!$Label.solxyzcso001__label_10468}"), '{!$Label.msg_00207}'));
+        return false;
+    }else if(dlNum < 1 || dlNum > 10000){
+        alert(getMsg(new Array("{!$Label.solxyzcso001__label_10468}", "1", "10000"), '{!$Label.msg_00208}'));
+        return false;
+    }else{
+        query["downloadNum"] = dlNum;
+    }
+
+    return true;
+}
+
+/*
+ * 配信停止
+ */
+function stopDelivery(){
+    // クエリパラメータを初期化
+    query = new Object();
+    // 配信IDリスト
+    var deliveryIdList = new Array();
+    var ids = $("#deliveryInfoUserList").jqGrid('getGridParam','selarrrow');
+
+    var isDeStop = false;
+    for(var i=0; i<ids.length; i++) {
+        isDeStop = true;
+        var ret = $("#deliveryInfoUserList").jqGrid('getRowData',ids[i]);
+        if (ret.isDeliveryStop == "false") {
+            deliveryIdList.push(ret.id);
+        }
+    }
+//    query["accessKeyList"] = deliveryIdList.toString();
+//    query["id"]="{!id}";
+//    query['token'] = $('#token').val();
+
+    if(deliveryIdList.length==0 && !isDeStop){
+        alert("{!$Label.msg_00209}");
+        return false;
+    }else if(deliveryIdList.length==0 && isDeStop) {
+        alert("{!$Label.msg_00200}");
+        return false;
+    } else if(confirm("{!$Label.msg_00199}")){
+        // 配信停止
+       var callback = function(data){
+                CsoScript_loadingStop();
+                if(!data.result){
+                    alert(data.message);
+                }
+                $('#deliveryInfoUserList').trigger('reloadGrid');
+            };
+
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+
+        CsoScript_loadingStart();
+
+        // 配信停止
+        securePostAsync('/deliverymanagement/deliveryStop.json',
+            {"id":"{!id}",
+             "accessKeyList":deliveryIdList.toString()
+            },
+            callback, callerror);
+    }
+}
+
+
+/*
+ * 配信コンテンツリスト表示
+ */
+function viewContentsList(){
+
+    var userImageUploadWin = window.open('{!$Page.DeliveryContentsListDialog}?id={!id}', 'contentsListWindow', 'width=800, height=470, menubar=no, toolbar=no, scrollbars=no, location=no, resizable=no, center=yes');
+    userImageUploadWin.focus();
+}
+
+/*
+ * 配信状況抽出
+ */
+function searchDelivUser(){
+    $('#deliveryInfoUserList').setGridParam({
+        postData : {
+            id : "{!id}",
+            searchStr : $("#searchStr").val(),
+        }
+    });
+    $('#deliveryInfoUserList').trigger('reloadGrid');
+}
+
+/*
+ * 配信状況抽出条件クリア
+ */
+function clearSearch(){
+    $("#searchStr").val("");
+    searchDelivUser();
+}
+
+function jumpToDetail(id, type, locale){
+    var titleName = "";
+    $("#divAddress").text("-");
+    $("#divTelNumber").text("-");
+    $("#divCompName").text("-");
+    $("#divSectionName").text("-");
+    if(type == 0){
+    // ECMアドレス帳の場合
+        var param = {
+            "id" : id,
+            "isGroup" : false
+        }
+
+        var callback = function(data){
+            if(data.result){
+                var addressUserInfo = data.userInfo;
+                if(locale == "en"){
+                    titleName = escapeHTML2(addressUserInfo.fname) + " " + escapeHTML2(addressUserInfo.sname) + " [ {!$Label.label_13287} ]";
+                }else{
+                    titleName = escapeHTML2(addressUserInfo.sname) + " " + escapeHTML2(addressUserInfo.fname) + " [ {!$Label.label_13287} ]";
+                }
+                $("#divAddress").text(addressUserInfo.mail);
+                $("#divTelNumber").text(addressUserInfo.tel);
+                $("#divCompName").text(addressUserInfo.company + " " + addressUserInfo.section);
+                $("#addresssDiv").dialog({ width : 350, height : 160, title: titleName, resizable: true });
+                $("#allDeliveryAddress").css("z-index", "500");
+            }else{
+                $("#addresssDiv").dialog({ width : 350, height : 160, title: titleName, resizable: true });
+                $("#allDeliveryAddress").css("z-index", "500");
+            }
+        };
+
+        var callerror =  function(data){
+            alert(data);
+            $("#addresssDiv").dialog({ width : 350, height : 160, title: titleName, resizable: true });
+            $("#allDeliveryAddress").css("z-index", "500");
+        };
+
+        secureGetAsync('/deliverymanagement/DeliveryAddressGet.json', param, callback, callerror);
+        $("#informationLink").attr("href", '{!$Page.DeliveryAddressInfo}?id='+ id +'&isGroup=false');
+        $("#informationLink").show();
+    }else if(type == 1){
+    // リードor取引先責任者orSFユーザの場合
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.DeliveryInfoController.getObjectInfo}', id,
+            function(data, event){
+                var res = JSON.parse($('#decodeWork').html(data).text());
+                var idStart = id.substr(0, 3);
+                if(idStart == "003"){
+                    titleName = escapeHTML2(res.Name) + " [ {!$Label.label_13288} ]";
+                    $("#divAddress").text(res.Email);
+                    if(res.Phone != null){
+                        $("#divTelNumber").text(res.Phone);
+                    }
+                    if(res.Account.Name != null){
+                        $("#divCompName").text(res.Account.Name);
+                    }
+                    var sectionNameStr = "-";
+                    if(res.Department != null){
+                        sectionNameStr = res.Department;
+                        if(res.Title != null){
+                            sectionNameStr = sectionNameStr + " " + res.Title;
+                        }
+                    }else if(res.Title != null){
+                        sectionNameStr = res.Title;
+                    }
+                    $("#divSectionName").text(sectionNameStr);
+                }else if(idStart == "005"){
+                    titleName = escapeHTML2(res.Name) + " [ {!$Label.label_13292} ]";
+                    $("#divAddress").text(res.Email);
+                    if(res.Phone != null){
+                        $("#divTelNumber").text(res.Phone);
+                    }
+                    if(res.CompanyName != null){
+                        $("#divCompName").text(res.CompanyName);
+                    }
+                    var sectionNameStr = "-";
+                    if(res.Department != null){
+                        sectionNameStr = res.Department;
+                        if(res.Title != null){
+                            sectionNameStr = sectionNameStr + " " + res.Title;
+                        }
+                    }else if(res.Title != null){
+                        sectionNameStr = res.Title;
+                    }
+                    $("#divSectionName").text(sectionNameStr);
+                }else if(idStart == "00Q"){
+                    titleName = escapeHTML2(res.Name) + " [ {!$Label.label_13289} ]";
+                    $("#divAddress").text(res.Email);
+                    if(res.Phone != null){
+                        $("#divTelNumber").text(res.Phone);
+                    }
+                    if(res.CompanyName != null){
+                        $("#divCompName").text(res.Company);
+                    }
+                    if(res.Title != null){
+                        $("#divSectionName").text(res.Title);
+                    }
+                }
+                $("#addresssDiv").dialog({ width : 350, height : 160, title: titleName, resizable: true });
+                $("#allDeliveryAddress").css("z-index", "500");
+            },
+                {escape: true}
+        );
+        $("#informationLink").attr("href", '/'+ id);
+        $("#informationLink").show();
+    }else{
+        $("#informationLink").hide();
+        $("#addresssDiv").dialog({ width : 350, height : 160, title: titleName, resizable: true });
+        $("#allDeliveryAddress").css("z-index", "500");
+    }
+}
+
+// コンテンツジャンプ
+function jumpToContents(doc_id, space_id, space_type, isDelete){
+    var space_type_name=changeSpaceType(space_type);
+    if(space_type_name==''){
+        //error
+        alart("{!$Label.msg_01054}"); //ジャンプ先のスペース情報が取得できませんでした。
+        return null;
+    }else if(isDelete == "1"){
+        alert("{!$Label.label_13293}");
+        return null;
+    }
+    var sitePrefix = '';
+
+    if('{!$Site.prefix}'!=null || '{!$Site.prefix}' != ''){
+        sitePrefix = '{!$Site.prefix}';
+    }
+
+    if('{!pagePrefix}' != 'false'){
+        top.location.href='{!$Page.SpacePortal}'+'#'+space_id+':'+space_type_name+':doc_id='+doc_id;
+    }else{
+        if(sitePrefix==''){
+            //自動リダイレクトされないようにパッケージのドメインで遷移する
+            var nameSpace = '{!nameSpace}';
+            var csoPackageBaseUrl = '{!JSENCODE(salesforceBaseUrl)}';
+            if(nameSpace != null || nameSpace != ''){
+                csoPackageBaseUrl = csoPackageBaseUrl.replace('https://c.','https://' + nameSpace + '.');
+            }
+
+            top.location.href=csoPackageBaseUrl+'{!$Page.SpacePortal}'+'#'+space_id+':'+space_type_name+':doc_id='+doc_id;
+        }else{
+            top.location.href='{!$Page.SpacePortal}'+'#'+space_id+':'+space_type_name+':doc_id='+doc_id;
+        }
+    }
+
+}
+
+//  スペースタイプ変換
+function changeSpaceType(space_type){
+    var space_type_name='';
+    var mSpaceIdentifier=0;
+
+    switch (space_type){
+        case '11':  //MY_ROOT - 11:マイスペースのルートスペース
+        case '12':  //MY_CHILD - 12:マイスペースのチャイルドスペース
+        case '13':  //MY_COOP_ROOT - 13:「招待」スペース
+            space_type_name='my';
+            mSpaceIdentifier = 1;
+            break;
+        case '06':  //COLLABORATION - 06:コラボスペース
+        case '07':  //COLLABORATION_CHILD - 07:コラボスペースの子スペース
+            space_type_name='collaboration';
+            mSpaceIdentifier = 5;
+            break;
+        case '02':  //PUBLIC - 02:カンパニースペース
+        case '04':  //PUBLIC_CHILD - 04:カンパニースペースの子スペース
+            space_type_name='company';
+            mSpaceIdentifier = 2;
+            break;
+        case '08':  //ARCHIVE - 08:アーカイブルート
+        case '09':  //ARCHIVE_CHILD - 09:アーカイブスペースの子スペース
+            space_type_name='archive';
+            mSpaceIdentifier = 4;
+            break;
+        default:
+            //通常のスペース以外
+            break;
+    }
+    return space_type_name;
+}
+
+function escapeHTML2(html) {
+  return jQuery('<div>').text(html).html();
+}
+
+</script>
+<style>
+.item_l {
+    min-width: 360px;
+    width: 360px;
+    text-align: left;
+    padding-right:4px;
+}
+
+#contents_info_tab {
+    margin-top: 0px;
+}
+
+#delivery_info_tab li {
+    list-style: none;
+    line-height: 10px;
+    float: left;
+    margin-right: 5px;
+    border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    display: block;
+    text-decoration: none;
+    padding: 9px 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#delivery_info_tab a {
+    display: block;
+    text-decoration: none;
+    padding: 9px 17px;
+    font-weight: bold;
+}
+
+.delivery_info_tab_active {
+    background-color: #F8F8F8;
+    color: #445566 !important;
+}
+
+.delivery_info_tab_active a {
+    color: #445566 !important;
+}
+.delivery_info_tab_active a:hover {
+    color: #445566 !important;
+}
+
+.delivery_info_tab_deactive {
+    background-color: #0033ff;
+    filter:alpha(opacity=50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    color: white;
+}
+
+.delivery_info_tab_deactive a {
+    color: white;
+}
+
+.delivery_info_tab_deactive a:hover {
+    color: white;
+}
+
+.delivery-user-top{
+    font-size: 14px;
+}
+
+.download-none{
+    padding: 5px 10px;
+    border: solid 2px #696969;
+    background-color: #f5f5f5;
+    color: #696969;
+    font-weight: bold;
+}
+
+.download-all{
+    padding: 5px 10px;
+    border: solid 2px #4169e1;
+    background-color: #e0ffff;
+    color: #4169e1;
+    font-weight: bold;
+}
+
+.download-part{
+    padding: 5px 10px;
+    border: solid 2px #ff6347;
+    background-color: #ffffe0;
+    color: #ff6347;
+    font-weight: bold;
+}
+
+.jqGridIcon{
+    margin: 1px 5px;
+}
+
+.delivery-contents-top{
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.delivery-contents-bottom{
+    color: gray;
+}
+
+.delivery-ok{
+    padding: 5px 10px;
+    border: solid 2px #2e8b57;
+    color: #ffffff;
+    background-color: #2e8b57;
+    margin: 3px;
+}
+
+.delivery-stop{
+    padding: 5px 10px;
+    border: solid 2px #e50000;
+    color: #ffffff;
+    background-color: #e50000;
+    margin: 3px;
+}
+
+.delivery-timeover{
+    padding: 5px 10px;
+    border: solid 2px #808080;
+    color: #ffffff;
+    background-color: #808080;
+    margin: 3px;
+}
+
+.tab-div {
+    /*min-height:460px;*/
+    min-height:503px;
+}
+
+.c_command_lcr {
+    height: 30px;
+    min-width: 715px;
+    width: 100%;
+}
+
+.detailList table th, .detailList table td{
+    border-bottom-style: solid !important;
+}
+
+.detailList td {
+    vertical-align: middle !important;
+}
+
+.jqGridPointIcon {
+    position: absolute;
+    top: 18px;
+    left: 23px;
+}
+
+</style>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__DeliveryMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/mail.png')}" alt="{!$Label.solxyzcso001__label_10441}" title="{!$Label.solxyzcso001__label_10441}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10441}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10472}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinksDelivery"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form id="dlvInfoForm">
+                <div id="dummyInputDiv" style="height:0px; width:0px;"></div>
+                <apex:pageBlock >
+                    <!-- コマンドボタン -->
+                    <apex:pageBlockButtons location="top" >
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00075}"  onclick="updateDeliveryInfo(); return false;"/>
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" onclick="backPage(); return false;"/>
+                    </apex:pageBlockButtons>
+                    <!-- 配信詳細情報 -->
+                    <div id="tab_2" class="tab-div" style="display: none; overflow: auto;">
+                         <apex:pageBlockSection columns="1" title="{!$Label.solxyzcso001__label_10472}" collapsible="false">
+                             <!-- 配信ID -->
+                             <apex:pageBlockSectionItem >
+                                 <apex:outputLabel >{!$Label.solxyzcso001__label_10455}</apex:outputLabel>
+                                 <apex:outputLabel >{!displayId}</apex:outputLabel>
+                             </apex:pageBlockSectionItem>
+                             <!-- 公開期間 -->
+                             <apex:pageBlockSectionItem dataStyle="padding:0px;">
+                                 <apex:outputLabel >{!$Label.solxyzcso001__label_13294}</apex:outputLabel>
+                                 <table height="10px">
+                                     <tr>
+                                         <td class="c_requre" style="border-left: 3px solid #C00"><input id="inputFromDate" name="fromDate" value="{!fromDate}" maxlength="10"></input></td>
+                                         <td style="padding-left:5px;padding-right:5px;">{!$Label.label_10316}</td>
+                                         <td class="c_requre" style="border-left: 3px solid #C00"><input id="inputToDate" name="toDate" value="{!toDate}" maxlength="10"></input></td>
+                                         <td><label id= "expired"  style="color:red; margin:3px; display: none;" >{!$Label.msg_00210}</label></td>
+                                     </tr>
+                                 </table>
+                             </apex:pageBlockSectionItem>
+
+                             <!-- 期限切れ警告 -->
+                             <!--
+                             <apex:pageBlockSectionItem >
+                                 <apex:outputLabel style="color:red; margin:3px;" rendered="{!isExpired}" >{!$Label.msg_00210}</apex:outputLabel>
+                             </apex:pageBlockSectionItem>
+                             -->
+                             <!-- 配信タイトル -->
+                             <apex:pageBlockSectionItem >
+                                 <apex:outputLabel >{!$Label.solxyzcso001__label_13295}</apex:outputLabel>
+                                 <apex:outputLabel >
+                                     <span><apex:outputText escape="false" value="{!title}" /></span>
+                                 </apex:outputLabel>
+                             </apex:pageBlockSectionItem>
+                             <!-- メッセージ -->
+                             <apex:pageBlockSectionItem >
+                                 <apex:outputLabel >{!$Label.solxyzcso001__label_10574}</apex:outputLabel>
+                                 <apex:outputLabel >
+                                     <textarea id ="mailMassage" class="c_textarea_m"  style="overflow: auto; resize: none;" disabled="disabled"></textarea>
+                                 </apex:outputLabel>
+                             </apex:pageBlockSectionItem>
+                             <!-- DL回数 -->
+                             <apex:pageBlockSectionItem >
+                                 <apex:outputLabel >{!$Label.solxyzcso001__label_10468}</apex:outputLabel>
+                                 <span class="c_require" style="border-left: 3px solid #C00;">
+                                 <input id="inputDownloadLimit" type="text" name="downloadLimit" size="5" maxlength="4" value="{!downloadNumMax}">&nbsp;{!$Label.label_10473}</input>
+                                 </span>
+                             </apex:pageBlockSectionItem>
+                             <!-- パスワード -->
+                             <apex:pageBlockSectionItem >
+                             <apex:outputLabel >{!$Label.solxyzcso001__label_10460}</apex:outputLabel>
+                             <apex:outputLabel >
+                                 <apex:inputCheckbox id="password" disabled="true" selected="{!password}"/>
+<!--
+                                 <apex:image url="{!URLFOR($Resource.cso, 'image/check_off.png')}" style="width: 22px; height: 22px; margin-top:-4px;" rendered="{!password = 'false'}"/>
+                                 <apex:image url="{!URLFOR($Resource.cso, 'image/check_on.png')}" style="width: 22px; height: 22px; margin-top:-4px;" rendered="{!password}"/>
+-->
+                             </apex:outputLabel>
+                             </apex:pageBlockSectionItem>
+                             <!-- 作成日 -->
+                             <apex:pageBlockSectionItem >
+                                 <apex:outputLabel >{!$Label.solxyzcso001__label_10014}</apex:outputLabel>
+                                 <apex:outputLabel >{!sendDate}</apex:outputLabel>
+                             </apex:pageBlockSectionItem>
+                             <!-- 作成者 -->
+                             <apex:pageBlockSectionItem >
+                                 <apex:outputLabel >{!$Label.solxyzcso001__label_10015}</apex:outputLabel>
+                                 <apex:outputLabel escape="false" value="{!name}" />
+                             </apex:pageBlockSectionItem>
+                         </apex:pageblockSection>
+                    </div>
+
+                    <div id="tab_1" class="tab-div" style="overflow:auto;">
+                            <!-- コマンドボタン表示 -->
+                        <table>
+                            <!--table class="c_command_lcr" cellspacing="0" cellpadding="0"-->
+                            <tr>
+                                <td class="item_l">
+                                    <input type="text" id="searchStr" class="c_text_l" placeholder="{!$Label.label_10475}" maxlength="255" />
+                                    <button class="btn" onclick="searchDelivUser(); return false;">{!$Label.label_00069}</button>
+                                    <button class="btn btn_monseout" style="margin-right:5px;" onclick="clearSearch(); return false;" alt='{!$Label.label_00070}' title='{!$Label.label_00070}'>{!$Label.label_00070}</button>
+                                </td>
+                                <td class="item_r">
+                                    <!-- 配信停止ボタン -->
+                                    <input type="button" class="btn" onclick="stopDelivery(); return false;" value="{!$Label.label_10463}"/>
+                                </td>
+                                <!--td class="item_r">
+                                </td-->
+                            </tr>
+                            <!--/table-->
+
+                            <tr>
+                                <td>
+                                    <div style="border-bottom: solid 3px #4169e1; margin: 10px 0px 0px 0px; word-wrap: break-word; word-break: break-all;">
+                                        <span style="font-size: 20px; color: #4169e1; font-size: 14px;">{!$Label.label_13291}</span>
+                                    </div>
+                                    <div style="margin-top: 3px;">
+                                        <table id="deliveryInfoUserList"></table>
+                                        <div id="deliveryInfoUserListPager"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="border-bottom: solid 3px #4169e1; margin: 10px 0px 0px 0px; word-wrap: break-word; word-break: break-all;">
+                                        <span style="font-size: 20px; color: #4169e1; font-size: 14px;">{!$Label.label_11099}</span>
+                                    </div>
+                                    <div style="margin-top: 3px;">
+                                        <table id="deliveryInfoContentsStatusList"></table>
+                                        <div id="deliveryInfoContentsStatusListPager"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- div id="tab_3" class="tab-div" style="display: none;">
+                        <table id="docList"></table>
+                        <div id="docListPager"></div>
+                    </div -->
+
+                    <div style="background-color: #7593D7; height:50px; width:100%;">
+                        <ul id="delivery_info_tab">
+                            <li id="delivery_info_tab_1" class="delivery_info_tab delivery_info_tab_active">{!$Label.solxyzcso001__label_10441}</li>
+                            <li id="delivery_info_tab_2" class="delivery_info_tab delivery_info_tab_deactive">{!$Label.label_10128}</li>
+                            <!-- li id="delivery_info_tab_3" class="delivery_info_tab delivery_info_tab_deactive">{!$Label.label_10474}</li -->
+                        </ul>
+                    </div>
+                </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+
+    <!-- 宛先情報モーダル -->
+    <div id="addresssDiv" style="display: none;" title="{!$Label.label_13277}">
+        <table id="searchTable" cellspacing="5">
+            <tr>
+                <th>{!$Label.label_13278}</th>
+                <td id="divAddress"></td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_13279}</th>
+                <td id="divTelNumber"></td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_13280}</th>
+                <td id="divCompName"></td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_13284}</th>
+                <td id="divSectionName"></td>
+            </tr>
+        </table>
+        <div style="text-align: right; margin-top: 5px;">
+            <a id="informationLink" href="#">{!$Label.label_13281}</a>
+        </div>
+    </div>
+
+    <div id="copyright" >{!$Label.label_00001}</div>
+    <div id="decodeWork" style="display:none;"></div>
+</div>
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+<div id="preview-area" style="display: none;"></div>
+</apex:page>

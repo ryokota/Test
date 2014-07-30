@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<apex:page showHeader="false" sidebar="false"  controller="SOLXYZCSO001.DocumentMoviePlayerController" tabStyle="ContentTab__tab" cache="false" action="{!init}">
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.showErrPage == true,false,true)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/blue.monday/jplayer.blue.monday.css')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/font_ja.css')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/font_en.css')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/font_zh.css')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.history.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jplayer.min.js?20130220')}" />
+
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<!-- CSOコンテキストメニュー -->
+<apex:include pageName="SOLXYZCSO001__CsoContextMenu"/>
+
+<script type="text/javascript">
+var moviePlayer_no_solution = 0;
+$(document).ready(function(){
+	var url = _apiUrl + "{!contentsPath}?spaceId={!spaceId}&contentsId={!contentsId}";
+	var sol = "flash,html";
+	var bt = getBrowserType();
+	if (bt.match(/^IE/ || bt.match(/Firefox/))) {
+		sol = "flash";
+	}
+	var path = "{!contentsPath}";
+	var index = path.lastIndexOf(".");
+	var ex = "";
+	if (index >= 0) {
+		ex = path.substring(index + 1);
+		if (ex.toLowerCase() == "mp4") {
+			ex = "m4v";
+		}
+	}
+
+	$.jPlayer.timeFormat.showHour = true;
+    $("#jquery_jplayer_1").jPlayer({
+        ready: function () {
+        },
+        swfPath: "{!URLFOR($Resource.Jplayerflash, 'Jplayer.swf')}",
+        supplied: ex.toLowerCase(),
+        solution : sol,
+        size: { width: "540px", height: "304px"},
+        error : function(e) {
+            if (e.jPlayer.error.type != null && e.jPlayer.error.type == "e_no_solution"){
+                //Flashがない場合
+                moviePlayer_no_solution = 1;
+            }else{
+                if(moviePlayer_no_solution == 1 && e.jPlayer.error.type == "e_no_support") {
+                    //Flashがない場合
+                    moviePlayer_no_solution = 0;
+                }else{
+                    alert('{!$Label.msg_01005}');
+                    window.close();
+                }
+            }
+        }
+//         errorAlerts : true,
+//         warningAlerts : true,
+      });
+
+      //再生ファイルが存在するかポーリングする
+      checkContent();
+
+});
+
+function checkContent() {
+
+	var callbackCheckContent = function(data){
+			if (data !== null) {
+				if(data.result === 1) {
+					//ファイルが存在する
+					playFileExists = true;
+					setTimeout('setMovieURL()', 1000);
+				}else if(data.result === 0) {
+					//ファイルがない
+					setTimeout('checkContent()', 3000);
+				}else {
+					//エラー
+				}
+			}
+	}
+
+	secureGetAsync('/contentsmanagement/CheckPlayApi.json', {"path" : "{!contentsPath}?spaceId={!spaceId}&contentsId={!contentsId}"}, callbackCheckContent);
+
+}
+
+function setMovieURL() {
+	var path = "{!contentsPath}";
+	var url = _apiUrl + "{!contentsPath}?spaceId={!spaceId}&contentsId={!contentsId}";
+	var index = path.lastIndexOf(".");
+	var ex = "";
+	if (index >= 0) {
+		ex = path.substring(index + 1);
+
+		if (ex.toLowerCase() == "mp4") {
+			ex = "m4v";
+		}
+	}
+	var media = {};
+	media[ex] = url;
+	$("#jquery_jplayer_1").jPlayer("setMedia", media);
+
+	$("#loadingMask").hide();
+	$("#loadingImg").hide();
+}
+</script>
+
+<style type="text/css">
+div.jp-video-270p {
+	width:540px;
+}
+
+div.jp-video-full {
+	/* Rules for IE6 (full-screen) */
+	width:540px;
+	height:304px;
+	/* Rules for IE7 (full-screen) - Otherwise the relative container causes other page items that are not position:static (default) to appear over the video/gui. */
+	position:static !important; position:relative
+}
+
+div.jp-video-270p div.jp-video-play {
+	height:304px;
+}
+
+#playerContainerWrapper {
+	margin-left:auto;
+	margin-right:auto;
+	/*text-align:left;*/
+	width:540px;
+	/*height:1025px;*/
+}
+
+.wrapper {
+	margin-left:auto;
+	margin-right:auto;
+	/*text-align:left;*/
+	width:720px;
+	/*height:1025px;*/
+}
+
+#HeaderArea{
+	height:85px;
+}
+
+#HeaderArea img{
+	width:300px;
+	height:54px;
+	margin-top:10px;
+}
+
+#fileName {
+	font-weight:bold;
+	font-size:21px;
+}
+
+#tagTbl {
+	margin:10px 0px 20px 0px;;
+}
+#labelTag {
+	border: 1px solid #81C3E4;
+	background-color:#F0F4F9;
+	/*color:#666666;*/
+	padding: 4px 15px 6px 10px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	height:20px;
+	width:54px;
+}
+
+#titleImg {
+	 width: 22px;
+	 margin-right:10px;
+	 margin-bottom:-7px;
+}
+
+#explanationBox {
+	margin:20px 0px;
+}
+
+#explanation {
+/*	height:200px;
+	averflow:auto;*/
+	padding:5px 10px 10px 10px ;
+}
+
+.blueLetters{
+	color:blue;
+}
+
+#propertyTbl th {
+	font-weight:bold;
+	padding-right:10px;
+}
+#propertyTbl td {
+	padding-right:20px;
+}
+
+div.jp-current-time, div.jp-duration {
+	font-size:1em;
+}
+
+.versionSelectorHeight {
+	line-height:24px;
+}
+
+#versionMenu {
+	position: absolute;
+	border : solid 1px;
+	width:100px;
+	display:none;
+}
+
+.jp-controls > li, .jp-toggles li {
+	margin-left:0px;
+}
+
+#loadingMask {
+	position: absolute;
+	z-index: 1050;
+	background-color: #000000;
+	min-width: 542;
+	width:542px;
+	height:383px;
+	opacity:0.5;
+	-ms-filter: "alpha(opacity=50)";
+}
+#loadingImg {
+	position: absolute;
+	top: 300px;
+	left: 49%;
+	width: 24px;
+	height: 24px;
+	z-index: 1050;
+}
+</style>
+
+    <div class="wrapper">
+
+        <div id = "HeaderArea">
+            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/CSO_logo_4loginpage.png')}" alt="logo" title="logo"/>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <span id = "fileName">{!docName}</span>
+        </div>
+    </div>
+
+    <div id = "playerContainerWrapper">
+      <div id="loadingMask"></div>
+      <img alt="loading" src="{!URLFOR($Resource.cso, 'image/loading2.gif')}"  id="loadingImg"/>
+      <div id="jp_container_1" class="jp-video ">
+        <div class="jp-type-single">
+          <div id="jquery_jplayer_1" class="jp-jplayer"></div>
+          <div class="jp-gui">
+            <div class="jp-video-play">
+              <a href="javascript:;" class="jp-video-play-icon" tabindex="1" title="{!$Label.label_11000}">{!$Label.label_11000}</a>
+            </div>
+            <div class="jp-interface">
+              <div class="jp-progress">
+                <div class="jp-seek-bar">
+                  <div class="jp-play-bar"></div>
+                </div>
+              </div>
+              <div class="jp-current-time"></div>
+              <div class="jp-duration"></div>
+              <div class="jp-controls-holder">
+                <ul class="jp-controls">
+                  <li><a href="javascript:;" class="jp-play" tabindex="1" title="{!$Label.label_11000}">{!$Label.label_11000}</a></li>
+                  <li><a href="javascript:;" class="jp-pause" tabindex="1" title="{!$Label.label_11001}">{!$Label.label_11001}</a></li>
+                  <li><a href="javascript:;" class="jp-stop" tabindex="1" title="{!$Label.label_11002}">{!$Label.label_11002}</a></li>
+                  <li><a href="javascript:;" class="jp-mute" tabindex="1" title="{!$Label.label_11003}">{!$Label.label_11003}</a></li>
+                  <li><a href="javascript:;" class="jp-unmute" tabindex="1" title="{!$Label.label_11004}">{!$Label.label_11004}</a></li>
+                  <li><a href="javascript:;" class="jp-volume-max" tabindex="1" title="{!$Label.label_13276}">{!$Label.label_13276}</a></li>
+                </ul>
+                <div class="jp-volume-bar">
+                  <div class="jp-volume-bar-value"></div>
+                </div>
+                <ul class="jp-toggles">
+                  <li><a href="javascript:;" class="jp-full-screen" tabindex="1" title="{!$Label.label_11005}">{!$Label.label_11005}</a></li>
+                  <li><a href="javascript:;" class="jp-restore-screen" tabindex="1" title="{!$Label.label_11006}">{!$Label.label_11006}</a></li>
+                  <li><a href="javascript:;" class="jp-repeat" tabindex="1" title="{!$Label.label_11007}">{!$Label.label_11007}</a></li>
+                  <li><a href="javascript:;" class="jp-repeat-off" tabindex="1" title="{!$Label.label_11008}">{!$Label.label_11008}</a></li>
+                </ul>
+              </div>
+              <div class="jp-title">
+                <ul>
+                  <!-- <li>${fn:escapeXml(name)}</li>  -->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="jp-no-solution">
+            <span>{!$Label.msg_01000}</span>
+            {!$Label.msg_01001}<a href="http://get.adobe.com/flashplayer/" target="_blank">{!$Label.msg_01002}</a>{!$Label.msg_01003}
+          </div>
+        </div>
+      </div>
+    </div>
+</apex:outputPanel>
+</apex:page>

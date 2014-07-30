@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Milestone1_Project__c.Milestone_Permission__r$Name</field>
+    </columns>
+    <columns>
+        <field>Milestone1_Project__c.Milestone_Permission__r$UserName__c</field>
+    </columns>
+    <columns>
+        <field>Milestone1_Project__c.Milestone_Permission__r$ProjectRole__c</field>
+    </columns>
+    <filter>
+        <criteriaItems>
+            <column>Milestone1_Project__c$RecordType</column>
+            <operator>equals</operator>
+            <value>Milestone1_Project__c.CokeOne</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>Milestone1_Project__c.Milestone_Permission__r$UserName__c</column>
+            <operator>equals</operator>
+            <value>Oberoi Amit</value>
+        </criteriaItems>
+        <language>ja</language>
+    </filter>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Milestone1_Project__c$Name</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>CokeOne - Team Member by Project</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Project_with_Team_member__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>Milestone1_Project__c$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

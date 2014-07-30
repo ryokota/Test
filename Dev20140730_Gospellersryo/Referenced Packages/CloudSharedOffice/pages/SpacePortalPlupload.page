@@ -1,0 +1,572 @@
+<apex:page showheader="false" sidebar="false">
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.plupload.queue.css')}"/>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.plupload.queue.js')}"/>
+<script type="text/javascript">
+var chunksize = 1 * 1024 * 1024;
+var isDDAreaShow = false;
+var ddAreaEventtime = 0;
+var isFile = false;
+var uploadedfiles = new Array();
+var docInfoList = new Array();
+var upload_token = '';
+var updateFile;
+var uploading = false;
+var settimeoutFlg = true;
+var errFiles = new Array();
+var chatter_comment = false;
+var chatter_direct = false;
+var chatter_files = '';
+var space = '';
+var operation = '';
+var groupid = '';
+
+$(function(){
+
+    if(getBrowserType() != "IE8" || getBrowserType() != "IE9"){
+
+        $("#uploaderProgressTotal").progressbar({value: 0});
+        $("#uploaderProgressFile").progressbar({value: 0});
+
+        plupload.addI18n({
+            'Drag files here.' : '{!$Label.label_13155}',
+        });
+
+        $("#bodyTable").bind("dragenter", function(e){
+            ddAreaEventtime = e.timeStamp;
+            if(!isDDAreaShow && $("#uploadButton").is(":visible") && $("#listView1").is(":visible") && !uploading && !isModalShow()){
+                $("body").css("overflow-x","hidden");
+                $("#uploader").fadeIn("fast");
+                $("#uploader_filelist").css({
+                    width:$("#bodyTable").width() - 21,
+                    height:$("#bodyTable").height() + 41,
+                });
+                $(".plupload_droptext").css({
+                    "background-color" : "#4169E1",
+                    "color" : "#FFFFFF",
+                    "line-height" : "10px",
+                    "height" : "21px",
+                    "margin" : "auto",
+                    "padding-top" : "13px"
+                });
+                $("#uploader_filelist").addClass("pl-drop-area");
+                if(settimeoutFlg){
+                    setTimeout("closeDDArea(false)", 5000);
+                    settimeoutFlg = false;
+                }
+                isDDAreaShow = true;
+                isFile = false;
+            }
+        });
+        
+        $("#bodyTable").bind("dragleave", function(e){
+            if(e.layerX == 0) closeDDArea(true);
+        });
+
+        $("#bodyTable").bind("drop", function(e){
+            if(!isFile){
+                alert("{!$Label.msg_01147}");
+                closeDDArea(true);
+            }
+        });
+        
+        $(window).bind("beforeunload", function(e){
+            if(uploading){
+                return "";
+            }
+        });
+        
+        $("#bodyTable").bind("initDragDrop", function(e){
+        	if(!uploading){
+				var current_asrt = getAsrt();
+				if((current_asrt != 'garbage')&&
+				   (current_asrt != 'archive')&&
+				   (current_asrt != 'tag')&&
+				   (current_asrt != 'search')){initPL();}
+			}
+        });
+    }
+    
+    $("#uploaderResultErrorTable").jqGrid({
+        data : [],
+        datatype: "local",
+        colNames:[
+            '',
+            '{!$Label.label_13166}',
+            '{!$Label.label_13167}',
+        ],
+        colModel:[
+            {name:'doc_id',index:'doc_id', width:60, hidden:true},
+            {name:'doc_name',index:'doc_name', width:50},
+            {name:'errorMessage',index:'errorMessage',formatter:myFormatter,unformat:myUnformatter},
+        ],
+        sortname: 'doc_name',
+        pager: '#uploaderResultErrorTablePager',
+        width: 350,
+        height: 180,
+        viewrecords: true,
+        shrinkToFit : true,
+        multiselect: false,
+        multiboxonly: true
+    });
+
+    $("#uploaderResultErrorTable").setGridWidth(595);
+    $("#uploaderResultErrorTable").setGridHeight(300);
+
+    $("#uploaderResultErrorDialog").dialog({
+        modal: true,
+        resizable: false,
+        width: 620,
+        height: 410,
+        autoOpen: false
+    });
+});
+
+function myFormatter(cellvalue, options, rowObject) {
+    if (rowObject['name_raw'] && !rowObject['__initialized_name']) {
+        rowObject['__initialized_name'] = true;
+        rowObject['name'] = rowObject['name_raw'];
+    }
+
+    if (cellvalue != null) {
+        return $.jgrid.htmlEncode(cellvalue);
+    }
+
+    return "";
+}
+
+function myUnformatter(cellvalue, options, cell) {
+    return cellvalue;
+}
+
+function isModalShow(){
+    if($("#uploaderResultErrorDialog").dialog("isOpen")){
+        return true;
+    }
+    if($("#modalDialogDiv").text() == ""){
+        return false;
+    }
+    return $("#modalDialogDiv").dialog("isOpen");
+}
+
+function initPL(){
+    var fileCount = 0;
+    var contentAddInitUseTokenSpaceId;
+    if (location.href.substring(location.href.indexOf("#")+1).split(":")[1] != "search") {
+        contentAddInitUseTokenSpaceId = getUrlSpaceId();
+    } else {
+        contentAddInitUseTokenSpaceId = space_portal_ref_space_id;
+    }
+    
+    var callback = function(data){
+        upload_token = data.upload_token;
+    };
+    
+    if(getBrowserType() == "IE10" || getBrowserType() == "IE11"){
+        XMLHttpRequest = Sarissa.originalXMLHttpRequest;
+    }
+    secureGetAsync('/contentsmanagement/contentsAddInitUseToken.json?spaceId=' + contentAddInitUseTokenSpaceId, '', callback);
+    
+    $("#uploader").pluploadQueue({
+        runtimes            : "html5",
+        url                 : _apiUrl + '/contentsmanagement/contentsAddUseToken.json',
+        chunk_size          : chunksize,
+        unique_names        : true,
+        dragdrop            : true,
+        preinit             : {
+            Init :
+                function(uploader) {
+                    $("#uploaderCancelLink").click(function(e){
+                        uploader.stop();
+                        initPL();
+                        closeProgress();
+                        isDDAreaShow = false;
+                        uploading = false;
+                    });
+                }
+        },
+        init                : {
+            FilesAdded :
+                function (uploader, files) {
+                try{
+                    $("#uploaderResult").hide();
+                    for (var i = uploader.files.length - 1; i >= 0; i--) {
+                        var name = uploader.files[i].name;
+                        var duplicate = false;
+    
+                        if(files[i] && files[i].office){
+                            alert('{!$Label.msg_00167}');
+                            duplicate = true;
+                        }else{
+                            for (var j = 0; j < i; j++) {
+                                if (name == uploader.files[j].name) {
+                                    duplicate = true;
+                                    break;
+                                }
+                            }
+                        }
+    
+                        if (duplicate || uploading) {
+                            uploader.removeFile(uploader.files[i]);
+                        }
+                        
+                        files[i].space = contentAddInitUseTokenSpaceId;
+                    }
+    
+                    isFile = true;
+                    uploadedfiles = new Array();
+                    docInfoList = new Array();
+                    errFiles = new Array();
+                    fileCount = uploader.files.length;
+                    $("#uploaderResultErrorTable").jqGrid("clearGridData");
+                    
+                    showProgress();
+                    closeDDArea(true);
+                    $("#uploaderResult").css("background-color", "rgba(0,0,0,0.65)");
+                    uploader.start();
+                    uploading = true;
+                }catch(e){
+                    console.info(e);
+                }
+            },
+            QueueChanged : function (uploader) {
+            },
+
+            BeforeUpload : function(uploader, file) {
+                if (file.size == 0) {
+                   delete uploader.settings.chunk_size;
+                } else {
+                    uploader.settings.chunk_size = chunksize;
+                }
+                
+                if(uploader.settings.url.indexOf('?upload_token=' + upload_token) < 0){
+                    uploader.settings.url = uploader.settings.url + '?upload_token=' + upload_token;
+                }
+
+                uploader.settings.multipart_params = {
+                    //新規バージョン 値を指定するか
+                    spaceId : file.space,
+                    checkNewVersion : 0,
+                    verNewMajor : 0,
+                    verNewMinor : 0,
+                    verNewRevision : 0,
+                    verNewBuild : 0,
+                    //更新バージョン 簡易バージョンか指定するか
+                    verUpType : "auto",
+                    //簡易Verアップか
+                    verUp : "on",
+                    verUpMajor : 0,
+                    verUpMinor : 0,
+                    verUpRevision : 0,
+                    verUpBuild : 0,
+                    explanation : "",
+                    comment : "",
+                    //バージョン
+                    versionkind : 1,
+                    tagNames:"",
+                    upload_token : upload_token,
+                    filename : file.name,
+                    spaceid : file.space,
+                    lifeCycle : {},
+                };
+            },
+
+            FileUploaded : function (uploader, file, obj) {
+
+                if (!('response' in obj)) {
+                    return false;
+                }
+
+                var resp = typeof obj.response == "string" ? JSON.parse(obj.response) : obj.response;
+                if (!('docId' in resp)) {
+                    return false;
+                }
+
+                var docInfo = new Object();
+                docInfo["doc_id"] = resp.docId;
+                docInfo["doc_name"] = resp.docName;
+                docInfo["doc_path"] = resp.savePath;
+                docInfo["size"] = resp.size;
+                docInfo["error"] = resp.error;
+                docInfo["errorMessage"] = resp.message;
+                docInfo["contentType"] = resp.contentType;
+                docInfo["explanation"] = resp.explanation;
+                docInfo["comment"] = resp.comment;
+                docInfo["version"] = resp.version;
+                docInfo["updateuser"] = resp.updateuser;
+                docInfo["updatedate"] = resp.updatedate;
+                docInfo["registdate"] = resp.registdate;
+                docInfoList.push(docInfo);
+
+                uploadedfiles.push(file);
+                updateFile = resp.updateFile;
+            },
+
+            UploadProgress : function(uploader, file){
+                $("#uploaderProgressTotal").progressbar("value", uploader.total.percent);
+                $("#uploaderProgressFile").progressbar("value", file.percent);
+                $("#uploaderProgressText").html(getMsg(new Array(uploader.total.uploaded, fileCount), "{!$Label.msg_01148}"));
+            },
+
+            UploadComplete : function(uploader, files) {
+                var callback = function(data){
+                    if(!data.result){
+                        alert(data.message);
+                        return;
+                    }
+                    
+                    chatter_comment = data.chatter_comment;
+                    chatter_direct = data.chatter_direct;
+                    chatter_files = data.chatter_files;
+                    space = data.space;
+                    operation = data.operation;
+                    groupid = data.groupid;
+                    
+                    if('{!$User.CSOChatter__c}' == 'true'){
+                        if(chatter_direct == true){
+                            sendChatterComment(chatter_files, space, operation, groupid);
+                        }
+                        if(chatter_comment == true){
+                            displayChatterComment(chatter_files, space, operation, groupid);
+                        }
+                    }
+                    
+                    if(reloadNow){
+                        if(data.moved){
+                            openUploadInfo();
+                        }
+                        reloadNow();
+                    }
+                };
+                var callerror = function(data){
+                    alert(data);
+                };
+                var serverUrl = window.location.protocol + "//" + window.location.host;
+                securePostAsync('/contentsmanagement/contentsAddConfirm.json', {docInfoList : JSON.stringify(docInfoList), updateFile : updateFile, url : serverUrl}, callback, callerror);
+                closeProgress();
+                isDDAreaShow = false;
+                uploading = false;
+                
+                for(var i in docInfoList){
+                    if(docInfoList[i].error){
+                        $("#uploaderResult").css("background-color", "rgba(255,0,0,0.65)");
+                        errFiles.push(docInfoList[i]);
+                    }
+                }
+                
+                var $a = $("<a>").attr("href", "javascript:showUploadError();").text("{!$Label.label_13164}");
+                if(files.length > 1){
+                    if(errFiles.length > 0){
+                        $("#uploadResultText").text(getMsg(new Array((files.length - errFiles.length) + "", errFiles.length + ""), "{!$Label.msg_01151}")).append($a);
+                    } else {
+                        $("#uploadResultText").text(getMsg(new Array(files.length + ""), "{!$Label.msg_01149}"));
+                    }
+                }else{
+                    if(errFiles.length > 0){
+                        $("#uploadResultText").html(getMsg(new Array(files[0].name), "{!$Label.msg_01152}")).append($a);
+                    } else {
+                        $("#uploadResultText").text(getMsg(new Array(files[0].name), "{!$Label.msg_01150}"));
+                    }
+                }
+                $("#uploaderResult").fadeIn("slow");
+                if(errFiles.length == 0){
+                    setTimeout("onClickResultField();", 5000);
+                }
+                
+                reloadGrid();
+            },
+
+            Error : function (uploader, error) {
+            },
+
+            StateChanged : function(uploader) {
+            }
+        }
+    });
+}
+
+function showUploadError(){
+    if($("#uploaderResultErrorTable").jqGrid("getDataIDs").length == 0){
+        for(var i in errFiles){
+            $("#uploaderResultErrorTable").jqGrid("addRowData", errFiles[i].doc_id, errFiles[i]);
+        }
+    }
+    $("#uploaderResultErrorTable").trigger("reloadGrid");
+    $("#uploaderResultErrorDialog").dialog("open");
+}
+
+function closeDDArea(f){
+    $("#uploader").hide();
+    isDDAreaShow = false;
+    if(!f){
+        settimeoutFlg = true;
+    }
+}
+
+function showProgress(){
+    setProgressStatus(1);
+    $("#collapaseExpandImg").attr("src", "{!URLFOR($Resource.cso, 'image/down-arrow.png')}");
+    $("#uploaderProgressInfomation").animate({"bottom": "+=110px"},"slow");
+}
+
+function closeProgress(){
+    switch(getProgressStatus()){
+    case 0:
+        return;
+    case 1:
+        $("#uploaderProgressInfomation").animate({"bottom": "-=110px"},"slow");
+        break;
+    case 2:
+        $("#uploaderProgressInfomation").animate({"bottom": "-=25px"},"slow");
+        break;
+    }
+    setProgressStatus(0);
+}
+
+/*
+ * 0:非表示
+ * 1:表示（最大化）
+ * 2:表示（最小化）
+ */
+function getProgressStatus(){
+    return $("#uploaderProgressInfomation").attr("status") - 0;
+}
+
+/*
+ * 0:非表示
+ * 1:表示（最大化）
+ * 2:表示（最小化）
+ */
+function setProgressStatus(v){
+    $("#uploaderProgressInfomation").attr("status", v);
+}
+
+function collapseExpandUploadProgress(){
+    if(getProgressStatus() == 1){
+        setProgressStatus(2);
+        $("#collapaseExpandImg").attr("src", "{!URLFOR($Resource.cso, 'image/up-arrow.png')}");
+        $("#uploaderProgressInfomation").animate({"bottom": "-=75px"},"slow");
+    }else{
+        setProgressStatus(1);
+        $("#collapaseExpandImg").attr("src", "{!URLFOR($Resource.cso, 'image/down-arrow.png')}");
+        $("#uploaderProgressInfomation").animate({"bottom": "+=75px"},"slow");
+    }
+}
+
+function onClickResultField(){
+    $("#uploaderResult").fadeOut("slow");
+}
+</script>
+<style type="text/css">
+.pl-drop-area{
+    position: relative;
+    top: 1870px;
+    left: -18px;
+    border-bottom: solid royalblue 11px;
+    border-right: solid royalblue 11px;
+    border-left: solid royalblue 11px;
+    background-color: rgba(100,100,100,0.1) !important;
+    overflow: hidden !important;
+    z-index: 100;
+}
+
+#uploader{
+    display: none;
+    position: absolute;
+    top: -2000px;
+}
+
+#uploader_filelist > li{
+    display: none;
+}
+
+.plupload_droptext{
+    display: block !important;
+    font-size: 32px;
+}
+
+#uploaderProgressInfomation{
+    position: fixed;
+    bottom: -115px;
+    right: 0px;
+    width: 350px;
+    height: 80px;
+    background-color: #1e90ff;
+    border-top: solid 2px #1e90ff;
+    border-left: solid 4px #1e90ff;
+    padding: 20px 0px 0px 0px;
+}
+
+.uploaderProgress, .uploaderProgress > div{
+    margin-bottom: 10px;
+    border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    height: 1em;
+}
+
+#uploaderProgressInfomationArea{
+    background-color: white;
+    padding: 5px 5px 0px 5px;
+}
+
+#uploaderResult{
+    position: absolute;
+    top: 8px;
+    left: 600px;
+    padding: 13px;
+    color: white;
+    background-color:rgba(0,0,0,0.65);
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+}
+
+#uploaderResult img{
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+#uploaderResult span{
+    vertical-align: middle;
+}
+
+#uploaderResult a{
+    color: #112233;
+    text-decoration: none;
+    font-weight: bold;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+</style>
+<div id="uploader">{!$Label.msg_00043}</div>
+<div id="uploaderProgressInfomation" status="0">
+    <div style="position: absolute; top: 0px; color: white; font-weight: bold; width: 100%;">
+        <span style="font-weight: bold;">{!$Label.label_13156}</span>
+        <span style="float: right; padding-right: 5px; cursor: pointer;" onclick="collapseExpandUploadProgress();"><img src="{!URLFOR($Resource.cso, 'image/down-arrow.png')}" id="collapaseExpandImg"/></span>
+    </div>
+    <div id="uploaderProgressInfomationArea">
+        <div id="uploaderProgressTotal" class="uploaderProgress"></div>
+        <div id="uploaderProgressFile" class="uploaderProgress"></div>
+        <div style="padding-bottom: 10px;">
+            <span id="uploaderProgressText"></span>
+            <a href="javascript:void(0);" id="uploaderCancelLink" style="text-decoration: none; font-weight: bold; padding-left: 10px;">[{!$Label.field_common_cancel}]</a>
+        </div>
+    </div>
+</div>
+
+<div id="uploaderResult" style="display: none;">
+    <span id="uploadResultText"></span>
+    <img src="{!URLFOR($Resource.cso, 'image/batsu.png')}" onclick="onClickResultField();"/>
+</div>
+
+<div id="uploaderResultErrorDialog" style="display: none;" title="{!$Label.label_13165}">
+    <div>
+        <table id="uploaderResultErrorTable"></table>
+        <div id="uploaderResultErrorTablePager"></div>
+    </div>
+</div>
+</apex:page>

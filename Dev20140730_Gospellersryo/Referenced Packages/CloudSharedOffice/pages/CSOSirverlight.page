@@ -1,0 +1,49 @@
+<apex:page showHeader="false" sidebar="false"  cache="false" controller="SOLXYZCSO001.CSOSilverlightController">
+
+<apex:variable var="foo" value="" rendered="{!shouldRenderPostHelper}">
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/Silverlight.js')}" />
+<script type="text/javascript">
+/*
+ * Silverlightオブジェクト
+ */
+var slCtl = null;
+function pluginLoaded(sender, args){
+    slCtl = sender.getHost();
+}
+
+/**
+ * 基底メソッド(Silverlightベース)
+ */
+function silverlightAccess(__url, __data, __callback, __callerror){
+    var __commonback = function(data){
+        var parseData = JSON.parse(data);
+        __callback(parseData);
+    };
+    if(typeof(__data) != 'string'){
+        __data = JSON.stringify(__data)
+    }
+    slCtl.Content.slApp.Url = _apiUrl + __url;
+    slCtl.Content.slApp.Data = __data;
+    slCtl.Content.slApp.callbackComplete = __commonback;
+//    slCtl.Content.slApp.callbackException = __callerror;
+    slCtl.Content.slApp.Request("POST");
+}
+</script>
+
+<object data="data:application/x-silverlight-2," type="application/x-silverlight-2" width="1" height="1">
+<param name="source" value="{!$Resource.Colorado}"/>
+<param name="onLoad" value="pluginLoaded" />
+<param name="background" value="white" />
+<param name="minRuntimeVersion" value="4.0.50826.0" />
+<param name="autoUpgrade" value="true" />
+<!--
+<a href="https://go.microsoft.com/fwlink/?LinkID=149156&v=4.0.50826.0" style="text-decoration:none">
+ <apex:image url="{!URLFOR($Resource.cso, 'image/SilverlightLogo.png')}" alt="{!$Label.label_00057}" title="{!$Label.label_00057}"/>
+</a>
+-->
+</object>
+
+</apex:variable>
+
+</apex:page>

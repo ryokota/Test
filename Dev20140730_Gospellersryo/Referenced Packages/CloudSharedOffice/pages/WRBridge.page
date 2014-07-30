@@ -1,0 +1,137 @@
+<apex:page showHeader="false" sidebar="false" controller="SOLXYZCSO001.WRBridgeController">
+
+<input type="text" id="load_bridge" style="display:none;" />
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery-1.5.2.min.js')}" />
+
+<script type="text/javascript">
+/*
+ * 読込処理待機用オブジェクト
+ */
+var load_handler = $('#load_bridge');
+
+/*
+ * API呼び出し先URL
+ */
+var _apiUrl = '{!$Label.field_WR_URL}';
+
+/*
+ * SFDCセッションID保持
+ */
+var __sfdcSessionId = '{!GETSESSIONID()}';
+
+/*
+ * ECMセッションID保持
+ */
+var __ecmSessionId = '';
+
+/*
+ * 読込完了フラグ
+ */
+var loadedFlag = false;
+
+/*
+ * 処理実行済みフラグ
+ */
+var execedFlag = false;
+
+</script>
+<script type="text/javascript" src="/soap/ajax/20.0/connection.js"></script>
+<script type="text/javascript" src="/soap/ajax/20.0/apex.js"></script>
+<script type="text/javascript">
+/**
+ * 同期GETメソッド(Deprecated)
+ */
+//function secureGet(__url, __data, __callback, __callerror){
+//    jsonpAccess(__url, __data, false, false, __callback, __callerror);
+//};
+
+/**
+ * 非同期GETメソッド
+ */
+function secureGetAsync(__url, __data, __callback, __callerror){
+    jsonpAccess(__url, __data, true, false, __callback, __callerror);
+};
+
+/**
+ * 同期POSTメソッド
+ */
+function securePost(__url, __data){
+    return toolKitAccess(__url, __data);
+};
+
+/**
+ * 非同期POSTメソッド(Deprecated)
+ */
+function securePostAsync(__url, __data, __callback, __callerror){
+    silverlightAccess(__url, __data, __callback, __callerror);
+};
+
+/*
+ * 基底メソッド(JSONPベース)
+ */
+function jsonpAccess(__url, __data, __sync, __cache, __callback, __callerror){
+
+    // エラーハンドラーが無い場合には標準ハンドラーを使用
+    if(__callerror === undefined){
+        __callerror = exceptionHandler;
+    }
+
+    $.ajax({
+            url     : _apiUrl + __url,
+            // GET固定
+            type    : 'GET',
+            data    : __data,
+            dataType: 'jsonp',
+            sync    : __sync,
+            cache   : __cache,
+            success : function(data, status){
+                          // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+                          if(data.result == false && data.resultInfo == undefined){
+                              alert(data.message);
+                              return;
+                          } else {
+                              // 正常にコールバックを実行する
+                              __callback(data, status);
+                          }
+                      },
+            error   : __callerror
+    });
+}
+
+/**
+ * 基底メソッド(SFDC tool kitベース)
+ */
+function toolKitAccess(__url, __data){
+    /*
+     * レスポンスをパースして返却
+     * エラーハンドリングは呼び出し元で処理する
+     */
+    return JSON.parse(sforce.apex.execute('WRPostService', 'wrPost',{'url':__url, 'data' : JSON.stringify(__data), 'ecmSessionId' : __ecmSessionId}));
+//    try{
+//        return JSON.parse(sforce.apex.execute('WRPostService', 'wrPost',{'url':__url, 'data' : JSON.stringify(__data), 'ecmSessionId' : __ecmSessionId}));
+//
+//        // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+//        if(backData.result == false && backData.resultInfo == undefined){
+//            alert(backData.message);
+//            throw backData.message;
+//        }
+//
+//        // 正常に値を返却する
+//        return backData;
+//    }catch(e){
+//        //alert(' url:[' + __url + ']\n cause:[' + e + ']');
+//    }
+}
+
+/*
+ * 例外ハンドラー
+ */
+var exceptionHandler = function(data, status, throwz){
+    alert(data);
+};
+
+
+</script>
+
+</apex:page>

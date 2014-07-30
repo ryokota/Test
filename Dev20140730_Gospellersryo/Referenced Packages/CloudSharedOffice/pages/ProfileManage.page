@@ -1,0 +1,260 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.ProfileManageController" tabStyle="setting__tab">
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_user_profile_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_user_profile_manage == 'true' && userInfo.showErrPage == false, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+/*
+ * 読込処理
+ */
+jQuery.event.add(window, "load", function(){
+    $(window).resize(resizeGrid);    // ウィンドサイズのリサイズに合わせて表示サイズを変更する
+
+    // jqGridの設定
+    $("#profileList").jqGrid({
+        url:_apiUrl + '/setup/profileListV2Get.json',
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id         : "proId"
+        },
+        colNames:['{!$Label.label_10174}',
+                  '{!$Label.label_10028}',
+                  '',
+                  '{!$Label.label_10804}',
+                  '{!$Label.label_10805}'],
+        colModel:[  {name:'action', index:'action',  width:120, align:"center",sortable:false},
+                    {name:'proName',index:'proName', width:390},
+                    {name:'proId',  index:'proId',   width:230, hidden:true},
+                    {name:'regDate',index:'regDate', width:120, align:"center", hidden:true},
+                    {name:'upDate', index:'upDate',  width:120, align:"center"}
+                 ],
+        autowidth: true,
+        shrinkToFit : true,
+        rowNum:{!userInfo.groupRows},        // 表示件数の初期設定（ユーザごとのデータを保存）
+        height: getBrowserHeight() - 270,    // 高さ  ブラウザの高さ - 287px
+        rowList:[10,50,100],                 // １ページ当たりの表示件数リスト
+        sortname: 'proName',                 // 最初のソート名
+        pager: '#profileListPager',          // フッターの表示箇所を指定
+        viewrecords: true,                   // true = ページャーバーのクエリから総レコードを表示
+        multiselect: true,                   // true = 行の複数の選択肢が有効
+        multiboxonly: true,                  // true = 選択状態の時、行の選択解除はチェックボックスのクリックで行う
+    });
+    // グリッドの表示
+    $("#profileList").jqGrid('navGrid','#profileListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+    resizeGrid();    // 表示サイズの調整
+});
+
+function onRefClicked(id){
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.CSOProfileDetail))}?profileid=' + id;
+}
+
+function onEditClicked(id){
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.CSOProfileEdit))}?profileid=' + id;
+}
+
+/*
+ * 表示サイズの調整
+ */
+function resizeGrid(){
+    var height = getBrowserHeight() - 270;
+    $("#profileList").setGridWidth($("#profileList-container").innerWidth());    
+
+    if (height >= 270) {
+        $("#profileList").setGridHeight(height);
+    }
+}
+
+/*
+ * 一覧の「削除」が押された時の処理
+ */
+function removeRow(id){
+    if(confirm("{!$Label.msg_00049}")){
+        var callback = function(data){
+            CsoScript_loadingStop();
+            if(!data.result){
+                alert(data.message);
+            }
+            $('#profileList').trigger('reloadGrid');    // 一覧をリロード
+        };
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+        CsoScript_loadingStart();
+        securePostAsync('/setup/profileDelete.json', {"delIds":id}, callback, callerror);
+    }
+}
+
+/*
+ * 削除ボタンが押されたときの処理
+ */
+function removeButton(){
+    // システムプロファイルかどうかの判定
+    var allIds = $("#profileList").jqGrid('getGridParam','selarrrow');
+    var ids=new Array();
+    $.each(allIds,function(n,id){
+        if((id.indexOf("SYSTEM_PROFILE_002",0)<0)&&(id.indexOf("SYSTEM_PROFILE_001",0)<0)){
+            ids.push(id);
+        }
+    });
+
+    // ダイアログ表示
+    if(allIds.length == 0){
+        alert("{!$Label.msg_00070}");
+        return false;
+    }else if(ids.length==0){
+        alert("{!$Label.msg_00072}");
+        return false;
+    }else if(confirm("{!$Label.msg_00071}")){
+        $("#deleteIds").val(ids);
+        var callback = function(data){
+            CsoScript_loadingStop();
+            if(!data.result){
+                alert(data.message);
+            }
+            $('#profileList').trigger('reloadGrid');    // 一覧をリロード
+        };
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+        CsoScript_loadingStart();
+        securePostAsync('/setup/profileDelete.json', {"delIds":ids.join(",")}, callback, callerror);
+        return true;
+    }
+    return false;
+}
+
+/*
+ * 検索ダイアログで検索ボタンを押されたときの処理
+ */
+function execSearch(){
+    var proName = $.trim($("#proName").val());    // テキストボックスに入力されたプロファイル名を取得
+
+    $('#profileList').setGridParam({
+        postData : {
+            pn : proName
+        }
+    });
+
+    $('#profileList').trigger('reloadGrid');    // 一覧をリロード
+}
+
+/*
+ * 検索ダイアログでクリアボタンを押されたときの処理
+ */
+function clearCondition(){
+    $("#proName").val("");
+    execSearch();
+}
+
+/*
+ * 検索ダイアログの表示
+ */
+function searchDialog(){
+    $("#searchDiv").dialog({
+        width : 300
+    });
+}
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/h005.png')}" alt="{!$Label.solxyzcso001__label_10083}" title="{!$Label.solxyzcso001__label_10083}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10260}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10083}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <!-- コマンドボタン表示 -->
+                        <div class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="item">
+                                    <!-- 検索ボタン -->
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00069}" onclick="searchDialog();return false;"/>
+                                </li>
+                                <li class="item">
+                                    <!-- 削除ボタン -->
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00072}" onclick="removeButton();return false;"/>
+                                </li>
+                                <li class="last">
+                                    <!-- 新規作成ボタン -->
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00074}" action="{!CreateProfile}"/>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- グリッド -->
+                        <div id="profileList-container">
+                            <table id="profileList"/>
+                            <div id="profileListPager" style="text-align:center;"/>
+                        </div>
+
+                        <!-- 検索ダイアログ -->
+                        <div id="searchDiv" style="display: none;" title="{!$Label.solxyzcso001__label_00069}">
+                            <table class="searchtable" cellspacing="5">
+                                <tr>
+                                    <th>{!$Label.label_10185}</th>
+                                    <td><input type="text" id="proName" class="c_text_m" name="proName" maxlength="255" /></td>
+                                </tr>
+                            </table>
+                            <div style="text-align: center; margin-top: 5px;">
+                                <input type="submit" class="btn" value='{!$Label.solxyzcso001__label_00069}' onclick="execSearch();return false;"/>
+                                <input type="button" class="btn" value='{!$Label.label_00070}' onclick="clearCondition();return false;" />
+                            </div>
+                        </div>
+                        <!-- 削除ID -->
+                        <input type="hidden" id="deleteIds" name="deleteIds" />
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.uid == null && userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

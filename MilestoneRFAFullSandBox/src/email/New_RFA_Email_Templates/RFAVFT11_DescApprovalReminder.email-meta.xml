@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Template containing instructions to modify/update the Approval Batch reminder email content</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>RFAVFT11 Desc ApprovalReminder</name>
+    <style>none</style>
+    <subject>INSTRUCTIONS : Steps to modify Batch Approval Reminder Email</subject>
+    <type>custom</type>
+</EmailTemplate>

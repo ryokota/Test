@@ -1,0 +1,533 @@
+<apex:page standardController="RFA__c" sidebar="false">
+<style>
+.borderTable {
+
+    border: solid 1px black;
+    border-color:#ECECEC;
+    border-collapse:collapse;
+    padding: 5px;
+    width : 100%;
+}
+.borderTable th{
+    font-weight: bold;
+    height:20px;
+    width:20px;
+    white-space: normal;
+    border: 1px solid black;
+    background-color: #d60016;
+    color: #FFFFFF;
+}
+.borderTable td{
+    white-space: normal;
+    height:20px;
+    width:20px;
+}
+
+.tdBorder {
+    border: 1px solid black;
+}
+.tdLeftNotBorder {
+    border: 1px solid black;
+    border-left-style:none;
+}
+.tdRightNotBorder {
+    border: 1px solid black;
+    border-right-style:none;
+}
+
+span.dateFormat {display: none;}
+</style>
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+    inputDisable();
+});
+
+function inputEnable(){
+	$j("input[id$=SaveButton]").show();
+    $j("input[id$=CancelButton]").show();
+    $j("input[id$=editButton]").hide();
+    $j("input[type=text]").removeAttr("disabled");
+    $j("input[type=text]").removeClass("disabled");
+    //$j("input[type=text]").attr("disabled","");
+    //$j("input[type=text]").addClass("disabled");
+}
+
+function inputDisable(){
+	$j("input[id$=SaveButton]").hide();
+    $j("input[id$=CancelButton]").hide();
+    $j("input[id$=editButton]").show();
+    $j("input[type=text]").attr("disabled", true);
+    $j("input[type=text]").addClass("disabled");
+    //$j("input[type=text]").attr("disabled","disabled");
+}
+</script>
+    <apex:form >
+    	<table>
+    		<tr >
+    			<td align="center">
+    				<input type="button" class="btn" value="Edit" onclick="inputEnable()" id="editButton" />
+    				<input type="button" class="btn" value="Save" onclick="inputDisable()" id="SaveButton"  />&nbsp;
+        			<input type="button" class="btn" value="Cancel" onclick="inputDisable()" id="CancelButton" />
+        			</td>
+    		</tr>
+    	</table>
+    	<apex:outputPanel id="listPanel">
+	        <table>
+	        	<tr>
+	        		<td>
+	        		年度
+	        		</td>
+	        		<td>
+		        		<select name="年度" size="1">
+							<option value=""></option>
+							<option value="2014">2014</option>
+							<option value="2015">2015</option>
+							<option value="2016">2016</option>
+							<option value="2017">2017</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+        <H1>Saving※百万（MM)単位表示</H1>
+	        <table class="borderTable" >
+	        	<tr>
+	        		<th>Name</th>
+	        		<th>Function</th>
+	        		<th width="20px">Q1</th>
+	        		<th>Q2</th>
+	        		<th>Q3</th>
+	        		<th>Q4</th>
+	        		<th>2013</th>
+	        		<th>Q1</th>
+	        		<th>Q2</th>
+	        		<th>Q3</th>
+	        		<th>Q4</th>
+	        		<th>2014</th>
+	        		<th>2015</th>
+	        		<th>2016</th>
+	        		<th>2017</th>
+	        		<th>Total</th>
+	        	</tr>
+	        	<tr>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value="" selected="selected"></option>		        		
+							<option value="Spending Capex">Spending Capex</option>
+							<option value="Spending Opex">Spending Opex</option>
+							<option value="Saving Capex">Saving Capex</option>
+							<option value="Saving Opex">Saving Opex</option>
+							<option value="Net Savings">Net Savings</option>
+						</select>
+	        		</td>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value=""></option>
+							<option value="Commercial">Commercial</option>
+							<option value="Supply Chain">Supply Chain</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Procurement">Procurement</option>
+							<option value="IT">IT</option>
+							<option value="BI">BI</option>
+							<option value="PAC">PAC</option>
+							<option value="Legal">Legal</option>
+						</select>
+					</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        	</tr>
+	        	<tr>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value="" selected="selected"></option>		        		
+							<option value="Spending Capex">Spending Capex</option>
+							<option value="Spending Opex">Spending Opex</option>
+							<option value="Saving Capex">Saving Capex</option>
+							<option value="Saving Opex">Saving Opex</option>
+							<option value="Net Savings">Net Savings</option>
+						</select>
+	        		</td>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value=""></option>
+							<option value="Commercial">Commercial</option>
+							<option value="Supply Chain">Supply Chain</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Procurement">Procurement</option>
+							<option value="IT">IT</option>
+							<option value="BI">BI</option>
+							<option value="PAC">PAC</option>
+							<option value="Legal">Legal</option>
+						</select>
+					</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        	</tr>
+	        	<tr>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value="" selected="selected"></option>		        		
+							<option value="Spending Capex">Spending Capex</option>
+							<option value="Spending Opex">Spending Opex</option>
+							<option value="Saving Capex">Saving Capex</option>
+							<option value="Saving Opex">Saving Opex</option>
+							<option value="Net Savings">Net Savings</option>
+						</select>
+	        		</td>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value=""></option>
+							<option value="Commercial">Commercial</option>
+							<option value="Supply Chain">Supply Chain</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Procurement">Procurement</option>
+							<option value="IT">IT</option>
+							<option value="BI">BI</option>
+							<option value="PAC">PAC</option>
+							<option value="Legal">Legal</option>
+						</select>
+					</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        	</tr>
+	        	<tr>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value="" selected="selected"></option>		        		
+							<option value="Spending Capex">Spending Capex</option>
+							<option value="Spending Opex">Spending Opex</option>
+							<option value="Saving Capex">Saving Capex</option>
+							<option value="Saving Opex">Saving Opex</option>
+							<option value="Net Savings">Net Savings</option>
+						</select>
+	        		</td>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value=""></option>
+							<option value="Commercial">Commercial</option>
+							<option value="Supply Chain">Supply Chain</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Procurement">Procurement</option>
+							<option value="IT">IT</option>
+							<option value="BI">BI</option>
+							<option value="PAC">PAC</option>
+							<option value="Legal">Legal</option>
+						</select>
+					</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        	</tr>
+	        	<tr>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value="" selected="selected"></option>		        		
+							<option value="Spending Capex">Spending Capex</option>
+							<option value="Spending Opex">Spending Opex</option>
+							<option value="Saving Capex">Saving Capex</option>
+							<option value="Saving Opex">Saving Opex</option>
+							<option value="Net Savings">Net Savings</option>
+						</select>
+	        		</td>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value=""></option>
+							<option value="Commercial">Commercial</option>
+							<option value="Supply Chain">Supply Chain</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Procurement">Procurement</option>
+							<option value="IT">IT</option>
+							<option value="BI">BI</option>
+							<option value="PAC">PAC</option>
+							<option value="Legal">Legal</option>
+						</select>
+					</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        	</tr>
+	        	<tr>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value="" selected="selected"></option>		        		
+							<option value="Spending Capex">Spending Capex</option>
+							<option value="Spending Opex">Spending Opex</option>
+							<option value="Saving Capex">Saving Capex</option>
+							<option value="Saving Opex">Saving Opex</option>
+							<option value="Net Savings">Net Savings</option>
+						</select>
+	        		</td>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value=""></option>
+							<option value="Commercial">Commercial</option>
+							<option value="Supply Chain">Supply Chain</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Procurement">Procurement</option>
+							<option value="IT">IT</option>
+							<option value="BI">BI</option>
+							<option value="PAC">PAC</option>
+							<option value="Legal">Legal</option>
+						</select>
+					</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        	</tr>
+	        	<tr>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value="" selected="selected"></option>		        		
+							<option value="Spending Capex">Spending Capex</option>
+							<option value="Spending Opex">Spending Opex</option>
+							<option value="Saving Capex">Saving Capex</option>
+							<option value="Saving Opex">Saving Opex</option>
+							<option value="Net Savings">Net Savings</option>
+						</select>
+	        		</td>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value=""></option>
+							<option value="Commercial">Commercial</option>
+							<option value="Supply Chain">Supply Chain</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Procurement">Procurement</option>
+							<option value="IT">IT</option>
+							<option value="BI">BI</option>
+							<option value="PAC">PAC</option>
+							<option value="Legal">Legal</option>
+						</select>
+					</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        	</tr>
+	        	<tr>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value="" selected="selected"></option>		        		
+							<option value="Spending Capex">Spending Capex</option>
+							<option value="Spending Opex">Spending Opex</option>
+							<option value="Saving Capex">Saving Capex</option>
+							<option value="Saving Opex">Saving Opex</option>
+							<option value="Net Savings">Net Savings</option>
+						</select>
+	        		</td>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value=""></option>
+							<option value="Commercial">Commercial</option>
+							<option value="Supply Chain">Supply Chain</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Procurement">Procurement</option>
+							<option value="IT">IT</option>
+							<option value="BI">BI</option>
+							<option value="PAC">PAC</option>
+							<option value="Legal">Legal</option>
+						</select>
+					</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        	</tr>
+	        	<tr>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value="" selected="selected"></option>		        		
+							<option value="Spending Capex">Spending Capex</option>
+							<option value="Spending Opex">Spending Opex</option>
+							<option value="Saving Capex">Saving Capex</option>
+							<option value="Saving Opex">Saving Opex</option>
+							<option value="Net Savings">Net Savings</option>
+						</select>
+	        		</td>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value=""></option>
+							<option value="Commercial">Commercial</option>
+							<option value="Supply Chain">Supply Chain</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Procurement">Procurement</option>
+							<option value="IT">IT</option>
+							<option value="BI">BI</option>
+							<option value="PAC">PAC</option>
+							<option value="Legal">Legal</option>
+						</select>
+					</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+        	</tr>
+	        	<tr>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value="" selected="selected"></option>		        		
+							<option value="Spending Capex">Spending Capex</option>
+							<option value="Spending Opex">Spending Opex</option>
+							<option value="Saving Capex">Saving Capex</option>
+							<option value="Saving Opex">Saving Opex</option>
+							<option value="Net Savings">Net Savings</option>
+						</select>
+	        		</td>
+	        		<td>
+		        		<select name="Opex" size="1">
+							<option value=""></option>
+							<option value="Commercial">Commercial</option>
+							<option value="Supply Chain">Supply Chain</option>
+							<option value="Finance">Finance</option>
+							<option value="HR">HR</option>
+							<option value="Procurement">Procurement</option>
+							<option value="IT">IT</option>
+							<option value="BI">BI</option>
+							<option value="PAC">PAC</option>
+							<option value="Legal">Legal</option>
+						</select>
+					</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><input type="text"  size="4"/></td>
+	        		<td><Label  size="4"/>0</td>
+	        	</tr>
+	        	<tr>
+	        		<td><Label  size="4"/>Total</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        		<td><Label  size="4"/>0</td>
+	        	</tr>
+	        </table>
+           </apex:outputPanel>
+	</apex:form>
+</apex:page>

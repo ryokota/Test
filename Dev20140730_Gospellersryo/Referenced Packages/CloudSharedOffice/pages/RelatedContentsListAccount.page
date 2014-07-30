@@ -1,0 +1,10 @@
+<apex:page standardController="Account" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Account" showHeader="false" sidebar="false">
+  <apex:variable var="Sf_type" value="Account" />
+  <apex:variable var="Sf_name" value="{!Account.Name}" />
+  <apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Account}" />
+  <apex:variable var="retURL" value="{!'/'&$CurrentPage.parameters.Id}"/>
+<!-- 
+  <apex:include pageName="RelatedContentsList"/>
+ -->
+  <c:RelatedContentsListComp id="relatedContentsListComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

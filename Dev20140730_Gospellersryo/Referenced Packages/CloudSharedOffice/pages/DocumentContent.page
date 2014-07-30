@@ -1,0 +1,1100 @@
+<apex:page showHeader="false" cache="false" sidebar="false" controller="SOLXYZCSO001.SpacePortalController">
+
+<script type="text/javascript">
+
+// Willie: to get rid of the headaches of supporting IE.... please do not remove!
+A4J.AJAX.XMLHttpRequest.prototype._copyAttribute = function (src, dst, attr) {
+    var value = src.getAttribute(attr);
+    if (value) {
+        try {
+            dst.setAttribute(attr, value);
+        } catch (err) {
+            //alert('Error with Salesforce: ' + err.description + '\nattr: ' + attr + '\n');
+        }
+    }
+};
+
+jQuery.event.add(window, "load", function(){
+    if({!IF(cso_userinfo.option_pdfWatermark != 'true', true, false)} == true){
+        $("#contextMenuWatermark").remove();
+    }
+    if({!IF(cso_userinfo.option_pdfSecurity != 'true', true, false)} == true){
+        $("#contextMenuPdfSecurity").remove();
+    }
+    doDelayRenderInit();
+});
+
+/*
+ * ユーザ検索処理
+ */
+function spaceUserManager_searchUser(str){
+    $("#invUserSearchDialog").dialog({
+        width       : 300,
+        height      : 130
+     });
+}
+
+function showTips(o, msgCodes) {
+    var obj = $(o);
+    var offset = obj.offset();
+
+    $(".tooltip").css("left", offset.left)
+    			 .css('top', offset.top - 137)
+    			 .css('position','absolute')
+    			 .css('height','auto')
+    			 .css('width','auto');
+
+    $('.tooltip').html('');
+    var massage = '';
+    for(var i=0; i<msgCodes.length; i++){
+        massage += msgCodes[i];
+    }
+    $('.tooltip').html(massage);
+
+    $(".tooltip").show();
+}
+
+function clickRefreshButton() {
+	disableMenuButton(false);
+	if (!jumpFlag) {
+		reloadTag();
+	} else {
+		init(space_portal_ref_space_id, spName);
+		reloadTree();
+	}
+}
+</script>
+
+<style type="text/css">
+#spacePathFloatMenuDiv a {
+    display:block;
+    text-decoration: none;
+    color: #000;
+    padding:5px;
+    padding-left:10px;
+
+}
+#spacePathFloatMenuDiv a:hover{
+    background-color: #08C;
+    color: #fff;
+}
+#spacePathFloatMenuDiv ul {
+    position:absolute;
+    list-style:none;
+    margin:0;
+    padding:0px;
+    width:160px;
+}
+.dispSetting {
+	margin:5px;
+}
+.dispSettingBtn {
+	margin:2px !important;
+}
+</style>
+
+<!-- コマンドボタン(コンテンツ一覧) -->
+<div class="c_command_l" id="listViewCommand" style="visibility:hidden;">
+    <ul class="c_command_pipe">
+        <li class="item">
+            <!-- アップロードボタン -->
+            <button class="btn c_commandButton" id="uploadButton" style="width:110px;" onclick="contentsRegWinOpen();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/up.png')}" alt="upload" styleClass="c_commandButton_l_img"/>
+                {!$Label.label_10141}
+            </button>
+        </li>
+        <li class="item">
+            <!-- スペース作成ボタン -->
+            <button class="btn c_commandButton" id="createSpaceButton" style="width:120px;" onclick="clickmenubutton($(this));">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/space_new.png')}" alt="create space" styleClass="c_commandButton_l_img"/>
+                {!$Label.solxyzcso001__label_10177}
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/arrow_down.png')}" alt="create space" styleClass="c_commandButton_r_img"/>
+            </button>
+        </li>
+        <li class="item">
+            <!-- 設定ボタン -->
+            <button class="btn c_commandButton" id="settingBtn" style="width:30px;" onclick="clickmenubutton($(this));" title="{!$Label.label_10365}">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/space-setting20120423.png')}" alt="setting" styleClass="c_reload"/>
+            </button>
+        </li>
+        <li class="last">
+            <!-- 更新ボタン -->
+            <button class="btn c_commandButton" id="refreshButton" style="width:30px;" onclick="clickRefreshButton();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/custom_sync.png')}" alt="reload" styleClass="c_reload"/>
+            </button>
+        </li>
+    </ul>
+    <table id="customColumnsSetting" align="right" style="display:none;">
+    	<tr>
+    		<td>
+    			<select id="dispMode" style="width:90px; height:22px;" onchange="onDispModeChange(); return false;">
+    				<option value="DEFAULT">{!$Label.field_common_default}</option>
+    				<option value="CUSTOM">{!$Label.label_13246}</option>
+    			</select>
+    		</td>
+    		<td>
+    			<button class="btn c_commandButton" style="width:30px;" onclick="openDisplaySettingsDialog();">
+    				<apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/list_setting.png')}" styleClass="c_reload"/>
+    			</button>
+    		</td>
+    	</tr>
+    </table>
+</div>
+<!-- コマンドボタン(Webテキスト編集) -->
+<table class="c_command_lcr" cellspacing="0" cellpadding="0" id="editorCommand" style="display:none;">
+<tr>
+    <td class="item_l"></td>
+    <td class="item_c">
+        <!-- 名前を付けて保存ボタン -->
+        <button class="btn c_commandButton" name="topSaveAs" id="topSaveAs" style="width:115px;" onclick="modalDialogDivShow('#filenameArea');">
+            {!$Label.label_10056}
+        </button>
+        <!-- 上書き保存ボタン -->
+        <button class="btn c_commandButton" name="topSaveModified" id="topSaveModified" style="width:80px;" onclick="modifySave()">
+            {!$Label.label_00078}
+        </button>
+        <!-- 新しいバージョンで保存ボタン -->
+        <button class="btn c_commandButton" name="topSaveVersionUp" id="topSaveVersionUp" style="width:150px;" onclick="modalDialogDivShow('#versionkindArea');">
+            {!$Label.label_10055}
+        </button>
+        <!-- 閉じるボタン -->
+        <button class="btn c_commandButton" name="topEndButton" id="topEndButton" style="width:50px;" onclick="closeEditor();">
+            {!$Label.label_00071}
+        </button>
+    </td>
+    <td class="item_r">
+        <select id="encode" onchange="changeEncode();" class="shortWidth" style="margin-right:5px; padding-left:0px;">
+<!--        <option value="UTF-8" <%= "UTF-8".equals(request.getAttribute("encode"))? "selected": ""%>>UTF-8</option>-->
+<!--        <option value="EUC_JP" <%= "EUC_JP".equals(request.getAttribute("encode"))? "selected": ""%>>EUC_JP</option>-->
+<!--        <option value="SJIS" <%= "SJIS".equals(request.getAttribute("encode"))? "selected": ""%>>SJIS</option>-->
+            <option value="MS932">{!$Label.label_00081}</option>
+            <option value="UTF-8">{!$Label.label_00079}</option>
+            <option value="EUC-JP">{!$Label.label_00080}</option>
+        </select>
+    </td>
+</tr>
+</table>
+<!-- コマンドボタン(Webテキスト参照) -->
+<table class="c_command_lcr" cellspacing="0" cellpadding="0" id="ReferCommand" style="display:none;">
+<tr>
+    <td class="item_l"></td>
+    <td class="item_c">
+        <!-- 閉じるボタン -->
+        <button class="btn c_commandButton" name="topEndButton" id="topEndButton" style="width:100px;" onclick="closeviewer();">
+            {!$Label.label_00071}
+        </button>
+        <!-- 編集ボタン -->
+        <button class="btn c_commandButton" name="wtRefEditButton" id="wtRefEditButton" style="width:100px;" onclick="editOnClick();">
+            {!$Label.label_00073}
+        </button>
+    </td>
+    <td class="item_r">
+        <select id="encodeview" onchange="changeViewEncode();" class="shortWidth" style="margin-right:5px; padding-left:0px;">
+            <option value="UTF-8">{!$Label.label_00079}</option>
+            <option value="EUC-JP">{!$Label.label_00080}</option>
+            <option value="MS932">{!$Label.label_00081}</option>
+        </select>
+    </td>
+</tr>
+</table>
+<!-- コマンドボタン(招待者一覧) -->
+<div class="c_command_l" id="invitatiedCommand" style="display : none;">
+    <ul class="c_command_pipe">
+        <li class="last">
+            <!-- ユーザ検索ボタン -->
+            <button class="btn c_commandButton" id="spaceUserManager_spaceUserWizard" style="width:90px;" onclick="spaceUserManager_searchUser();">
+                {!$Label.label_wf_00029}
+            </button>
+        </li>
+        <li class="last">
+            <!-- ユーザを招待ボタン -->
+            <button class="btn c_commandButton" id="spaceUserManager_spaceUserWizard" style="width:90px;" onclick="spaceUserManager_spaceUserWizardWinOpen();">
+                {!$Label.label_10067}
+            </button>
+        </li>
+        <li class="last">
+            <!-- ユーザ一括削除ボタン -->
+            <button class="btn c_commandButton" id="spaceUserManager_spaceUserDelete" style="width:100px;" onclick="deleteInvUsers();">
+                {!$Label.label_invite_user_delete_00001}
+            </button>
+        </li>
+        <li class="item">
+            <!-- キャンセルボタン -->
+            <button class="btn c_commandButton" id="spaceUserManager_cancel" style="width:80px;" onclick="changeHashToCurrentSpace();$('#listView1').trigger('reloadGrid');$('#invUserSearchDialog').dialog('close');reloadTree();displayList();">
+                {!$Label.label_00058}
+            </button>
+        </li>
+    </ul>
+</div>
+
+<!-- コマンドボタン(スペースルール) -->
+<div class="c_command_l" id="spaceRuleCommand" style="display : none;">
+    <ul class="c_command_pipe">
+        <li class="item">
+            <button class="c_commandButton" id="srSwitchBtn" btnStatus="0">
+                <img class="c_commandButton_l_img" src="{!URLFOR($Resource.cso, '/image/sr-on.png')}"/>
+                <span>{!$Label.label_10450}</span>
+            </button>
+        </li>
+        <li class="item">
+            <button class="c_commandButton" id="srOKBtn" onclick="okSRSetting();">
+                {!$Label.label_00075}
+            </button>
+        </li>
+        <li class="last">
+            <button class="c_commandButton" id="srCancelBtn" onclick="changeHashToCurrentSpace();$('#listView1').trigger('reloadGrid');reloadTree();displayList();">
+                {!$Label.label_00058}
+            </button>
+        </li>
+    </ul>
+</div>
+
+<!-- コマンドボタン(スペースヒストリー) -->
+<div class="c_command_l" id="spaceHistoryCommand" style="display : none;">
+    <ul class="c_command_pipe">
+        <li class="item">
+            <!-- 検索ボタン -->
+            <button class="c_commandButton" id="spaceHistory_search" style="width:90px;" onclick="SpaceHistory_showSearchDialog();">
+                {!$Label.label_00069}
+            </button>
+        </li>
+        <li class="item">
+            <!-- CSV出力ボタン -->
+            <button class="c_commandButton" id="spaceHistory_csvOutput" style="width:90px;" onclick="SpaceHistory_outputCSV();">
+                {!$Label.label_10451}
+            </button>
+        </li>
+        <li class="last">
+            <!-- OKボタン -->
+            <button class="c_commandButton" id="spaceHistory_ok" style="width:80px;" onclick="changeHashToCurrentSpace();$('#listView1').trigger('reloadGrid');reloadTree();displayList();">
+                {!$Label.label_00059}
+            </button>
+        </li>
+    </ul>
+</div>
+
+<!-- コマンドボタン(バージョン管理設定) -->
+<div class="c_command_l" id="lifeCycleCommand" style="display : none;">
+    <ul class="c_command_pipe">
+        <li class="item">
+            <!-- 保存ボタン -->
+            <button class="btn c_commandButton" id="lifeCycle_save" style="width:90px;" onclick="saveLifeCycle();">
+                {!$Label.label_00075}
+            </button>
+        </li>
+        <li class="last">
+            <!-- キャンセルボタン -->
+            <button class="btn c_commandButton" id="lifeCycle_cancel" style="width:80px;" onclick="changeHashToCurrentSpace();$('#listView1').trigger('reloadGrid');reloadTree();displayList();">
+                {!$Label.label_00058}
+            </button>
+        </li>
+    </ul>
+</div>
+<!-- コマンドボタン(ライフサイクル設定) -->
+<div class="c_command_l" id="lifeCycleZweiCommand" style="display : none;">
+    <ul class="c_command_pipe">
+        <li class="item">
+            <!-- 保存ボタン -->
+            <button class="btn c_commandButton" id="lifeCycleZwei_save" style="width:90px;" onclick="saveLifeCycleZwei();">
+                {!$Label.label_00075}
+            </button>
+        </li>
+        <li class="last">
+            <!-- キャンセルボタン -->
+            <button class="btn c_commandButton" id="lifeCycleZwei_cancel" style="width:80px;" onclick="changeHashToCurrentSpace();onClearClicked();$('#listView1').trigger('reloadGrid');reloadTree();displayList();">
+                {!$Label.label_00058}
+            </button>
+        </li>
+    </ul>
+</div>
+<!-- コマンドボタン(コンテンツ公開設定) -->
+<div class="c_command_l" id="discloseCommand" style="display : none;">
+    <ul class="c_command_pipe">
+        <li class="item">
+            <!-- 保存ボタン -->
+            <button class="btn c_commandButton" id="disclose_save" style="width:90px;" onclick="saveDisclose();">
+                {!$Label.label_00075}
+            </button>
+        </li>
+        <li class="last">
+            <!-- キャンセルボタン -->
+            <button class="btn c_commandButton" id="disclose_cancel" style="width:80px;" onclick="onClearClicked();changeHashToCurrentSpace();$('#listView1').trigger('reloadGrid');reloadTree();displayList();">
+                {!$Label.label_00058}
+            </button>
+        </li>
+    </ul>
+</div>
+<!-- コマンドボタン(PDF透かし設定) -->
+<div class="c_command_l" id="watermarkCommand" style="display : none;">
+    <ul class="c_command_pipe">
+        <li class="item">
+            <!-- 保存ボタン -->
+            <button class="btn c_commandButton" id="watermark_save" style="width:90px;" onclick="editWatermark();">
+                {!$Label.label_00075}
+            </button>
+        </li>
+        <li class="last">
+            <!-- キャンセルボタン -->
+            <button class="btn c_commandButton" id="watermark_cancel" style="width:80px;" onclick="cancelWatermark();">
+                {!$Label.label_00058}
+            </button>
+        </li>
+    </ul>
+</div>
+
+<!-- コマンドボタン(PDFセキュリティ設定) -->
+<div class="c_command_l" id="pdfSecurityCommand" style="display : none;">
+    <ul class="c_command_pipe">
+        <li class="item">
+            <!-- 保存ボタン -->
+            <button class="btn c_commandButton" id="pdfSecurity_save" style="width:90px;" onclick="editPdfSecurity();">
+                {!$Label.label_00075}
+            </button>
+        </li>
+        <li class="last">
+            <!-- キャンセルボタン -->
+            <button class="btn c_commandButton" id="pdfSecurity_cancel" style="width:80px;" onclick="cancelPdfSecurity();">
+                {!$Label.label_00058}
+            </button>
+        </li>
+    </ul>
+</div>
+
+<!-- コマンドボタン(ギャラリー表示) -->
+<div class="c_command_l" id="galleryCommand" style="display: none;">
+    <ul class="c_command_pipe">
+        <li class="last">
+            <!-- キャンセルボタン -->
+            <button class="btn c_commandButton" id="gallery_cancel" style="width:80px;" onclick="backButtonFromGallery=true; cancelGallery();">
+                {!$Label.field_010305}
+            </button>
+        </li>
+    </ul>
+</div>
+
+<!-- ブレッドクラム挿入位置 -->
+<div id="spacePath">
+    <apex:pageBlockSection title="  " collapsible="true"/>
+</div>
+<div id ="fullPathDisplay"/>
+<div id="listViewArea" class="innerContentsDiv">
+    <table id="listView1" cellspacing="0" cellpadding="0" ></table>
+    <div id="listView1Pager"></div>
+</div>
+
+<apex:form id="documentIncludeForm" >
+    <apex:actionFunction name="doDelayRenderInit" action="{!delayRenderInit}" rerender="documentIncludePanel">
+        <apex:param name="delayRenderFlg" assignTo="{!delayRenderFlg}" value="true"/>
+    </apex:actionFunction>
+
+    <apex:outputPanel id="documentIncludePanel" layout="none" rendered="{!activeDelayRender}">
+    <apex:outputPanel rendered="{!delayRenderFlg}">
+        <!-- スペースルール -->
+        <div id="spaceRuleDiv" style="display:none;">
+            <apex:include pageName="SOLXYZCSO001__SpaceRuleEdit"/>
+        </div>
+        <!-- PDF透かし設定 -->
+        <div id="watermarkDiv" style="display:none;">
+            <apex:include pageName="SOLXYZCSO001__DocumentWatermark"/>
+        </div>
+        <!-- PDFセキュリティ設定 -->
+        <div id="pdfSecurityDiv" style="display:none;">
+            <apex:include pageName="SOLXYZCSO001__DocumentPdfSecurity"/>
+        </div>
+        <!-- ライフサイクル設定 -->
+        <div id="lifeCycleZweiDiv" style="display:none;">
+            <apex:include pageName="SOLXYZCSO001__DocumentLifeCycleZwei"/>
+        </div>
+        <!-- Webテキスト -->
+        <div id="EditorDiv"  style="display: none;">
+            <apex:include pageName="SOLXYZCSO001__WebText"/>
+        </div>
+        <!-- Webテキスト参照 -->
+        <div id="ReferenceDiv"  style="display: none;">
+            <apex:include pageName="SOLXYZCSO001__WebTextReference"/>
+        </div>
+        <!-- 招待者一覧 -->
+        <div id="invitatiedDiv" style="display:none;">
+            <apex:include pageName="SOLXYZCSO001__SpaceUserManager"/>
+        </div>
+        <!-- バージョン管理設定 -->
+        <div id="lifeCycleDiv" style="display:none;">
+            <apex:include pageName="SOLXYZCSO001__DocumentLifeCycle"/>
+        </div>
+        <!-- 公開設定 -->
+        <div id="discloseDiv" style="display:none;">
+            <apex:include pageName="SOLXYZCSO001__DocumentDisclose"/>
+        </div>
+    </apex:outputPanel>
+    </apex:outputPanel>
+</apex:form>
+
+<apex:outputPanel rendered="{!cancelDelayRender}">
+    <!-- スペースルール -->
+    <div id="spaceRuleDiv" style="display:none;">
+        <apex:include pageName="SOLXYZCSO001__SpaceRuleEdit"/>
+    </div>
+    <!-- PDF透かし設定 -->
+    <div id="watermarkDiv" style="display:none;">
+        <apex:include pageName="SOLXYZCSO001__DocumentWatermark"/>
+    </div>
+    <!-- PDFセキュリティ設定 -->
+    <div id="pdfSecurityDiv" style="display:none;">
+        <apex:include pageName="SOLXYZCSO001__DocumentPdfSecurity"/>
+    </div>
+    <!-- ライフサイクル設定 -->
+    <div id="lifeCycleZweiDiv" style="display:none;">
+        <apex:include pageName="SOLXYZCSO001__DocumentLifeCycleZwei"/>
+    </div>
+    <!-- Webテキスト -->
+    <div id="EditorDiv"  style="display: none;">
+        <apex:include pageName="SOLXYZCSO001__WebText"/>
+    </div>
+    <!-- Webテキスト参照 -->
+    <div id="ReferenceDiv"  style="display: none;">
+        <apex:include pageName="SOLXYZCSO001__WebTextReference"/>
+    </div>
+    <!-- 招待者一覧 -->
+    <div id="invitatiedDiv" style="display:none;">
+        <apex:include pageName="SOLXYZCSO001__SpaceUserManager"/>
+    </div>
+    <!-- バージョン管理設定 -->
+    <div id="lifeCycleDiv" style="display:none;">
+        <apex:include pageName="SOLXYZCSO001__DocumentLifeCycle"/>
+    </div>
+    <!-- 公開設定 -->
+    <div id="discloseDiv" style="display:none;">
+        <apex:include pageName="SOLXYZCSO001__DocumentDisclose"/>
+    </div>
+</apex:outputPanel>
+
+<!-- スペースヒストリー -->
+<div id="spaceHistoryDiv" style="display:none;">
+    <apex:include pageName="SOLXYZCSO001__SpaceHistory"/>
+</div>
+<!-- コンテンツローディング -->
+<div id="contentsloading" style="display:none;">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}"/>
+</div>
+<!-- ギャラリー表示 -->
+<div id="galleryDiv" style="display:none; background:#FFFFFF; overflow-y:auto; overflow-x:hidden;"></div>
+<!--
+    "Display None" attribute Panel or ContextMenu
+-->
+
+<!-- 新規作成メニュー -->
+<div id="createActionMenu" style="display: none;">
+<ul style="z-index: 1000">
+    <li class="spaceAction">
+        <a href="javascript:void(0);" onclick="registSpace();">
+            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/space_new.png')}" style="width:18px;height:18px;" alt="create space"/>
+            {!$Label.solxyzcso001__label_10177}
+        </a>
+    </li>
+    <li class="contentsCreate" style="display:none">
+        <a href="javascript:void(0);" onclick="contentsOnlineEditWinOpen();"  tabindex="-1">
+            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/online_edit.png')}" style="width:18px;height:18px;" alt="create web text"/>
+            {!$Label.label_10054}
+        </a>
+    </li>
+</ul>
+</div>
+
+<div id="spaceSettingMenu" style="display: none;">
+    <ul style="z-index: 1000">
+        <!-- プロパティ -->
+        <li class="chevronSpaceProperty">
+            <a href="javascript:void(0);" onclick="contextMenuEdit(false);">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/property.png')}" style="width:18px;height:18px;" alt="Property."/>
+                {!$Label.label_10052}
+            </a>
+        </li>
+        <!-- Chatter設定 -->
+        <li class="chevronChatterSetting" style="display: none;">
+            <a href="javascript:void(0);" onclick="settingChatter();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/chatter_icon.png?20120427')}" style="width:18px;height:18px;" alt="Chatter setting."/>
+                Salesforce Chatter
+            </a>
+        </li>
+        <!-- スペースヒストリー -->
+        <li class="chevronSpaceHistory" style="display: none;">
+            <a href="javascript:void(0);" onclick="spaceHistory();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/space-history.png')}" style="width:18px;height:18px;" alt="Space rule."/>
+                {!$Label.label_10452}
+            </a>
+        </li>
+        <!-- 招待 -->
+        <li class="chevronSpaceInvManage" style="display: none;">
+            <a href="javascript:void(0);" onclick="contextMenuEditSpace(false);">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/001_57.gif')}" style="width:18px;height:18px;" alt="Space inv manage."/>
+                {!$Label.label_10035}
+            </a>
+        </li>
+        <!-- スペースルール -->
+        <li class="chevronSpaceRule" style="display: none;">
+            <a href="javascript:void(0);" onclick="spaceRule();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/space-rule.png?20120427')}" style="width:18px;height:18px;" alt="Space rule."/>
+                {!$Label.label_10453}
+            </a>
+        </li>
+        <!-- バージョン管理設定 -->
+        <li class="chevronLifeCycle" style="display: none;">
+            <a href="javascript:void(0);" onclick="callLifeCycle();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/Version_manager2.png')}" style="width:18px;height:18px;" alt="Lifecycle"/>
+                {!$Label.label_11032}
+            </a>
+        </li>
+        <!-- ライフサイクル設定 -->
+
+        <li class="chevronLifeCycleZwei" style="display: none;">
+            <a href="javascript:void(0);" onclick="lifeCycleZwei();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/LifeCycle_32-32.png')}" style="width:18px;height:18px;" alt="LifecycleZwei"/>
+                {!$Label.label_13017}
+            </a>
+        </li>
+        <!-- PDF透かし設定 -->
+        <li class="chevronWatermark" style="display: none;">
+            <a href="javascript:void(0);" onclick="watermark();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/watermark.png')}" style="width:18px;height:18px;" alt="Watermark"/>
+                {!$Label.label_10588}
+            </a>
+        </li>
+        <!-- PDFセキュリティ設定 -->
+        <li class="chevronPdfSecurity" style="display: none;">
+            <a href="javascript:void(0);" onclick="pdfSecurity();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/pdf_security.png')}" style="width:18px;height:18px;" alt="PdfSecurity"/>
+                {!$Label.label_10620}
+            </a>
+        </li>
+        <!-- ギャラリー表示 -->
+        <li class="chevronGallery">
+            <a href="javascript:void(0);" onclick="initGallery();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/gallery16.png')}" style="width:18px;height:18px;" alt="Gallery"/>
+                {!$Label.field_010304}
+            </a>
+        </li>
+        <!-- コンテンツ公開設定 -->
+        <li class="chevronDisclose" style="display: none;">
+            <a href="javascript:void(0);" onclick="disclose();">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/disclose_icon_blue32.png')}" style="width:18px;height:18px;" alt="Disclose"/>
+                {!$Label.solxyzcso001__label_13129}
+            </a>
+        </li>
+    </ul>
+</div>
+
+<apex:form id="displaySettingsDialog">
+<div id="modalDisplaySettingsDialog" style="display:none;">
+    <table>
+         <tr>
+           	<td>
+           		<apex:outputLabel styleClass="dispSetting">{!$Label.solxyzcso001__label_13243}</apex:outputLabel>
+                <select id="hideColumns" multiple="multiple" style="width:215px; height:200px;" class="dispSetting"></select>
+            </td>
+            <td style="text-align:center;">
+            	<apex:outputLabel >{!$Label.solxyzcso001__label_10020}</apex:outputLabel>
+            	<apex:commandButton styleClass="btn dispSettingBtn" onclick="selectColumns('showColumns','hideColumns'); return false;" image="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/right-arrow.png')}"/>
+            	<apex:commandButton styleClass="btn dispSettingBtn" onclick="selectColumns('hideColumns','showColumns'); return false;" image="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/left-arrow.png')}"/>
+            	<apex:outputLabel >{!$Label.solxyzcso001__label_00072}</apex:outputLabel>
+            </td>
+            <td>
+                <apex:outputLabel styleClass="dispSetting">{!$Label.solxyzcso001__label_13239}</apex:outputLabel>
+               	<apex:image id="column-info" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/tooltip.png')}" style="vertical-align:middle;"
+               																						onmouseover="showTips(this, new Array('{!$Label.solxyzcso001__label_13248}'));"
+               																						onmouseout="hideTips();"
+               																						onclick="showTips(this, new Array('{!$Label.solxyzcso001__label_13248}'));"/>
+                <select id="showColumns" multiple="multiple" style="width:215px; height:200px;" class="dispSetting"></select>
+            </td>
+            <td style="text-align:center;">
+            	<apex:outputLabel >{!$Label.solxyzcso001__label_10515}</apex:outputLabel>
+            	<apex:commandButton styleClass="btn dispSettingBtn" onclick="clickUpButton(); return false;" image="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/up-arrow.png')}"/>
+            	<apex:commandButton styleClass="btn dispSettingBtn" onclick="clickDownButton(); return false;" image="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/down-arrow.png')}"/>
+            	<apex:outputLabel >{!$Label.solxyzcso001__label_10516}</apex:outputLabel>
+			</td>
+        </tr>
+    </table>
+	<div id="buttonDiv" style="float:right; margin:0 5px 10px 5px;">
+		<input id="cancelButton" type="button" value="{!$Label.field_common_cancel}" class="btn" onclick="onCancelClicked();"/>
+		<input id="saveButton" type="submit" value="{!$Label.field_common_ok}" class="btn" onclick="return clickSaveButton();"/>
+	</div>
+</div>
+</apex:form>
+<!-- リストコンテキストメニュー -->
+<div id="contextMenulist" class="movable"  style="width: 240px; top:90px; left:550px; z-index:1050;">
+    <div class="contextMenuHeader movable_controller" id="contextMenuHeader" style="font-size:90%"></div>
+    <div id="contextMenuSpaceArea">
+        <div id="contextMenuOnlineReference"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/online_edit.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_WebTextRefer_00001}</span></div>
+        <div id="contextMenuOnlineEdit"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/online_edit.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10180}</span></div>
+        <div id="contextMenuDownload"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/001_51.gif')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10010}</span></div>
+        <div id="contextMenuPlay"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/play_movie.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_11000}</span></div>
+        <div id="contextMenuDelivery" style="display:{!IF(cso_userinfo.proAuth_DELIVERY_STANDARD == 'true', 'block', 'none')}">
+            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/delivery.png')}" styleClass="contextMenuImg"/><span> {!$Label.label_10004}</span>
+        </div>
+<!--
+        <div id="contextMenuPublishContents"><apex:image url="{!URLFOR($Resource.cso, 'css/images/publish.png')}" styleClass="contextMenuImg"/><span> {!$Label.label_11089}</span></div>
+        <div id="contextMenuUnPublishContents"><apex:image url="{!URLFOR($Resource.cso, 'css/images/unPublish.png')}" styleClass="contextMenuImg"/><span> {!$Label.label_11090}</span></div>
+-->
+    </div>
+    <span id="contextMenuContentBar" class="separatorBar"></span>
+    <div id="contextMenuContentArea">
+        <div id="contextMenuMoveout"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/move.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10047}</span></div>
+        <div id="contextMenuCopy"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/doc_copy.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10228}</span></div>
+        <div id="contextMenuSymboliclink"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/shortcut.png')}" styleClass="contextMenuImg"/><span> {!$Label.label_symbolic_00001}</span></div>
+<!--    <div id="contextMenuTakeOut"><apex:image url="{!URLFOR($Resource.cso, 'image/go_out.png')}" styleClass="contextMenuImg"/><span> {!$Label.label_10314}</span></div>-->
+        <div id="contextMenuEdit"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/property.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10052}</span></div>
+        <div id="contextMenuDelete"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/001_05.gif')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_13120}</span></div>
+        <div id="contextMenuRemove"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/002_30.gif')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10288}</span></div>
+        <div id="contextMenuRecovery"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/002_29.gif')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10049}</span></div>
+        <div id="contextMenuSalvage"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/002_29.gif')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10289}</span></div>
+        <div id="contextMenuArchive"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/archive.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_00055}</span></div>
+        <div id="contextMenuSpaceHistory"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/space-history.png')}" styleClass="contextMenuImg"/><span> {!$Label.label_10452}</span></div>
+    </div>
+    <span id="contextMenuSettingBar" class="separatorBar"></span>
+    <div id="contextMenuSettingArea">
+        <div id="contextMenuUserManage"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/001_57.gif')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10035}</span></div>
+        <div id="contextMenuSpaceRule"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/space-rule.png?20120427')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10453}</span></div>
+        <div id="contextMenuLifeCycle"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/Version_manager2.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_11032}</span></div>
+        <div id="contextMenuLifeCycleZwei"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/LifeCycle_32-32.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_13017}</span></div>
+        <div id="contextMenuWatermark"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/watermark.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10588}</span></div>
+        <div id="contextMenuPdfSecurity"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/pdf_security.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10620}</span></div>
+        <div id="contextMenuDisclose"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/disclose_icon_blue32.png')}" styleClass="contextMenuImg"/><span> {!$Label.label_13129}</span></div>
+    </div>
+    <span id="contextMenuLockingBar" class="separatorBar"></span>
+    <div id="contextMenuLockingArea">
+        <div id="contextMenuCheckout"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/001_21.gif')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10178}</span></div>
+        <div id="contextMenuCheckoutCancel"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/undo_checkout.png')}" styleClass="contextMenuImg"/><span> {!$Label.solxyzcso001__label_10040}</span></div>
+        <div id="contextMenuCheckin"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/001_23.gif')}" styleClass="contextMenuImg"/><span> {!$Label.label_10027}</span></div>
+        <div id="contextMenuWorkflow" style="display:{!IF(cso_userinfo.proAuth_WORKFLOW_STANDARD == 'true', 'block', 'none')}" >
+            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/Application.png')}" styleClass="contextMenuImg"/><span> {!$Label.label_10123}</span>
+        </div>
+    </div>
+
+    <div id="contextMenuNothing" style="padding: 5px;">
+        <div id="contextMenuNothingMessage"><span> {!$Label.msg_01130}</span></div>
+    </div>
+</div>
+<div><span id="titleTemp" style="display:none;"></span></div>
+<div id="contextMenuEmpty"></div>
+<input id="asrt" type="hidden" value="" />
+
+<!-- アップロードスクリーンセーバー -->
+<div id="dailog_contents_regist" style="display: none; text-align: center; vertical-align: middle;">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/plupload/throbber.gif')}"/>{!$Label.msg_00044}
+</div>
+
+<!--  -->
+<div id="otherActionMenu" style="display: none;">
+    <ul style="z-index: 1000">
+        <li id="invSpaceUser">
+            <a href="javascript:void(0);" onclick="invSpaceUser(null);">{!$Label.label_10035}</a>
+        </li>
+        <li id="startWorkflow" style="display:{!IF(cso_userinfo.proAuth_WORKFLOW_STANDARD == 'true', 'block', 'none')}">
+            <a href="javascript:void(0);" onclick="startWorkflow(false);">{!$Label.label_10123}</a>
+        </li>
+    </ul>
+</div>
+
+<!--  -->
+<div style="display: none;" id="iframeDiv" title="{!$Label.label_10257}">
+</div>
+
+<!-- チェックアウト確認ダイアログ -->
+<div id="checkoutConfirmDialog" style="display:none; padding: 10px;"  title="{!$Label.label_10466}">
+    <div id="checkoutConfirmDialog_msg"></div>
+    <br/>
+    <div style="text-align:center"><input type="button" class="btn" id="checkoutConfirmDialog_ok"/><input type="button" class="btn" id="checkoutConfirmDialog_cancel"/></div>
+</div>
+
+<!-- 圧縮名入力ダイアログ -->
+<div id="filenamedialog" style="display:none; padding: 10px;"  title="{!$Label.label_10053}">
+    <div>{!$Label.msg_00052}<br />{!$Label.msg_00116}</div>
+    <p style="padding-left: 10px;"><input id="compressfilename_" type="text" class="longWidth" value="{!$Label.label_10063}" onblur="checkZipName();"/>&nbsp;.zip</p>
+    <div style="text-align:center"><input type="button" class="btn" id="filenamedialog_ok"/><input type="button" class="btn" id="filenamedialog_cancel"/></div>
+</div>
+
+<!-- 復旧ダイアログ -->
+<div id="salvagedialog" style="display:none;">
+    <div id="salvagedialogmsg"></div>
+    <div>
+        {!$Label.msg_00030}
+    </div>
+    <div>
+        <input type="text" disabled="disabled" id="selectSalvageName" style="width:100%; border: none; background-color: #EEEEEE;"></input>
+        <input type="hidden" id="selectSalvageId" name="recieveId" />
+    </div>
+    <div style="width: 100%; height: 300px; overflow: auto; border: 1px solid #999999; background-color: white;">
+        <ul id="salvageTree" class="selectTree filetree"></ul>
+        <span id="loadingSalvageTree" style="display:none;">
+            <apex:image alt="loading" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 50%;left: 47%; " id="salvageTreeLoading"/>
+        </span>
+    </div>
+    <div style="text-align:center; padding-top:10px;">
+        <input type="button" class="btn" id="salvagedialog_ok"/>
+        <input type="button" class="btn" id="salvagedialog_cancel"/>
+    </div>
+</div>
+
+<!-- 招待ユーザ検索 -->
+<div id="invUserSearchDialog" class="invUserSearchDialog" title="{!$Label.label_invite_user_search_00001}"  style="display:none;">
+    <table class="invUserSearchBox">
+        <tr>
+            <td class="input-header">{!$Label.label_10029}</td>
+            <td><select id="invUserSearchSelectRole" ></select></td>
+        </tr>
+        <tr>
+            <td class="input-header">{!$Label.label_00039}</td>
+            <td><input id="invUserSearchInputText" type="text" maxlength="255" style="width: 180px;" /></td>
+        </tr>
+    </table>
+    <div class="button-box">
+        <input type="button" class="btn" value="{!$Label.label_00070}" onclick="onInvUserSearchClearClicked();" />
+        <input type="button" class="btn" value="{!$Label.field_common_ok}" onclick="onInvUserSearchOkClicked();" />
+    </div>
+</div>
+
+<!-- ファイルダウンロードダイアログ -->
+<iframe id="fileDownFrame" height="0" width="0" style="display:none;"></iframe>
+
+<!-- 招待ユーザ一覧 -->
+<div id="invUserFloatDiv" class="float si" style="width: 300px;">
+    <apex:image alt="" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/yama.png')}" style="width: 40px; position: absolute; top: -21px; left: 40px;"/>
+    <table style="width: 100%; color: #696969; margin-top: -10px;">
+        <tr>
+            <td style="font-weight: bold;">{!$Label.solxyzcso001__label_10366}</td>
+            <td style="text-align: right;">
+                <apex:image alt="close" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10367}" style="cursor: pointer;" onclick="$('#invUserFloatDiv').hide();"/>
+            </td>
+        </tr>
+    </table>
+    <div id="invUserViewDiv" style="overflow: auto; max-height: 340px;">
+        <apex:image alt="loading" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 45%; left: 45%;" styleClass="invUserViewLoding" id="invUserViewLoding"/>
+        <table id="invUserViewTbl" style="display: none;"></table>
+    </div>
+</div>
+
+<div id="spaceChatterBindFloatDiv" class="float si">
+    <apex:image alt="" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/yama.png')}" style="width: 40px; position: absolute; top: -21px; left: 40px;"/>
+    <table style="width: 100%; color: #696969; margin-top: -10px;">
+        <tr>
+            <td style="font-weight: bold;">{!$Label.solxyzcso001__label_10397}</td>
+            <td style="text-align: right;">
+                <apex:image alt="close" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10367}" style="cursor: pointer;" onclick="$('#spaceChatterBindFloatDiv').hide();"/>
+            </td>
+        </tr>
+    </table>
+    <div id="spaceChatterBindViewDiv" style="overflow: auto; max-height: 300px; padding-top: 5px;">
+        <apex:image alt="loading" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 45%; left: 43%;" styleClass="spaceChatterBindViewLoding" id="spaceChatterBindViewLoding"/>
+        <div style="padding-left: 5px;" id="spaceChatterBindViewDiv2"></div>
+    </div>
+</div>
+
+<!-- パスワード付き圧縮  -->
+<div id="passwordFloatDiv" class="float si">
+<img alt="" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/yama.png')}" style="width: 40px; position: absolute; top: -21px; left: 40px;"/>
+    <table style="width: 100%; color: #696969; margin-top: -10px;">
+        <tr>
+            <td style="font-weight: bold;">{!$Label.label_11021}</td>
+            <td style="text-align: right;"><img alt="close" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10367}" style="cursor: pointer;" onclick="$('#passwordFloatDiv').hide();" /></td>
+        </tr>
+    </table>
+    <div id="passwordViewDiv" style="overflow: auto; max-height: 300px; padding-top: 5px;">
+        <img alt="loading" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 45%; left: 43%;" id="passwordViewLoading" />
+        <table id="passwordViewDiv2" style="width:100%;">
+            <colgroup span="1" style="font-weight:bold;vertical-align:top;"></colgroup>
+            <colgroup span="1" style="vertical-align:top;"></colgroup>
+            <tr>
+                <th class="title">{!$Label.label_11022}</th>
+                <td class="data">
+                    <div id="passwordOperationView"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- バージョン管理設定  -->
+<div id="lifeCycleFloatDiv" class="float si">
+<img alt="" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/yama.png')}" style="width: 40px; position: absolute; top: -21px; left: 40px;"/>
+    <table style="width: 100%; color: #696969; margin-top: -10px;">
+        <tr>
+            <td style="font-weight: bold;">{!$Label.label_11031}</td>
+            <td style="text-align: right;"><img alt="close" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10367}" style="cursor: pointer;" onclick="$('#lifeCycleFloatDiv').hide();" /></td>
+        </tr>
+    </table>
+    <div id="lifeCycleViewDiv" style="overflow: auto; max-height: 300px; padding-top: 5px;">
+        <img alt="loading" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 45%; left: 43%;" id="lifeCycleViewLoading" />
+        <table id="lifeCycleViewDiv2" style="width:100%;">
+            <tr>
+                <td colspan="2">
+                    <div id="lifecycleSetting" style="padding-bottom:5px; font-weight : bold;"></div>
+                </td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_11038}</th>
+                <td>
+                    <div id="deleteVersion"></div>
+                </td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_11039}</th>
+                <td>
+                    <div id="generation"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+<!-- ライフサイクル設定  -->
+<div id="lifecycleZweiFloatDiv" class="float si">
+<img alt="" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/yama.png')}" style="width: 40px; position: absolute; top: -21px; left: 40px;"/>
+    <table id="lifecycleZweiTitleDiv" style="width: 100%; color: #696969; margin-top: -10px;">
+        <tr>
+            <td style="font-size: 18px; padding: 5px;">{!$Label.label_13020}</td>
+            <td style="text-align: right;"><img alt="close" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10367}" style="cursor: pointer;" onclick="$('#lifecycleZweiFloatDiv').hide();" /></td>
+        </tr>
+    </table>
+    <div id="lifecycleZweiViewDiv" style="margin-left: 10px; color: #696969">
+        <img alt="loading" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 45%; left: 43%;" id="lifecycleZweiLoading" />
+        <table id="lifecycleZweiDiv2" class="innerTable">
+            <tr>
+                <td colspan="2">{!$Label.label_13024}</td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_13007}</th>
+                <td>
+                    <select id="lifecycleZweiViewConditions" style="max-width: 130px;">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_13025}</th>
+                <td>
+                    <span id="lifecycleZweiViewDetail"></span>
+                </td>
+            </tr>
+            <tr>
+                <th style="vertical-align: top;">{!$Label.label_13017}</th>
+                <td>
+                    <div id="lifecycleZweiViewActions">
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- コンテンツ公開設定  -->
+<div id="discloseFloatDiv" class="float si">
+<img alt="" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/yama.png')}" style="width: 40px; position: absolute; top: -21px; left: 40px;"/>
+    <table id="discloseTitleDiv" style="width: 100%; color: #696969; margin-top: -10px;">
+        <tr>
+            <td style="font-size: 18px; padding: 5px;">{!$Label.label_13129}</td>
+            <td style="text-align: right;"><img alt="close" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10367}" style="cursor: pointer;" onclick="$('#discloseFloatDiv').hide();" /></td>
+        </tr>
+    </table>
+    <img alt="loading" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 45%; left: 43%;" id="discloseLoading" />
+    <div id="discloseFloatInfo" style="font-size: 15px; margin: 5px 0 0 5px;"></div>
+</div>
+
+<!-- スペースURL取得  -->
+<div id="spacePathFloatMenuDiv" style="display: none; color: #696969">
+    <ul>
+        <li><a id="spacePathFloatAnchor1" href="javascript:void(0);">{!$Label.label_13136}</a></li>
+        <li><a id="spacePathFloatAnchor2" href="javascript:void(0);">{!$Label.label_13137}</a></li>
+    </ul>
+</div>
+
+<div id="spacePathFloatDiv" style="display: none; color: #696969">
+    <div><img alt="close" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10367}" style="float: right; cursor: pointer;" onclick="$('#spacePathFloatDiv').csoBalloonHide();" /></div>
+    <div id="spacePathTable" class="innerTable" style="padding-top:35px; white-space:nowrap; display: none;">
+        URL : <input type="text" id="spacePathFloatUrl" style="width: 315px;" onclick="$(this).select();"/>
+    </div>
+</div>
+
+
+<!-- PDF透かし設定  -->
+<div id="watermarkFloatDiv" class="float si">
+<img alt="" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/yama.png')}" style="width: 40px; position: absolute; top: -21px; left: 40px;"/>
+    <table style="width: 100%; color: #696969; margin-top: -10px;">
+        <tr>
+            <td style="font-weight: bold;">{!$Label.label_10588}</td>
+            <td style="text-align: right;"><img alt="close" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10367}" style="cursor: pointer;" onclick="$('#watermarkFloatDiv').hide();" /></td>
+        </tr>
+    </table>
+    <div id="watermarkViewDiv" style="overflow: auto; max-height: 300px; padding-top: 5px;">
+        <img alt="loading" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 45%; left: 43%;" id="watermarkViewLoading" />
+        <table id="watermarkDiv2" style="width:100%;">
+            <tr>
+                <td colspan="2" style="font-weight: bold;">
+                    <div id="watermarkSetting" style="padding-bottom:5px;"></div>
+                </td>
+            </tr>
+            <tr>
+                <th style="width: 70px;padding-top: 10px;">{!$Label.label_10579}</th>
+                <td style="padding-left: 10px;padding-top: 10px;">
+                    <div id="watermarkTiming"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- PDFセキュリティ設定  -->
+<div id="pdfSecurityFloatDiv" class="float si">
+<img alt="" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/yama.png')}" style="width: 40px; position: absolute; top: -21px; left: 40px;"/>
+    <table style="width: 100%; color: #696969; margin-top: -10px;">
+        <tr>
+            <td style="font-weight: bold;">{!$Label.label_10620}</td>
+            <td style="text-align: right;"><img alt="close" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10367}" style="cursor: pointer;" onclick="$('#pdfSecurityFloatDiv').hide();" /></td>
+        </tr>
+    </table>
+    <div id="pdfSecurityViewDiv" style="overflow: auto; max-height: 300px; padding-top: 5px;">
+        <img alt="loading" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 45%; left: 43%;" id="pdfSecurityViewLoading" />
+        <table id="pdfSecurityDiv2" style="width:100%;">
+            <tr>
+                <td colspan="2" style="font-weight: bold;">
+                    <div id="pdfSecuritySetting" style="padding-bottom:5px;"></div>
+                </td>
+            </tr>
+            <tr>
+                <th style="width:120px;padding-top:10px;">{!$Label.label_10579}</th>
+                <td style="padding-left:10px;padding-top:10px;">
+                    <div id="pdfSecurityTiming"></div>
+                </td>
+            </tr>
+            <tr>
+                <th style="width:120px;">{!$Label.label_10624}</th>
+                <td style="padding-left:10px;">
+                    <div id="pdfSecurityLevel"></div>
+                </td>
+            </tr>
+            <tr>
+                <th style="width:120px;">{!$Label.label_10460}</th>
+                <td style="padding-left:10px;">
+                    <input type="checkbox" id="pdfSecurityPassword" disabled="disabled"/>
+                </td>
+            </tr>
+            <tr>
+                <th style="width:120px;">{!$Label.label_10631}</th>
+                <td style="padding-left:10px;">
+                    <input type="checkbox" id="pdfSecurityMasterPassword" disabled="disabled"/>
+                </td>
+            </tr>
+            <tr>
+                <th style="width:120px;">{!$Label.label_10646}</th>
+                <td style="padding-left:10px;">
+                    <div id="pdfSecurityDisallowance"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- 不可視透かし設定  -->
+<div id="digimarkFloatDiv" class="float si">
+<img alt="" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/yama.png')}" style="width: 40px; position: absolute; top: -21px; left: 40px;"/>
+    <table style="width: 100%; color: #696969; margin-top: -10px;">
+        <tr>
+            <td style="font-weight: bold;">{!$Label.label_13110}</td>
+            <td style="text-align: right;"><img alt="close" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10367}" style="cursor: pointer;" onclick="$('#digimarkFloatDiv').hide();" /></td>
+        </tr>
+    </table>
+    <div id="digimarkViewDiv" style="overflow: auto; max-height: 300px; padding-top: 5px;">
+        <img alt="loading" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 45%; left: 43%;" id="digimarkViewLoading" />
+        <table id="digimarkDiv2" style="width:100%;">
+            <tr>
+                <td colspan="2" style="font-weight: bold;">
+                    <div id="digimarkSetting" style="padding-bottom:5px;"></div>
+                </td>
+            </tr>
+            <tr>
+                <th style="width: 70px;padding-top: 10px;">{!$Label.label_10579}</th>
+                <td style="padding-left: 10px;padding-top: 10px;">
+                    <div id="digimarkTiming"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="uploadInfoDiv" class="float">
+<div style="font-weight: bold; color: #696969;">{!$Label.msg_00250}</div>
+</div>
+<div id="spaceRuleFloatDiv" class="float si">
+<apex:image alt="" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/yama.png')}" style="width: 40px; position: absolute; top: -21px; left: 40px;"/>
+    <table style="width: 100%; color: #696969; margin-top: -10px;">
+        <tr>
+            <td style="font-weight: bold;">{!$Label.solxyzcso001__label_10562}</td>
+            <td style="text-align: right;">
+                <apex:image alt="close" url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/close.png')}" title="{!$Label.solxyzcso001__label_10563}" onclick="$('#spaceRuleFloatDiv').hide();" style="cursor: pointer;"/>
+            </td>
+        </tr>
+    </table>
+    <div id="spaceRuleViewDiv" style="overflow: auto; max-height: 300px; padding-top: 5px;">
+        <img alt="loading" src="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" class="spaceRuleViewLoding" id="spaceRuleViewLoding" style="position: absolute; top: 45%; left: 43%;"/>
+        <div style="padding-left: 5px;">
+            <span style="padding-right: 5px; color: #696969; padding-left: 5px; font-weight: bold;">{!$Label.label_10564}</span>
+            <select id="srapceRuleTriggerActionSel">
+                <option value="0">{!$Label.label_10141}</option>
+                <option value="1">{!$Label.label_10387}</option>
+                <option value="2">{!$Label.label_10523}</option>
+                <option value="3">{!$Label.label_10388}</option>
+                <option value="4">{!$Label.label_10526}</option>
+                <option value="5">{!$Label.label_10390}</option>
+            </select>
+        </div>
+        <div id="spaceRuleViewDiv2"></div>
+    </div>
+</div>
+
+<div id="checkoutUserFloatDiv" style="display: none;">
+    <table style="width: 100%; margin-top: -10px;">
+        <tr>
+            <td style="font-size: 12px; color: #333333; padding: 5px;">{!$Label.label_10814}</td>
+        </tr>
+    </table>
+    <div id="checkoutUserViewDiv" style="overflow: auto; max-height: 245px;">
+        <table id="checkoutUserViewTbl" style="display: none;"></table>
+    </div>
+</div>
+<div id="workflowUserFloatDiv" style="display: none;">
+    <table style="width: 100%; margin-top: -10px;">
+        <tr>
+            <td style="font-size: 12px; color: #333333; padding: 5px;">{!$Label.label_10815}</td>
+        </tr>
+    </table>
+    <div id="workflowUserViewDiv" style="overflow: auto; max-height: 245px;">
+        <table id="workflowUserViewTbl" style="display: none;"></table>
+    </div>
+</div>
+
+<!-- 公開用URL取得ダイアログ -->
+<div id="contentsURL_dialog" style="display:none; padding: 10px;"  title="{!$Label.label_11091}">
+    <p style="padding-left: 10px;"><textarea id = "contentsUrlText" style="width: 470px; height: 100px; resize: none;" readonly="readonly"></textarea></p>
+    <div style="text-align:center"><input type="button" class="btn" id="filenamedialog_ok" onclick = "$('#contentsURL_dialog').dialog('close');" value="{!$Label.field_common_ok}" /></div>
+</div>
+
+<span id="tmpPathArea" style="display:none;white-space:nowrap"></span>
+
+<!-- スペース登録 -->
+<apex:include pageName="SOLXYZCSO001__DocumentRegistSpace"/>
+<!-- スペース編集 -->
+<apex:include pageName="SOLXYZCSO001__DocumentSpaceEdit"/>
+<!-- スペース・コンテンツ移動 -->
+<apex:include pageName="SOLXYZCSO001__DocumentContentsMoveout"/>
+<!-- スペース・コンテンツコピー -->
+<apex:include pageName="SOLXYZCSO001__DocumentContentSpaceCopy"/>
+<!-- シンボリックリンク新規作成 -->
+<apex:include pageName="SOLXYZCSO001__DocumentContentsSymbolicLink"/>
+<!-- お気に入り -->
+<apex:include pageName="SOLXYZCSO001__DocumentFavorite"/>
+<!-- Chatterコメント -->
+<apex:include pageName="SOLXYZCSO001__DocumentChatter" rendered="{!IsChatter}"/>
+<!-- Chatterコメント -->
+<div style="display:none;">
+<apex:include pageName="SOLXYZCSO001__ChatterComment" rendered="{!IsChatter}"/>
+</div>
+<div id="tooltip" class="tooltip"></div>
+</apex:page>

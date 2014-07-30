@@ -1,0 +1,236 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingWorkflowController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_workflow_definition == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_workflow_definition == 'true' && userInfo.showErrPage == false, true, false)}">
+
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+
+<script type="text/javascript">
+	var USER_LOCALE = '{!JSENCODE(userInfo.locale)}';
+</script>
+
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:include pageName="SOLXYZCSO001__js_wfSteps"/>
+<script type="text/javascript">
+var _id = "";
+
+$(function(){
+    displayInit();
+})
+
+function displayInit(){
+    var callback =  function(data){
+        if(data.result){
+            _id     = data.id;
+            $("#category_name").text(data.cat_name);
+            $("#def_name").text(data.def_name);
+            $("#def_no").text(data.def_no);
+            if(data.def_is_valid){
+                $("#def_is_valid").attr("src", '{!URLFOR($Resource.cso, "image/check_on.png")}');
+            }else{
+                $("#def_is_valid").attr("src", "{!URLFOR($Resource.cso, "image/check_off.png")}");
+            }
+            $("#def_span").html(data.def_span);
+            $("#regist_uname").text(data.regist_uname);
+            $("#regist_date").text(data.regist_date);
+            $("#update_uname").text(data.update_uname);
+            $("#update_date").text(data.update_date);
+            if(data.is_manager == "1"){
+                $("[id=btnEdit]").attr("disabled", "").removeClass("btn-disable");
+            }
+            showStep();
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/workflowmanagement/setting/workflowDefinitionRegistInit.json', {id:getUrlVars()["id"], is_edit:"0"}, callback);
+}
+
+function showStep(){
+    $("#step-list").wfDef({
+        id              : _id,
+        isEdit          : false,
+        apiUrl          : "{!$Label.field_CSO_URL}",
+        cssUrl          : "{!$Label.field_CSO_URL}/css/jquery.wfSteps.css?20121204",
+        addStepButton   : "addStepButton",
+        delStepButton   : "delStepButton",
+        replaceButton   : "replaceButton",
+        submitButton    : "okButton",
+        submitFunction  : function(){
+            regist();
+        },
+    });
+}
+
+function onEditClicked(){
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionEdit))}?id=' + _id + "&ref=info";
+}
+
+function onCancelClicked(){
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingWorkflowDefinitionList))}';
+}
+
+function getUrlVars(){
+    var vars = [], hash;
+    var hashes = window.location.href.slice(location.href.lastIndexOf('?') + 1).split('&');
+    for(var i = 0; i <hashes.length; i++){
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+</script>
+
+<style type="text/css">
+.definition {
+    margin: 10px;
+}
+.definition th {
+    text-align: right;
+    font-weight: bold;
+    height: 30px;
+    width: 100px;
+    padding: 0 15px 0 0;
+}
+.step-list {
+    margin: -32px 0 0 130px;
+}
+.checkbox{
+    display: block;
+    width: 16px;
+    height: 16px;
+    margin: -1px 5px 0 0;
+    vertical-align: middle;
+    float: left;
+}
+.infoTable {
+    width: 480px;
+    margin: 50px 0 0 15px;
+}
+.infoTable th {
+    color : blue;
+    font-weight: bold;
+    text-align: right;
+    vertical-align: middle;
+}
+.infoTable td {
+    color : blue;
+    min-width: 90px;
+    vertical-align: middle;
+    padding: 5px;
+}
+
+.btn-disable {
+    color: silver !important;
+}
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/flow_defined.png')}" alt="{!$Label.solxyzcso001__label_10647}" title="{!$Label.solxyzcso001__label_10647}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10673}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10647}</h2>
+            </td>
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <apex:pageBlockButtons >
+                            <input type="button" id="btnCancel" class="btn" value="{!$Label.label_00058}" onclick="onCancelClicked();return false;" />
+                            <input type="button" id="btnEdit" class="btn btn-disable" disabled="disabled" value="{!$Label.label_00073}" onclick="onEditClicked();return false;"/>
+                        </apex:pageBlockButtons>
+
+                        <div id ="editMain">
+                           <!-- �ｽﾚ搾ｿｽ -->
+                            <apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}"  collapsible="false"/>
+                            <div id="detailDiv">
+                                <table class="definition">
+                                    <tr>
+                                        <th>{!$Label.label_10678}</th>
+                                        <td><span id="category_name"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_10685}</th>
+                                        <td><span id="def_name"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_10709}</th>
+                                        <td><span id="def_no"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_00083}</th>
+                                        <td><img id="def_is_valid" class="checkbox"></img></td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_10175}</th>
+                                        <td><span id="def_span"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_10731}</th>
+                                        <td></td>
+                                    </tr>
+                                </table>
+                                <div id="step-list" class="step-list"></div>
+
+                                <table class="infoTable">
+                                    <tr>
+                                        <th>{!$Label.label_10015}:</th>
+                                        <td><span id="regist_uname"></span></td>
+                                        <th>{!$Label.label_10005}:</th>
+                                        <td><span id="regist_date"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_10024}:</th>
+                                        <td><span id="update_uname"></span></td>
+                                        <th>{!$Label.label_10006}:</th>
+                                        <td><span id="update_date"></span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

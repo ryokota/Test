@@ -1,0 +1,16 @@
+<apex:page tabStyle="overlay__tab" controller="SOLXYZCSO001.WRTrialController" action="{!initEntry}" sidebar="false">
+
+<apex:include pageName="SOLXYZCSO001__WRScript"/>
+<apex:form >
+    <apex:sectionHeader subtitle="{!$Label.solxyzcso001__label_wf_10407}" title="{!$Label.solxyzcso001__label_wf_10408}"/>
+    <apex:pagemessages />
+    <apex:pageBlock >
+        <apex:pageBlockButtons dir="RTL">
+            <apex:commandButton value="{!$Label.solxyzcso001__field_common_next}" action="{!NextStep}"/>
+        </apex:pageBlockButtons>
+            <apex:selectRadio value="{!Entrycheckeoption}" id="range">
+                <apex:selectOptions value="{!EntrycheckOptions}"/>
+            </apex:selectRadio>
+    </apex:pageBlock>
+</apex:form>
+</apex:page>

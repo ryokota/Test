@@ -1,0 +1,1777 @@
+<apex:page cache="false" >
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jQueryRotate.2.2.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-spin.js')}" />
+
+<script type="text/javascript">
+
+/*-- =======//
+//  定  数  //
+//======= --*/
+/*--  透過対象  --*/
+var PDF_ID_BASE_UserId               = "UserId";                            /*--  ユーザID        --*/
+var PDF_ID_BASE_UserName             = "UserName";                          /*--  ユーザ名        --*/
+var PDF_ID_BASE_Timestamp            = "Timestamp";                         /*--  タイムスタンプ  --*/
+var PDF_ID_BASE_UserImage            = "UserImage";                         /*--  画像            --*/
+var PDF_ID_BASE_Corp                 = "Corp";                              /*--  所属組織        --*/
+var PDF_ID_BASE_Post                 = "Post";                              /*--  部署・役職      --*/
+var PDF_ID_BASE_Number               = "Number";                            /*--  社員番号        --*/
+var PDF_ID_BASE_Email                = "Email";                             /*--  メールアドレス  --*/
+var PDF_ID_BASE_Text                 = "Text";                              /*--  フリーテキスト  --*/
+/*--  コンボボックスのID（色用）  --*/
+var PDF_ID_SelectColor               = "PDF_Color";
+/*--  テーブルのID（位置用）  --*/
+var PDF_ID_TablePosition             = "PDF_TablePosition";
+/*--  ボタンのID（位置用）  --*/
+var PDF_ID_ButtonPosition            = "PDF_ButtonPosition";
+/*--  リストボックスのオプションのID（透過対象用）  --*/
+var PDF_ID_OptionTarget              = "PDF_OptionTarget";
+
+/*--  スライダーのID（角度用）  --*/
+var PDF_ID_SliderAngleUserId         = "PDF_SliderAngleUserId";             /*--  ユーザID        --*/
+var PDF_ID_SliderAngleUserName       = "PDF_SliderAngleUserName";           /*--  ユーザ名        --*/
+var PDF_ID_SliderAngleTimestamp      = "PDF_SliderAngleTimestamp";          /*--  タイムスタンプ  --*/
+var PDF_ID_SliderAngleUserImage      = "PDF_SliderAngleUserImage";          /*--  画像            --*/
+var PDF_ID_SliderAngleCorp           = "PDF_SliderAngleCorp";               /*--  所属組織        --*/
+var PDF_ID_SliderAnglePost           = "PDF_SliderAnglePost";               /*--  部署・役職      --*/
+var PDF_ID_SliderAngleNumber         = "PDF_SliderAngleNumber";             /*--  社員番号        --*/
+var PDF_ID_SliderAngleEmail          = "PDF_SliderAngleEmail";              /*--  メールアドレス  --*/
+var PDF_ID_SliderAngleText           = "PDF_SliderAngleText";               /*--  フリーテキスト  --*/
+/*--  スライダーのテキストボックスID（角度用）  --*/
+var PDF_ID_SliderAngleValueUserId    = "PDF_SliderAngleValueUserId";        /*--  ユーザID        --*/
+var PDF_ID_SliderAngleValueUserName  = "PDF_SliderAngleValueUserName";      /*--  ユーザ名        --*/
+var PDF_ID_SliderAngleValueTimestamp = "PDF_SliderAngleValueTimestamp";     /*--  タイムスタンプ  --*/
+var PDF_ID_SliderAngleValueUserImage = "PDF_SliderAngleValueUserImage";     /*--  画像            --*/
+var PDF_ID_SliderAngleValueCorp      = "PDF_SliderAngleValueCorp";          /*--  所属組織        --*/
+var PDF_ID_SliderAngleValuePost      = "PDF_SliderAngleValuePost";          /*--  部署・役職      --*/
+var PDF_ID_SliderAngleValueNumber    = "PDF_SliderAngleValueNumber";        /*--  社員番号        --*/
+var PDF_ID_SliderAngleValueEmail     = "PDF_SliderAngleValueEmail";         /*--  メールアドレス  --*/
+var PDF_ID_SliderAngleValueText      = "PDF_SliderAngleValueText";          /*--  フリーテキスト  --*/
+/*--  スライダーのID（透過用）  --*/
+var PDF_ID_SliderAlpha               = "PDF_SliderAlpha";
+/*--  スライダーのテキストボックスID（透過用）  --*/
+var PDF_ID_SliderAlphaValue          = "PDF_SliderAlphaValue";
+
+/*--  フォントサイズのデフォルト  --*/
+var PDF_FontSizeDefault = 30;
+/*--  角度のデフォルト --*/
+var PDF_AngleValueDefault = 0;
+/*--  透過のデフォルト  --*/
+var PDF_AlphaValueDefault = 50;
+
+/*--  画像の縦横比を保つか否か  --*/
+var PDF_ImageSrcSpinJoin   = "{!URLFOR($Resource.cso, 'image/join.png')}";
+var PDF_ImageSrcSpinUnJoin = "{!URLFOR($Resource.cso, 'image/unjoin.png')}";
+
+var SELECT_TAB_INDEX = 0;
+
+var INDEX_TAB_TIMESTAMP = 1;
+var INDEX_TAB_USER_NAME = 2;
+var INDEX_TAB_USER_ID = 3;
+var INDEX_TAB_CORP = 4;
+var INDEX_TAB_POST = 5;
+var INDEX_TAB_USER_NUMBER = 6;
+var INDEX_TAB_USER_EMAIL = 7;
+var INDEX_TAB_USER_TEXT = 8;
+var INDEX_TAB_USER_IMAGE = 9;
+
+var INDEX_TAB_ADD_ITEM = 10;
+/*--
+/*
+ * ready処理
+ *
+ --*/
+function preview_ready(){
+
+    /*-- ---------------------- --*/
+    /*--  コンボボックスの生成  --*/
+    /*-- ---------------------- --*/
+    setSelectOption(PDF_ID_SelectColor + PDF_ID_BASE_UserId);
+    setSelectOption(PDF_ID_SelectColor + PDF_ID_BASE_UserName);
+    setSelectOption(PDF_ID_SelectColor + PDF_ID_BASE_Timestamp);
+    setSelectOption(PDF_ID_SelectColor + PDF_ID_BASE_UserImage);
+    setSelectOption(PDF_ID_SelectColor + PDF_ID_BASE_Corp);
+    setSelectOption(PDF_ID_SelectColor + PDF_ID_BASE_Post);
+    setSelectOption(PDF_ID_SelectColor + PDF_ID_BASE_Number);
+    setSelectOption(PDF_ID_SelectColor + PDF_ID_BASE_Email);
+    setSelectOption(PDF_ID_SelectColor + PDF_ID_BASE_Text);
+
+    /*-- ------------------ --*/
+    /*--  位置ボタンの生成  --*/
+    /*-- ------------------ --*/
+    setPositionButton(PDF_ID_BASE_UserId);
+    setPositionButton(PDF_ID_BASE_UserName);
+    setPositionButton(PDF_ID_BASE_Timestamp);
+    setPositionButton(PDF_ID_BASE_UserImage);
+    setPositionButton(PDF_ID_BASE_Corp);
+    setPositionButton(PDF_ID_BASE_Post);
+    setPositionButton(PDF_ID_BASE_Number);
+    setPositionButton(PDF_ID_BASE_Email);
+    setPositionButton(PDF_ID_BASE_Text);
+
+    /*-- ------------------ --*/
+    /*--  スライダーの生成  --*/
+    /*-- ------------------ --*/
+    slider(PDF_ID_PreviewObjectUserId,    PDF_ID_SliderAngleUserId,    PDF_ID_SliderAngleValueUserId,    0, 360, 0);
+    slider(PDF_ID_PreviewObjectUserName,  PDF_ID_SliderAngleUserName,  PDF_ID_SliderAngleValueUserName,  0, 360, 0);
+    slider(PDF_ID_PreviewObjectTimestamp, PDF_ID_SliderAngleTimestamp, PDF_ID_SliderAngleValueTimestamp, 0, 360, 0);
+    slider(PDF_ID_PreviewObjectUserImage, PDF_ID_SliderAngleUserImage, PDF_ID_SliderAngleValueUserImage, 0, 360, 0);
+    slider(PDF_ID_PreviewObjectCorp,      PDF_ID_SliderAngleCorp,      PDF_ID_SliderAngleValueCorp,      0, 360, 0);
+    slider(PDF_ID_PreviewObjectPost,      PDF_ID_SliderAnglePost,      PDF_ID_SliderAngleValuePost,      0, 360, 0);
+    slider(PDF_ID_PreviewObjectNumber,    PDF_ID_SliderAngleNumber,    PDF_ID_SliderAngleValueNumber,    0, 360, 0);
+    slider(PDF_ID_PreviewObjectEmail,     PDF_ID_SliderAngleEmail,     PDF_ID_SliderAngleValueEmail,     0, 360, 0);
+    slider(PDF_ID_PreviewObjectText,      PDF_ID_SliderAngleText,      PDF_ID_SliderAngleValueText,      0, 360, 0);
+    /*-- ----------------------------------------------------------------------  --*/
+    slider("", PDF_ID_SliderAlpha, PDF_ID_SliderAlphaValue, 0, 100, 50);
+    /*--  角度の設定項目を非表示  --*/
+    $("#PDF_RowAngleUserId").hide();
+    $("#PDF_RowAngleUserName").hide();
+    $("#PDF_RowAngleTimestamp").hide();
+    $("#PDF_RowAngleUserImage").hide();
+    $("#PDF_RowAngleCorp").hide();
+    $("#PDF_RowAnglePost").hide();
+    $("#PDF_RowAngleNumber").hide();
+    $("#PDF_RowAngleEmail").hide();
+    $("#PDF_RowAngleText").hide();
+
+    /*-- ------------------ --*/
+    /*--  透かし項目の生成  --*/
+    /*-- ------------------ --*/
+    /*--  オブジェクト生成  --*/
+    var objCanvas = $('#' + PDF_ID_PreviewCanvas);
+    var objUserId    = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectUserId).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+    var objUserName  = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectUserName).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+    var objTimestamp = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectTimestamp).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+    var objUserImage = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectUserImage).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+    var objCorp      = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectCorp).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+    var objPost      = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectPost).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+    var objNumber    = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectNumber).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+    var objEmail     = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectEmail).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+    var objText      = $("<img/>").attr('src', '').attr('id', PDF_ID_PreviewObjectText).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+    /*--  オブジェクト追加  --*/
+    objCanvas.append(objUserImage);
+    objCanvas.append(objUserId);
+    objCanvas.append(objUserName);
+    objCanvas.append(objTimestamp);    
+    objCanvas.append(objCorp);
+    objCanvas.append(objPost);
+    objCanvas.append(objNumber);
+    objCanvas.append(objEmail);
+    objCanvas.append(objText);
+
+    /*--  ドラッグ可能とする  --*/
+    draggable(PDF_ID_PreviewObjectUserId);
+    draggable(PDF_ID_PreviewObjectUserName);
+    draggable(PDF_ID_PreviewObjectTimestamp);
+    draggable(PDF_ID_PreviewObjectUserImage);
+    draggable(PDF_ID_PreviewObjectCorp);
+    draggable(PDF_ID_PreviewObjectPost);
+    draggable(PDF_ID_PreviewObjectNumber);
+    draggable(PDF_ID_PreviewObjectEmail);
+    draggable(PDF_ID_PreviewObjectText);
+
+    if(WM_browserType == 'IE8'){
+        /*--  非表示にすると、rotate()でvmlタグに作り直された後に  --*/
+        /*--  画像が表示されなくなったため、一旦表示領域外へ移動。 --*/
+        $("#" + PDF_ID_PreviewObjectUserId   ).offset({"top":10000,"left":1000});
+        $("#" + PDF_ID_PreviewObjectUserName ).offset({"top":10000,"left":1000});
+        $("#" + PDF_ID_PreviewObjectTimestamp).offset({"top":10000,"left":1000});
+        $("#" + PDF_ID_PreviewObjectUserImage).offset({"top":10000,"left":1000});
+        $("#" + PDF_ID_PreviewObjectCorp).offset({"top":10000,"left":1000});
+        $("#" + PDF_ID_PreviewObjectPost).offset({"top":10000,"left":1000});
+        $("#" + PDF_ID_PreviewObjectNumber).offset({"top":10000,"left":1000});
+        $("#" + PDF_ID_PreviewObjectEmail).offset({"top":10000,"left":1000});
+        $("#" + PDF_ID_PreviewObjectText).offset({"top":10000,"left":1000});
+    }
+    else{
+        /*--  非表示  --*/
+        $("#" + PDF_ID_PreviewObjectUserId).hide();
+        $("#" + PDF_ID_PreviewObjectUserName).hide();
+        $("#" + PDF_ID_PreviewObjectTimestamp).hide();
+        $("#" + PDF_ID_PreviewObjectUserImage).hide();
+        $("#" + PDF_ID_PreviewObjectCorp).hide();
+        $("#" + PDF_ID_PreviewObjectPost).hide();
+        $("#" + PDF_ID_PreviewObjectNumber).hide();
+        $("#" + PDF_ID_PreviewObjectEmail).hide();
+        $("#" + PDF_ID_PreviewObjectText).hide();
+    }
+
+    /*-- ------------ --*/
+    /*--  タブの設定  --*/
+    /*-- ------------ --*/
+    $('#preview_config_container').tabs({
+        select: function(event, ui){
+                    if(ui.index == INDEX_TAB_ADD_ITEM){
+                        initAddRemoveObjectDialog();
+                        /*-- ダイアログ表示 --*/
+                        $("#PDF_addRemoveObjectDialog").dialog("open");
+                        event.preventDefault();
+                        return;
+                    }
+                    SELECT_TAB_INDEX = ui.index;
+                    /*--  透かし対象を未選択状態とする  --*/
+                    preview_object_select_clear();
+                    if(ui.index < 0){
+                        return;
+                    }
+                    $("#PDF_TabConfig a").mouseout();
+                    $("#PDF_TabTimestamp a").mouseout();
+                    $("#PDF_TabUserName a").mouseout();
+                    $("#PDF_TabUserId a").mouseout();
+                    $("#PDF_TabUserCorp a").mouseout();
+                    $("#PDF_TabUserPost a").mouseout();
+                    $("#PDF_TabUserNumber a").mouseout();
+                    $("#PDF_TabUserEmail a").mouseout();
+                    $("#PDF_TabUserText a").mouseout();
+                    $("#PDF_TabUserImage a").mouseout();
+                },
+        selected: 0
+    });
+
+    // レイアウトが崩れる原因となるクラスを削除
+    $("#config_panel_container").removeClass("ui-widget-header");
+    $("#config_panel_container").addClass("ui-wm-header");
+
+    /*-- ---------------------- --*/
+    /*--  フォントサイズの設定  --*/
+    /*-- ---------------------- --*/
+    $("#PDF_FontSizeTextUserId").val(PDF_FontSizeDefault);
+    $("#PDF_FontSizeTextUserName").val(PDF_FontSizeDefault);
+    $("#PDF_FontSizeTextTimestamp").val(PDF_FontSizeDefault);
+    $("#PDF_FontSizeTextCorp").val(PDF_FontSizeDefault);
+    $("#PDF_FontSizeTextPost").val(PDF_FontSizeDefault);
+    $("#PDF_FontSizeTextNumber").val(PDF_FontSizeDefault);
+    $("#PDF_FontSizeTextEmail").val(PDF_FontSizeDefault);
+    $("#PDF_FontSizeTextText").val(PDF_FontSizeDefault);
+
+    /*-- -------------------- --*/
+    /*--  フォーマットの設定  --*/
+    /*-- -------------------- --*/
+    $("#PDF_FormatTextTimestamp").val("yyyy/MM/dd HH:mm:ss");
+
+    /*-- -------------- --*/
+    /*--  スピンの設定  --*/
+    /*-- -------------- --*/
+    $.spin.imageBasePath = "{!URLFOR($Resource.cso, 'image/')}";
+    $.spin.timeInterval = 150;
+    $.spin.min = 1;
+    $.spin.max = 9999;
+    $('#PDF_SpinWidth').spin();
+    $('#PDF_SpinHeight').spin();
+    $('#PDF_SpinWidth').val(PDF_ImageSizeUserImage.width)
+    $('#PDF_SpinHeight').val(PDF_ImageSizeUserImage.height);
+    $('#PDF_SpinWidth').change(function(){changeSpinWidth($(this).val())});
+    $('#PDF_SpinHeight').change(function(){changeSpinHeight($(this).val())});
+
+    $("#preview_config_container").show();
+
+    $("#PDF_addRemoveObjectDialog").dialog({
+        autoOpen: false,
+        bgiframe: true,
+        modal: true,
+        resizable: false,
+        closeText: "Close",
+        width: 550,
+        height: 300
+    });
+
+    $("#PDF_TabConfig a").mouseover(function(){mouseoverTabEl($(this), "{!$Label.label_10649}", 0)});
+    $("#PDF_TabConfig a").mouseout(function(){mouseoutTabEl($(this), 0)});
+    $("#PDF_TabTimestamp a").mouseover(function(){mouseoverTabEl($(this), "{!$Label.label_10581}", INDEX_TAB_TIMESTAMP)});
+    $("#PDF_TabTimestamp a").mouseout(function(){mouseoutTabEl($(this), INDEX_TAB_TIMESTAMP)});
+    $("#PDF_TabUserName a").mouseover(function(){mouseoverTabEl($(this), "{!$Label.label_10021}", INDEX_TAB_USER_NAME)});
+    $("#PDF_TabUserName a").mouseout(function(){mouseoutTabEl($(this), INDEX_TAB_USER_NAME)});
+    $("#PDF_TabUserId a").mouseover(function(){mouseoverTabEl($(this), "{!$Label.label_10003}", INDEX_TAB_USER_ID)});
+    $("#PDF_TabUserId a").mouseout(function(){mouseoutTabEl($(this), INDEX_TAB_USER_ID)});
+    $("#PDF_TabUserCorp a").mouseover(function(){mouseoverTabEl($(this), "{!$Label.label_10650}", INDEX_TAB_CORP)});
+    $("#PDF_TabUserCorp a").mouseout(function(){mouseoutTabEl($(this), INDEX_TAB_CORP)});
+    $("#PDF_TabUserPost a").mouseover(function(){mouseoverTabEl($(this), "{!$Label.label_10652}", INDEX_TAB_POST)});
+    $("#PDF_TabUserPost a").mouseout(function(){mouseoutTabEl($(this), INDEX_TAB_POST)});
+    $("#PDF_TabUserNumber a").mouseover(function(){mouseoverTabEl($(this), "{!$Label.label_10651}", INDEX_TAB_USER_NUMBER)});
+    $("#PDF_TabUserNumber a").mouseout(function(){mouseoutTabEl($(this), INDEX_TAB_USER_NUMBER)});
+    $("#PDF_TabUserEmail a").mouseover(function(){mouseoverTabEl($(this), "{!$Label.label_10016}", INDEX_TAB_USER_EMAIL)});
+    $("#PDF_TabUserEmail a").mouseout(function(){mouseoutTabEl($(this), INDEX_TAB_USER_EMAIL)});
+    $("#PDF_TabUserText a").mouseover(function(){mouseoverTabEl($(this), "{!$Label.label_10654}", INDEX_TAB_USER_TEXT)});
+    $("#PDF_TabUserText a").mouseout(function(){mouseoutTabEl($(this), INDEX_TAB_USER_TEXT)});
+    $("#PDF_TabUserImage a").mouseover(function(){mouseoverTabEl($(this), "{!$Label.label_10582}", INDEX_TAB_USER_IMAGE)});
+    $("#PDF_TabUserImage a").mouseout(function(){mouseoutTabEl($(this), INDEX_TAB_USER_IMAGE)});
+}
+function mouseoverTabEl(o, text, index){
+    if(SELECT_TAB_INDEX != index){
+        o.html(text);
+    }
+}
+function mouseoutTabEl(o, index){
+    if(SELECT_TAB_INDEX != index){
+        o.html("...");
+    }
+}
+
+function setImageSrc(id, src){
+    $("#" + id).attr('src', src);
+}
+
+function initAddRemoveObjectDialog(){
+    /*-- すべて未選択とする --*/
+    $("#PDF_wm_taget_r option").each(function(){
+        var val = $(this).val();
+        var text = $(this).text();
+        $("#PDF_wm_taget_l").append($("<option>").val(val).text(text));
+        $(this).remove();
+    });
+
+    /*--  タイムスタンプ  --*/
+    if(WM_TargetTimestamp == true){
+        $("#PDF_wm_taget_l").val(PDF_ID_OptionTarget + PDF_ID_BASE_Timestamp);
+        move('PDF_wm_taget_l', 'PDF_wm_taget_r');
+    }
+    /*--  ユーザ名  --*/
+    if(WM_TargetUserName == true){
+        $("#PDF_wm_taget_l").val(PDF_ID_OptionTarget + PDF_ID_BASE_UserName);
+        move('PDF_wm_taget_l', 'PDF_wm_taget_r');
+    }
+    /*--  ユーザID  --*/
+    if(WM_TargetUserId == true){
+        $("#PDF_wm_taget_l").val(PDF_ID_OptionTarget + PDF_ID_BASE_UserId);
+        move('PDF_wm_taget_l', 'PDF_wm_taget_r');
+    }
+    /*--  画像  --*/
+    if(WM_TargetUserImage == true){
+        $("#PDF_wm_taget_l").val(PDF_ID_OptionTarget + PDF_ID_BASE_UserImage);
+        move('PDF_wm_taget_l', 'PDF_wm_taget_r');
+    }
+    /*--  所属組織  --*/
+    if(WM_TargetCorp == true){
+        $("#PDF_wm_taget_l").val(PDF_ID_OptionTarget + PDF_ID_BASE_Corp);
+        move('PDF_wm_taget_l', 'PDF_wm_taget_r');
+    }
+    /*--  部署・役職  --*/
+    if(WM_TargetPost == true){
+        $("#PDF_wm_taget_l").val(PDF_ID_OptionTarget + PDF_ID_BASE_Post);
+        move('PDF_wm_taget_l', 'PDF_wm_taget_r');
+    }
+    /*--  社員番号  --*/
+    if(WM_TargetNumber == true){
+        $("#PDF_wm_taget_l").val(PDF_ID_OptionTarget + PDF_ID_BASE_Number);
+        move('PDF_wm_taget_l', 'PDF_wm_taget_r');
+    }
+    /*--  メールアドレス  --*/
+    if(WM_TargetEmail == true){
+        $("#PDF_wm_taget_l").val(PDF_ID_OptionTarget + PDF_ID_BASE_Email);
+        move('PDF_wm_taget_l', 'PDF_wm_taget_r');
+    }
+    /*--  フリーテキスト  --*/
+    if(WM_TargetText == true){
+        $("#PDF_wm_taget_l").val(PDF_ID_OptionTarget + PDF_ID_BASE_Text);
+        move('PDF_wm_taget_l', 'PDF_wm_taget_r');
+    }
+}
+
+function keepSelectTarget(){
+    WM_TargetUserId    = false;
+    WM_TargetUserName  = false;
+    WM_TargetTimestamp = false;
+    WM_TargetUserImage = false;
+    WM_TargetCorp      = false;
+    WM_TargetPost      = false;
+    WM_TargetNumber    = false;
+    WM_TargetEmail     = false;
+    WM_TargetText      = false;
+
+    /*--  タイムスタンプ  --*/
+    if(addContains(PDF_ID_OptionTarget + PDF_ID_BASE_Timestamp) == true){
+        WM_TargetTimestamp = true;
+    }
+    /*--  ユーザ名  --*/
+    if(addContains(PDF_ID_OptionTarget + PDF_ID_BASE_UserName) == true){
+        WM_TargetUserName = true;
+    }
+    /*--  ユーザID  --*/
+    if(addContains(PDF_ID_OptionTarget + PDF_ID_BASE_UserId) == true){
+        WM_TargetUserId = true;
+    }
+    /*--  画像  --*/
+    if(addContains(PDF_ID_OptionTarget + PDF_ID_BASE_UserImage) == true){
+        WM_TargetUserImage = true;
+    }
+    /*--  所属組織  --*/
+    if(addContains(PDF_ID_OptionTarget + PDF_ID_BASE_Corp) == true){
+        WM_TargetCorp = true;
+    }
+    /*--  部署・役職  --*/
+    if(addContains(PDF_ID_OptionTarget + PDF_ID_BASE_Post) == true){
+        WM_TargetPost = true;
+    }
+    /*--  社員番号  --*/
+    if(addContains(PDF_ID_OptionTarget + PDF_ID_BASE_Number) == true){
+        WM_TargetNumber = true;
+    }
+    /*--  メールアドレス  --*/
+    if(addContains(PDF_ID_OptionTarget + PDF_ID_BASE_Email) == true){
+        WM_TargetEmail = true;
+    }
+    /*--  フリーテキスト  --*/
+    if(addContains(PDF_ID_OptionTarget + PDF_ID_BASE_Text) == true){
+        WM_TargetText = true;
+    }
+
+    /*--  タブの表示／非表示  --*/
+    preview_display_object(PDF_ID_OptionTarget + PDF_ID_BASE_Timestamp, PDF_ID_PreviewObjectTimestamp);
+    preview_display_object(PDF_ID_OptionTarget + PDF_ID_BASE_UserName,  PDF_ID_PreviewObjectUserName);
+    preview_display_object(PDF_ID_OptionTarget + PDF_ID_BASE_UserId,    PDF_ID_PreviewObjectUserId);
+    preview_display_object(PDF_ID_OptionTarget + PDF_ID_BASE_UserImage, PDF_ID_PreviewObjectUserImage);
+    preview_display_object(PDF_ID_OptionTarget + PDF_ID_BASE_Corp,      PDF_ID_PreviewObjectCorp);
+    preview_display_object(PDF_ID_OptionTarget + PDF_ID_BASE_Post,      PDF_ID_PreviewObjectPost);
+    preview_display_object(PDF_ID_OptionTarget + PDF_ID_BASE_Number,    PDF_ID_PreviewObjectNumber);
+    preview_display_object(PDF_ID_OptionTarget + PDF_ID_BASE_Email,     PDF_ID_PreviewObjectEmail);
+    preview_display_object(PDF_ID_OptionTarget + PDF_ID_BASE_Text,      PDF_ID_PreviewObjectText);
+}
+
+function itemRearrangeAll(){
+    /*--  回転角度を保持  --*/
+    var beforeRotateUserId    = $("#" + PDF_ID_SliderAngleValueUserId).val();
+    var beforeRotateUserName  = $("#" + PDF_ID_SliderAngleValueUserName).val();
+    var beforeRotateTimestamp = $("#" + PDF_ID_SliderAngleValueTimestamp).val();
+    var beforeRotateUserImage = $("#" + PDF_ID_SliderAngleValueUserImage).val();
+    var beforeRotateCorp      = $("#" + PDF_ID_SliderAngleValueCorp).val();
+    var beforeRotatePost      = $("#" + PDF_ID_SliderAngleValuePost).val();
+    var beforeRotateNumber    = $("#" + PDF_ID_SliderAngleValueNumber).val();
+    var beforeRotateEmail     = $("#" + PDF_ID_SliderAngleValueEmail).val();
+    var beforeRotateText      = $("#" + PDF_ID_SliderAngleValueText).val();
+
+    /*--  中央に配置してある場合、回転を0度に戻す  --*/
+    if(PDF_ItemPosNoUserId == 5){
+        rotate(PDF_ID_PreviewObjectUserId, 0);
+    }
+    if(PDF_ItemPosNoUserName == 5){
+        rotate(PDF_ID_PreviewObjectUserName, 0);
+    }
+    if(PDF_ItemPosNoTimestamp == 5){
+        rotate(PDF_ID_PreviewObjectTimestamp, 0);
+    }
+    if(PDF_ItemPosNoUserImage == 5){
+        rotate(PDF_ID_PreviewObjectUserImage, 0);
+    }
+    if(PDF_ItemPosNoCorp == 5){
+        rotate(PDF_ID_PreviewObjectCorp, 0);
+    }
+    if(PDF_ItemPosNoPost == 5){
+        rotate(PDF_ID_PreviewObjectPost, 0);
+    }
+    if(PDF_ItemPosNoNumber == 5){
+        rotate(PDF_ID_PreviewObjectNumber, 0);
+    }
+    if(PDF_ItemPosNoEmail == 5){
+        rotate(PDF_ID_PreviewObjectEmail, 0);
+    }
+    if(PDF_ItemPosNoText == 5){
+        rotate(PDF_ID_PreviewObjectText, 0);
+    }
+
+    /*--  画像サイズを設定  --*/
+    var paperSize = $("#PDF_paperSize").val();
+    var ratio = getStringRatio(paperSize, $("#PDF_FontSizeTextUserId").val());
+    var size = PDF_ImageSizeUserId;
+    var objUserId = $("#" + PDF_ID_PreviewObjectUserId);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objUserId.css("width",  cssWidth + "px");
+        objUserId.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectUserId + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectUserId + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objUserId.width(parseInt(size.width) * ratio);
+        objUserId.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    ratio = getStringRatio(paperSize, $("#PDF_FontSizeTextUserName").val());
+    size = PDF_ImageSizeUserName;
+    var objUserName = $("#" + PDF_ID_PreviewObjectUserName);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objUserName.css("width",  cssWidth + "px");
+        objUserName.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectUserName + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectUserName + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objUserName.width(parseInt(size.width) * ratio);
+        objUserName.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizeTimestamp;
+    ratio = getStringRatio(paperSize, $("#PDF_FontSizeTextTimestamp").val());
+    var objTimestamp = $("#" + PDF_ID_PreviewObjectTimestamp);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objTimestamp.css("width",  cssWidth + "px");
+        objTimestamp.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectTimestamp + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectTimestamp + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objTimestamp.width(parseInt(size.width) * ratio);
+        objTimestamp.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    var ratioImage = getImageRatio(paperSize);
+    var sizeImage = {width: 0, height: 0};
+    sizeImage.width  = $("#PDF_SpinWidth" ).val();
+    sizeImage.height = $("#PDF_SpinHeight").val();
+    var objUserImage = $("#" + PDF_ID_PreviewObjectUserImage);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(sizeImage.width) * ratioImage;
+        var cssHeight = parseInt(sizeImage.height) * ratioImage;
+        objUserImage.css("width",  cssWidth + "px");
+        objUserImage.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectUserImage + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectUserImage + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objUserImage.width(parseInt(sizeImage.width) * ratioImage);
+        objUserImage.height(parseInt(sizeImage.height) * ratioImage);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizeCorp;
+    ratio = getStringRatio(paperSize, $("#PDF_FontSizeTextCorp").val());
+    var objCorp = $("#" + PDF_ID_PreviewObjectCorp);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objCorp.css("width",  cssWidth + "px");
+        objCorp.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectCorp + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectCorp + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objCorp.width(parseInt(size.width) * ratio);
+        objCorp.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizePost;
+    ratio = getStringRatio(paperSize, $("#PDF_FontSizeTextPost").val());
+    var objPost = $("#" + PDF_ID_PreviewObjectPost);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objPost.css("width",  cssWidth + "px");
+        objPost.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectPost + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectPost + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objPost.width(parseInt(size.width) * ratio);
+        objPost.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizeNumber;
+    ratio = getStringRatio(paperSize, $("#PDF_FontSizeTextNumber").val());
+    var objNumber = $("#" + PDF_ID_PreviewObjectNumber);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objNumber.css("width",  cssWidth + "px");
+        objNumber.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectNumber + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectNumber + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objNumber.width(parseInt(size.width) * ratio);
+        objNumber.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizeEmail;
+    ratio = getStringRatio(paperSize, $("#PDF_FontSizeTextEmail").val());
+    var objEmail = $("#" + PDF_ID_PreviewObjectEmail);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objEmail.css("width",  cssWidth + "px");
+        objEmail.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectEmail + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectEmail + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objEmail.width(parseInt(size.width) * ratio);
+        objEmail.height(parseInt(size.height) * ratio);
+    }
+    /*-- ----------------------------------------------------------------------  --*/
+    size = PDF_ImageSizeText;
+    ratio = getStringRatio(paperSize, $("#PDF_FontSizeTextText").val());
+    var objText = $("#" + PDF_ID_PreviewObjectText);
+    if(WM_browserType == 'IE8'){
+        var cssWidth  = parseInt(size.width) * ratio;
+        var cssHeight = parseInt(size.height) * ratio;
+        objText.css("width",  cssWidth + "px");
+        objText.css("height", cssHeight + "px");
+        $("#" + PDF_ID_PreviewObjectText + '_rvml_group').css("width",  cssWidth + "px");
+        $("#" + PDF_ID_PreviewObjectText + '_rvml_group').css("height", cssHeight + "px");
+    }
+    else{
+        objText.width(parseInt(size.width) * ratio);
+        objText.height(parseInt(size.height) * ratio);
+    }
+
+    var objCanvas = $('#' + PDF_ID_PreviewCanvas);
+    if(WM_browserType == 'IE8'){
+        var x = 0;
+        var y = 0;
+        /*--  配置（画像）  --*/
+        if(WM_TargetUserImage == true){
+            x = getItemPosX(PDF_ItemPosNoUserImage);
+            y = getItemPosY(PDF_ItemPosNoUserImage);
+            itemRearrangeExec(objCanvas, objUserImage, x, y);
+        }
+        /*--  配置（ユーザID）  --*/
+        if(WM_TargetUserId == true){
+                x = getItemPosX(PDF_ItemPosNoUserId);
+                y = getItemPosY(PDF_ItemPosNoUserId);
+                itemRearrangeExec(objCanvas, objUserId, x, y);
+        }
+        /*--  配置（ユーザ名）  --*/
+        if(WM_TargetUserName == true){
+            x = getItemPosX(PDF_ItemPosNoUserName);
+            y = getItemPosY(PDF_ItemPosNoUserName);
+            itemRearrangeExec(objCanvas, objUserName, x, y);
+        }
+        /*--  配置（タイムスタンプ）  --*/
+        if(WM_TargetTimestamp == true){
+            x = getItemPosX(PDF_ItemPosNoTimestamp);
+            y = getItemPosY(PDF_ItemPosNoTimestamp);
+            itemRearrangeExec(objCanvas, objTimestamp, x, y);
+        }
+        /*--  配置（所属組織）  --*/
+        if(WM_TargetCorp == true){
+            x = getItemPosX(PDF_ItemPosNoCorp);
+            y = getItemPosY(PDF_ItemPosNoCorp);
+            itemRearrangeExec(objCanvas, objCorp, x, y);
+        }
+        /*--  配置（部署・役職）  --*/
+        if(WM_TargetPost == true){
+            x = getItemPosX(PDF_ItemPosNoPost);
+            y = getItemPosY(PDF_ItemPosNoPost);
+            itemRearrangeExec(objCanvas, objPost, x, y);
+        }
+        /*--  配置（社員番号）  --*/
+        if(WM_TargetNumber == true){
+            x = getItemPosX(PDF_ItemPosNoNumber);
+            y = getItemPosY(PDF_ItemPosNoNumber);
+            itemRearrangeExec(objCanvas, objNumber, x, y);
+        }
+        /*--  配置（メールアドレス）  --*/
+        if(WM_TargetEmail == true){
+            x = getItemPosX(PDF_ItemPosNoEmail);
+            y = getItemPosY(PDF_ItemPosNoEmail);
+            itemRearrangeExec(objCanvas, objEmail, x, y);
+        }
+        /*--  配置（フリーテキスト）  --*/
+        if(WM_TargetText == true){
+            x = getItemPosX(PDF_ItemPosNoText);
+            y = getItemPosY(PDF_ItemPosNoText);
+            itemRearrangeExec(objCanvas, objText, x, y);
+        }
+    }
+    else{
+        /*--  配置（画像）  --*/
+        var x = getItemPosX(PDF_ItemPosNoUserImage);
+        var y = getItemPosY(PDF_ItemPosNoUserImage);
+        itemRearrangeExec(objCanvas, objUserImage, x, y);
+        /*--  配置（ユーザID）  --*/
+        x = getItemPosX(PDF_ItemPosNoUserId);
+        y = getItemPosY(PDF_ItemPosNoUserId);
+        itemRearrangeExec(objCanvas, objUserId, x, y);
+        /*--  配置（ユーザ名）  --*/
+        x = getItemPosX(PDF_ItemPosNoUserName);
+        y = getItemPosY(PDF_ItemPosNoUserName);
+        itemRearrangeExec(objCanvas, objUserName, x, y);
+        /*--  配置（タイムスタンプ）  --*/
+        x = getItemPosX(PDF_ItemPosNoTimestamp);
+        y = getItemPosY(PDF_ItemPosNoTimestamp);
+        itemRearrangeExec(objCanvas, objTimestamp, x, y);
+        /*--  配置（所属組織）  --*/
+        x = getItemPosX(PDF_ItemPosNoCorp);
+        y = getItemPosY(PDF_ItemPosNoCorp);
+        itemRearrangeExec(objCanvas, objCorp, x, y);
+        /*--  配置（部署・役職）  --*/
+        x = getItemPosX(PDF_ItemPosNoPost);
+        y = getItemPosY(PDF_ItemPosNoPost);
+        itemRearrangeExec(objCanvas, objPost, x, y);
+        /*--  配置（社員番号）  --*/
+        x = getItemPosX(PDF_ItemPosNoNumber);
+        y = getItemPosY(PDF_ItemPosNoNumber);
+        itemRearrangeExec(objCanvas, objNumber, x, y);
+        /*--  配置（メールアドレス）  --*/
+        x = getItemPosX(PDF_ItemPosNoEmail);
+        y = getItemPosY(PDF_ItemPosNoEmail);
+        itemRearrangeExec(objCanvas, objEmail, x, y);
+        /*--  配置（フリーテキスト）  --*/
+        x = getItemPosX(PDF_ItemPosNoText);
+        y = getItemPosY(PDF_ItemPosNoText);
+        itemRearrangeExec(objCanvas, objText, x, y);
+    }
+
+    /*--  中央に配置してある場合、回転角度を元に戻す  --*/
+    if(PDF_ItemPosNoUserId == 5){
+        rotate(PDF_ID_PreviewObjectUserId, beforeRotateUserId);
+    }
+    if(PDF_ItemPosNoUserName == 5){
+        rotate(PDF_ID_PreviewObjectUserName, beforeRotateUserName);
+    }
+    if(PDF_ItemPosNoTimestamp == 5){
+        rotate(PDF_ID_PreviewObjectTimestamp, beforeRotateTimestamp);
+    }
+    if(PDF_ItemPosNoUserImage == 5){
+        rotate(PDF_ID_PreviewObjectUserImage, beforeRotateUserImage);
+    }
+    if(PDF_ItemPosNoCorp == 5){
+        rotate(PDF_ID_PreviewObjectCorp, beforeRotateCorp);
+    }
+    if(PDF_ItemPosNoPost == 5){
+        rotate(PDF_ID_PreviewObjectPost, beforeRotatePost);
+    }
+    if(PDF_ItemPosNoNumber == 5){
+        rotate(PDF_ID_PreviewObjectNumber, beforeRotateNumber);
+    }
+    if(PDF_ItemPosNoEmail == 5){
+        rotate(PDF_ID_PreviewObjectEmail, beforeRotateEmail);
+    }
+    if(PDF_ItemPosNoText == 5){
+        rotate(PDF_ID_PreviewObjectText, beforeRotateText);
+    }
+}
+
+/**
+ * オブジェクト選択処理
+ */
+function preview_object_select(o){
+    setTabIndex($(o).attr('id'));
+}
+
+/**
+ * オブジェクトの選択状態解除
+ */
+function preview_object_select_clear(){
+    $('.preview_object_select').removeClass('preview_object_select');
+}
+
+/**
+ * キャンバスオブジェクト挿入
+ */
+function preview_display_object(chkId, imgId){
+
+    if(addContains(chkId)){
+        $('#' + imgId).show();
+        addConfigTab(imgId);
+    } else {
+        if(WM_browserType == 'IE8'){
+            $("#" + imgId).offset({"top":10000,"left":10000});
+        }
+        else{
+            $('#' + imgId).hide();
+        }
+        delConfigTab(imgId);
+    }
+    itemRearrangeAll();
+
+}
+
+function addContains(v){
+    if($("#PDF_wm_taget_r option[value=" + v + "]").length == 0){
+        return false;
+    }else{
+        return true;
+    }
+}
+function sleep(time) {
+    var d1 = new Date().getTime();
+    var d2 = new Date().getTime();
+    while (d2 < d1 + time) {
+        d2 = new Date().getTime();
+    }
+    return;
+}
+
+/**
+ * タブを追加する
+ */
+function addConfigTab(id){
+    setConfigTab(id, true);
+}
+/**
+ * タブを削除する
+ */
+function delConfigTab(id){
+    setConfigTab(id, false);
+}
+/**
+ * タブの追加・削除を行う
+ */
+function setConfigTab(id, show){
+    var tabObj = null;
+    switch(id){
+    case PDF_ID_PreviewObjectUserId:
+        tabObj = $("#PDF_TabUserId");
+        break;
+    case PDF_ID_PreviewObjectUserName:
+        tabObj = $("#PDF_TabUserName");
+        break;
+    case PDF_ID_PreviewObjectTimestamp:
+        tabObj = $("#PDF_TabTimestamp");
+        break;
+    case PDF_ID_PreviewObjectUserImage:
+        tabObj = $("#PDF_TabUserImage");
+        break;
+    case PDF_ID_PreviewObjectCorp:
+        tabObj = $("#PDF_TabUserCorp");
+        break;
+    case PDF_ID_PreviewObjectPost:
+        tabObj = $("#PDF_TabUserPost");
+        break;
+    case PDF_ID_PreviewObjectNumber:
+        tabObj = $("#PDF_TabUserNumber");
+        break;
+    case PDF_ID_PreviewObjectEmail:
+        tabObj = $("#PDF_TabUserEmail");
+        break;
+    case PDF_ID_PreviewObjectText:
+        tabObj = $("#PDF_TabUserText");
+        break;
+    }
+
+    if(tabObj == null){
+        return;
+    }
+
+    if(show == true){
+        tabObj.show();
+    }
+    else{
+        tabObj.hide();
+        /*--  用紙タブを選択  --*/
+        setTabIndex("PDF_TabSpaceConfig");
+    }
+}
+/**
+ * インデックスで指定されたタブを選択する
+ */
+function setTabIndex(id){
+    var obj = $("#PDF_TabConfig a");
+    var idx = 0;
+    switch(id){
+    case PDF_ID_PreviewObjectTimestamp:
+        idx = INDEX_TAB_TIMESTAMP;
+        obj = $("#PDF_TabTimestamp a");
+        break;
+    case PDF_ID_PreviewObjectUserName:
+        idx = INDEX_TAB_USER_NAME;
+        obj = $("#PDF_TabUserName a");
+        break;
+    case PDF_ID_PreviewObjectUserId:
+        idx = INDEX_TAB_USER_ID;
+        obj = $("#PDF_TabUserId a");
+        break;
+    case PDF_ID_PreviewObjectCorp:
+        idx = INDEX_TAB_CORP;
+        obj = $("#PDF_TabUserCorp a");
+        break;
+    case PDF_ID_PreviewObjectPost:
+        idx = INDEX_TAB_POST;
+        obj = $("#PDF_TabUserPost a");
+        break;
+    case PDF_ID_PreviewObjectNumber:
+        idx = INDEX_TAB_USER_NUMBER;
+        obj = $("#PDF_TabUserNumber a");
+        break;
+    case PDF_ID_PreviewObjectEmail:
+        idx = INDEX_TAB_USER_EMAIL;
+        obj = $("#PDF_TabUserEmail a");
+        break;
+    case PDF_ID_PreviewObjectText:
+        idx = INDEX_TAB_USER_TEXT;
+        obj = $("#PDF_TabUserText a");
+        break;
+    case PDF_ID_PreviewObjectUserImage:
+        idx = INDEX_TAB_USER_IMAGE;
+        obj = $("#PDF_TabUserImage a");
+        break;
+    }
+
+    $('#preview_config_container').tabs({
+        selected: idx
+    });
+
+    SELECT_TAB_INDEX = -1;
+    $("#PDF_TabTimestamp a").mouseout();
+    $("#PDF_TabUserName a").mouseout();
+    $("#PDF_TabUserId a").mouseout();
+    $("#PDF_TabUserCorp a").mouseout();
+    $("#PDF_TabUserPost a").mouseout();
+    $("#PDF_TabUserNumber a").mouseout();
+    $("#PDF_TabUserEmail a").mouseout();
+    $("#PDF_TabUserText a").mouseout();
+    $("#PDF_TabUserImage a").mouseout();
+    $("#PDF_TabConfig a").mouseout();
+    obj.mouseover();
+    SELECT_TAB_INDEX = idx;
+
+}
+/**
+ * 透かし対象プロパティのタブインデックスから
+ * 透かし対象のIDを取得する
+ */
+function getPreviewObjectId(idx){
+    var id = "";
+    switch(idx){
+    case INDEX_TAB_TIMESTAMP:
+        id = PDF_ID_PreviewObjectTimestamp;
+        break;
+    case INDEX_TAB_USER_NAME:
+        id = PDF_ID_PreviewObjectUserName;
+        break;
+    case INDEX_TAB_USER_ID:
+        id = PDF_ID_PreviewObjectUserId;
+        break;
+    case INDEX_TAB_CORP:
+        id = PDF_ID_PreviewObjectCorp;
+        break;
+    case INDEX_TAB_POST:
+        id = PDF_ID_PreviewObjectPost;
+        break;
+    case INDEX_TAB_USER_NUMBER:
+        id = PDF_ID_PreviewObjectNumber;
+        break;
+    case INDEX_TAB_USER_EMAIL:
+        id = PDF_ID_PreviewObjectEmail;
+        break;
+    case INDEX_TAB_USER_TEXT:
+        id = PDF_ID_PreviewObjectText;
+        break;
+    case INDEX_TAB_USER_IMAGE:
+        id = PDF_ID_PreviewObjectUserImage;
+        break;
+    }
+
+    return id;
+}
+
+/**
+ * ドラッガブル要素生成
+ */
+function draggable(o){
+    $('#' + o).draggable({
+        scroll: false,
+        start : function(event, ui) {
+                },
+        drag  : function(event, ui) {
+                },
+        stop  : function(event, ui) {
+                    var canvas = $('#' + PDF_ID_PreviewCanvas);
+                    var areaOffset = canvas.offset();
+                    var offsetTop = ((event.pageY)-(areaOffset.top));
+                    var offsetLeft = ((event.pageX)-(areaOffset.left));
+
+                    var id = ui.helper.context.id;
+
+                    /*--  移動先を取得  --*/
+                    var target = $("#" + id);
+                    /*--  表示位置（１～９）を取得  --*/
+                    var posNo = getItemPosNo(canvas, target, offsetTop, offsetLeft);
+                    /*--  移動  --*/
+                    moveItemPos(id, posNo);
+
+                    for(var i = 1; i < 10; i++){
+                        if(i == posNo){
+                            setCurrentPosition($("#PDF_ButtonPosition" + id.substring(PDF_ID_PreviewObject.length) + "-" + i));
+                        }else{
+                            $("#PDF_ButtonPosition" + id.substring(PDF_ID_PreviewObject.length) + "-" + i).removeClass("PDF_wm_pos_click");
+                        }
+                    }
+                }
+    });
+}
+
+function moveItemPos(id, posNo){
+    /*-- ------------------------ --*/
+    /*--  移動前の位置を取得する  --*/
+    /*-- ------------------------ --*/
+    var beforePosNo = 5;                /*--  移動前の位置  --*/
+    var beforeRotateValue = 0;          /*--  移動前の回転角度  --*/
+    switch(id){
+    case PDF_ID_PreviewObjectUserId:
+        beforePosNo = PDF_ItemPosNoUserId;
+        beforeRotateValue = $("#" + PDF_ID_SliderAngleValueUserId).val();
+        break;
+    case PDF_ID_PreviewObjectUserName:
+        beforePosNo = PDF_ItemPosNoUserName;
+        beforeRotateValue = $("#" + PDF_ID_SliderAngleValueUserName).val();
+        break;
+    case PDF_ID_PreviewObjectTimestamp:
+        beforePosNo = PDF_ItemPosNoTimestamp;
+        beforeRotateValue = $("#" + PDF_ID_SliderAngleValueTimestamp).val();
+        break;
+    case PDF_ID_PreviewObjectUserImage:
+        beforePosNo = PDF_ItemPosNoUserImage;
+        beforeRotateValue = $("#" + PDF_ID_SliderAngleValueUserImage).val();
+        break;
+    case PDF_ID_PreviewObjectCorp:
+        beforePosNo = PDF_ItemPosNoCorp;
+        beforeRotateValue = $("#" + PDF_ID_SliderAngleValueCorp).val();
+        break;
+    case PDF_ID_PreviewObjectPost:
+        beforePosNo = PDF_ItemPosNoPost;
+        beforeRotateValue = $("#" + PDF_ID_SliderAngleValuePost).val();
+        break;
+    case PDF_ID_PreviewObjectNumber:
+        beforePosNo = PDF_ItemPosNoNumber;
+        beforeRotateValue = $("#" + PDF_ID_SliderAngleValueNumber).val();
+        break;
+    case PDF_ID_PreviewObjectEmail:
+        beforePosNo = PDF_ItemPosNoEmail;
+        beforeRotateValue = $("#" + PDF_ID_SliderAngleValueEmail).val();
+        break;
+    case PDF_ID_PreviewObjectText:
+        beforePosNo = PDF_ItemPosNoText;
+        beforeRotateValue = $("#" + PDF_ID_SliderAngleValueText).val();
+        break;
+    }
+
+    /*-- ---------- --*/
+    /*--  移動する  --*/
+    /*-- ---------- --*/
+    /*--  回転なしとする  --*/
+    rotate(id, 0);
+    /*--  再配置用の情報を取得  --*/
+    var x = getItemPosX(posNo);
+    var y = getItemPosY(posNo);
+    /*--  移動（再配置）  --*/
+    var canvas = $('#' + PDF_ID_PreviewCanvas);
+    var target = $("#" + id);
+    itemRearrangeExec(canvas, target, x, y);
+
+    /*-- ------------------ --*/
+    /*--  回転角度を再設定  --*/
+    /*-- ------------------ --*/
+    var rotateValue = 0;
+    if((beforePosNo == 5) && (posNo == 5)){
+        rotateValue = beforeRotateValue;
+        /*--  元の回転角度に戻す  --*/
+        rotate(id, rotateValue);
+    }
+    /*--  スライダーの情報を取得  --*/
+    var strSliderId = "";
+    var strValueId  = "";
+    var objSlider = null;
+    var objRow  = null;
+    switch(id){
+    case PDF_ID_PreviewObjectUserId:
+        objSlider   = $("#" + PDF_ID_SliderAngleUserId);
+        objRow      = $("#PDF_RowAngleUserId");
+        strSliderId = PDF_ID_SliderAngleUserId;
+        strValueId  = PDF_ID_SliderAngleValueUserId;
+        break;
+    case PDF_ID_PreviewObjectUserName:
+        objSlider   = $("#" + PDF_ID_SliderAngleUserName);
+        objRow      = $("#PDF_RowAngleUserName");
+        strSliderId = PDF_ID_SliderAngleUserName;
+        strValueId  = PDF_ID_SliderAngleValueUserName;
+        break;
+    case PDF_ID_PreviewObjectTimestamp:
+        objSlider   = $("#" + PDF_ID_SliderAngleTimestamp);
+        objRow      = $("#PDF_RowAngleTimestamp");
+        strSliderId = PDF_ID_SliderAngleTimestamp;
+        strValueId  = PDF_ID_SliderAngleValueTimestamp;
+        break;
+    case PDF_ID_PreviewObjectUserImage:
+        objSlider   = $("#" + PDF_ID_SliderAngleUserImage);
+        objRow      = $("#PDF_RowAngleUserImage");
+        strSliderId = PDF_ID_SliderAngleUserImage;
+        strValueId  = PDF_ID_SliderAngleValueUserImage;
+        break;
+    case PDF_ID_PreviewObjectCorp:
+        objSlider   = $("#" + PDF_ID_SliderAngleCorp);
+        objRow      = $("#PDF_RowAngleCorp");
+        strSliderId = PDF_ID_SliderAngleCorp;
+        strValueId  = PDF_ID_SliderAngleValueCorp;
+        break;
+    case PDF_ID_PreviewObjectPost:
+        objSlider   = $("#" + PDF_ID_SliderAnglePost);
+        objRow      = $("#PDF_RowAnglePost");
+        strSliderId = PDF_ID_SliderAnglePost;
+        strValueId  = PDF_ID_SliderAngleValuePost;
+        break;
+    case PDF_ID_PreviewObjectNumber:
+        objSlider   = $("#" + PDF_ID_SliderAngleNumber);
+        objRow      = $("#PDF_RowAngleNumber");
+        strSliderId = PDF_ID_SliderAngleNumber;
+        strValueId  = PDF_ID_SliderAngleValueNumber;
+        break;
+    case PDF_ID_PreviewObjectEmail:
+        objSlider   = $("#" + PDF_ID_SliderAngleEmail);
+        objRow      = $("#PDF_RowAngleEmail");
+        strSliderId = PDF_ID_SliderAngleEmail;
+        strValueId  = PDF_ID_SliderAngleValueEmail;
+        break;
+    case PDF_ID_PreviewObjectText:
+        objSlider   = $("#" + PDF_ID_SliderAngleText);
+        objRow      = $("#PDF_RowAngleText");
+        strSliderId = PDF_ID_SliderAngleText;
+        strValueId  = PDF_ID_SliderAngleValueText;
+        break;
+    }
+    if(objSlider != null){
+        /*--  スライダーを設定  --*/
+        slider(id, strSliderId, strValueId, 0, 360, rotateValue);
+        if(posNo != 5){
+            /*--  中央以外では、回転を非表示  --*/
+            objRow.hide();
+        }
+        else{
+            /*--  中央では、回転を表示  --*/
+            objRow.show();
+        }
+    }
+
+    /*-- ---------------- --*/
+    /*--  位置を保持する  --*/
+    /*-- ---------------- --*/
+    switch(id){
+    case PDF_ID_PreviewObjectUserId:
+        PDF_ItemPosNoUserId = posNo;
+        break;
+    case PDF_ID_PreviewObjectUserName:
+        PDF_ItemPosNoUserName = posNo;
+        break;
+    case PDF_ID_PreviewObjectTimestamp:
+        PDF_ItemPosNoTimestamp = posNo;
+        break;
+    case PDF_ID_PreviewObjectUserImage:
+        PDF_ItemPosNoUserImage = posNo;
+        break;
+    case PDF_ID_PreviewObjectCorp:
+        PDF_ItemPosNoCorp = posNo;
+        break;
+    case PDF_ID_PreviewObjectPost:
+        PDF_ItemPosNoPost = posNo;
+        break;
+    case PDF_ID_PreviewObjectNumber:
+        PDF_ItemPosNoNumber = posNo;
+        break;
+    case PDF_ID_PreviewObjectEmail:
+        PDF_ItemPosNoEmail = posNo;
+        break;
+    case PDF_ID_PreviewObjectText:
+        PDF_ItemPosNoText = posNo;
+        break;
+    }
+}
+
+function ItemRearrange(canvas, target, offsetTop, offsetLeft){
+    /*--  表示位置（１～９）を取得  --*/
+    var posNo = getItemPosNo(canvas, target, offsetTop, offsetLeft);
+    /*--  再配置用の情報を取得  --*/
+    var x = getItemPosX(posNo);
+    var y = getItemPosY(posNo);
+    /*--  再配置  --*/
+    itemRearrangeExec(canvas, target, x, y);
+
+    return posNo;
+}
+function getItemPosNo(canvas, target, offsetTop, offsetLeft){
+    /*-- ---------- --*/
+    /*--  基準座標  --*/
+    /*-- ---------- --*/
+    var leftX    = Math.floor(canvas.width() / 3);
+    var rightX   = leftX * 2;
+    var topY     = Math.floor(canvas.height() / 3);
+    var bottomY  = topY * 2;
+
+    /*-- ----------------------- --*/
+    /*--  配置場所を決定（横軸)  --*/
+    /*-- ----------------------- --*/
+    var X = 0;
+    /*--  左側  --*/
+    if(offsetLeft <= leftX){
+        X = 0;
+    }
+    /*--  右側  --*/
+    else if(offsetLeft >= rightX){
+        X = 6;
+    }
+    /*--  中央  --*/
+    else{
+        X = 3;
+    }
+
+    /*-- ----------------------- --*/
+    /*--  配置場所を決定（縦軸)  --*/
+    /*-- ----------------------- --*/
+    var Y = 1;
+    /*--  上  --*/
+    if(offsetTop <= topY){
+        Y = 1;
+    }
+    /*--  下  --*/
+    else if(offsetTop >= bottomY){
+        Y = 3;
+    }
+    /*--  中央  --*/
+    else{
+        Y = 2;
+    }
+
+    /*-- ------------------------------------ --*/
+    /*--  ９分割のどの位置に配置すべきか返す  --*/
+    /*-- ------------------------------------ --*/
+    return X + Y;
+}
+
+/**
+ * スライダー生成
+ */
+function slider(target, o, text, min, max, ini){
+    $('#' + o).slider({range: 'min', value: ini, min: min, max: max, step: 1,
+        slide: function(event, ui) {
+            $('#' + text).val(ui.value);
+            sliderEffect(target, o, ui.value);
+        }
+    });
+    $('#' + text).val(ini);
+}
+
+/**
+ * スライダーによるエフェクトをオブジェクトに適用する
+ */
+function sliderEffect(target, o, sliderVal){
+    if(o.indexOf('Angle') > 0){
+        /*--  角度  --*/
+        rotate(target, sliderVal);
+        $('#' + o).slider({value: sliderVal});
+    } else {
+        /*--  透過  --*/
+        allOpacity(sliderVal);
+    }
+}
+function allOpacity(sliderVal){
+    /*--  透過処理  --*/
+    opacity(PDF_ID_PreviewObjectUserId,    100 - sliderVal);
+    opacity(PDF_ID_PreviewObjectUserName,  100 - sliderVal);
+    opacity(PDF_ID_PreviewObjectTimestamp, 100 - sliderVal);
+    opacity(PDF_ID_PreviewObjectUserImage, 100 - sliderVal);
+    opacity(PDF_ID_PreviewObjectCorp,      100 - sliderVal);
+    opacity(PDF_ID_PreviewObjectPost,      100 - sliderVal);
+    opacity(PDF_ID_PreviewObjectNumber,    100 - sliderVal);
+    opacity(PDF_ID_PreviewObjectEmail,     100 - sliderVal);
+    opacity(PDF_ID_PreviewObjectText,      100 - sliderVal);
+
+    /*--  スライダーの設定  --*/
+    $('#' + PDF_ID_SliderAlpha).slider({value: sliderVal});
+
+    /*--  テキストボックスの設定  --*/
+    $('#' + PDF_ID_SliderAlphaValue).val(sliderVal);
+}
+
+function setSelectOption(id){
+    $('#' + id).append($('<option style="color: #000000;">').html('{!$Label.label_10657}').val('0x000000'));
+    $('#' + id).append($('<option style="color: #C0C0C0;">').html('{!$Label.label_10658}').val('0xC0C0C0'));
+    $('#' + id).append($('<option style="color: #808080;">').html('{!$Label.label_10659}').val('0x808080'));
+    $('#' + id).append($('<option style="color: #800000;">').html('{!$Label.label_10661}').val('0x800000'));
+    $('#' + id).append($('<option style="color: #FF0000;">').html('{!$Label.label_10662}').val('0xFF0000'));
+    $('#' + id).append($('<option style="color: #800080;">').html('{!$Label.label_10663}').val('0x800080'));
+    $('#' + id).append($('<option style="color: #FF00FF;">').html('{!$Label.label_10664}').val('0xFF00FF'));
+    $('#' + id).append($('<option style="color: #008000;">').html('{!$Label.label_10665}').val('0x008000'));
+    $('#' + id).append($('<option style="color: #00FF00;">').html('{!$Label.label_10666}').val('0x00FF00'));
+    $('#' + id).append($('<option style="color: #808000;">').html('{!$Label.label_10667}').val('0x808000'));
+    $('#' + id).append($('<option style="color: #FFFF00;">').html('{!$Label.label_10668}').val('0xFFFF00'));
+    $('#' + id).append($('<option style="color: #000080;">').html('{!$Label.label_10669}').val('0x000080'));
+    $('#' + id).append($('<option style="color: #0000FF;">').html('{!$Label.label_10670}').val('0x0000FF'));
+    $('#' + id).append($('<option style="color: #008080;">').html('{!$Label.label_10671}').val('0x008080'));
+    $('#' + id).append($('<option style="color: #00FFFF;">').html('{!$Label.label_10672}').val('0x00FFFF'));
+}
+
+function setPositionButton(id){
+    for(var idx=0; idx<3; idx++){
+        $('#' + PDF_ID_TablePosition + id).append(getPosionTableRowData(id, idx));
+    }
+}
+function getPosionTableRowData(id, idx){
+    var posNo = idx + 0;
+    var rowData = '';
+    rowData = rowData + '<tr>';
+    rowData = rowData +     '<td>';
+    rowData = rowData +         '<button id="' + PDF_ID_ButtonPosition + id + '-' + (posNo + 1) + '" class="btn posBtn" style="width:35px;height:22px" onclick="changeItemPos(\'' + id + '\', ' + (posNo + 1) + '); return false;">&nbsp;</button>&nbsp;';
+    rowData = rowData +     '</td>';
+    rowData = rowData +     '<td>';
+    rowData = rowData +         '<button id="' + PDF_ID_ButtonPosition + id + '-' + (posNo + 4) + '" class="btn posBtn" style="width:35px;height:22px" onclick="changeItemPos(\'' + id + '\', ' + (posNo + 4) + '); return false;">&nbsp;</button>&nbsp;';
+    rowData = rowData +     '</td>';
+    rowData = rowData +     '<td>';
+    rowData = rowData +         '<button id="' + PDF_ID_ButtonPosition + id + '-' + (posNo + 7) + '" class="btn posBtn" style="width:35px;height:22px" onclick="changeItemPos(\'' + id + '\', ' + (posNo + 7) + '); return false;">&nbsp;</button>&nbsp;';
+    rowData = rowData +     '</td>';
+    rowData = rowData + '</tr>';
+
+    return rowData;
+}
+function changeItemPos(id, posNo){
+    /*--  移動  --*/
+    moveItemPos(PDF_ID_PreviewObject + id, posNo);
+
+    for(var i = 1; i < 10; i++){
+        if(i == posNo){
+            setCurrentPosition($("#PDF_ButtonPosition" + id + "-" + i));
+        }else{
+            $("#PDF_ButtonPosition" + id + "-" + i).removeClass("PDF_wm_pos_click");
+        }
+    }
+}
+function setCurrentPosition(obj){
+    obj.addClass("PDF_wm_pos_click");
+}
+
+function initTargetSelectOption(){
+    $('#PDF_wm_taget_r').empty();
+    $('#PDF_wm_taget_l').empty();
+    $('#PDF_wm_taget_l').append($('<option value="PDF_OptionTargetTimestamp">').html('{!$Label.label_10581}'));
+    $('#PDF_wm_taget_l').append($('<option value="PDF_OptionTargetUserName">' ).html('{!$Label.label_10021}'));
+    $('#PDF_wm_taget_l').append($('<option value="PDF_OptionTargetUserId">'   ).html('{!$Label.label_10003}'));
+    $('#PDF_wm_taget_l').append($('<option value="PDF_OptionTargetCorp">'     ).html('{!$Label.label_10650}'));
+    $('#PDF_wm_taget_l').append($('<option value="PDF_OptionTargetPost">'     ).html('{!$Label.label_10652}'));
+    $('#PDF_wm_taget_l').append($('<option value="PDF_OptionTargetNumber">'   ).html('{!$Label.label_10651}'));
+    $('#PDF_wm_taget_l').append($('<option value="PDF_OptionTargetEmail">'    ).html('{!$Label.label_10016}'));
+    $('#PDF_wm_taget_l').append($('<option value="PDF_OptionTargetText">'     ).html('{!$Label.label_10654}'));
+    $('#PDF_wm_taget_l').append($('<option value="PDF_OptionTargetUserImage">').html('{!$Label.label_10582}'));
+}
+
+/**
+ * 用紙向きの変更時
+ */
+function changeDirection(){
+
+    var objCanvas = $("#" + PDF_ID_PreviewCanvas);
+    /*--  縦  --*/
+    if($("#PDF_Direction").val() == "1"){
+        objCanvas.css("width",      "177px");
+        objCanvas.css("min-width",  "177px");
+        objCanvas.css("max-width",  "177px");
+        objCanvas.css("height",     "250px");
+        objCanvas.css("min-height", "250px");
+        objCanvas.css("max-height", "250px");
+        objCanvas.css("margin-left","35px");
+    }
+    /*--  横  --*/
+    else{
+        objCanvas.css("width",      "250px");
+        objCanvas.css("min-width",  "250px");
+        objCanvas.css("max-width",  "250px");
+        objCanvas.css("height",     "177px");
+        objCanvas.css("min-height", "177px");
+        objCanvas.css("max-height", "177px");
+        objCanvas.css("margin-left","0px");
+    }
+
+    /*--  配置  --*/
+    itemRearrangeAll();
+}
+
+/**
+ * フォントサイズ変更時
+ */
+function changeFontSize(obj){
+    var value = $(obj).val();
+    if (!value.match(/^[0-9]{1,5}(\.[0-9])?$/)) {
+        if(obj.id == "PDF_FontSizeTextTimestamp"){
+            $(obj).val(PDF_FontSizeDefault);
+        }
+        else if(obj.id == "PDF_FontSizeTextUserName"){
+            $(obj).val(PDF_FontSizeDefault);
+        }
+        else if(obj.id == "PDF_FontSizeTextUserId"){
+            $(obj).val(PDF_FontSizeDefault);
+        }
+        else if(obj.id == "PDF_FontSizeTextCorp"){
+            $(obj).val(PDF_FontSizeDefault);
+        }
+        else if(obj.id == "PDF_FontSizeTextPost"){
+            $(obj).val(PDF_FontSizeDefault);
+        }
+        else if(obj.id == "PDF_FontSizeTextNumber"){
+            $(obj).val(PDF_FontSizeDefault);
+        }
+        else if(obj.id == "PDF_FontSizeTextEmail"){
+            $(obj).val(PDF_FontSizeDefault);
+        }
+        else if(obj.id == "PDF_FontSizeTextText"){
+            $(obj).val(PDF_FontSizeDefault);
+        }
+    }
+    if((value < 7) || (value > 100)){
+        if(obj.id == "PDF_FontSizeTextTimestamp"){
+            alert(getMsg(new Array('{!$Label.label_10581}'), '{!$Label.msg_00286}'));
+        }
+        else if(obj.id == "PDF_FontSizeTextUserName"){
+            alert(getMsg(new Array('{!$Label.label_10021}'), '{!$Label.msg_00286}'));
+        }
+        else if(obj.id == "PDF_FontSizeTextUserId"){
+            alert(getMsg(new Array('{!$Label.label_10003}'), '{!$Label.msg_00286}'));
+        }
+        else if(obj.id == "PDF_FontSizeTextCorp"){
+            alert(getMsg(new Array('{!$Label.label_10650}'), '{!$Label.msg_00286}'));
+        }
+        else if(obj.id == "PDF_FontSizeTextPost"){
+            alert(getMsg(new Array('{!$Label.label_10652}'), '{!$Label.msg_00286}'));
+        }
+        else if(obj.id == "PDF_FontSizeTextNumber"){
+            alert(getMsg(new Array('{!$Label.label_10651}'), '{!$Label.msg_00286}'));
+        }
+        else if(obj.id == "PDF_FontSizeTextEmail"){
+            alert(getMsg(new Array('{!$Label.label_10016}'), '{!$Label.msg_00286}'));
+        }
+        else if(obj.id == "PDF_FontSizeTextText"){
+            alert(getMsg(new Array('{!$Label.label_10654}'), '{!$Label.msg_00286}'));
+        }
+
+        obj.focus();
+        return;
+    }
+
+    /*--  再配置  --*/
+    itemRearrangeAll();
+}
+
+/**
+ * 角度(text)変更時
+ */
+function changeAngleText(obj){
+    var value = $(obj).val();
+    if((value.match(/[^0-9]/g)) || (value == "")){
+        if(obj.id == "PDF_SliderAngleValueTimestamp"){
+            $(obj).val(PDF_AngleValueDefault);
+        }
+        else if(obj.id == "PDF_SliderAngleValueUserName"){
+            $(obj).val(PDF_AngleValueDefault);
+        }
+        else if(obj.id == "PDF_SliderAngleValueUserId"){
+            $(obj).val(PDF_AngleValueDefault);
+        }
+        else if(obj.id == "PDF_SliderAngleValueUserImage"){
+            $(obj).val(PDF_AngleValueDefault);
+        }
+        else if(obj.id == "PDF_SliderAngleValueCorp"){
+            $(obj).val(PDF_AngleValueDefault);
+        }
+        else if(obj.id == "PDF_SliderAngleValuePost"){
+            $(obj).val(PDF_AngleValueDefault);
+        }
+        else if(obj.id == "PDF_SliderAngleValueNumber"){
+            $(obj).val(PDF_AngleValueDefault);
+        }
+        else if(obj.id == "PDF_SliderAngleValueEmail"){
+            $(obj).val(PDF_AngleValueDefault);
+        }
+        else if(obj.id == "PDF_SliderAngleValueText"){
+            $(obj).val(PDF_AngleValueDefault);
+        }
+    }
+    if((value < 0) || (value > 360)){
+        if(obj.id == "PDF_SliderAngleValueTimestamp"){
+            alert(getMsg(new Array('{!$Label.label_10581}'), '{!$Label.msg_00287}'));
+        }
+        else if(obj.id == "PDF_SliderAngleValueUserName"){
+            alert(getMsg(new Array('{!$Label.label_10021}'), '{!$Label.msg_00287}'));
+        }
+        else if(obj.id == "PDF_SliderAngleValueUserId"){
+            alert(getMsg(new Array('{!$Label.label_10003}'), '{!$Label.msg_00287}'));
+        }
+        else if(obj.id == "PDF_SliderAngleValueUserImage"){
+            alert(getMsg(new Array('{!$Label.label_10582}'), '{!$Label.msg_00287}'));
+        }
+        else if(obj.id == "PDF_SliderAngleValueCorp"){
+            alert(getMsg(new Array('{!$Label.label_10650}'), '{!$Label.msg_00287}'));
+        }
+        else if(obj.id == "PDF_SliderAngleValuePost"){
+            alert(getMsg(new Array('{!$Label.label_10652}'), '{!$Label.msg_00287}'));
+        }
+        else if(obj.id == "PDF_SliderAngleValueNumber"){
+            alert(getMsg(new Array('{!$Label.label_10651}'), '{!$Label.msg_00287}'));
+        }
+        else if(obj.id == "PDF_SliderAngleValueEmail"){
+            alert(getMsg(new Array('{!$Label.label_10016}'), '{!$Label.msg_00287}'));
+        }
+        else if(obj.id == "PDF_SliderAngleValueText"){
+            alert(getMsg(new Array('{!$Label.label_10654}'), '{!$Label.msg_00287}'));
+        }
+
+        obj.focus();
+        return false;
+    }
+}
+
+/**
+ * 透過(text)変更時
+ */
+function changeAlphaText(obj){
+    var value = $(obj).val();
+    if((value.match(/[^0-9]/g)) || (value == "")){
+        $(obj).val(PDF_AlphaValueDefault);
+    }
+    if((value < 0) || (value > 100)){
+        alert(getMsg(new Array('{!$Label.label_10649}'), '{!$Label.msg_00288}'));
+        obj.focus();
+    }
+}
+
+function isTimestampFormat(obj){
+    var text = encodeURI($(obj).val());
+
+    var callback =  function(data){
+        if(data.check == true){
+            changeTextImage(obj);
+        }
+        else{
+            alert(getMsg(new Array('{!$Label.label_10604}'), '{!$Label.msg_00186}'));
+            $('#PDF_FormatTextTimestamp').val("yyyy/MM/dd HH:mm:ss");
+        }
+    };
+    var callerror =  function(data){
+        alert("dateFormatChackApi:" + data);
+    };
+    secureGetAsync('/common/dateFormatChackApi.json', {str : text}, callback, callerror);
+}
+
+/**
+ * フォーマット変更時
+ */
+function changeTextImage(obj){
+
+    var strUrl    = _apiUrl + "/WatermarkTextDownload";
+    var strType   = "?type=";
+    var strColor  = "&color=";
+    var strFormat = "&format=";
+    var strPoint  = "&point=" + PDF_StringImageFontSize;
+
+    var strTarget = "";
+    var id = $(obj).attr("id");
+    switch(id){
+    case PDF_ID_SelectColor + PDF_ID_BASE_UserId:
+        strTarget = PDF_ID_PreviewObjectUserId;
+        strType   = strType   + "0";
+        strColor  = strColor  + $("#" + PDF_ID_SelectColor + PDF_ID_BASE_UserId).val();
+        strFormat = strFormat + "userid";
+        break;
+    case PDF_ID_SelectColor + PDF_ID_BASE_UserName:
+        strTarget = PDF_ID_PreviewObjectUserName;
+        strType   = strType   + "0";
+        strColor  = strColor  + $("#" + PDF_ID_SelectColor + PDF_ID_BASE_UserName).val();
+        strFormat = strFormat + "username";
+        break;
+    case PDF_ID_SelectColor + PDF_ID_BASE_Timestamp:
+    case "PDF_FormatTextTimestamp":
+        strTarget = PDF_ID_PreviewObjectTimestamp;
+        strType   = strType   + "1";
+        strColor  = strColor  + $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Timestamp).val();
+        strFormat = strFormat + encodeURI($('#PDF_FormatTextTimestamp').val());
+        break;
+    case PDF_ID_SelectColor + PDF_ID_BASE_Corp:
+        strTarget = PDF_ID_PreviewObjectCorp;
+        strType   = strType   + "0";
+        strColor  = strColor  + $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Corp).val();
+        strFormat = strFormat + "corp";
+        break;
+    case PDF_ID_SelectColor + PDF_ID_BASE_Post:
+        strTarget = PDF_ID_PreviewObjectPost;
+        strType   =  strType  + "0";
+        strColor  = strColor  + $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Post).val();
+        strFormat = strFormat + "post";
+        break;
+    case PDF_ID_SelectColor + PDF_ID_BASE_Number:
+        strTarget = PDF_ID_PreviewObjectNumber;
+        strType   = strType   + "0";
+        strColor  = strColor  + $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Number).val();
+        strFormat = strFormat + "number";
+        break;
+    case PDF_ID_SelectColor + PDF_ID_BASE_Email:
+        strTarget = PDF_ID_PreviewObjectEmail;
+        strType   = strType   + "0";
+        strColor  = strColor  + $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Email).val();
+        strFormat = strFormat + "email";
+        break;
+    case PDF_ID_SelectColor + PDF_ID_BASE_Text:
+    case "PDF_FreeText":
+        strTarget = PDF_ID_PreviewObjectText;
+        strType   = strType   + "2";
+        strColor  = strColor  + $("#" + PDF_ID_SelectColor + PDF_ID_BASE_Text).val();
+        strFormat = strFormat + encodeURIComponent($('#PDF_FreeText').val());
+        break;
+    default:
+        return;
+    }
+
+    var strSrc = strUrl + strType + strColor + strFormat + strPoint;
+
+    /*--  IE8の場合、imgタグをvmlタグに作り替えているが  --*/
+    /*--  vmlタグのsrcを変更しても画像がかわらないので、 --*/
+    /*--  タグを作り替える必要がある。                   --*/
+    if(WM_browserType == 'IE8'){
+        $("span").remove("#" + strTarget);
+        $("img").remove("#" + strTarget);
+        var objImgTag = $("<img/>").attr('src', '').attr('id', strTarget).addClass('preview_object').mousedown(function(){preview_object_select(this);});
+        $('#' + PDF_ID_PreviewCanvas).append(objImgTag);
+        /*--  非表示にすると期待した動作とならないので  --*/
+        /*--  一旦、表示領域外へ移動する。              --*/
+        $("#" + PDF_ID_PreviewObjectTimestamp).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectUserId   ).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectUserName ).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectUserImage).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectCorp     ).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectPost     ).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectNumber   ).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectEmail    ).offset({"top":10000,"left":10000});
+        $("#" + PDF_ID_PreviewObjectText     ).offset({"top":10000,"left":10000});
+    }
+
+    /*--  画像サイズを取得  --*/
+    WM_LoadTextImage = false;
+    var imgTextImage = new Image();
+    imgTextImage.onload = function(){
+        /*--  画像サイズを保持  --*/
+        switch(id){
+        case PDF_ID_SelectColor + PDF_ID_BASE_UserId:
+            PDF_ImageSizeUserId = {width: this.width, height: this.height};
+            break;
+        case PDF_ID_SelectColor + PDF_ID_BASE_UserName:
+            PDF_ImageSizeUserName = {width: this.width, height: this.height};
+            break;
+        case PDF_ID_SelectColor + PDF_ID_BASE_Timestamp:
+        case "PDF_FormatTextTimestamp":
+            PDF_ImageSizeTimestamp = {width: this.width, height: this.height};
+            break;
+        case PDF_ID_SelectColor + PDF_ID_BASE_Corp:
+            PDF_ImageSizeCorp = {width: this.width, height: this.height};
+            break;
+        case PDF_ID_SelectColor + PDF_ID_BASE_Post:
+            PDF_ImageSizePost = {width: this.width, height: this.height};
+            break;
+        case PDF_ID_SelectColor + PDF_ID_BASE_Number:
+            PDF_ImageSizeNumber = {width: this.width, height: this.height};
+            break;
+        case PDF_ID_SelectColor + PDF_ID_BASE_Email:
+            PDF_ImageSizeEmail = {width: this.width, height: this.height};
+            break;
+        case PDF_ID_SelectColor + PDF_ID_BASE_Text:
+        case "PDF_FreeText":
+            PDF_ImageSizeText = {width: this.width, height: this.height};
+            break;
+        }
+        WM_LoadTextImage = true;
+    }
+    imgTextImage.src = strSrc;
+
+    /*--  src設定  --*/
+    setImageSrc(strTarget, strSrc);
+
+    /*--  画像サイズが取得できたら再配置  --*/
+    setTimeout(function(){
+        chkLoadTimestampImage(strTarget);
+      },200);
+}
+function chkLoadTimestampImage(strTarget){
+    if(WM_LoadTextImage == false){
+        setTimeout("chkLoadTimestampImage()",100);
+        return;
+    }
+
+    if(WM_browserType == 'IE8'){
+        /*--  rotate()でvmlタグに作り直しておく  --*/
+        rotate(strTarget, 0);
+        /*--  ドラッグ可能とする  --*/
+        draggable(strTarget);
+        /*--  mousedownイベントを追加する  --*/
+        var objTarget = $("#" + strTarget);
+        objTarget.mousedown(function(){preview_object_select(this);});
+        /*--  背景色を指定しないと、透過した際に黒ずんでしまう  --*/
+        $('#' + strTarget + '_rvml').css("background-color","#ffffff");
+        /*--  透過  --*/
+        sliderEffect("", "", $("#" + PDF_ID_SliderAlphaValue).val());
+    }
+
+    /*--  再配置  --*/
+    itemRearrangeAll();
+}
+
+/**
+ * 画像幅の変更時
+ *
+ */
+function changeSpinWidth(newWidthVal){
+    /*--  数値チェック  --*/
+    if((newWidthVal.match(/[^0-9]/g)) || (newWidthVal == "")){
+        var obj = $("#PDF_SpinWidth");
+        alert(getMsg(new Array('{!$Label.label_10582}', '{!$Label.label_10605}'), '{!$Label.msg_00285}'));
+        obj.focus();
+        return;
+    }
+
+    /*--  縦横比を保つ場合  --*/
+    if($("#PDF_SpinJoin").attr("src") == PDF_ImageSrcSpinJoin){
+        /*--  新しい高さを算出(切り捨て)  --*/
+        var newHeightVal = newWidthVal * PDF_ImageSizeUserImage.height / PDF_ImageSizeUserImage.width;
+        newHeightVal = Math.floor(newHeightVal);
+
+        /*--  高さを再設定  --*/
+        $("#PDF_SpinHeight").val(newHeightVal);
+    }
+
+    /*--  再配置  --*/
+    itemRearrangeAll();
+}
+
+/**
+ * 画像高さの変更時
+ *
+ */
+function changeSpinHeight(newHeightVal){
+    /*--  数値チェック  --*/
+    if((newHeightVal.match(/[^0-9]/g)) || (newHeightVal == "")){
+        var obj = $("#PDF_SpinHeight");
+        alert(getMsg(new Array('{!$Label.label_10582}', '{!$Label.label_10606}'), '{!$Label.msg_00285}'));
+        obj.focus();
+        return;
+    }
+
+    /*--  縦横比を保つ場合  --*/
+    if($("#PDF_SpinJoin").attr("src") == PDF_ImageSrcSpinJoin){
+        /*--  新しい幅を算出(切り捨て)  --*/
+        var newWidthVal = newHeightVal * PDF_ImageSizeUserImage.width / PDF_ImageSizeUserImage.height;
+        newWidthVal = Math.floor(newWidthVal);
+
+        /*--  幅を再設定  --*/
+        $("#PDF_SpinWidth").val(newWidthVal);
+    }
+
+    /*--  再配置  --*/
+    itemRearrangeAll();
+}
+
+function spinJoinOnClick(){
+    var obj = $("#PDF_SpinJoin");
+    if(obj.attr("src") == PDF_ImageSrcSpinJoin){
+        obj.attr("src", PDF_ImageSrcSpinUnJoin);
+    }
+    else{
+        obj.attr("src", PDF_ImageSrcSpinJoin);
+    }
+}
+
+function move(moveFrom, moveTo){
+    $("#" + moveFrom + " option:selected").each(function(){
+        var val = $(this).val();
+        var text = $(this).text();
+        $("#" + moveTo).append($("<option>").val(val).text(text));
+        $(this).remove();
+    });
+}
+</script>
+
+</apex:page>

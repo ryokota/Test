@@ -1,0 +1,940 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.WorkflowDetailController" tabStyle="workflow__tab">
+<apex:include pageName="SOLXYZCSO001__js_wfRoute"/>
+<apex:include pageName="SOLXYZCSO001__CSOPreviewPlugin"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.csopreview.css')}" />
+<script type="text/javascript" src="{!$Label.field_CSO_DVURL}/js/document-viewer.js?v100"></script>
+<!--[if lte IE 8]>
+<script type="text/javascript" src="{!$Label.field_CSO_URL}/js/jquery.backgroundSize.js"></script>
+<![endif]-->
+<style type="text/css">
+.subLabelHeight {
+    height: 22px;
+}
+
+.separatorDiv{
+    width: 100%;
+}
+
+.separatorDiv div{
+    color: white;
+    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+#contentsTable-container {
+    float: left;
+/*    width: 325px; */
+    margin: 15px 0 0 0;
+}
+</style>
+
+
+
+<style type="text/css">
+
+div.step {
+    margin: 10px;
+    overflow: auto;
+    width: 95%;
+    height: 95%;
+}
+
+table.detailTable {
+    width: 95%;
+/*
+    margin-top: 20px;
+*/
+    margin-left: 20px;
+}
+
+table.detailTable th {
+    font-weight: bold;
+    text-align: right;
+    width: 100px;
+    min-width: 100px;
+    padding: 5px;
+    vertical-align: top;
+}
+
+table.detailTable td {
+    width: *;
+    padding: 5px;
+    vertical-align: top;
+}
+
+table.contentsTable {
+    margin: 5px;
+    width: 100%;
+}
+
+#steps {
+    margin-left: 5px;
+    /* width : 95%; */
+    height: 200px;
+}
+
+.contents-top-text{
+    font-size: 13px !important;
+    color: #333;
+}
+
+.contents-bottom-text{
+    font-size: 11px;
+    color: gray;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.jqGridIcon{
+    margin: 3px;
+}
+
+#tab_1 {
+    overflow: auto;
+}
+
+.tab-div{
+    background-color: white;
+    min-height: 200px;
+    padding: 0px 10px 10px 0px;
+    overflow-y: auto;
+}
+
+#delivery_tab{
+    margin-top: 0px;
+}
+
+#delivery_tab li{
+    list-style: none;
+    line-height: 30px;
+    float: left;
+    margin-right: 20px;
+    border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    display: block;
+    text-decoration: none;
+    padding: 0px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.delivery_tab_active{
+    background-color: white;
+    color: #456;
+}
+
+.delivery_tab_deactive{
+    background-color: #0033ff;
+    filter:alpha(opacity=50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    color: white;
+}
+
+.user-name{
+    margin-top: 3px;
+    font-size: 14px;
+}
+
+.user-post{
+    font-size: 11px;
+}
+
+#wfremainder {
+    height: 1em;
+    padding-right: 3px;
+    padding-bottom: 3px;
+    width: 100%;
+    white-space: nowrap;
+    text-align:right;
+    display: none;
+}
+
+button.ok {
+    display: none;
+}
+
+img {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+img.action {
+    border: none;
+    width : 24px;
+    height : 24px;
+}
+
+.status-base{
+    border: 2px solid;
+    padding: 3px 10px;
+    width: 100px;
+    font-size: 16px;
+    text-align: center;
+}
+.status-0{
+}
+.status-1{
+    border-color: #00bfff;
+    color: #00bfff;
+    background-color: #e0ffff;
+    font-weight: bold;
+}
+.status-2{
+    border-color: #2e8b57;
+    color: #FFFFFF;
+    background-color: #2e8b57;
+}
+.status-3{
+    border-color: #4169e1;
+    color: #FFFFFF;
+    background-color: #4169e1;
+}
+.status-4{
+    border-color: #e50000;
+    color: #FFFFFF;
+    background-color: #e50000;
+}
+.status-5{
+    border-color: #8b4513;
+    color: #8b4513;
+    background-color: #fff0f5;
+    font-weight: bold;
+}
+.status-6{
+    border-color: #e50000;
+    color: #e50000;
+    background-color: #fff0f5;
+    font-weight: bold;
+}
+.status-7{
+    border-color: #c71585;
+    color: #c71585;
+    background-color: #fff0f5;
+    font-weight: bold;
+}
+.status-8 {
+    border-color: #de82a7;
+    color: #de82a7;
+    background-color: #fff0f5;
+    font-weight: bold;
+}
+</style>
+
+
+
+
+<apex:include pageName="SOLXYZCSO001__WorkflowComment" />
+
+<script type="text/javascript">
+var WF_DETAIL_WorkflowId = "";
+var WF_defaultComment = "";
+
+function initWorkflowDetailInfo(workflowId){
+
+    WF_DETAIL_WorkflowId = workflowId;
+
+    initWorkflowComment();
+    setId(WF_DETAIL_WorkflowId);
+
+    $("#WF_comment").click(function() {$('#wfcomment').focus();});
+
+    $("#WF_comment").keyup(function(){
+        viewCommentLength("WF_comment", "wfremainder", 512);
+    });
+    $("#WF_comment").keyup();
+
+    $("#contentsTable").jqGrid({
+        url:_apiUrl + '/workflowmanagement/workflowContentsList.json',
+        datatype: "jsonp",
+        postData : {
+            wfid : WF_DETAIL_WorkflowId
+        },
+        jsonReader :{
+            repeatitems: false,
+            id       : "id"
+        },
+        colNames : [
+            '',
+            '',
+            '{!$Label.solxyzcso001__label_10081}',
+            '{!$Label.solxyzcso001__label_10174}'
+        ],
+        colModel : [
+            {name : "id", index : "id", hidden : true},
+            {name : "type", index : "type", hidden : true},
+            {name : "name", index : "name", width : 250},
+            {name : "action", index : "action", width : 80, align : "center", sortable : false}
+        ],
+        rowNum : 50,
+//        width : 345,
+//        height: 207,
+        rowList:[10, 50, 100],
+        sortname: 'id',
+        pager: '#contentsPager',
+        shrinkToFit: true,
+        viewrecords: true,
+        multiselect: false,
+        onRightClickRow: function() {return false;}
+    });
+
+    $("#steps").root({
+        id             : "{!workflowId}",
+        lang           : "ja",
+        loginUserId    : "{!csouserInfo.uid}",
+    });
+    //------------------------------//
+    //  ワークフロー詳細情報を取得  //
+    //------------------------------//
+    var param = {
+        id : WF_DETAIL_WorkflowId
+    };
+
+    var callback =  function(data, status){
+        CsoScript_loadingStop();
+        if(!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+
+        //  申請情報を表示
+        setWorkflowDetailInfo(data);
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("getWorkflowApplyInfo:" + data);
+    };
+    CsoScript_loadingStart();
+    callSecureGetAsync('/workflowmanagement/WorkflowDetail.json', param, callback, callerror);
+
+   $(window).resize(resizeContentMainDiv);
+    resizeContentMainDiv();
+    
+     //show file preview with navigator
+    var options = {
+        showNavigator : true,
+        loadComplete : function(){
+            $("#preview-area").editLink(false);
+        },
+        resource : {
+            zoomWidthFit        : '{!$Label.solxyzcso001__label_fileviewer_zoomWidthFit}',
+            zoomHeightFit       : '{!$Label.solxyzcso001__label_fileviewer_zoomHeightFit}',
+            downloadMsg         : '{!$Label.solxyzcso001__label_fileviewer_downloadMsg}',
+            download            : '{!$Label.solxyzcso001__label_fileviewer_download}',
+            search_s            : '{!$Label.solxyzcso001__label_fileviewer_searchS}',
+            search_e            : '{!$Label.solxyzcso001__label_fileviewer_searchE}',
+            no_hit              : '{!$Label.solxyzcso001__label_fileviewer_noHit}',
+            password_1          : '{!$Label.solxyzcso001__label_fileviewer_password1}',
+            password_2          : '{!$Label.solxyzcso001__label_fileviewer_password2}',
+            dialog_info         : "INFO",
+        },
+    };
+    $("#preview-area").csopreview(options);
+    
+}
+
+function resizeContentMainDiv(){
+    var browserType = getBrowserType();
+    var browserWindowHeight = getBrowserHeight();
+    var browserWidth = getBrowserWidth();
+    var tabHight = browserWindowHeight -570;
+
+    if (browserType.indexOf("IE") > -1){
+        if(tabHight + 17 >= 300){
+            $("#tab_1").height(tabHight + 17);
+        }else{
+            $("#tab_1").height(300);
+        }
+    }else{
+        if(tabHight >= 300){
+            $("#tab_1").height(tabHight);
+        }else{
+            $("#tab_1").height(300);
+        }
+    }
+
+    if($(".tab-div").height() >= 300){
+        $("#contentsTable").setGridHeight($(".tab-div").height() - 73);
+    }
+    $("#detailsDiv").width(browserWidth/2-50);
+    $("#contentsTable-container").width(browserWidth/2-50);
+    $("#WF_comment").width(browserWidth/2-220);
+    $("#contentsTable").setGridWidth($("#contentsTable-container").innerWidth(), true);
+
+
+    $("#WF_comment").height($("#contentsTable-container").height()-$("#statusTable").height() - $("#otherStatusTable").height() - 40);
+}
+
+function contentsInfo(id, type){
+    childWindowHandler = window.open('{!$Page.SOLXYZCSO001__DocumentContentsInfo}?fileId=' + id + '&type=' + type + '&security=false&ecmSessionId=' + getEcmSessionId(), 'contentsinfo', 'width=770, height=640, menubar=no, toolbar=no, scrollbars=yes');
+}
+
+function setWorkflowDetailInfo(data){
+    var info = data.wf;
+
+    var kikan = data.startDate + " {!$Label.solxyzcso001__label_10316} " + data.endDate;
+
+    setHeadSubTitle(info.title);                                        //  タイトル
+    $("#WF_workflowNo").text(info.workflowNo);                          //  ワークフロー番号
+    $("#WF_workflowDefinitionName").text(info.workflowDefinitionName);  //  ワークフロー定義名
+    $("#WF_title").text(info.title);                                    //  件名
+    $("#WF_status").html(data.status);                                  //  状態
+    $("#WF_applicantName").text(info.applicantName);                    //  申請者名
+    $("#WF_applyDate").text(data.applyDate);                            //  申請日時
+    $("#WF_StartDateEndDate").text(kikan);                              //  期間
+    $("#WF_comment").val(info.comment);                                //  コメント
+
+    $("#WF_status").addClass("status-base");
+    if(data.statusCode != null){
+        $("#WF_status").addClass("status-" + data.statusCode);
+    }
+
+    WF_defaultComment = info.comment;
+
+    //----------------------//
+    //  必要なボタンの表示  //
+    //----------------------//
+    var bWithdraw      = false;     //  取り下げ
+    var bRestartw      = false;     //  再申請
+    var bPullback      = false;     //  引き戻し
+    var bApproveCancel = false;     //  承認取り消し
+    var bRemand        = false;     //  差し戻し
+    var bReject        = false;     //  却下
+    var bApprove       = false;     //  承認
+
+    if((data.canEdit != null) && (eval(data.canEdit) == true)){
+        //  編集
+        $(".btn_rep").show();
+    }
+
+    if((data.withdraw != null) && (eval(data.withdraw) == true)){
+        //  取り下げ
+        $(".btn_withdraw").show();
+        bWithdraw = true;
+    }
+
+    if((data.restart != null) && (eval(data.restart) == true)){
+        //  再申請
+        $(".btn_restart").show();
+        bRestartw = true;
+    }
+
+    if((data.pullback != null) && (eval(data.pullback) == true)){
+        //  引き戻し
+        $(".btn_pullback").show();
+        bPullback = true;
+        //  承認取り消し
+        $(".btn_approveCancel").show();
+        bApproveCancel = true;
+    }
+
+    if((data.approve != null) && (eval(data.approve) == true)){
+        //  差し戻し
+        $(".btn_remand").show();
+        bRemand = true;
+        //  却下
+        $(".btn_reject").show();
+        bReject = true;
+        //  承認
+        $(".btn_approve").show();
+        bApprove = true;
+    }
+
+    //----------------------//
+    //  不要なボタンの削除  //
+    //----------------------//
+    if(bWithdraw == false){
+        $("input").remove(".btn_withdraw");
+    }
+    if(bRestartw == false){
+        $("input").remove(".btn_restart");
+    }
+    if(bPullback == false){
+        $("input").remove(".btn_pullback");
+    }
+    if(bApproveCancel == false){
+        $("input").remove(".btn_approveCancel");
+    }
+    if(bRemand == false){
+        $("input").remove(".btn_remand");
+    }
+    if(bReject == false){
+        $("input").remove(".btn_reject");
+    }
+    if(bApprove == false){
+        $("input").remove(".btn_approve");
+    }
+
+
+    //----------------------------//
+    //  [戻る][次へ]ボタンの表示  //
+    //----------------------------//
+    if("{!prev}" != ""){
+        $(".btn_prev").show();
+    }
+    if("{!next}" != ""){
+        $(".btn_next").show();
+        $(".btn_next").css("margin-right", "20px");
+    }
+    if(("{!prev}" != "") && ("{!next}" == "")){
+        $(".btn_prev").css("margin-right", "20px");
+    }
+
+}
+
+function withdraw() {
+    if (!confirm('{!$Label.solxyzcso001__msg_00312}')) {
+        return false;
+    }
+
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+        CsoScript_loadingStop();
+        location.href = "{!$Page.SOLXYZCSO001__WorkflowApplyList}";
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("withdraw:" + data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    $(".btn").attr("disabled", "disabled");
+    CsoScript_loadingStart();
+    var wfid = "[" + WF_DETAIL_WorkflowId + "]";
+    callSecurePostAsync('/workflowmanagement/withdraw.json', {wfid : wfid}, callback, callerror);
+}
+
+function restart() {
+    if (!confirm('{!$Label.solxyzcso001__msg_00309}')) {
+        return false;
+    }
+
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+        CsoScript_loadingStop();
+        location.reload();
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("restart:" + data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    $(".btn").attr("disabled", "disabled");
+    CsoScript_loadingStart();
+    var wfid = "[" + WF_DETAIL_WorkflowId + "]";
+    callSecurePostAsync('/workflowmanagement/startWorkflow.json', {wfid : wfid}, callback, callerror);
+}
+
+function updateFile(id, name){
+    DocumentContentsUpdateInit(id, name, WF_DETAIL_WorkflowId)
+}
+function modalDialogDivClose(isRefresh){
+    $("#modalDialogDiv").dialog("close");
+
+    if (isRefresh) {
+        $("#contentsTable").trigger("reloadGrid");
+    }
+}
+
+function tab(tab){
+    var i = 1;
+    if(tab >= 2){
+        $('#addressDiv').hide();
+    }
+    $(".delivery_tab").each(function(){
+        if(tab == i){
+            $("#tab_" + i).show();
+            $(this).removeClass("delivery_tab_deactive");
+            $(this).addClass("delivery_tab_active");
+        }else{
+            $("#tab_" + i).hide();
+            $(this).removeClass("delivery_tab_active");
+            $(this).addClass("delivery_tab_deactive");
+        }
+        i++;
+    });
+    resizeContentMainDiv();
+}
+
+function shiftEditMode() {
+    $("#wfremainder,input.ok").show();
+    $("#WF_comment").removeAttr("readonly");
+    $("input.edit").hide();
+}
+
+function cancelEditMode() {
+    $("#wfremainder,input.ok").hide();
+    $("#WF_comment").attr("readonly", "readonly");
+    $("input.edit").show();
+    $("#WF_comment").val(WF_defaultComment);
+}
+
+function validate() {
+    var text = $("#WF_comment").val();
+    var err = [];
+
+    if (text.length > 512) {
+        alert(getMsg(['{!$Label.solxyzcso001__label_10023}', "512"], '{!$Label.solxyzcso001__msg_00059}'));
+        return false;
+    }
+
+    return true;
+}
+function edit() {
+    if (validate() == false) {
+        return;
+    }
+
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+        CsoScript_loadingStop();
+        WF_defaultComment = data.comment;
+        cancelEditMode();
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("editWorkflow(comment):" + data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    $(".btn").attr("disabled", "disabled");
+    CsoScript_loadingStart();
+    var wfid = "[" + WF_DETAIL_WorkflowId + "]";
+    var comment = $("#WF_comment").val();
+    callSecurePostAsync('/workflowmanagement/withdraw.json', {wfid : wfid, comment : comment}, callback, callerror);
+}
+
+function prev() {
+    showDetail("{!prev}", "{!kind}");
+}
+
+function next() {
+    showDetail("{!next}", "{!kind}");
+}
+
+function viewingContents(fileId, spaceId, wfid) {
+    var browserType = getBrowserType();
+    if (browserType == "IE8"){
+        alert('この操作はHTML5を利用しているためIE8では実行できません。');
+    }else{
+        $("#preview-area").loadPreview(fileId, spaceId,'', $("#contentsTable").getGridParam("sortname"), $("#contentsTable").getGridParam("sortorder"), '');
+    }    
+}
+
+function viewing(id, fileIDs){
+    $("#preview-area").loadPreview(id, null, "", "", "", "", fileIDs.split(","), 1);
+}
+
+function isIOS(){
+    if(navigator.userAgent.indexOf("iPad") >= 0 || navigator.userAgent.indexOf("iPhone") >= 0){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+function commonDownloadWorkflow(param){
+    $.ajax({
+        type : "post",
+        url  :  _apiUrl + "/workflow/WorkflowContentsDownload.json",
+        data : param,
+        async : !isIOS(),
+        dataType : "jsonp",
+        success : function(data){
+            if(data == null){
+                $.unblockUI();
+                alert("{!$Label.solxyzcso001__msg_00323}");
+                return;
+            }
+            if(eval(data.result) == true){
+                if(isIOS()){
+                    var url = '/apex/packagesfecm__DownloadPopupWindow';
+                    url = url + '?downloadType=ContentsInfo';
+                    url = url + '&fileId='  + fileId;
+                    window.open(url, '');
+                    return;
+                }else{
+                    setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, 'Download failed.'); }, 1000);
+                }
+            }
+            else{
+                var errMsg = "{!$Label.solxyzcso001__msg_00323}";
+                if((data.message != null) && (data.message != "")){
+                    errMsg = data.message;
+                }
+                $.unblockUI();
+                alert(errMsg);
+            }
+        }
+    });
+}
+
+function contents_info_download(param){
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '/apex/packagesfecm__DownloadPopupWindow';
+        url = url + '?downloadType=ContentsInfo';
+        url = url + '&fileId='  + fileId;
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('Download failed.');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, "{!$Label.solxyzcso001__msg_00323}"); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = "{!$Label.solxyzcso001__msg_00323}";
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = 'Download failed.';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SingleContentsDownloadApi.json', JSON.stringify({"fileId" : param.fileId, "refSpaceId" : param.refSpaceId}), callback, callerror);
+} 
+
+function downloadContents(id, version, wfid) {
+
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '{!$Page.SOLXYZCSO001__DownloadPopupWindow}';
+        url = url + '?downloadType=workflow';
+        url = url + '&fileId='     + id;
+        url = url + '&version='    + encodeURIComponent(version);
+        url = url + '&workflowId=' + wfid;
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.solxyzcso001__msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.solxyzcso001__msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.solxyzcso001__msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.solxyzcso001__msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+
+    CsoScript_loadingStart();
+    securePostAsync('/workflowmanagement/WorkflowContentsDownloadApi.json', {"fileId" : id, "ver" : version, "workflowID" : wfid}, callback, callerror);
+}
+function downloadExec(url){
+    location.href = url;
+}
+
+function showDetail(id, kind) {
+    var url = "{!$Page.SOLXYZCSO001__WorkflowDetail}?workflowId=" + id + "&kind=" + kind;
+
+    var wflist = localStorage.getItem("wflist");
+    if (wflist) {
+        var prev, next;
+        var ids = JSON.parse(wflist);
+
+        for (var i in ids) {
+            var index = parseInt(i);
+            if (ids[index] == id) {
+
+                if (index > 0) {
+                    prev = ids[index - 1];
+                }
+
+                if (index < ids.length - 1) {
+                    next = ids[index + 1];
+                }
+            }
+        }
+
+        if (prev) {
+            url += "&prev=" + prev;
+        }
+
+        if (next) {
+            url += "&next=" + next;
+        }
+    }
+
+    location.href = url;
+}
+
+</script>
+
+
+
+
+
+<apex:form >
+    <apex:pageBlock tabStyle="workflow__tab">
+
+
+        <apex:pageBlockButtons >
+            <input type="button" style="display:none;" class="btn btn_prev" value="{!$Label.label_00066}" onclick="prev();" />
+            <input type="button" style="display:none;" class="btn btn_next" value="{!$Label.field_common_next}" onclick="next();" />
+
+            <input type="button" style="display:none;" class="btn edit btn_rep" value="{!$Label.field_common_edit}" onclick="return shiftEditMode();" />
+            <input type="button" style="display:none;" class="btn ok"           value="{!$Label.field_common_ok}"   onclick="return edit();" />
+            <input type="button" style="display:none;" class="btn ok"           value="{!$Label.label_00058}"       onclick="return cancelEditMode();" />
+
+            <input type="button" style="display:none;" class="btn edit btn_withdraw"      value="{!$Label.label_13169}" onclick="withdraw();" />
+            <input type="button" style="display:none;" class="btn edit btn_restart"       value="{!$Label.label_10729}" onclick="restart();" />
+            <input type="button" style="display:none;" class="btn edit btn_pullback"      value="{!$Label.label_10730}" onclick="openPullbackComment();" />
+            <input type="button" style="display:none;" class="btn edit btn_approveCancel" value="{!$Label.label_10724}" onclick="openCancelComment();" />
+            <input type="button" style="display:none;" class="btn edit btn_remand"        value="{!$Label.label_10722}" onclick="openRemandComment();" />
+            <input type="button" style="display:none;" class="btn edit btn_reject"        value="{!$Label.label_13168}" onclick="openRejectComment();" />
+            <input type="button" style="display:none;" class="btn edit btn_approve"       value="{!$Label.label_10802}" onclick="openApproveComment();" />
+            <input type="button" class="btn edit" value="{!$Label.label_00058}" onclick="cancelOnClick();" />
+        </apex:pageBlockButtons>
+
+
+        <!-- 承認ルート -->
+        <apex:pageBlockSection id="header_steps" title="{!$Label.solxyzcso001__label_10731}"  collapsible="false"/>
+        <div style="background-color: white;">
+            <div id="steps">
+            </div>
+        </div>
+
+
+
+       <!-- 詳細 -->
+        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}"  collapsible="false"/>
+        <div id="tab_1" class="tab-div" style="overflow:auto;">
+            <table><tr>
+            <td id="status_001">
+                <div id="detailsDiv">
+                    <table class="detailTable" id="statusTable">
+                        <tr>
+                            <th style="vertical-align: middle;">{!$Label.label_10587}</th>
+                            <td style="width: 500px;">
+                                <div id="WF_status"/>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="detailTable" id="otherStatusTable">
+                        <tr>
+                            <th>{!$Label.label_10710}</th>
+                            <td id="WF_workflowDefinitionName"></td>
+                            <th>{!$Label.label_10709}</th>
+                            <td id="WF_workflowNo"></td>
+                        </tr>
+                        <tr>
+                            <th>{!$Label.label_10106}</th>
+                            <td id="WF_title"></td>
+                            <th>{!$Label.label_10175}</th>
+                            <td id="WF_StartDateEndDate"></td>
+                        </tr>
+                        <tr>
+                            <th>{!$Label.label_10691}</th>
+                            <td id="WF_applicantName"></td>
+                            <th>{!$Label.label_10832}</th>
+                            <td id="WF_applyDate"></td>
+                        </tr>
+                    </table>
+                    <table class="detailTable">
+                        <tr>
+                            <th>{!$Label.label_10023}</th>
+                            <td id="wfcomment">
+                                <div id="wfremainder" ></div>
+                                <textarea id="WF_comment" readonly="readonly"></textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td>
+                <div id="contentsTable-container">
+                    <table id="contentsTable" class="contentsTable"></table>
+                    <!-- div id="contentsPager"></div -->
+                </div>
+            </td>
+            </tr></table>
+        </div>
+
+<!--
+        <div id="tab_2" class="tab-div" style="display: none;">
+            <div style="padding: 10px;">
+                <div id="contentsTable-container">
+                    <table id="contentsTable" class="contentsTable"></table>
+                    <div id="contentsPager"></div>
+                </div>
+            </div>
+        </div>
+        <div style="width: 100%; height: 50px; text-align: center; border-top: solid #F8F8F8 1px; position: relative; background-color: #7593D7;">
+                <ul id="delivery_tab">
+                    <li id="delivery_tab_1" class="delivery_tab delivery_tab_active">{!$Label.label_wf_00079}</li>
+                    <li id="delivery_tab_2" class="delivery_tab delivery_tab_deactive">{!$Label.label_10693}</li>
+                </ul>
+        </div>
+ -->
+    </apex:pageBlock>
+</apex:form>
+
+
+<apex:include pageName="SOLXYZCSO001__DocumentContentsUpdate" />
+<div id="preview-area" style="display: none;"></div>
+</apex:page>

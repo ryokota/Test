@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>true</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>Agenda_Item_Type__c</fullName>
+        <externalId>false</externalId>
+        <label>Agenda Item Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Proposal to be Resolved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Item to be Reported</fullName>
+                <default>true</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Approval_Status__c</fullName>
+        <externalId>false</externalId>
+        <label>Approval Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Not Submitted</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Submitted</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Recalled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>BOD_Meeting__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <externalId>false</externalId>
+        <label>BOD Meeting</label>
+        <referenceTo>BOD_Meeting__c</referenceTo>
+        <relationshipName>Agenda_Item</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Confidential__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Confidential</label>
+        <trackHistory>false</trackHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Description__c</fullName>
+        <description>Short description of what to discuss</description>
+        <externalId>false</externalId>
+        <inlineHelpText>議事内容の概要</inlineHelpText>
+        <label>Description</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Document_Annotations__c</fullName>
+        <externalId>false</externalId>
+        <label>Annotations</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Document_Language__c</fullName>
+        <externalId>false</externalId>
+        <label>Document Language</label>
+        <picklist>
+            <picklistValues>
+                <fullName>English</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Japanese</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Document_Language_of_Parent__c</fullName>
+        <externalId>false</externalId>
+        <formula>TEXT(Related_Agenda_Item__r.Document_Language__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Document Language of Parent</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Document_Title__c</fullName>
+        <description>Only saving the title of latest version of attachment</description>
+        <externalId>false</externalId>
+        <label>Document Title</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Finished_for_Email__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Include in Email</label>
+        <trackHistory>false</trackHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>One_EN_Agend_with_Only_One_JP_Agenda__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <externalId>false</externalId>
+        <label>One EN Agend with Only One JP Agenda</label>
+        <length>18</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>Order_To_Be_Reported__c</fullName>
+        <defaultValue>0</defaultValue>
+        <externalId>false</externalId>
+        <label>Order (To Be Reported)</label>
+        <precision>8</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Order_To_Be_Resolved__c</fullName>
+        <defaultValue>0</defaultValue>
+        <externalId>false</externalId>
+        <label>Order (To Be Resolved)</label>
+        <precision>8</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Related_Agenda_Item__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related Agenda Item</label>
+        <referenceTo>Agenda_Item__c</referenceTo>
+        <relationshipName>Agenda_Item</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Type__c</fullName>
+        <externalId>false</externalId>
+        <formula>/*
+Parent without Doc, Parent with Doc, Child without Doc, Child with Doc
+*/
+IF(Related_Agenda_Item__c == null &amp;&amp; Version_Count__c == 0, &apos;Parent without Doc&apos;,   
+
+ IF(Related_Agenda_Item__c == null &amp;&amp; Version_Count__c &gt; 0, &apos;Parent with Doc&apos;,  
+
+   IF(Related_Agenda_Item__c != null &amp;&amp; Version_Count__c == 0, &apos;Child without Doc&apos;,  
+
+     IF(Related_Agenda_Item__c != null &amp;&amp; Version_Count__c &gt;= 0, &apos;Child with Doc&apos;,   
+       &apos;None&apos;
+     ) 
+   
+   ) 
+
+ ) 
+
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Type</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Version_Count__c</fullName>
+        <defaultValue>0</defaultValue>
+        <externalId>false</externalId>
+        <label>Version Count</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <label>議題</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>BOD_Meeting__c</columns>
+        <columns>Description__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>test</fullName>
+        <columns>NAME</columns>
+        <columns>Confidential__c</columns>
+        <columns>BOD_Meeting__c</columns>
+        <columns>Description__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <label>test</label>
+        <language>en_US</language>
+    </listViews>
+    <nameField>
+        <label>Name</label>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <namedFilters>
+        <fullName>nf_01IN00000000cl8MAA_00NN0000000ojwOMAQ</fullName>
+        <active>true</active>
+        <field>Agenda_Item__c.Related_Agenda_Item__c</field>
+        <filterItems>
+            <field>Agenda_Item__c.BOD_Meeting__c</field>
+            <operation>equals</operation>
+            <valueField>$Source.BOD_Meeting__c</valueField>
+        </filterItems>
+        <filterItems>
+            <field>Agenda_Item__c.Document_Language__c</field>
+            <operation>equals</operation>
+            <value>English</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+        <name>Agenda Item_Related Agenda Item</name>
+        <sourceObject>Agenda_Item__c</sourceObject>
+    </namedFilters>
+    <searchLayouts>
+        <customTabListAdditionalFields>BOD_Meeting__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Description__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>CREATEDBY_USER</customTabListAdditionalFields>
+        <customTabListAdditionalFields>UPDATEDBY_USER</customTabListAdditionalFields>
+        <lookupDialogsAdditionalFields>Agenda_Item_Type__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Document_Title__c</lookupDialogsAdditionalFields>
+        <searchFilterFields>BOD_Meeting__c</searchFilterFields>
+        <searchResultsAdditionalFields>Agenda_Item_Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Document_Language__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>BOD_Meeting__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Approval_Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>Private</sharingModel>
+    <sharingReasons>
+        <fullName>Admin__c</fullName>
+        <label>Admin</label>
+    </sharingReasons>
+    <sharingReasons>
+        <fullName>Advisor__c</fullName>
+        <label>Advisor</label>
+    </sharingReasons>
+    <sharingReasons>
+        <fullName>Guest__c</fullName>
+        <label>Guest</label>
+    </sharingReasons>
+    <sharingReasons>
+        <fullName>Member__c</fullName>
+        <label>Member</label>
+    </sharingReasons>
+    <sharingReasons>
+        <fullName>Secretary__c</fullName>
+        <label>Secretary</label>
+    </sharingReasons>
+    <validationRules>
+        <fullName>English_Agenda_should_be_parent_Agenda</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND( 
+Related_Agenda_Item__c != null, 
+ISPICKVAL(Related_Agenda_Item__r.Document_Language__c, &apos;Japanese&apos;) 
+)</errorConditionFormula>
+        <errorDisplayField>Related_Agenda_Item__c</errorDisplayField>
+        <errorMessage>Japanese version of Agenda Item cannot be the parent Agenda Item!</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Japanese_Agenda_must_have_related_Agenda</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND( 
+Related_Agenda_Item__c = null, 
+ISPICKVAL(Document_Language__c, &apos;Japanese&apos;) 
+)</errorConditionFormula>
+        <errorDisplayField>Related_Agenda_Item__c</errorDisplayField>
+        <errorMessage>Japanese Agenda must have a related Agenda Item in English.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Japanese_Agenda_should_be_child_Agenda</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(
+  Related_Agenda_Item__c != null,
+  ISPICKVAL(Document_Language__c, &apos;English&apos;) 
+)</errorConditionFormula>
+        <errorDisplayField>Related_Agenda_Item__c</errorDisplayField>
+        <errorMessage>English version of Agenda Item cannot be the child Agenda Item!</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>One_Level_Lookup_Limitation</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(Related_Agenda_Item__c != null,Related_Agenda_Item__r.Related_Agenda_Item__c != null)</errorConditionFormula>
+        <errorDisplayField>Related_Agenda_Item__c</errorDisplayField>
+        <errorMessage>Only one level lookup is available!</errorMessage>
+    </validationRules>
+</CustomObject>

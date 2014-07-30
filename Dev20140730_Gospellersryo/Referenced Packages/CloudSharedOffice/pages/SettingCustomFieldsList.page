@@ -1,0 +1,189 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingCustomFieldsController" tabStyle="setting__tab">
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_custom_fields_contents == 'false' && userInfo.proAuth_custom_fields_space == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF((userInfo.proAuth_custom_fields_contents == 'true' || userInfo.proAuth_custom_fields_space == 'true') && userInfo.showErrPage == false, true, false)}">
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+var attach = "";
+
+$(function(){
+	if("{!attach}" != ""){
+		attach = "{!attach}";
+	}
+
+	$(window).resize(resizeGrid);
+
+	$("#customFieldsList").jqGrid({
+		url				: _apiUrl + '/setup/customfields/customFieldsList.json',
+		postData		: {
+			attach		: attach,
+		},
+		datatype		: 'jsonp',
+		jsonReader		: {
+			id			: 'id',
+			repeatitems	: false,
+		},
+		colNames		: [
+				'',
+				'{!$Label.label_cm_action}',
+				'{!$Label.custom_field_label_00025}',
+				'{!$Label.custom_field_label_00024}',
+				'{!$Label.custom_field_label_00012}',
+		],
+		colModel		: [
+				{name : 'id',		index : 'id',		hidden : true },
+				{name : 'action',	index : 'action',	width : 120,	sortable : false ,	align : 'center',	formatter:actionFormatter, unformat:actionUnformatter},
+				{name : 'label',	index : 'label',	width : 345, 	sortable : false },
+				{name : 'name',		index : 'name',		width : 180,	sortable : false },
+				{name : 'type',		index : 'type',		width : 100,	sortable : false ,	align : 'center'},
+		],
+		rowNum			: {!userInfo.groupRows},
+		height			: getBrowserHeight() - 270,
+		width			: getBrowserWidth() - 340,
+		rowList			: [ 10, 50, 100 ],
+		pager			: '#customFieldsListPager',
+		viewrecords		: true,
+		multiselect		: false,
+		loadComplete	: function(data) {
+			resizeGrid();
+		}
+	});
+	$("#customFieldsList").jqGrid('navGrid','#customFieldsListPager',{edit:false,add:false,del:false,search:false,refresh:false});
+});
+
+function actionFormatter(cellvalue, options, rowObject){
+	var links = "";
+	links = "<a href=\"javascript:void(0);\" title=\"{!$Label.custom_field_label_00005}\" onclick=\"onReferClicked('" + rowObject.id + "');\" >{!$Label.custom_field_label_00005}</a>";
+	links += " | <a href=\"javascript:void(0);\" title=\"{!$Label.custom_field_label_00006}\" onclick=\"onModifyClicked('" + rowObject.id + "');\" >{!$Label.custom_field_label_00006}</a>";
+	if(rowObject.type != "-"){
+		links += " | <a href=\"javascript:void(0);\" title=\"{!$Label.custom_field_label_00007}\" onclick=\"onDeleteClicked('" + rowObject.id + "');\" >{!$Label.custom_field_label_00007}</a>";
+	}
+	return links;
+}
+
+function actionUnformatter(cellvalue, options, cell){
+	return cellvalue;
+}
+
+function resizeGrid(){
+    var height = getBrowserHeight() - 360;
+    if (height >= 270) {
+        $("#customFieldsList").setGridHeight(height);
+    }
+    $("#customFieldsList-container").width(getBrowserWidth() - 340);
+    $("#customFieldsList").setGridWidth($("#customFieldsList-container").innerWidth(), true);
+    if (height >= 270) {
+        $("#customFieldsList").setGridHeight(height);
+    }
+
+    $("body").css("overflow-x", $("body").width() > 993 ? "hidden" : "auto");
+}
+
+function onAddClicked(){
+	var callback = function(data){
+		if(data.count >= 20) {
+			alert("{!$Label.custom_field_message_00020}");
+			return;
+		}
+		window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingCustomFieldsCreate))}?attach=' + attach;
+	};
+	var callerror = function(data){
+		alert(data);
+	};
+	secureGetAsync('/setup/customfields/customFieldsCount.json', {attach : attach}, callback, callerror);
+}
+
+function onTitleClicked(id){
+	window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingCustomFieldsDetail))}?attach=' + attach + "&id=" + id;
+}
+
+function onReferClicked(id){
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingCustomFieldsDetail))}?attach=' + attach + "&id=" + id;
+}
+
+function onModifyClicked(id){
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingCustomFieldsEdit))}?attach=' + attach + "&id=" + id;
+}
+
+function onDeleteClicked(id){
+	if(!confirm("{!$Label.custom_field_message_00021}")){
+		return;
+	}
+	var callback = function(data){
+		CsoScript_loadingStop();
+		if(!data.result){
+			alert(data.message);
+			return;
+		}
+		$("#customFieldsList").trigger("reloadGrid");
+	};
+	var callerror = function(data){
+		CsoScript_loadingStop();
+		alert(data);
+	};
+	CsoScript_loadingStart();
+	securePostAsync('/setup/customfields/customFieldsDelete.json', {id:id}, callback, callerror);
+}
+</script>
+<div id="c_wrapper">
+	<table id="c_container" cellspacing="0" border="0">
+		<tr>
+			<td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+				<apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+			</td>
+			<td id="c_headLeft" nowrap="nowrap">
+				<img id="customfieldsImg" style="display: {!IF(attach == 'contents', 'inline', 'none')}" src="{!URLFOR($Resource.cso, '/image/customfields/custom_item_file.png')}" alt="{!$Label.custom_field_label_00010}" title="{!$Label.custom_field_label_00010}"/>
+				<img id="customfieldsImg" style="display: {!IF(attach == 'space', 'inline', 'none')}" src="{!URLFOR($Resource.cso, '/image/customfields/custom_item_space.png')}" alt="{!$Label.custom_field_label_00011}" title="{!$Label.custom_field_label_00011}"/>
+				<h1 id="c_headLeftTitle">{!$Label.custom_field_label_00009}</h1><br/>
+				<h2 id="c_headLeftSubTitle" style="display: {!IF(attach == 'contents', 'inline', 'none')}">{!$Label.custom_field_label_00010}</h2>
+				<h2 id="c_headLeftSubTitle" style="display: {!IF(attach == 'space', 'inline', 'none')}">{!$Label.custom_field_label_00011}</h2>
+			</td>
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+		</tr>
+		<tr>
+			<td id="c_right" colspan="2">
+				<apex:form >
+					<apex:pageBlock >
+						<div class="c_command_l">
+							<apex:commandButton value="{!$Label.solxyzcso001__label_00074}" onclick="onAddClicked();return false;"/>
+						</div>
+						<div id="customFieldsList-container">
+							<table id="customFieldsList"/>
+							<div id="customFieldsListPager" style="text-align:center;"/>
+						</div>
+					</apex:pageBlock>
+				</apex:form>
+			</td>
+		</tr>
+	</table>
+	<div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight"/>
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.uid == null && userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

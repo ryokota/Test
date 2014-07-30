@@ -1,0 +1,63 @@
+<apex:page id="InitialSelection" controller="SiteRegisterController" showHeader="false" standardStylesheets="false" >
+<head>
+<title>e-Ryugaku</title>
+<style type="text/css">
+&lt;!--
+div.cbtn {
+display: inline-block;
+min-width: 330px;
+height: 154px;
+font-size: 18px;
+font-weight: 400;
+text-align: center;
+
+text-decoration: none;
+line-height: 37px;
+outline: none;
+
+color: #111;
+border: 1px solid #FFF;
+-moz-box-shadow: 0px 0px 2px rgba(000,000,000,0.3);
+-webkit-box-shadow: 0px 0px 2px rgba(000,000,000,0.3);
+padding: 80px 0 0 0;
+margin: 10px ;
+cursor:pointer;
+cursor:hand;
+}
+--&gt;
+</style>
+</head>
+<apex:composition template="{!$Site.Template}">
+    <apex:define name="body">  
+    <center>
+        <apex:panelGrid bgcolor="white" columns="1"> 
+            <br/>
+            <br/>
+            <apex:panelGrid width="758" cellpadding="0" cellspacing="0" bgcolor="white" columns="1" styleClass="topPanelContainer"> 
+            <br/>
+            <apex:outputPanel layout="block" styleClass="topPanel">
+                <apex:panelGrid width="758" cellpadding="0" cellspacing="0" bgcolor="white" columns="2" style="text-align:center;"> 
+                
+                    <div class="cbtn" onclick="window.open('../SiteRegister?mode=out','_self')" style="{!$Label.StyleFromObirin}">
+                        <span style="font-size: larger; font-weight: bold;">{!$Label.UserFromObirin}</span>
+                        <br/>
+                        <span style="font-size: smaller; text-align: left; width:100%;">{!$Label.ForObirinStudents}</span>
+                    </div>
+                    
+                    <div class="cbtn" onclick="window.open('../SiteRegister?mode=in','_self')" style="{!$Label.StyleToObirin}">
+                        <span style="font-size: larger; font-weight: bold;">{!$Label.UserToObirin}</span>
+                        <br/>
+                        <span style="font-size: smaller; text-align: left; width:100%;">{!$Label.ForForeignStudents}</span>
+                    </div>
+                
+                </apex:panelGrid> 
+            </apex:outputPanel>
+            <c:SitePoweredBy />
+            </apex:panelGrid> 
+        </apex:panelGrid>
+    </center>
+    <br/>
+    </apex:define>
+</apex:composition>
+
+</apex:page>

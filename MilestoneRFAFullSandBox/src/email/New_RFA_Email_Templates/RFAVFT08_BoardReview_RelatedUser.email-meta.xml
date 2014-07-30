@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>true</available>
+    <description>Information only Email Communication to Requester/ Primary POC users when the RFA is pushed to Level &quot;Pending Board Review&quot;</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>RFAVFT08 Board Review - RelatedUser</name>
+    <style>none</style>
+    <subject>要取締役会承認（Approved / Requires BOD Approval）:  -</subject>
+    <type>visualforce</type>
+</EmailTemplate>

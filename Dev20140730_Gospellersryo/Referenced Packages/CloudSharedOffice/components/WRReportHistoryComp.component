@@ -1,0 +1,305 @@
+<apex:component id="wrreporthistoryComp" access="global" allowDML="true" controller="SOLXYZCSO001.WRReportHistoryCompController">
+<apex:outputText escape="false" value="</span>"/>
+<apex:attribute name="wrUserInfo" access="global" description="required" assignTo="{!csouserinfo}" type="SOLXYZCSO001.WRUserInfo" required="false"/>
+<apex:iframe src="{!$Page.SOLXYZCSO001__CSO_WR_Error}?code={!wrUserInfo.code}&massage={!wrUserInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(wrUserInfo.showErrPage == true,true,false)}"/>
+
+<apex:outputPanel rendered="{!IF(wrUserInfo.showErrPage == false, true, false)}">
+
+    <!-- <apex:outputpanel >  -->
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__WRCSOBridge" />
+        <!--apex:stylesheet value="{!URLFOR($Resource.wrcso, 'css/ui.jqgrid.css?20121221')}" /-->
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/redmond/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/evidence.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /></apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__WRCSOScript" />
+        <style type="text/css">
+            #evidence_tab {
+                margin-top: 0px;
+            }
+            #evidence_tab li {
+                list-style: none;
+                line-height: 10px;
+                float: left;
+                margin-right: 5px;
+                border-radius: 0px 0px 3px 3px;
+                -webkit-border-radius: 0px 0px 3px 3px;
+                -moz-border-radius: 0px 0px 3px 3px;
+            }
+            #evidence_tab a {
+                display: block;
+                text-decoration: none;
+                padding: 9px 17px;
+                font-weight: bold;
+            }
+            .evidence_tab_active {
+                background-color: #F8F8F8;
+            }
+            .evidence_tab_active a {
+                color: #456;
+            }
+            .evidence_tab_active a:hover {
+                color: #456 !important;
+            }
+            .evidence_tab_deactive {
+                background-color: #0033ff;
+                filter:alpha(opacity=50);
+                -moz-opacity: 0.5;
+                opacity: 0.5;
+            }
+            .evidence_tab_deactive a {
+                color: white;
+            }
+            .evidence_tab_deactive a:hover {
+                color: white;
+            }
+            #evidence_tab a {
+                display: block;
+                text-decoration: none;
+                padding: 9px 17px;
+                font-weight: bold;
+            }
+            .evidence_tab_active {
+                background-color: #F8F8F8;
+            }
+            .evidence_tab_active a {
+                color: #456;
+            }
+            .evidence_tab_active a:hover {
+                color: #456 !important;
+            }
+            .evidence_tab_deactive {
+                background-color: #af7070;
+                filter:alpha(opacity=50);
+                -moz-opacity: 0.5;
+                opacity: 0.5;
+            }
+            .evidence_tab_deactive a {
+                color: white;
+            }
+            .evidence_tab_deactive a:hover {
+                color: white;
+            }
+
+            #evidenceList tr td {
+                white-space: nowrap;
+            }
+        </style>
+        <script type="text/javascript">
+            /*
+             * 読込処理
+             */
+            jQuery.event.add(window, "load", function () {
+
+                //20130722 add
+
+                if({!isSessionTimeouted}){
+                    setErrorMessage("{!$Label.solxyzcso001__label_wf_00146}");
+                    return;
+                }
+
+                $("#evidence a").css({
+                    color: "#33FFFF",
+                    fontWeight: "bold"
+                });
+
+                //  検索条件の一覧を取得する
+                var rowNum = $.cookie('wr_evi_rowNum') == null ? 50 : $.cookie('wr_evi_rowNum');
+                var page = 1;
+                var sortName = 'datetime';
+                var sortOrder = 'asc';
+                var username = '';
+                var from = '';
+                var to = '';
+                var action = '';
+                var ovlnm = '';
+                var ovjnm = '';
+                var reportdefnm = '';
+                var reportnm = '';
+                var user = '';
+                var from = '';
+                var to = '';
+
+                $("#evidenceList").jqGrid({
+                    beforeRequest: function () {
+                        rowNum = $(this).getGridParam("rowNum");
+                        page = $(this).getGridParam("page");
+                        sortName = $(this).getGridParam("sortname");
+                        sortOrder = $(this).getGridParam("sortorder");
+
+                        var hasPermissionWRAdmin = {!hasPermissionWRAdmin};
+                        if (!hasPermissionWRAdmin) {
+                            user = "{!wr_userInfo.uid}";
+                        }
+
+                        var newUrl =_apiUrlSf + '/rest/rephis/list2/report'+ '/' + rowNum + '/' + page + '/' + sortName + '/' + sortOrder + '{!credential}' +
+                            '&locale={!sfUserInfo.LocaleSidKey}' + '&timezone={!sfUserInfo.TimeZoneSidKey}' + '&from=' + from + '&to=' + to + '&ovlnm=' + ovlnm + '&ovjnm=' + ovjnm + '&reportdefnm=' + reportdefnm + '&reportnm=' + reportnm+ '&user=' + user + '&record=' + '{!Sf_ID}';
+
+                        $(this).setGridParam({
+                            url: newUrl
+                        });
+                    },
+                    datatype: "json",
+                    jsonReader: {
+                        repeatitems: false,
+                        id: "id"
+                    },
+                    colNames: [
+                        '',
+                        '{!$Label.solxyzcso001__label_wf_00053}',         //アクション
+                        '{!$Label.solxyzcso001__label_wf_50002}',         //履歴番号
+                        '{!$Label.solxyzcso001__label_wf_50012}',         //帳票定義
+                        '{!$Label.solxyzcso001__label_wf_00080}',         //帳票名
+                        '{!$Label.solxyzcso001__label_wf_50013}',         //オーバレイ
+                        '{!$Label.solxyzcso001__label_wf_50009}',         //保存先
+                        '{!$Label.solxyzcso001__label_wf_00058}',         //作成者
+                        '{!$Label.solxyzcso001__label_wf_00010}'          //作成日
+                        ],
+                    colModel: [{
+                        name: 'id',
+                        index: 'id',
+                        width: 100,
+                        hidden: true
+                    }, {
+                        name: 'dataaction',
+                        index: 'dataaction',
+                        width: 65,
+                        align: "center"
+
+                    }, {
+                        name: 'hisid',
+                        index: 'hisid',
+                        width: 130,
+                        align: "left"
+                    }, {
+                        name: 'sfrepdefname',
+                        index: 'sfrepdefname',
+                        width: 130,
+                        align: "left",
+                    }, {
+                         name: 'filename',
+                        index: 'filename',
+                        width: 130,
+                        align: "left",
+                    }, {
+                        name: 'ovlname',
+                        index: 'ovlname',
+                        width: 130,
+                        align: "left"
+                    }, {
+                         name: 'type',
+                        index: 'type',
+                        width: 150,
+                        align: "left",
+                    }, {
+                        name: 'sfid',
+                        index: 'sfid',
+                        width: 95,
+                        align: 'left'
+                    }, {
+                        name: 'date',
+                        index: 'date',
+                        width: 120,
+                        align: 'left'
+                    }],
+                    rowNum: 10000,
+                    autowidth: true,
+                    //height: getBrowserHeight() - 300,
+                    //width: getBrowserWidth() - 85,
+                    height: 700,
+                    width:  100,
+                    sortname: "datetime",
+                    viewrecords: true,
+                    sortorder: "desc",
+                    shrinkToFit: false,
+                    loadComplete: function () {
+                        // 検索結果件数設定
+                        $(getId('{!$Component.evidencePage.evidenceForm.evidenceBlock.recordCount} h3')).text($("#evidenceList").jqGrid("getGridParam", "records") + "{!$Label.solxyzcso001__msg_00006}");
+                        $.cookie('wr_evi_rowNum', $(this).getGridParam("rowNum"));
+                    }
+                });
+
+               $(window).resize(resizeBodySize);
+                resizeBodySize();
+
+               if('{!WRUserInfo.locale}' == 'en' &&  browserType == 'IE9' ){
+                    $('.ui-th-div-ie').css("line-height","26px");
+                }else{
+                    $('.ui-th-div-ie').css("line-height","21px");
+                }
+
+            });
+
+             function resizeBodySize() {
+                var browserWidth = getBrowserWidth();
+                var browserHeight = getBrowserHeight();
+
+                if((browserWidth - 40) < 493){
+                    $("#evidenceList").setGridWidth(493);
+                } else {
+                    $("#evidenceList").setGridWidth(browserWidth - 50);
+                }
+
+                if(browserHeight<200){
+                    $("#evidenceList").setGridHeight(200);
+                } else {
+                    $("#evidenceList").setGridHeight(browserHeight - 110);
+                }
+
+            }
+
+            /*
+             * 再出力
+             */
+            function onModifyClicked(reportid){
+
+                //再出力確認用
+                //top.location.href = '{!salesforceBaseUrl}/apex/WRReportCopy?reportid=' + reportid;
+                top.location.href = '{!salesforceBaseUrl}{!$Page.SOLXYZCSO001__WRReportCopy}?reportid=' + reportid;
+
+            }
+
+        </script>
+        <!-- warapper -->
+        <apex:pageMessages />
+        <!--div id="c_wrapper"-->
+        <!-- content container -->
+        <table id="c_container" cellspacing="0" border="0">
+
+            <tr>
+                <!-- content container -->
+                <td id="c_right">
+                    <apex:form id="evidenceForm">
+                        <apex:pageBlock id="evidenceBlock" title="{!$Label.solxyzcso001__label_wf_50005}">
+                            <div id="tab_wr" class="tab-div">
+
+                                <!-- 帳票出力履歴一覧 -->
+                                <div id="jqgridDiv" style="width:99%;">
+                                    <table id="evidenceList" >
+                                    </table>
+
+                                </div>
+
+                            </div>
+                        </apex:pageBlock>
+                    </apex:form>
+                </td>
+            </tr>
+        </table>
+
+<apex:variable var="Sf_ID"   id="Sf_ID"   value="{!Sf_ID}"/>
+</apex:outputPanel>
+</apex:component>

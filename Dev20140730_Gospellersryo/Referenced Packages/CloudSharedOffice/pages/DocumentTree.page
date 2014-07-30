@@ -1,0 +1,622 @@
+<apex:page showHeader="false" cache="false" sidebar="false" controller="SOLXYZCSO001.SpacePortalController">
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+
+<style type="text/css">
+.tree_control{
+    width: 240px;
+    text-align:right;
+}
+.space_select_img{
+    border: none;
+    width:18px;
+    height:18px;
+    margin-right:4px;
+    vertical-align:bottom;
+}
+.background_white{
+    background-color: #FFFFFF
+}
+</style>
+<script type="text/javascript">
+/*
+ * スペース切替(初期表示以外)
+ * 新メソッド(onChangeSpaceProcess)に従来のメソッドを対応させるためのメソッド
+ */
+function onChangeSpace(space){
+	disableMenuButton(true);
+// 121018 URL直アクセス有効化変更 (メソッド全文 山東変更)
+    onChangeSpaceProcess(space, false);
+}
+
+/*
+ * スペース切替(実処理)
+ * リロード分岐を追加した新メソッド。旧メソッド(onChangeSpace)を使用すると、自動的にリロードがかかります。
+ * <コメント> 以前は旧メソッドを通る際は一律リロードがかかるようになっていたが、"doNotReload"を使って切替できるように変更。それ以外の修正はなし。
+ */
+function onChangeSpaceProcess(space, doNotReload){
+    if(win != null && !win.closed){
+        if(confirm('{!$Label.msg_00046}')){    //アップロード中にスペースを移動すると、アップロードが中断してしまいます。\nそれでも移動しますか？
+            win.close();
+            win = null;
+        }else{
+            return;
+        }
+    }
+    // すべてのコンテキストメニュー非表示
+    hideContextMenu();
+    // ローディングを表示
+    displayLoading();
+
+    if(space == 'my'){
+        // マイスペース切替
+        side_myspace_reload(doNotReload);
+    } else if(space == 'collaboration') {
+        // コラボスペース切替
+        side_collaboration_reload(doNotReload);
+    } else if(space == 'company') {
+        // カンパニースペース切替
+        side_companyhome_reload(doNotReload);
+    } else if(space == 'archive'){
+        // アーカイブ切替
+        side_archive_reload(doNotReload);
+    } else if(space == 'garbage'){
+        // ゴミ箱切替
+        side_garbagespace_reload(doNotReload);
+    } else {
+        // タグ切替
+        side_tag_reload();
+    }
+}
+
+/*
+ * コンテキストメニューの非表示
+ */
+function hideContextMenu() {
+    $('#jqContextMenu').hide();
+    $('#jqContextMenu').next().hide(); // これがないとコンテキストメニューの跡が灰色になる
+}
+
+/*
+ * スペース切替（マイスペース）
+ */
+function side_myspace_reload(flg){
+    if (($("#galleryDiv").css("display") == "block")&&(!backButtonFromGallery)&&(!onceCallCancelGallery)) {
+        cancelGallery();
+    }
+    backButtonFromGallery = false;
+    onceCallCancelGallery = false;
+    var callback =  function(data){
+                        sideRoot["asrt"] = "my";
+                        loadTree(data, "myspacetree", "{!$Label.label_00051}", "my", flg);
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"my", 'itemsType' : '2', "returnType":"html"}, callback);
+
+    mSpaceIdentifier =1;
+    hideCsoContextMenu();
+}
+
+/*
+ * スペース切替（コラボスペース）
+ */
+function side_collaboration_reload(flg){
+    if (($("#galleryDiv").css("display") == "block")&&(!backButtonFromGallery)&&(!onceCallCancelGallery)) {
+        cancelGallery();
+    }
+    backButtonFromGallery = false;
+    onceCallCancelGallery = false;
+    var callback =  function(data, status){
+                        sideRoot["collaboration"] = data["root"];
+                        sideRoot["asrt"] = "collaboration";
+                        loadTree(data, "collaborationtree", "{!$Label.label_00052}", "collaboration", flg);
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"collaboration", 'itemsType' : '2', "returnType":"html"}, callback);
+
+    mSpaceIdentifier = 5;
+    hideCsoContextMenu();
+}
+
+/*
+ * スペース切替（カンパニースペース）
+ */
+function side_companyhome_reload(flg){
+    if (($("#galleryDiv").css("display") == "block")&&(!backButtonFromGallery)&&(!onceCallCancelGallery)) {
+        cancelGallery();
+    }
+    backButtonFromGallery = false;
+    onceCallCancelGallery = false;
+    var callback =  function(data, status){
+                        sideRoot["asrt"] = "company";
+                        loadTree(data, "companyhometree", "{!$Label.label_00053}", "company", flg);
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"company", 'itemsType' : '2', "returnType":"html"}, callback);
+
+    mSpaceIdentifier = 2;
+    hideCsoContextMenu();
+}
+
+/*
+ * スペース切替（アーカイブ）
+ */
+function side_archive_reload(flg){
+	hideDisplaySetting();
+    if (($("#galleryDiv").css("display") == "block")&&(!backButtonFromGallery)&&(!onceCallCancelGallery)) {
+        cancelGallery();
+    }
+    backButtonFromGallery = false;
+    onceCallCancelGallery = false;
+    var callback =  function(data, status){
+                        sideRoot["archive"] = data["root"];
+                        sideRoot["asrt"] = "archive";
+                        loadTree(data, "archivetree", "{!$Label.label_00055}", "archive", flg);
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"archive", 'itemsType' : '2', "returnType":"html"}, callback);
+
+    mSpaceIdentifier = 4;
+    hideCsoContextMenu();
+}
+
+/*
+ * スペース切替（ゴミ箱）
+ */
+function side_garbagespace_reload(flg){
+	hideDisplaySetting();
+    if (($("#galleryDiv").css("display") == "block")&&(!backButtonFromGallery)&&(!onceCallCancelGallery)) {
+        cancelGallery();
+    }
+    backButtonFromGallery = false;
+    onceCallCancelGallery = false;
+    var callback =  function(data, status){
+                        sideRoot["garbage"] = data["root"];
+                        sideRoot["asrt"] = "garbage";
+                        loadTree(data, "garbagetree", "{!$Label.label_00056}", "garbage", flg);
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"garbage", 'itemsType' : '2', "returnType":"html"}, callback);
+
+    mSpaceIdentifier = 3;
+    hideCsoContextMenu();
+}
+
+/*
+ * スペース切替（タグ）
+ */
+function side_tag_reload(){
+	hideDisplaySetting();
+    // コンテンツエリア表示
+    displayList();
+    // タイトル画像の差し替え
+    $('#folder_image').hide();
+    $('#edit_image').hide();
+    $('#tag_image').show();
+    // タイトルの非表示
+    $('#c_headLeftSubTitle').empty();
+    // グリッドの「場所」列表示
+//    $("#listView1").showCol("path");
+    $("#settingBtn").hide();
+    // 表示対象タグ種類を取得
+    selectFlag = $("#tagTypeSelect").val();
+    
+    var callback = function(data){
+            $("#listView1").jqGrid('GridUnload');
+            createList("", "tag", data);
+            var callback2 = function(data2){
+                initTagTree(data2, 'tag', '{!$Label.label_00057}', 'tag', data2["title"]);
+            };
+            secureGetAsync('/contentsmanagement/TagTreeGet.json', {'funType' : selectFlag, "returnType":"html"}, callback2);
+    };
+    secureGetAsync("/contentsmanagement/list/SettingGet.json", {"type" : "CONTENT", "asrt" : "tag"}, callback);
+
+    jumpFlag = false;
+    tagType = null;
+    tagName = null;
+
+    mSpaceIdentifier = 6;
+    resizeBodySize();
+}
+
+/*
+ * スペースツリー表示処理
+ */
+function loadTree(data, cookieId, spaceTitle, asrt, flg){
+    // 操作系ボタンの差し替え
+    $(".c_command_pipe .item").show();
+    if(!flg){
+        // タイトル部の切替を行う
+        $('#folder_image').show();
+        $('#tag_image').hide();
+    }
+    $('#c_headLeftTitle').html(spaceTitle);
+    $(".tree_control").each(function(){
+        if($(this).attr("id") == ("control_" + asrt)){
+            $(this).show();
+        }else{
+            $(this).hide();
+        }
+    });
+    $("#spacePath").show();
+    jumpFlag=true;
+    var branches = $("#spaceTree").html(data["tree"]);
+    $("#spaceTree").treeview({
+        url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+        add: branches,
+        animated: "fast",
+        asrt: asrt,
+        persist: "fixed-open",
+        cookieId: "salvTree",
+    });
+
+    if(!flg){
+        location.href = '#' + data.root + ':' + asrt;
+    }
+
+    // スペースツリー表示
+    displaySpaceTree();
+}
+
+/*
+ * タグツリー表示処理
+ */
+function initTagTree(data, cookieId, tagTitle, asrt, tagTypeName){
+	setAsrtName("tag");
+	enableMenuButton();
+    // 操作系ボタンの差し替え
+    $(".c_command_pipe .item").hide();
+    // タグタイトルを表示
+    $('#c_headLeftTitle').html(tagTitle);
+    // ブレッドクラムを非表示
+    $("#spacePath").hide();
+    //
+    $("#infoChatter").hide();
+    $("#infoShare").hide();
+    $("#infoSpaceRule").hide();
+    $("#infoSpaceHistory").hide();
+    $("#infoPassword").hide();
+    $("#infoLifecycle").hide();
+    $("#infoWatermark").hide();
+    $("#infoPdfSecurity").hide();
+    $("#infoDigimark").hide();
+    // タグツリーデータ設定
+    var branches = $("#tagNameTreeDiv").html(data["tree"]);
+    $(".tree_control").each(function(){
+        if($(this).attr("id") == ("control_" + asrt)){
+            $(this).show();
+        }else{
+            $(this).hide();
+        }
+    });
+
+    // タグツリー表示
+    displayTagTree();
+
+    $("#tagNameTreeDiv").treeview({
+        collapsed: true,
+        persist: "cookie",
+        cookieId: cookieId,
+        add: branches,
+        control:"#control_tag",
+        animated: "medium"
+    });
+    openFlag=false;
+    location.href = '#';
+}
+/*
+ * スペース切替処理
+ */
+function changeSpace(url) {
+    if ('true' == $('#editor').attr('isDirty')) {
+        if (!confirm("{!$Label.msg_00099}")){
+            // 編集へ戻る
+            return;
+        } else {
+            // 変更を破棄する場合
+            $('#editor').attr('isDirty', false);
+        }
+    }
+    
+    closeDisplaySettingsDialog();
+
+    clearSearchKeyword();
+    
+    // コンテンツエリア表示
+    displayList();
+
+    if (location.href.indexOf(url) < 0) {
+        location.href = url;
+    } else {
+        reloadNow();
+    }
+
+    changeCurrentTreeColor();
+}
+
+/*
+ * URLヒストリーからツリーをリロードする
+ */
+function reloadTree(){
+	closeDisplaySettingsDialog();
+    var url = location.href;
+    var strs = url.replace(/^.*#/, '').split(":");
+    if(strs.length == 2 && strs[1] != 'search'){
+        displayLoading();
+        if(strs[1] == "my"){
+            side_myspace_reload(true);
+        }else if(strs[1] == "company"){
+            side_companyhome_reload(true);
+        }else if(strs[1] == "garbage"){
+            side_garbagespace_reload(true);
+        }else if(strs[1] == "archive"){
+            side_archive_reload(true);
+        }else if(strs[1] == "collaboration"){
+            side_collaboration_reload(true);
+        }else if(strs[1]=="tag"){
+            side_tag_reload();
+        }
+    }
+    if($(".searchResultsLabel")[0]){
+        $('#spacePath div div h3').show();
+        $(".searchResultsLabel").remove();
+    }
+}
+
+/*
+ * タグツリー選択時検索
+ */
+function searchContents(name, type){
+	hideDisplaySetting();
+//    name = decodeURI(name);
+    $("#listViewArea").show();
+//    $("#listView1").showCol("path");
+    if (($("#galleryDiv").css("display") == "block")&&(!backButtonFromGallery)&&(!onceCallCancelGallery)) {
+        cancelGallery();
+    }
+    backButtonFromGallery = false;
+    onceCallCancelGallery = false;
+    displayTagList();
+
+    $("#listView1").setGridParam({
+        url : _apiUrl + '/contentsmanagement/tagSpaceContentsListV2Get.json',
+        datatype : "jsonp",
+        postData : {
+            tagType : $("#tagTypeSelect").val(),
+//            tagType : type,
+            tagName : name
+        }
+     });
+
+    $("#listView1").trigger("reloadGrid");
+    $("#c_headLeftSubTitle").text(name);
+    tagType=type;
+    tagName=name;
+}
+
+/*
+ * タグツリー選択時検索
+ */
+function searchContents2(name, type){
+    $("#listViewArea").show();
+//    $("#listView1" ).showCol("path");
+    if (($("#galleryDiv").css("display") == "block")&&(!backButtonFromGallery)&&(!onceCallCancelGallery)) {
+        cancelGallery();
+    }
+    backButtonFromGallery = false;
+    onceCallCancelGallery = false;
+    displayTagList();
+
+    delete $("#listView1").getGridParam("postData").tagType;
+    $("#listView1").setGridParam({
+        url : _apiUrl + '/contentsmanagement/tagSpaceContentsListV2Get.json',
+        datatype : "jsonp",
+        postData : {
+            tagName : name,
+            tagType : 3
+        }
+    });
+
+    $("#listView1").trigger("reloadGrid");
+    $("#c_headLeftSubTitle").html(name);
+    tagType=type;
+    tagName=name;
+}
+
+/*
+ *
+ */
+function reloadTag(){
+    $("#listViewArea").show();
+    if (($("#galleryDiv").css("display") == "block")&&(!backButtonFromGallery)&&(!onceCallCancelGallery)) {
+        cancelGallery();
+    }
+    backButtonFromGallery = false;
+    onceCallCancelGallery = false;
+    if(searchFlag){
+        var searchstr = $.trim($("#keywords").val());
+        $("#listView1").setGridParam({
+            url :_apiUrl + '/contentsmanagement/tagSpaceContentsListV2Get.json',
+            datatype : "jsonp",
+            postData : {
+                tagName : searchstr,
+                search : true
+            }
+        });
+        $("#listView1").trigger("reloadGrid");
+    }else{
+        $("#listView1").setGridParam({
+            url :_apiUrl + '/contentsmanagement/tagSpaceContentsListV2Get.json',
+            datatype : "jsonp",
+            postData : {
+                tagType : $("#tagTypeSelect").val(),
+//                tagType : tagType,
+                tagName : tagName
+            }
+        });
+        $("#listView1").trigger("reloadGrid");
+    }
+}
+
+/*
+ * 選択スペースの文字色変更
+ */
+function changeCurrentTreeColor(id){
+    if(!id){
+        var url = location.href;
+        $(".folder a, .folderShare a").each(function(){
+            var orgid = $(this).attr("id");
+            orgid = orgid.slice(2);
+            if(url.indexOf(orgid) > 0){
+                $(this).css({color:"red"});
+            }else{
+                $(this).css({color:"black"});
+            }
+        });
+    } else {
+        $(".folder a, .folderShare a").each(function(){
+            var orgid = $(this).attr("id");
+            orgid = orgid.slice(2);
+            if(id == orgid){
+                $(this).css({color:"red"});
+            }else{
+                $(this).css({color:"black"});
+            }
+        });
+    }
+}
+
+
+function synchronizedSpaceTree(){
+    var $ids = $('#fullPathDisplay').children("a");
+    if($ids.length == 0){
+                $ids = $('#spacePath div div h3').children("a");
+    }
+    if($ids.length == 0){
+        return;
+    }
+    $ids.each(function(){
+        var spaceid = $(this).attr("id");
+        var expanded = expandSpaceTree(spaceid);
+        if(!expanded){
+            return false;
+        }
+    });
+}
+
+function expandSpaceTree(spaceid){
+    // Redmine 8607
+    var $li = $("li").filter("#c_left_container #spaceTree #" + spaceid);
+    if($li.length == 0){
+        return false;
+    }
+    if($li.hasClass("collapsable")){
+        return true;
+    }
+
+    if($li.hasClass("hasChildren")){
+        // read children
+        var asrt = getAsrt();
+        var $div = $li.find("div:first");
+            var callback =  function(data){
+                if (!data.result) return;
+
+                var $ul = $li.find("ul:first");
+                $ul.empty();
+                $.each(data.children, function(i, child){
+                    $ul.append(child.toString());
+                });
+                $li.removeClass("hasChildren");
+                $li.treeview({
+                    url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+                    add: $ul,
+                    asrt: asrt,
+                    itemsType: 2,
+                    animated:  "fast",
+                });
+
+                setTimeout(function(){
+                    synchronizedSpaceTree();
+                    changeCurrentTreeColor();
+                }, 10);
+            };
+
+        secureGetAsync("/contentsmanagement/SpaceTreeChildrenApi.json",{ "parent": spaceid, "asrt": asrt, "itemsType": 2, "returnType":"html"}, callback);
+
+        return false;
+    }else{
+        // open children
+        var $div = $li.find("div:first");
+        if($div.hasClass("hitarea")){
+            $div.click();
+        }
+        return true;
+    }
+}
+</script>
+<div id="c_left_container" class="background_white">
+<table width="width:250px;" cellspacing="0" cellpadding="0" style="min-width:250px; max-width:250px;">
+    <tr>
+        <td>
+            <div class="sidebar" id="sidebarDiv" style="margin:5px 0px 5px 25px;">
+                <div class="sidebarModule createNewModule" style="margin-bottom:0px;">
+                    <div class="sidebarModuleBody sidebarModuleBodyNoHeader" id="createNewContainer">
+                        <div class="menuButton" id="createNew">
+                            <div class="menuButtonButton brandPrimaryBgr brandPrimaryBrd2" id="createNewButton" style="white-space: nowrap;">
+                                <span  class="menuButtonLabel" id="createNewLabel" tabindex="0">{!$Label.label_10152}</span>
+                                <span class="brandMenuButtonArrow brandPrimaryFgrBrdTop"></span>
+                            </div>
+                            <div class="menuButtonMenu" id="createNewMenu">
+                                <a href="?#" onclick="onChangeSpace('my'); return false;" style="white-space: nowrap;">
+                                    <img src="{!URLFOR($Resource.cso, '/image/space-my-16.png')}" class="space_select_img"/>{!$Label.label_00051}
+                                </a>
+                                <a href="?#" onclick="onChangeSpace('collaboration'); return false;" style="white-space: nowrap;display:{!IF(cso_userInfo.proAuth_collabo_space_standard == 'true' || cso_userInfo.proAuth_collabo_space_root_define == 'true', 'display', 'none')}">
+                                    <img src="{!URLFOR($Resource.cso, '/image/space-collabo-16.png')}" class="space_select_img"/>{!$Label.label_00052}
+                                </a>
+                                <a href="?#" onclick="onChangeSpace('company'); return false;" style="white-space: nowrap;display:{!IF(cso_userInfo.proAuth_company_space_standard == 'true' || cso_userInfo.proAuth_company_space_root_define == 'true', 'display', 'none')}">
+                                    <img src="{!URLFOR($Resource.cso, '/image/space-company-16.png')}" class="space_select_img"/>{!$Label.label_00053}
+                                </a>
+                                <a href="?#" onclick="onChangeSpace('archive'); return false;" style="white-space: nowrap;display:{!IF(cso_userInfo.proAuth_archive_space_standard == 'true' || cso_userInfo.proAuth_archive_space_manage == 'true', 'display', 'none')}">
+                                    <img src="{!URLFOR($Resource.cso, '/image/archive.png')}" class="space_select_img"/>{!$Label.label_00055}
+                                </a>
+                                <a href="?#" onclick="onChangeSpace('garbage'); return false;" style="white-space: nowrap;">
+                                    <img src="{!URLFOR($Resource.cso, '/image/001_49.gif')}" class="space_select_img"/>{!$Label.label_00056}
+                                </a>
+                                <a href="?#" onclick="onChangeSpace('tag');tagMenuSelected(); return false;" style="white-space: nowrap;">
+                                    <img src="{!URLFOR($Resource.cso, '/image/tag_title.png')}" class="space_select_img"/>{!$Label.label_00057}
+                                </a>
+                                <a href="?#" onclick="openFavorite(); return false;" style="white-space: nowrap;">
+                                    <img src="{!URLFOR($Resource.cso, '/image/favorite-on.png')}" class="space_select_img"/>{!$Label.label_13206}
+                                </a>
+                            </div>
+                        </div>
+                        <div id="sidebarDivOverlay" style="position:absolute; top:15px; left:32px; width:210px; height:37px; z-index:2500; opacity:0.3; filter:alpha(opacity = 30); background:white;"></div>
+                    </div>
+                </div>
+            </div>
+            <script  type="text/javascript">new MenuButton('createNew', false);</script>
+        </td>
+    </tr>
+</table>
+<div style="display: none;" id="control_tag" class="tree_control">
+    <a href="?#" class="c_link_s">{!$Label.label_10258}</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="?#" class="c_link_s">{!$Label.label_10259}</a>
+</div>
+<div id ="tree_div">
+    <!-- ローディングエリア -->
+    <div id="loadingGif"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="margin:50px 0 0 100px" alt="loading"/></div>
+    <!-- スペースツリーエリア -->
+    <ul id="spaceTree" class="filetree" style="max-height: 432px;"></ul>
+    <!-- タグツリーエリア -->
+    <div id="tagDiv" style="display:none;max-width:250px;width:250px;">
+        <div id="tagLeftTitle">
+            <div style="font-weight:bold">{!$Label.label_10171}</div>
+            <div style="margin-top:10px">
+                <select id="tagTypeSelect" style="width:200px" onchange="side_tag_reload();">
+                    <option value="1" selected="selected">{!$Label.label_10173}</option>
+                    <option value="2">{!$Label.label_10172}</option>
+                    <option value="3">{!$Label.label_10142}</option>
+                    <option value="4">{!$Label.label_10223}</option>
+                    <option value="5">{!$Label.label_10224}</option>
+                </select>
+            </div>
+        </div>
+        <div id="tagNameTreeDiv" style="display:inline;width:150px"></div>
+    </div>
+</div>
+</div>
+</apex:page>

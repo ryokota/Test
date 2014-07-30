@@ -1,0 +1,172 @@
+<apex:page id="thePage" sidebar="false" controller="SOLXYZCSO001.CSOOrganizationController">
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_corp_standard == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_corp_standard == 'true', true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+
+$(function(){
+    disableCollabo();
+    disableCompany();
+    disableArchive();
+    changeUseDefault();
+});
+
+function getId(id) {
+    return '#' + id.replace(/(:|\.)/g,'\\\\$1');
+}
+
+var collabo  = getId('{!$Component.thePage.theForm.theBlock.theBlockSection.theBlockSectionItemCollabo}');
+var company  = getId('{!$Component.thePage.theForm.theBlock.theBlockSection.theBlockSectionItemCompany}');
+var archive  = getId('{!$Component.thePage.theForm.theBlock.theBlockSection.theBlockSectionItemArchive}');
+var mailForm = getId('{!$Component.thePage:theForm:theBlock:mailFormBlockSection}');
+
+function disableCollabo()
+{
+
+    if($(collabo + '\\:theCollaboCheck').attr('checked')){
+        $(collabo + '\\:theCollaboDisk').attr('disabled', 'disabled');
+        $(collabo + '\\:theCollaboDisk').val('');
+    }else{
+        $(collabo + '\\:theCollaboDisk').removeAttr('disabled');
+    }
+}
+function disableCompany()
+{
+    if($(company+ '\\:theCompanyCheck').attr('checked')){
+        $(company+ '\\:theCompanyDisk').attr('disabled', 'disabled');
+        $(company+ '\\:theCompanyDisk').val('');
+    }else{
+        $(company+ '\\:theCompanyDisk').removeAttr('disabled');
+    }
+}
+function disableArchive()
+{
+    if($(archive+ '\\:theArchiveCheck').attr('checked')){
+        $(archive+ '\\:theArchiveDisk').attr('disabled', 'disabled');
+        $(archive+ '\\:theArchiveDisk').val('');
+    }else{
+        $(archive+ '\\:theArchiveDisk').removeAttr('disabled');
+    }
+}
+
+function changeUseDefault(){
+    if($(mailForm + '\\:mailFromUseDefaultItem\\:mailFromUseDefaultCheck').attr('checked')){
+        $(mailForm + '\\:mailFromNameItem\\:mailFromNameText').val('');
+        $(mailForm + '\\:mailFromAddressItem\\:mailFromAddressText').val('');
+        $(mailForm + '\\:mailFromNameItem\\:mailFromNameText').attr('disabled', 'disabled');
+        $(mailForm + '\\:mailFromAddressItem\\:mailFromAddressText').attr('disabled', 'disabled');
+    }else{
+        $(mailForm + '\\:mailFromNameItem\\:mailFromNameText').removeAttr('disabled');
+        $(mailForm + '\\:mailFromAddressItem\\:mailFromAddressText').removeAttr('disabled');
+    }
+}
+
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/company.png')}" alt="{!$Label.solxyzcso001__label_10235}" title="{!$Label.solxyzcso001__label_10293}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10345}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10293}</h2>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right">
+                <apex:form id="theForm">
+                    <apex:pageBlock id="theBlock">
+                        <apex:pageBlockButtons >
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00075}" action="{!save}"/>
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!cancel}"/>
+                        </apex:pageBlockButtons>
+                        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10139}" id="theBlockSection">
+                            <apex:pageMessages />
+                            <apex:pageBlockSectionItem id="theBlockSectionItemCollabo">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_00052}</apex:outputLabel>
+                                <apex:outputPanel styleClass="requiredInput" layout="block">
+                                   <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                   <apex:inputText value="{!collaborationSize}" style="width:50px;" required="false" id="theCollaboDisk" maxlength="9" />
+                                   {!$Label.solxyzcso001__label_00043}
+                                   <apex:inputcheckbox value="{!collaborationFull}" onClick="disableCollabo();" id="theCollaboCheck"/>
+                                   <apex:outputLabel >{!$Label.solxyzcso001__label_10008} / {!collaborationUsed}</apex:outputLabel>
+                                </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+
+                            <apex:pageBlockSectionItem id="theBlockSectionItemCompany">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_00053}</apex:outputLabel>
+                               <apex:outputPanel styleClass="requiredInput" layout="block">
+                                   <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                   <apex:inputText value="{!companySize}"  style="width:50px;" required="false"  id="theCompanyDisk" maxlength="9" />
+                                   {!$Label.solxyzcso001__label_00043}
+                                   <apex:inputcheckbox value="{!companyFull}" onClick="disableCompany();" id="theCompanyCheck"/>
+                                   <apex:outputLabel >{!$Label.solxyzcso001__label_10008} / {!companyUsed}</apex:outputLabel>
+                               </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem id="theBlockSectionItemArchive">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_00055}</apex:outputLabel>
+                                   <apex:outputPanel styleClass="requiredInput" layout="block">
+                                   <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                   <apex:inputText value="{!archiveSize}"  style="width:50px;" required="false" id="theArchiveDisk" maxlength="9" />
+                                   {!$Label.solxyzcso001__label_00043}
+                                   <apex:inputcheckbox value="{!archiveFull}" onClick="disableArchive();" id="theArchiveCheck"/>
+                                   <apex:outputLabel >{!$Label.solxyzcso001__label_10008} / {!archiveUsed}</apex:outputLabel>
+                               </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_13218}" rendered="{!mailFromEditable}" id="mailFormBlockSection">
+                           <apex:pageBlockSectionItem id="mailFromUseDefaultItem">
+                               <apex:inputcheckbox value="{!mailFromUseDefault}" onClick="changeUseDefault();" id="mailFromUseDefaultCheck"/>
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13217}</apex:outputLabel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="mailFromNameItem">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13219}</apex:outputLabel>
+                               <apex:outputPanel styleClass="requiredInput" layout="block">
+                               <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                               <apex:inputText value="{!mailFromName}" required="false" id="mailFromNameText" maxlength="80"/>
+                               </apex:outputPanel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="mailFromAddressItem">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13220}</apex:outputLabel>
+                               <apex:outputPanel styleClass="requiredInput" layout="block">
+                               <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                               <apex:inputText value="{!mailFromAddress}" required="false" id="mailFromAddressText" maxlength="80"/>
+                               </apex:outputPanel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="mailFromNoticeItem">
+                               <apex:outputLabel ><br/></apex:outputLabel>
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13222}<br/>{!$Label.solxyzcso001__label_13223}</apex:outputLabel>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

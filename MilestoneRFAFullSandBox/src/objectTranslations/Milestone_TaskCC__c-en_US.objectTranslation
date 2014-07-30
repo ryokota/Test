@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Milestone TaskCC</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Milestone TaskCC</value>
+    </caseValues>
+    <fields>
+        <label><!-- Task_Id --></label>
+        <name>Task_Id__c</name>
+        <relationshipLabel><!-- TaskCCList --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Selected User --></label>
+        <name>User_Id__c</name>
+        <relationshipLabel><!-- TaskCCList --></relationshipLabel>
+    </fields>
+    <layouts>
+        <layout>Milestone_TaskCCLayout</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>UserName</nameFieldLabel>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

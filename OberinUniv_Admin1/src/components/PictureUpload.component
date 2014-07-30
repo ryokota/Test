@@ -1,0 +1,34 @@
+<apex:component controller="PictureUploadController" selfClosing="true" allowDML="true" access="global">
+    <div class="well">
+        <div class="block">
+            <h3 class="block-title sub-title">
+                <apex:outputLabel value="{!$Label.ProfilePhoto}"/>
+            </h3>
+            <apex:image id="theImage" 
+                        value="/servlet/servlet.FileDownload?file={!student.Picture_ID__c}" 
+                        style="width:140px;display:block;" 
+                        width="140" 
+                        rendered="{!NOT(noPicture)}"/>
+            <apex:image id="theImageEmpty" 
+                        value="{!URLFOR($Resource.Default_Picture)}" 
+                        style="width:140px;display:block;" 
+                        width="140" 
+                        rendered="{!noPicture}"/>
+            <apex:outputLabel value="{!student.name}" style="display:block;" />
+            <a href="#" onclick="$('#uploader').modal({keyboard: true});">{!$label.UpdatedPhoto}</a>
+            <br />
+            <div id="uploader" style="display: none" class="modal hide fade">
+                <div class="modal-header">
+                    <h3>{!$label.UploadPictures}</h3>
+                </div>
+                <div class="modal-body">
+                    <apex:outputText value="{!$Label.UpdatedPhotoHelpText}" escape="false"/>
+                    <apex:form >
+                        <c:FileUpload key="{!FileKey}" parentIdVal="{!student.Id}" />
+                    </apex:form>
+                </div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+    </div>
+</apex:component>

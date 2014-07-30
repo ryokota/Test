@@ -1,0 +1,161 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.WRSupportSettingController" tabStyle="setting__tab" action="{!init}">
+    <apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+        <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+    </apex:outputpanel>
+    <apex:outputpanel rendered="{!hasWR && hasPermissionWRAdmin}">
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__WRCSOBridge" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+        <!-- TODO -->
+        <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /></apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <script type="text/javascript" src="{!URLFOR($Resource.WRCSO,'js/xdr.js')}"></script>
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__WRCSOScript" />
+        <!-- warapper -->
+        <style type="text/css">
+            .contentDiv {
+            }
+            .contentDiv div {
+                margin : 15px;
+            }
+            .contentDiv table tr th {
+                font-weight : bold;
+                text-align : right;
+                padding : 5px;
+                padding-left : 25px;
+                width : 120px;
+            }
+            .contentDiv table tr td {
+                text-align : right;
+                padding : 5px;
+            }
+        </style>
+        <script type="text/javascript">
+            /*
+             * 読込処理
+             */
+            jQuery.event.add(window, "load", function () {
+                var rowNum = $.cookie('wr_ss_rowNum') == null ? 50 : $.cookie('wr_ss_rowNum');
+
+                var page = 1;
+                var sortName = 'name';
+                var sortOrder = 'asc';
+
+                $('#usersTable').jqGrid({
+                    url: _apiUrlSf + '/rest/support/setget' +"{!JSENCODE(credential)}",
+                    datatype: 'json',
+                    jsonReader: {
+                        repeatitems: false,
+                        id: "id"
+                    },
+                    colNames: [
+                        '',
+                        '{!$Label.label_10131}'],
+                    colModel: [{
+                        name: 'id',
+                        index: 'id',
+                        hidden: true
+                    }, {
+                        name: 'name',
+                        index: 'userid',
+                        width: 300
+                    }],
+                    rowNum: rowNum,
+                    width: $("#usersTable").setGridWidth(getBrowserWidth() - 380),
+                    height: $("#usersTable").setGridHeight(getBrowserHeight() - 200),
+                    rowList: [10, 50, 100],
+                    sortname: 'name',
+                    pager: '#pager',
+                    viewrecords: true,
+                    multiselect: false,
+                    loadComplete: function (data) {
+                        $.cookie('wr_ss_rowNum', $(this).getGridParam("rowNum"));
+                        $('#remaingingSupportCount').text(data.remaingingSupportCount);
+                        $('#usedSupportCount').text(data.usedSupportCount);
+                    }
+                });
+
+                $(window).resize(resizeGrid);
+                resizeGrid();
+            });
+
+            /*
+             * jqGridリサイズ
+             */
+            function resizeGrid() {
+                $("#usersTable").setGridWidth(getBrowserWidth() - 340);
+                $("#usersTable").setGridHeight(getBrowserHeight() - 350);
+            }
+        </script>
+        <div id="c_wrapper">
+            <!-- content container -->
+            <table id="c_container" cellspacing="0" border="0">
+                <tr>
+                    <!-- left menu container -->
+                    <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                        <apex:include pageName="SOLXYZCSO001__WRSettingMenu" />
+                    </td>
+                    <!-- right header container -->
+                    <td id="c_headLeft" nowrap="nowrap">
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/voice-support-settings.png')}" alt="{!$Label.solxyzcso001__label_10103}" title="{!$Label.solxyzcso001__label_10103}" />
+                         <h1 id="c_headLeftTitle">{!$Label.label_10181}</h1>
+                        <br/>
+                         <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10103}</h2>
+
+                    </td>
+                    <!-- 操作ボックス -->
+                    <td id="c_headRight">
+                        <apex:include pageName="SOLXYZCSO001__WROptionsLink" />
+                    </td>
+                </tr>
+                <tr>
+                    <!-- right content container -->
+                    <td id="c_right" colspan="2">
+                        <apex:form >
+                            <apex:pageBlock >
+                                <!-- コマンドボタン -->
+                                <apex:pageBlockButtons location="top">
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00073}" action="{!edit}" /></apex:pageBlockButtons>
+                                <!-- サポート利用数 -->
+                                <div class="contentDiv">
+                                    <div>{!$Label.label_10130}</div>
+                                    <table>
+                                        <tr>
+                                            <th>{!$Label.label_10132}</th>
+                                            <td><span id="remaingingSupportCount"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_10133}</th>
+                                            <td><span id="usedSupportCount"></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!-- ユーザー一覧 -->
+                                <div class="usersDiv">
+                                    <table id="usersTable" />
+                                    <div id="pager" /></div>
+                            </apex:pageBlock>
+                        </apex:form>
+                    </td>
+                </tr>
+            </table>
+            <div id="copyright">{!$Label.solxyzcso001__label_00001}</div>
+        </div>
+        <apex:include pageName="SOLXYZCSO001__WRCSOSilverlight" /></apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(wr_userInfo.uid == null && wr_userInfo.showErrPage == false, true, false)}">{!$Label.solxyzcso001__msg_00142}</apex:outputPanel>
+</apex:page>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>ToDo</value>
+    </caseValues>
+    <fields>
+        <label><!-- Completed --></label>
+        <name>Completed__c</name>
+    </fields>
+    <fields>
+        <label><!-- Due Date --></label>
+        <name>Due_Date__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function --></label>
+        <name>Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- Note --></label>
+        <name>Note__c</name>
+    </fields>
+    <fields>
+        <label><!-- Project --></label>
+        <name>Project__c</name>
+        <relationshipLabel><!-- ToDo --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- ToDo --></label>
+        <name>ToDo__c</name>
+    </fields>
+    <layouts>
+        <layout>ToDoレイアウト</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+        <sections>
+            <label><!-- 新規セクション --></label>
+            <section>新規セクション</section>
+        </sections>
+    </layouts>
+</CustomObjectTranslation>

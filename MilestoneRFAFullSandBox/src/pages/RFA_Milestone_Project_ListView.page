@@ -1,0 +1,6 @@
+<apex:page >
+	<apex:form >
+		<apex:commandbutton Value="①Project  Initiate" onclick="window.open('/a0o/e?retURL=/a0o/o');" />
+	</apex:form>
+	<apex:ListViews type="Milestone1_Project__c" />
+</apex:page>

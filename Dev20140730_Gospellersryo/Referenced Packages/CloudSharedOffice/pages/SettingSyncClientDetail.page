@@ -1,0 +1,281 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingSyncClientController" tabStyle="setting__tab" action="{!init}">
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_sync_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_sync_manage == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<script type="text/javascript">
+$(function(){
+    $(window).resize(resizeGrid);
+    var param = {
+        id        : "{!clientId}",
+    }
+
+    var callback =  function(data){
+        displayInit(data);
+    };
+
+    var callerror =  function(data){
+    };
+
+    secureGetAsync('/setup/sync/SyncClientDetail.json', param, callback, callerror);
+
+    $("#syncSpaceList").jqGrid({
+        url:_apiUrl + '/setup/sync/ClientSyncSpaceList.json?id={!clientId}',
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems    : false,
+            id             : "id"
+        },
+        colNames:[
+            '',
+            '{!$Label.label_00039}',
+            '{!$Label.label_10006}',
+        ],
+        colModel:[
+            {name:'id',index:'id', width:350, hidden:true},
+            {name:'name',index:'name', width:350},
+            {name:'update',index:'update', width:120,align:"center"},
+        ],
+        rowNum            : 50,
+        rowList            : [10,50,100],
+        sortname        : 'name',
+        pager            : '#syncSpaceListPager',
+        shrinkToFit        : true,
+        viewrecords        : true,
+        loadComplete    :
+            function(data){
+            }
+    });
+    $("#syncSpaceList").jqGrid('navGrid','#syncSpaceListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+    resizeGrid();
+});
+
+function resizeGrid(){
+
+    $("#syncSpaceList").setGridWidth(500);
+/*
+    $("#syncSpaceList").setGridHeight($("#RightPane").height() - $(".innerHtmlHeader").height() - $(".subLabelHeight").height() - 280);
+*/
+}
+
+function changeStatus(msg, status){
+    if(confirm(msg)){
+        var param = {
+            id        : "{!clientId}",
+            enable    : status,
+        }
+
+        var callback =  function(result){
+            $("#syncClientList").trigger("reloadGrid");
+            location.href = "{!JSENCODE(URLFOR($Page.SettingSyncClientDetail))}?id={!clientId}";
+        };
+
+        var callerror =  function(data){
+        };
+
+        secureGetAsync('/setup/sync/SyncClientShiftChange.json', param, callback, callerror);
+    }
+}
+
+function returnToList(){
+    location.href = "{!JSENCODE(URLFOR($Page.SettingSyncClientList))}";
+}
+
+function displayInit(data){
+    var client = data.client;
+    var regUpDate = data.regUpDate;
+
+    show_checkbox('clientEnable', client.enable);
+    $('#macAddress').text(client.macAddress);
+    $('#pcName').text(client.pcName);
+    $('#versionValue').text(client.version);
+    $('#userInformation').append(data.user.replace("/dispUserImage", _apiUrl + "/dispUserImage"));
+
+    $('#registUserName').text(client.registUserName);
+    $('#registDate').text(regUpDate.regDate);
+    var updateUserName = client.updateUserName;
+    var updateDate     = regUpDate.upDate;
+    if(updateUserName == null || updateUserName.length <= 0) updateUserName = "-";
+    if(updateDate == null || updateDate == -1 || updateDate == 0) updateDate = "-";
+    $('#updateUserName').text(updateUserName);
+    $('#updateDate').text(updateDate);
+}
+
+function show_checkbox(id, check){
+    if(eval(check)){
+        $('#' + id).attr('checked', 'checked');
+        $('#enableButton').hide();
+        $('#disableButton').show();
+    } else {
+        $('#' + id).attr('checked', '');
+        $('#disableButton').hide();
+        $('#enableButton').show();
+    }
+}
+</script>
+<style type="text/css">
+
+.syncClientTable th{
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+    height: 3em;
+}
+
+.checkbox {
+    height: 20px;
+    width: 20px;
+}
+
+.updateTable{
+    color: #0000CD;
+}
+
+.updateTable th{
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+    height: 2em;
+}
+
+.updateTable td{
+    text-align: center;
+    padding: 0px 20px 0px 20px;
+}
+
+.name-bottom{
+    color: gray;
+    font-size: 95%;
+}
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/pc_32.png')}" alt="{!$Label.solxyzcso001__label_10621}" title="{!$Label.solxyzcso001__label_10621}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_13170}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_13171}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <!-- コマンドボタン表示 -->
+                        <div class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="item"  id="disableButton">
+                                    <!-- 無効ボタン -->
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00084}" onclick="changeStatus('{!$Label.solxyzcso001__label_13173}', 1); return false;"/>
+                                </li>
+                                <li class="item" id="enableButton">
+                                    <!-- 有効ボタン -->
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00083}" onclick="changeStatus('{!$Label.solxyzcso001__label_13174}', 0); return false;"/>
+                                </li>
+                                <li class="last">
+                                    <!-- OKボタン -->
+                                    <apex:commandButton value="{!$Label.solxyzcso001__field_common_ok}" onclick="returnToList(); return false;"/>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- 一括メニュー-->
+                        <table class="syncClientTable">
+                            <tr>
+                                <th style="min-width: 150px;">{!$Label.solxyzcso001__label_00083}</th>
+                                <td>
+                                    <input type="checkbox" id="clientEnable" disabled="disabled"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_10131}</th>
+                                <td><span id="userInformation"></span></td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_13175}</th>
+                                <td><span id="macAddress"></span> / <span id="pcName"></span> / <span id="versionValue"></span></td>
+                            </tr>
+                            <tr>
+
+                            </tr>
+                            <tr>
+
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_13176}</th>
+                                <td>
+                                    <table id="syncSpaceList"></table>
+                                    <div id="syncSpaceListPager"></div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="updateTable" style="padding: 40px;">
+                            <tr>
+                                <th>{!$Label.label_10015}</th>
+                                <td><span id="registUserName"></span></td>
+                                <th>{!$Label.label_10005}</th>
+                                <td><span id="registDate"></span></td>
+                            </tr>
+                            <tr>
+                                <th>{!$Label.label_10024}</th>
+                                <td><span id="updateUserName"></span></td>
+                                <th>{!$Label.label_10006}</th>
+                                <td><span id="updateDate"></span></td>
+                            </tr>
+                        </table>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

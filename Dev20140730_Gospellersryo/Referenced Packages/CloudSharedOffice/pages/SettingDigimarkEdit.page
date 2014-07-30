@@ -1,0 +1,797 @@
+<apex:page cache="false" sidebar="false" controller="SOLXYZCSO001.SettingDigimarkController" tabStyle="setting__tab" action="{!init}">
+    <apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_digimark == 'false', true, false)}">{!$Label.solxyzcso001__msg_00137}</apex:outputPanel>
+    <apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}" />
+    <apex:outputPanel rendered="{!IF(userInfo.proAuth_digimark == 'true' && userInfo.showErrPage == false, true, false)}">
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__CsoBridge" />
+        <!-- CSS -->
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+        <!-- JS -->
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /></apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__CsoScript" />
+            <style type="text/css">
+                #editProfileMain {
+                    width:100%;
+                    height: 100%;
+                }
+                .separatorDiv {
+                    position:relative;
+                    width: 100%;
+                    vertical-align: bottom;
+                }
+                #separatorDiv div {
+                    color: white;
+                    padding: 3px 0px 3px 5px;
+                    font-weight: bold;
+                }
+                #detailDiv {
+                    padding: 5px 0px 5px 10px;
+                }
+                #detailDiv table th {
+                    text-align: right;
+                    padding-right: 10px;
+                    font-weight: bold;
+                    white-space:nowrap;
+                }
+                #detailDiv table td {
+                    white-space:nowrap;
+                }
+                .innerTable tbl01 {
+                    color: #0000CD;
+                }
+                .historyTbl {
+                    margin-top: 15px;
+                    margin-bottom: 15px;
+                    margin-left: 15px;
+                }
+                .historyTbl th {
+                    font-weight: bold;
+                    width: 100px;
+                }
+                .historyTbl * {
+                }
+                div.border {
+                    border-style:solid;
+                    border-width:1px;
+                    border-color : #999999;
+                    border-collapse:collapse;
+                    width:500px;
+                    height:400px;
+                    overflow:auto;
+                }
+                .config_panel_slider .ui-widget-header {
+                    border: 1px solid #4297d7;
+                    background: #5c9ccc;
+                    color: #ffffff;
+                    font-weight: bold;
+                    -moz-border-radius: 5px;
+                    -webkit-border-radius: 5px;
+                    border-radius: 5px;
+                }
+                .config_panel_slider .ui-slider-range {
+                    border: 0
+                }
+            </style>
+            <div id="c_wrapper">
+                <!-- content container -->
+                <table id="c_container" cellspacing="0" border="0">
+                    <tr>
+                        <!-- left menu container -->
+                        <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                            <apex:include pageName="SOLXYZCSO001__SettingMenu" />
+                        </td>
+                        <!-- right header container -->
+                        <td id="c_headLeft" nowrap="nowrap">
+                            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/digimark_icon.png')}" alt="{!$Label.solxyzcso001__label_13100}" title="{!$Label.solxyzcso001__label_13100}" />
+                             <h1 id="c_headLeftTitle">{!$Label.label_11009}</h1>
+
+                            <br/>
+                             <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_13100}</h2>
+
+                        </td>
+                        <!-- 操作ボックス -->
+                        <td id="c_headRight">
+                            <apex:include pageName="SOLXYZCSO001__OperationLinks" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right" colspan="2">
+                            <apex:pageBlock >
+                                <!-- コマンドボタン -->
+                                <apex:pageBlockButtons >
+                                    <input class="btn" type="button" value="{!$Label.label_00075}" onclick="okOnClick();" />
+                                    <input class="btn" type="button" value="{!$Label.label_00058}" onclick="cancelOnClick();" />
+                                </apex:pageBlockButtons>
+                                <apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}" collapsible="false" />
+                                <div id="editMain">
+                                    <div id="detailDiv">
+                                        <table>
+                                            <tr>
+                                                <td style="vertical-align: top;width:350px;">
+                                                    <table cellspacing="5" style="margin: 5px 0px 5px 10px;">
+                                                        <tr>
+                                                            <th>{!$Label.label_10450}</th>
+                                                            <td colspan="2">
+                                                                <input type="checkbox" name="DM_enabled" id="DM_enabled" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>{!$Label.label_11043}</th>
+                                                            <td colspan="2">
+                                                                <div class="c_require" style="height:20px;">
+                                                                    <input type="text" name="DM_name" id="DM_name" class="c_text_l required" style="width: 400px;" maxlength="100" />
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="limited" style="display:none;">
+                                                            <th>{!$Label.label_10579}</th>
+                                                            <td colspan="2">
+                                                                <label>
+                                                                    <input type="checkbox" name="DM_timing" id="DM_timingSpace"/>{!$Label.label_11013}</label>
+                                                                <label>
+                                                                    <input type="checkbox" name="DM_timing" id="DM_timingDelivery"/>{!$Label.label_11014}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="limited" style="display:none;">
+                                                            <th>{!$Label.label_13101}</th>
+                                                            <td style="vertical-align: top;" colspan="2">
+                                                                <table cellspacing="5" style="margin: 5px 0px 5px 10px;">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_BMP" id="TA_BMP" />{!$Label.label_13102}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_GIF" id="TA_GIF" />{!$Label.label_13103}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_PNG" id="TA_PNG" />{!$Label.label_13104}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_TIFF" id="TA_TIFF" />{!$Label.label_13105}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_JPEG" id="TA_JPEG" />{!$Label.label_13106}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_PDF" id="TA_PDF" />{!$Label.label_13107}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_docx" id="TA_docx" />{!$Label.label_13108}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_pptx" id="TA_pptx" />{!$Label.label_13109}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="vertical-align: top;">
+                                                    <table class="historyTbl">
+                                                        <tr>
+                                                            <th id="DM_HeaderCreator">{!$Label.label_10015}</th>
+                                                            <td><span id="DM_registUserName"></span>
+                                                            </td>
+                                                            <th id="DM_HeaderCreateDate">{!$Label.label_10005}</th>
+                                                            <td><span id="DM_registDate"></span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th id="DM_HeaderUpdator">{!$Label.label_10024}</th>
+                                                            <td><span id="DM_updateUserName"></span>
+
+                                                            </td>
+                                                            <th id="DM_HeaderUpdateDate">{!$Label.label_10006}</th>
+                                                            <td><span id="DM_updateDate"></span>
+
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <!-- 適用スペース -->
+                                    <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10586}" collapsible="false" />
+                                    <div id="applySpaceDiv" style="padding: 0 20px 0 20px">
+                                        <div class="c_command_l">
+                                            <ul class="c_command_pipe">
+                                                <li class="item">
+                                                    <input type="button" class="btn" onclick="removeSpace();" value="{!$Label.label_00072}" />
+                                                </li>
+                                                <li class="last">
+                                                    <input type="button" class="btn" onclick="openAddSpace();" value="{!$Label.label_10020}" />
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <!-- jqGrid -->
+                                        <div id="spaceList-container">
+                                            <table id="spaceList"></table>
+                                            <div id="spaceListPager"></div>
+                                        </div>
+                                    </div>
+                                    <div id="addSpaceDialog" style="display: none;">
+                                        <div>{!$Label.msg_00275}
+                                            <div class="border">
+                                                <ul id="spaceTree" class="selectTree filetree"></ul>
+                                                <img alt="loading" src="{!URLFOR($Resource.cso, 'image/loading.gif')}" style="position: absolute; top: 50%;left: 47%; " id="spaceTreeLoading"/>
+                                            </div>
+                                            <div style="text-align:center;margin:5px;">
+                                                <input type="button" class="btn" onclick="return addSpace();" value="{!$Label.label_00075}" />
+                                                <input type="button" class="btn" onclick="return closeAddSpace();" value="{!$Label.label_00058}" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </apex:pageBlock>
+                        </td>
+                    </tr>
+                </table>
+                <div id="copyright">{!$Label.solxyzcso001__label_00001}</div>
+            </div>
+
+            <script type="text/javascript">
+                var DM_DigimarkId = "dummy";
+                var DM_err = false;
+
+                var limited = false;
+
+                function DM_displayInit(data) {
+                    var info = data.detail.info;
+
+                }
+
+                function DM_check(id, check) {
+                    $('#' + id).attr('checked', eval(check));
+                }
+            </script>
+            <script type="text/javascript">
+                var DM_spaces = [];
+                var _spaceTreeList = null;
+                var opened = false;
+
+                jQuery.event.add(window, "load", function () {
+                        /*--  ブラウザの種類を保持  --*/
+                        DM_browserType = getBrowserType();
+
+                        /*--  IDを保持  --*/
+                        DM_DigimarkId = "{!definitionId}";
+
+                        /*--  設定情報を取得  --*/
+                        var callback = function (data, status) {
+                            if (!data.result) {
+                                var errMsg = data.message;
+                                if ((errMsg != null) && (errMsg != "")) {
+                                    alert(errMsg);
+                                }
+                                return;
+                            }
+                            initData(data);
+                        };
+                        var callerror = function (data) {
+                            alert("DigimarkDetailApi:" + data);
+                        };
+
+                        secureGetAsync('/setup/DigimarkDetailApi.json?id=' + DM_DigimarkId, '', callback, callerror);
+
+                        /*--  適用スペースの初期化  --*/
+                        initDigimarkSpaceList();
+                    });
+
+                function initDigimarkSpaceList() {
+
+    var spaceTreeListCallback =  function(data, status){
+        if (data.result) {
+            _spaceTreeList = data["tree"];
+        }
+    };
+    secureGetAsync('/setup/spaceTreeListGetApi.json', ' ', spaceTreeListCallback);
+
+                    /*--  編集の場合  --*/
+                    if (DM_DigimarkId != "") {
+
+                        var callback = function (data, status) {
+                            for (i = 0; i < data.records; i++) {
+                                DM_spaces.push({
+                                        id: data.rows[i].id,
+                                        space_name: data.rows[i].space_name,
+                                        space_info: data.rows[i].space_info
+                                    });
+                            }
+                            var opt = {
+                                data: DM_spaces,
+                                datatype: "local"
+                            };
+                            $('#spaceList').clearGridData();
+                            $('#spaceList').setGridParam(opt);
+                            $('#spaceList').trigger("reloadGrid");
+                        };
+                        var callerror = function (data) {
+                            alert("DigimarkSpaceListApi:" + data);
+                        };
+
+                        var searchQuery = {
+                            page: 1,
+                            rows: 1000000,
+                            sord: "asc",
+                            sidx: "id",
+                            nd: "_",
+                            _search: "false"
+                        }
+
+                        secureGetAsync('/setup/DigimarkSpaceListApi.json?id=' + DM_DigimarkId, searchQuery, callback, callerror);
+                    }
+
+                    var rows = $.cookie("digimarkSpaceRows");
+                    if (!rows) {
+                        rows = 50;
+                    }
+
+                    $("#spaceList").jqGrid({
+                            data: DM_spaces,
+                            datatype: "local",
+                            jsonReader: {
+                                repeatitems: false,
+                                id: "id"
+                            },
+                            colNames: ['',
+                                '{!$Label.solxyzcso001__label_10155}',
+                                ''
+                            ],
+                            colModel: [{
+                                    name: 'id',
+                                    index: 'id',
+                                    hidden: true
+                                }, {
+                                    name: 'space_info',
+                                    index: 'space_name',
+                                    width: 550
+                                }, {
+                                    name: 'space_name',
+                                    index: 'space_name',
+                                    hidden: true
+                                }
+                            ],
+                            rowNum: 50,
+                            height: 200,
+                            width: $("#RightPane").width(),
+                            rowList: [10, 50, 100],
+                            sortname: 'space_name',
+                            pager: '#spaceListPager',
+                            viewrecords: true,
+                            multiselect: true,
+                            multiboxonly: true,
+                            loadComplete: function (data) {
+                                var r = $(this).getGridParam("rowNum");
+                                $.cookie("digimarkSpaceRows", $(this).getGridParam("rowNum"));
+                            }
+                        });
+
+                    $("#addSpaceDialog").dialog({
+                            autoOpen: false,
+                            modal: true,
+                            title: "{!$Label.solxyzcso001__label_10155}",
+                            width: 530,
+                            height: 500,
+                            open: function() {
+                                if (!opened) {
+                                    initSpaceTree();
+                                }
+                            }
+                        });
+                }
+
+                function initSpaceTree() {
+                    var spaceTreeCallback = function (data, status) {
+                        if (!data.result) {
+                            var errMsg = data.message;
+                            if ((errMsg != null) && (errMsg != "")) {
+                                alert(errMsg);
+                            }
+                            return;
+                        }
+
+                        $("#spaceTree").children().remove();
+                        var branches = $(data["tree"]).appendTo("#spaceTree");
+                        $("#spaceTree").treeview({
+                            collapsed: true,
+                            add: branches,
+                            url: "/setup/SpaceTreeChildrenApi.json",
+                            animated: "fast",
+                            persist: "fixed-open",
+                            callback: function(elements){
+                                initSpaceTreeCheckboxes(elements);
+                            },
+                        });
+                        initSpaceTreeCheckboxes($("#spaceTree").find("ul"));
+                        $("#spaceTreeLoading").hide();
+                    };
+                    var spaceTreeCallerror = function (data) {
+                        alert("VersionSettingSpaceTreeGet:" + data);
+                    };
+
+                    secureGetAsync('/setup/SpaceTreeRootApi.json', ' ', spaceTreeCallback, spaceTreeCallerror);
+                    opened = true;
+                }
+
+                function initSpaceTreeCheckboxes(elements) {
+                    setTimeout(function(){
+                        var $ul = elements;
+                        var $li = $ul.children("li");
+
+                        var existInterLock = false;     //-- 下位連動フラグの有無（false:下位連動なし、true:下位連動あり） --%>
+                        var interlock = "";             //-- 下位連動フラグの値（"checked":チェックする、"":チェックしない） --%>
+
+                        //-- 下位連動フラグがあった場合 --%>
+                        var objChk = $("#spaceTree").find("input[id=" + elements.prevObject[0].id + "]");
+                        if(objChk.attr("interlock") != null){
+                            existInterLock = true;
+                            if(objChk.attr("interlock") == "true"){
+                                interlock = objChk.attr("interlock");
+                            }
+                        }
+
+                        //-- [下位連動]する場合 --%>
+                        if(existInterLock == true) {
+                            $li.each(function() {
+                                var obj = $("#spaceTree").find("input[id=" + $(this).attr("id") + "]");
+                                //-- 下位にも[下位連動]フラグ(interlock)を付加する --%>
+                                obj.attr("interlock", interlock);
+                                //-- 連動する --%>
+                                obj.attr("checked", interlock);
+                            });
+                            return false;
+                        }
+
+                        var ids = $("#spaceList").getGridParam("data");
+                        $("input[type=checkbox]", $("#spaceTree")).each(function() {
+                            var id = $(this).attr("id");
+                            for (var i in ids) {
+                                if (ids[i].id == id) {
+                                    var lookup = false;
+                                    $li.each(function() {
+                                        if ($(this).attr("id") == id) {
+                                            lookup = true;
+                                            return false;
+                                        }
+                                    });
+                                    if (lookup) {
+                                        $(this).attr("checked", true);
+                                    }
+                                    break;
+                                }
+                            }
+                        });
+                    },100);
+                }
+
+                function initData(data) {
+                    DM_check('DM_enabled', data.detail.info.enable);
+                    $('#DM_name').val(data.detail.info.name);
+                    DM_check('DM_timingSpace', data.detail.info.timingSpace);
+                    DM_check('DM_timingDelivery', data.detail.info.timingDelivery);
+
+                    DM_check('TA_BMP', data.detail.info.invisibleTarget.bmp);
+                    DM_check('TA_GIF', data.detail.info.invisibleTarget.gif);
+                    DM_check('TA_PNG', data.detail.info.invisibleTarget.png);
+                    DM_check('TA_TIFF', data.detail.info.invisibleTarget.tiff);
+                    DM_check('TA_JPEG', data.detail.info.invisibleTarget.jpeg);
+                    DM_check('TA_PDF', data.detail.info.invisibleTarget.pdf);
+                    DM_check('TA_docx', data.detail.info.invisibleTarget.docx);
+                    DM_check('TA_pptx', data.detail.info.invisibleTarget.pptx);
+
+                    $('#DM_registUserName').text(data.detail.registUserName);
+                    $('#DM_registDate').text(data.detail.registDate);
+                    $('#DM_updateUserName').text(data.detail.updateUserName);
+                    $('#DM_updateDate').text(data.detail.updateDate);
+
+                    if(data.detail.limited){
+                        $('.limited').hide();
+                    } else {
+                        $('.limited').show();
+                    }
+
+                    resizeGrid();
+                    $(window).resize(resizeGrid);
+                }
+
+                function hideRegisterInfo() {
+                    $("#DM_HeaderCreator").text("");
+                    $("#DM_HeaderCreateDate").text("");
+                    $("#DM_HeaderUpdator").text("");
+                    $("#DM_HeaderUpdateDate").text("");
+                }
+
+                function resizeGrid() {
+                    var height = getBrowserHeight() - 570;
+                    $("#spaceList").setGridWidth(1);
+                    $("#spaceList").setGridWidth($("#spaceList-container").innerWidth());
+
+                    if (height >= 270) {
+                        $("#spaceList").setGridHeight(height);
+                    }
+                }
+
+                function cancelOnClick() {
+                    cancelOnClickMain();
+                }
+
+                function cancelOnClickMain() {
+                    if ("{!type}" == "detail") {
+                        location.href = "SettingDigimarkDetail?id=" + DM_DigimarkId;
+                    } else {
+                        location.href = "SettingDigimarkList";
+                    }
+                }
+
+                function okOnClick() {
+                    $(".btn").attr("disabled", "disabled");
+
+                    /*-- -------------- --*/
+                    /*-- エラーチェック --*/
+                    /*-- -------------- --*/
+                    DM_err = false;
+                    /*-- 定義名チェック --*/
+                    if ($("#DM_name").val() == "") {
+                        DM_err = true;
+                        alert('{!$Label.solxyzcso001__msg_01025}');
+                    } else if ($("#DM_name").val().match(/^.*[(\\|/|\*|:|?|\"|\'|<|>|\|)].*$/)) {
+                        DM_err = true;
+                        alert('{!$Label.solxyzcso001__msg_00293}');
+                    } else if ($("#DM_name").val().length > 100) {
+                        DM_err = true;
+                        alert('{!$Label.solxyzcso001__msg_00277}');
+                    }
+
+                    if(!($('#DM_timingSpace').attr('checked') || $('#DM_timingDelivery').attr('checked'))){
+                        DM_err = true;
+                        alert('{!$Label.solxyzcso001__msg_00278}');
+                    }
+
+                    /*-- エラーがあった場合 --*/
+                    if (DM_err == true) {
+                        $(".btn").removeAttr("disabled");
+                        return false;
+                    }
+
+                    /*-- ---------------- --*/
+                    /*-- パラメータの生成 --*/
+                    /*-- ---------------- --*/
+                    var query = {
+                        id: DM_DigimarkId,
+                        name: $('#DM_name').val(),
+                        enable: $("#DM_enabled").attr('checked'),
+                        timingSpace: $('#DM_timingSpace').attr('checked'),
+                        timingDelivery: $('#DM_timingDelivery').attr('checked'),
+
+                        invisibleTargetBmp: $('#TA_BMP').attr('checked'),
+                        invisibleTargetGif: $('#TA_GIF').attr('checked'),
+                        invisibleTargetPng: $('#TA_PNG').attr('checked'),
+                        invisibleTargetTiff: $('#TA_TIFF').attr('checked'),
+                        invisibleTargetJpeg: $('#TA_JPEG').attr('checked'),
+                        invisibleTargetPdf: $('#TA_PDF').attr('checked'),
+                        invisibleTargetDocx: $('#TA_docx').attr('checked'),
+                        invisibleTargetPptx: $('#TA_pptx').attr('checked'),
+
+                        spaces: JSON.stringify(DM_spaces)
+                    }
+
+                    /*-- -------- --*/
+                    /*-- 登録処理 --*/
+                    /*-- -------- --*/
+                    var callback = function (data) {
+                        if (!data.result) {
+                            CsoScript_loadingStop();
+                            if ((data.userMsg != null) && (data.userMsg != "")) {
+                                alert(data.userMsg);
+                            }
+                            if ((data.message != null) && (data.message != "")) {
+                                alert(data.message);
+                            }
+                            $(".btn").removeAttr("disabled");
+                            return false;
+                        }
+                        CsoScript_loadingStop();
+                        cancelOnClick();
+                    };
+                    var callerror = function (data) {
+                        CsoScript_loadingStop();
+                        alert("DigimarkEditApi:" + data);
+                        $(".btn").removeAttr("disabled");
+                    };
+
+                    CsoScript_loadingStart();
+                    securePostAsync('/setup/DigimarkEditApi.json', query, callback, callerror);
+
+                    return true;
+                }
+
+                function openAddSpace() {
+                    var ids = $("#spaceList").getGridParam("data");
+                    $("input[type=checkbox]", $("#spaceTree")).each(function () {
+                            var id = $(this).attr("id");
+                            var checked = false;
+                            for (var i in ids) {
+                                if (ids[i].id == id) {
+                                    checked = true;
+                                    break;
+                                }
+                            }
+                            $(this).attr("checked", checked);
+                        });
+                    $("#addSpaceDialog").dialog("open");
+                    return false;
+                }
+
+                function clickSpace(obj, id) {
+                    var checked = $(obj).attr("checked");
+                    var p = $(obj).parent().parent();
+                    var c = $("input[type=checkbox]", p);
+
+    c.attr({checked:checked, interlock:checked});
+                }
+
+                function closeAddSpace() {
+                    $("#addSpaceDialog").dialog("close");
+                    return false;
+                }
+
+                function addSpace() {
+    var spaces = [];
+    $(DM_spaces).each(function() {
+        if ($("#spaceTree").find("li#" + this.id).length < 1) {
+            spaces.push(this);
+        }
+    });
+    var escaper = $('<div/>');
+                    $("input[type=checkbox]:checked", $("#spaceTree")).each(function () {
+
+        var spaceId = $(this).attr("id");
+
+        var bExists = false;
+        $(DM_spaces).each(function() {
+            if (this.id == spaceId) {
+                spaces.push(this);
+                 bExists = true;
+                return false;
+            }
+        });
+
+        if(bExists == true){
+            return true;
+        }
+
+                            var space = {
+                                id: $(this).attr("id"),
+                                space_info: "<div class='jqgrid-list-standard-name-top'>" + escaper.text($(this).attr("spacename")).html() + "</div><div class='jqgrid-list-standard-name-bottom'>" + escaper.text($(this).attr("path")).html() + "</div>",
+                                space_name: $(this).attr("spacename")
+                            };
+        spaces.push(space);
+
+        var $li = $("#spaceTree").find("li#" + spaceId);
+        if($li.hasClass("hasChildren")){
+            if(_spaceTreeList != null){
+                for(var i = 0; i < _spaceTreeList.length; i++){
+                    var info = _spaceTreeList[i];
+                    var path = info.parentPath;
+                    if(!path){
+                    }else{
+                        //-- 重複チェック --%>
+                        var bExists = false;
+                        for(var idx = 0; idx < spaces.length; idx++){
+                            if(spaces[idx].id == info.spaceId){
+                                bExists = true;
+                                break;
+                            }
+                        }
+                        if(bExists == true){
+                            continue;
+                        }
+
+                        if(path.indexOf(spaceId)!=-1){
+                            var space = {
+                                id : info.spaceId,
+                                space_info : "<div class='jqgrid-list-standard-name-top'>" + escaper.text(info.spaceName).html() + "</div><div class='jqgrid-list-standard-name-bottom'>" + escaper.text(info.spacePath).html() + "</div>",
+                                space_name : info.spaceName
+                            };
+                            spaces.push(space);
+                        }
+                    }
+                }
+            }
+        }
+                        });
+
+    //-- 選択したスペース一覧から、下位連動で未選択とされたスペースを削除 --%>
+    $("#spaceTree").find("input[type=checkbox][interlock=false]").each(function(){
+        var spaceId = $(this).context.id;
+        var $li = $("#spaceTree").find("li#" + spaceId);
+        if($li.hasClass("hasChildren")){
+            if(_spaceTreeList != null){
+                for(var i = 0; i < _spaceTreeList.length; i++){
+                    var info = _spaceTreeList[i];
+                    var path = info.parentPath;
+                    if(!path){
+                    }else{
+                        if(path.indexOf(spaceId)!=-1){
+                            for(var idx = 0; idx < spaces.length; idx++){
+                                if(spaces[idx].id == info.spaceId){
+                                    spaces.splice(idx, 1);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+                    $("#addSpaceDialog").dialog("close");
+
+    $("#spaceList").clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+
+    DM_spaces = spaces;
+
+                    return false;
+                }
+
+                function removeSpace() {
+
+                    var selected = $("#spaceList").getGridParam("selarrrow");
+                    if (selected.length == 0) {
+                        alert('{!$Label.solxyzcso001__msg_01034}');
+                        return false;
+                    }
+
+                    if (!confirm('{!$Label.solxyzcso001__msg_01122}')) {
+                        return false;
+                    }
+
+                    var ids = DM_spaces;
+                    DM_spaces = [];
+                    for(var i=0; i < ids.length; i++){
+                        var k = ids[i];
+                        if (jQuery.inArray(k.id, selected) < 0) {
+                            DM_spaces.push(k);
+                        }
+                    }
+                    $("#spaceList").clearGridData().setGridParam({
+                            data: DM_spaces
+                        }).trigger("reloadGrid");
+
+                    return false;
+                }
+            </script>
+            <apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+    </apex:outputPanel>
+</apex:page>

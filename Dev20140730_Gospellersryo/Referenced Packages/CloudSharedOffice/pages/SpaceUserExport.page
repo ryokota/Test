@@ -1,0 +1,3272 @@
+<apex:page sidebar="false" cache="false" id="spaceUserExportPage" controller="SOLXYZCSO001.SpaceUserExportController" tabStyle="setting__tab" action="{!init}">
+    <apex:outputPanel id="err" rendered="{!IF(csoUserInfo.proAuth_spaceuser_export_standard == 'false', true, false)}">{!$Label.solxyzcso001__msg_00137}</apex:outputPanel>
+    <apex:iframe src="/apex/CSO_Error?code={!csoUserInfo.code}&massage={!csoUserInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(csoUserInfo.showErrPage == true,true,false)}" />
+    <apex:outputPanel id="ExportOutputPanel" rendered="{!IF(csoUserInfo.proAuth_spaceuser_export_standard == 'true' && csoUserInfo.showErrPage == false, true, false)}">
+        <apex:include pageName="SOLXYZCSO001__CsoBridge" />
+        <apex:include pageName="SOLXYZCSO001__CsoScript"/>
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+        <link type="text/css" rel="stylesheet" href="{!$Label.field_CSO_URL}/css/tooltip.css" />
+        <script type="text/javascript" src="{!$Label.field_CSO_URL}/js/tooltip.js" />
+        <apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /></apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/colorado.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/fg.menu.js')}" />
+        <script type="text/javascript">
+        var clickFlg = false;
+        var _nowSpaceId = "";
+        var _nowAsert = "collaboration";
+        var _fromExportDialog   = false;
+        var _b_SusersGridLoaded = false;
+        var _b_SspaceGridLoaded = false;
+        var _b_SusersGridNow = false;
+        var _invUserListLoading = false;
+        var _invSpaceListLoading = false;
+
+        var _invSpaceUserFirst = true;
+
+        var _b_listViewLoaded = false;
+        var searchSpaceIDs = null;
+        var searchmyid = "a_";
+        var searchmyid2 = "";
+
+        var cnt=1;
+
+        var img = new Array();
+        img[0] = new Image();
+        img[0].src = "{!URLFOR($Resource.cso, 'image/001_45.gif')}";
+        img[1] = new Image();
+        img[1].src = "{!URLFOR($Resource.cso, 'image/001_45.gif')}";
+
+        var loadUidList = new Array();
+        var loadGidList = new Array();
+        var loadPidList = new Array();
+
+
+        var uidMap = new Object();
+        var gidMap = new Object();
+        var pidMap = new Object();
+
+        var orgUidMap;
+        var orgGidMap;
+        var orgPidMap;
+
+        var _exportSelectedTargetUserId             = "";
+        var _exportSelectedTargetUserCount          = 0;
+        var _exportSelectedTargetUserName           = "";
+
+        var _exportSpaceUserHistoryDialogSelectedRowId  = "";
+        var _selectedSearchSpaces   = new Object();
+        var _exportSelectedTargetSpaceCount         = 0
+        var _exportSelectedTargetSpaceName          = "";
+
+        var _exportSelectedTargetSpaceId                = "";
+        var _exportSelectedTargetRootType               = "";
+        var _exportSelectedTargetBreadCrumbs            = "";
+        var _exportSelectedTargetBreadCrumbsRejectRoot  = "";
+        var _exportSelectedOutputSpaceId                = "";
+        var _language   = "{!csoUserInfo.locale}";
+        var serverUrl = window.location.protocol + "//" + window.location.host
+
+        var _isSpaceUserManager = false;
+
+        var _invUserCount           = 0;
+        var _invUserSearchCount     = 0;
+        var _actualUserCount = 0;
+
+        var MAX_FILECNTDSP          = "99999";
+        var MAX_FILECNT             = 99999;
+        var _user_data_count        = 0;
+
+        var _spaceTreeList          = null;
+
+        var regId = "{!csoUserInfo.uid}";
+
+        var _SPbeforeSpaceList = "";
+        var _nowSpacePath = "";
+
+        var button = null;
+        jQuery.event.add(window, "load", function () {
+
+            var info01Text = "{!$Label.msg_01132}";
+            $("#help-info01").tooltip({
+                text    : info01Text,
+                width   : 420,
+                height  : 40
+            });
+
+            var info02Text = "{!$Label.msg_01133}";
+            $("#help-info02").tooltip({
+                text    : info02Text,
+                width   : 420,
+                height  : 40
+            });
+
+            var info03Text = "{!$Label.msg_01134}";
+            $("#help-info03").tooltip({
+                text    : info03Text,
+                width   : 400,
+                height  : 40
+            });
+
+            var info04Text = "{!$Label.msg_01135}";
+            $("#help-info04").tooltip({
+                text    : info04Text,
+                width   : 400,
+                height  : 40
+            });
+            $("#container_parent").height(getBrowserHeight()-280);
+            $("#bottom-left").height(getBrowserHeight()-280);
+//            $(".tree-area").height($(".tree-area").height() + 22);
+//            $("#spaceExportTable").height(getBrowserHeight() - 260).width(600);
+
+            $(window).resize(resizeGrid);
+
+            $(window).unload(function(event) {
+            });
+
+
+            //loadSearchRoleList();
+            initUserGroupPos();
+
+            $("#spaceSUMenu").menu({ content: $("#spaceSelectSUMenu").html(), showSpeed: 100});
+
+            //-- データ表示 --%>
+            initDisplay();
+            initExportSpaceUse();
+
+            $("#settingUsrGrpPosList").jqGrid({
+                url : _apiUrl + '/common/ColoradoSearchApi.json',
+                postData : {
+                    empty : "true",
+                },
+                mtype : "POST",
+                colNames:[
+                    '',
+                    '{!$Label.label_00039}',
+                    '{!$Label.label_10028}',
+                    '{!$Label.label_13138}',
+                    '',
+                ],
+                colModel:[
+                    {name:'id',index:'id', hidden:true},
+                    {name:'name',index:'name'},
+                    {name:'profileName', width : 80, index:'profileName'},
+                    {name:'lastLogin', width : 50, index:'lastLogin'},
+                    {name:'bottom_name',index:'bottom_name', hidden:true},
+                ],
+                rowNum:10,
+//                height: getBrowserHeight() - 260,
+                height: 200,
+                rowList:[10,50,100],
+                sortname: 'nameStr',
+                pager: '#settingUsrGrpPosListPager',
+                viewrecords: true,
+                shrinkToFit : true,
+                multiselect: true,
+                multiboxonly: true,
+                onSelectRow : function(rowid, status, ev){
+                    var serrowCount = $(this).jqGrid('getGridParam','selarrrow').length;
+                    if(serrowCount > 0){
+                        id = $(this).jqGrid('getGridParam','selarrrow')[serrowCount -1];
+                        name = $(this).getCell(id,'bottom_name');
+                        onSearhSpaceClicked(id, name);
+                    } else {
+                        onSearhSpaceClickedClear();
+                    }
+                },
+                loadComplete : function(data){
+                    // 展開されたデータを選択テーブルにセットする
+                    loadUidList = new Array();
+                    loadPidList = new Array();
+                    loadGidList = new Array();
+                    var ugpl = new Array();
+                    var key;
+                    for(var i = 0; i < data.rows.length; i++){
+                        key = data.rows[i].id;
+                        ugpl.push(key);
+                        if(key.charAt(0) == 'U'){
+                            // ユーザの場合
+                            loadUidList.push(key);
+                            uidMap[key] = true;
+                        } else if (key.charAt(0) == 'C'){
+                            // 部署役職の場合
+                            loadPidList.push(key);
+                            pidMap[key] = true;
+                        } else if (key.charAt(0) == 'G'){
+                            // グループの場合
+                            loadGidList.push(key);
+                            gidMap[key] = true;
+                        }
+                    }
+                    if (data.rows.length > 0){
+                        _exportSelectedTargetUserId = ugpl.join(",");
+                        _exportSelectedTargetUserCount = data.rows.length;
+                        _exportSelectedTargetUserName = data.rows[0].bottom_name;
+                        // 一行目を選択する
+                        id = data.rows[0].id;
+                        name = $(this).getCell(id,'bottom_name');
+                        onSearhSpaceClicked(id, name);
+                        $(this).setSelection(id);
+                    } else {
+                        _exportSelectedTargetUserId = "";
+                        _exportSelectedTargetUserCount = 0;
+                        _exportSelectedTargetUserName = "";
+                    }
+                }
+            });
+
+            $("#searchSPSpaceDiv").dialog({
+                autoOpen     : false,
+                resizable    : false,
+                closeText    : "Close",
+                width        : 400,
+                height       : 140,
+            });
+            $("#searchSPUserDiv").dialog({
+                autoOpen     : false,
+                resizable    : false,
+                closeText    : "Close",
+                width        : 400,
+                height       : 160,
+                open         : function(){_invUserListLoading = true;},
+                close        : function(){_invUserListLoading = false;}
+            });
+            $("#userGroupCorpSearchModal").dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                closeText: "Close",
+                width: 770,
+                height: 300
+            });
+            // 所属スペース一覧を表示したい場合
+//            initSpaceList();
+        });
+
+        function loadUserGroupPosGrid(){
+            var ul  = new Array();
+            var gl  = new Array();
+            var pl  = new Array();
+            var gul = new Array();
+            var pul = new Array();
+            var gcl = new Array();
+            var pcl = new Array();
+
+            for(var u in uidMap){
+                if(uidMap[u]){
+                    ul.push(u);
+                }
+            }
+
+            if ( $("#searchlistAutoselectG").attr("checked") &&  !($("#searchlistAutoUserselectG").attr("checked"))){
+                // グループの下位を抽出
+                for(var g in gidMap){
+                    if(gidMap[g]){
+                        gcl.push(g);
+                    }
+                }
+                for(var g in gidMap){
+                    gidMap[g] = false;
+                }
+            }
+            if ( $("#searchlistAutoUserselectG").attr("checked")){
+                // グループをユーザとして抽出
+                for(var g in gidMap){
+                    if(gidMap[g]){
+                        gul.push(g);
+                    }
+                }
+                for(var g in gidMap){
+                    gidMap[g] = false;
+                }
+            } else {
+                for(var g in gidMap){
+                    if(gidMap[g]){
+                        gl.push(g);
+                    }
+                }
+            }
+            if ( $("#searchlistAutoselectP").attr("checked")){
+                // 組織の下位を抽出
+                for(var p in pidMap){
+                    if(pidMap[p]){
+                        pcl.push(p);
+                    }
+                }
+            }
+            if ( $("#searchlistAutoUserselectP").attr("checked")){
+                // 組織をユーザとして抽出
+                for(var p in pidMap){
+                    if(pidMap[p]){
+                        pul.push(p);
+                    }
+                }
+            }
+            if (!($("#searchlistAutoUserselectP").attr("checked")) && !($("#searchlistAutoselectP").attr("checked"))){
+                // 組織を抽出
+                for(var p in pidMap){
+                    if(pidMap[p]){
+                        pl.push(p);
+                    }
+                }
+            } else {
+                for(var p in pidMap){
+                    pidMap[p] = false;
+                }
+            }
+
+            $("#settingUsrGrpPosList").setGridParam({
+                postData:{
+                    uid : ul.join(","),
+                    pid : pl.join(","),
+                    gid : gl.join(","),
+                    guid : gul.join(","),
+                    puid : pul.join(","),
+                    gcid : gcl.join(","),
+                    pcid : pcl.join(","),
+                }
+            }).trigger("reloadGrid");
+
+        }
+        // 初期表示
+        function initDisplay(){
+            changeView(true);
+        }
+        // エクスポートダイアログ初期表示
+        function initExportSpaceUse(){
+            $("#exportButton").menu({
+                content     : $("#exportPullMenu").html(),
+                showSpeed   : 100,
+                width       : 110,
+            });
+
+            $("#searchlbtn").menu({
+                content     : $("#searchPullMenu").html(),
+                showSpeed   : 100,
+                width       : 135,
+            });
+            $("#exportSpaceUserDialog").dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                width: 520+90,
+                autoOpen    : false,
+                resizable   : false,
+            });
+
+            $("#exportUserSpaceDialog").dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                width: 520+90,
+                autoOpen    : false,
+                resizable   : false,
+            });
+
+            $("#exportConditionDialog").dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                width: 520+90,
+                autoOpen    : false,
+                resizable   : false,
+            });
+
+            $("#exportSpaceUserHistoryDialog").dialog({
+                width       : 870,
+                hight       : 870,
+                autoOpen    : false,
+                resizable   : false,
+                modal       : true,
+            });
+
+            $('#exportSpaceUserHistoryDialogTab').tabs({
+                selected    : 0,
+                show        : function(e, ui){
+                    if(ui.index == 0){
+
+                        $("#exportHistoryStopButton").show();
+                        $("#exportSpaceUserHistoryDialogExplanation").show();
+                    }else if(ui.index == 1){
+
+                        $("#exportHistoryStopButton").hide();
+                        $("#exportSpaceUserHistoryDialogExplanation").hide();
+                    }
+                }
+            });
+
+            $("#selectSpaceDialog").dialog({
+                width       : 500,
+                autoOpen    : false,
+                resizable   : false,
+                modal       : true,
+            });
+
+            $("#selectTargetSpaceDialog").dialog({
+                width       : 500,
+                autoOpen    : false,
+                resizable   : false,
+                modal       : true,
+            });
+        }
+
+        function onexportSpaceUserHistoryMenuClicked(){
+            // エクスポート履歴
+            loadexportSpaceUserHistoryList();
+
+            $("#exportHistoryOkButton").css("margin-bottom", "15px");
+            $("#exportSpaceUserHistoryDialog").dialog("open");
+        }
+
+        function onexportSpaceUserHistoryDialogOkClicked(){
+            $("#exportSpaceUserHistoryDialog").dialog("close");
+        }
+
+        function onexportSpaceUserHistoryDialogExportStopClicked(){
+            // エクスポートキャンセル
+            var selID = $("#exportSpaceUserHistoryUnfinishedList").jqGrid("getGridParam", "selrow");
+            if(selID == null){
+                return
+            }
+
+            if(!_isSpaceUserManager && $("#exportSpaceUserHistoryUnfinishedList").getRowData(selID).own=="0"){
+                alert("{!$Label.msg_01136}");
+                return;
+            }
+
+            var status = $("#exportSpaceUserHistoryUnfinishedList").getRowData(selID).statusval;
+            if(status != 0){
+                alert("{!$Label.msg_01137}");
+                return;
+            }
+
+            if(!confirm("{!$Label.msg_01138}")){
+                return;
+            }
+
+            _exportSpaceUserHistoryDialogSelectedRowId = selID;
+
+            var callback = function (data) {
+                if(data["message"] != null){
+                    alert(data["message"]);
+                }else if(data["alert"] != null){
+                    alert(data["alert"]);
+                }
+                $("#exportSpaceUserHistoryUnfinishedList").trigger("reloadGrid");
+                $("#exportSpaceUserHistoryFinishedList").trigger("reloadGrid");
+            };
+            var callerror = function (data) {
+                CsoScript_loadingStop();
+                alert(data);
+            };
+            // エラーのためGETに変更
+            secureGetAsync('/setup/SpaceUserExportStopAPI.json', {"id" : selID}, callback, callerror);
+        }
+
+        function onExportSUHistoryUnfinishedListConditionClicked(id){
+            // エクスポート履歴（未出力）条件
+            $("#exportSpaceUserHistoryUnfinishedList").setSelection(id);
+            setExportSUDialogParameters(id);
+        }
+
+        function onExportSUHistoryFinishedListConditionClicked(id){
+            // エクスポート履歴（終了）条件
+            $("#exportSpaceUserHistoryFinishedList").setSelection(id);
+            setExportSUDialogParameters(id);
+        }
+
+
+        function setExportSUDialogParameters(id){
+            // エクスポート履歴条件
+            var callback = function (data) {
+                if(data["alert"] != null){
+                    return;
+                }else{
+                    if (data.search_dsp != null && data.search_dsp.length > 0){
+                        $("#exportConditionInput").html(data.search_dsp);
+                    } else {
+                        $("#exportConditionInput").html("");
+                    }
+
+                    if (data.lang != null && data.lang != ""){
+                        $("#exportConditionLanguage").val(data.lang);
+                        $("#exportConditionLanguageSpan").html($("#exportConditionLanguage option:selected").html());
+                    } else {
+                        $("#exportConditionLanguageSpan").html("");
+                    }
+                    $("#exportConditionOutputSpace").html(data.space_path);
+                    $("#exportConditionDialog").dialog("open");
+                }
+            };
+            var callerror = function (data) {
+                CsoScript_loadingStop();
+                alert(data);
+            };
+            securePostAsync('/setup/ExportSpaceUserHistoryInfoAPI.json', {"id" : id}, callback, callerror);
+        }
+
+        function onExportConditionDialogOkClicked(){
+            $("#exportConditionDialog").dialog("close");
+        }
+
+        function onExportButtonClicked(obj){
+            setPullMenuPosition(obj);
+        }
+
+        function onSearchButtonClicked(obj){
+            setPullMenuPosition(obj);
+        }
+
+        function setPullMenuPosition(obj){
+            var menuPosX    = 0;
+            var menuPosY    = 0;
+            menuPosX    = $(obj).offset().left;
+            menuPosY    = $(obj).offset().top;
+            $(".positionHelper").css({
+                top     : menuPosY,
+                left    : menuPosX
+            });
+        }
+
+        function actionSort(arr){
+            arr.sort(function(o, n){
+                if($(o).attr("sort") > $(n).attr("sort")){
+                    return 1;
+                }else if($(o).attr("sort") < $(n).attr("sort")){
+                    return -1;
+                }else{
+                    return 0;
+                }
+            });
+            return arr;
+        }
+
+        function loadexportSpaceUserHistoryList(){
+            if($("#exportSpaceUserHistoryUnfinishedList").getGridParam() == undefined){
+                var rowNum = 50;
+                var rowNumKey = "evidence_history_rownum";
+                if (localStorage) {
+                    if (localStorage.getItem(rowNumKey)) {
+                        rowNum = localStorage.getItem(rowNumKey);
+                    }
+                }
+
+                var colNames = [
+                    "",
+                    "",
+                    "",
+                    "",
+                    "{!$Label.label_13139}",
+                    "{!$Label.label_10834}",
+                    "{!$Label.label_10131}",
+                    "{!$Label.label_10587}",
+                    "{!$Label.label_10753}",
+                ];
+
+                $("#exportSpaceUserHistoryUnfinishedList").jqGrid({
+                    url         :_apiUrl + '/setup/ExportSpaceUserHistoryUnfinishedListAPI.json',
+                    datatype    : "jsonp",
+                    mtype       : "post",
+                    jsonReader  : {
+                        repeatitems: false,
+                        id         : "0"
+                    },
+                    colNames    : colNames,
+                    colModel    : [
+                        { name : "id", index : "id", hidden : true },
+                        { name : "statusval", index : "statusval", hidden : true },
+                        { name : "userid", index : "userid", hidden : true },
+                        { name : "own", index : "own", hidden : true },
+                        { name : "type", index : "search_type", width : 125, align : "left", sortable : true },
+                        { name : "time", index : "time", width : 125, align : "left", sortable : true },
+                        { name : "user", index : "user", width : 360, align : "left", sortable : true },
+                        { name : "status", index : "status", width : 93, align : "center", sortable : true },
+                        { name : "condition", index : "condition", width : 70, align : "center", sortable : false },
+                    ],
+                    rowNum      : 50,
+                    rowList     :[50,100,300],
+                    height      : 290,
+                    width       : 810,
+                    autowidth   : false,
+                    sortname    : 'time',
+                    pager       : '#exportSpaceUserHistoryUnfinishedListPager',
+                    viewrecords : true,
+                    sortorder   : "desc",
+                    shrinkToFit : false,
+                    loadComplete: function(){
+                        selectexportSpaceUserHistoryListRow("exportSpaceUserHistoryUnfinishedList");
+                        localStorage.setItem(rowNumKey,$(this).getGridParam("rowNum"));
+                    }
+                });
+                $("#exportSpaceUserHistoryUnfinishedList").jqGrid('navGrid','#exportSpaceUserHistoryUnfinishedListPager',{edit:false,add:false,del:false,search:false});
+
+                $("#exportSpaceUserHistoryFinishedList").jqGrid({
+                    url         :_apiUrl + '/setup/ExportSpaceUserHistoryFinishedListAPI.json',
+                    datatype    : "jsonp",
+                    mtype       : "post",
+                    jsonReader  : {
+                        repeatitems: false,
+                        id         : "0"
+                    },
+                    colNames    : colNames,
+                    colModel    : [
+                        { name : "id",          index : "id",           hidden : true },
+                        { name : "statusval",   index : "statusval",    hidden : true },
+                        { name : "userid",      index : "userid",       hidden : true },
+                        { name : "own",         index : "own",          hidden : true },
+                        { name : "type",        index : "type",         width : 125,    align : "left" },
+                        { name : "time",        index : "time",         width : 125,    align : "left" },
+                        { name : "user",        index : "user",         width : 360,    align : "left" },
+                        { name : "status",      index : "status",       width : 93,     align : "center" },
+                        { name : "condition",   index : "condition",    width : 70,     align : "center",   sortable : false },
+                    ],
+                    rowNum      : 50,
+                    rowList     :[50,100,300],
+                    height      : 290,
+                    width       : 810,
+                    autowidth   : false,
+                    sortname    : 'time',
+                    pager       : '#exportSpaceUserHistoryFinishedListPager',
+                    viewrecords : true,
+                    sortorder   : "desc",
+                    shrinkToFit : false,
+                    loadComplete: function(){
+                        localStorage.setItem(rowNumKey,$(this).getGridParam("rowNum"));
+                    }
+                });
+                $("#exportSpaceUserHistoryFinishedList").jqGrid('navGrid','#exportSpaceUserHistoryFinishedListPager',{edit:false,add:false,del:false,search:false});
+            }else{
+                $("#exportSpaceUserHistoryUnfinishedList").jqGrid("clearGridData");
+                $("#exportSpaceUserHistoryUnfinishedList").trigger("reloadGrid");
+                $("#exportSpaceUserHistoryFinishedList").jqGrid("clearGridData");
+                $("#exportSpaceUserHistoryFinishedList").trigger("reloadGrid");
+            }
+        }
+
+        function selectexportSpaceUserHistoryListRow(listId){
+            var gridIDs = $("#" + listId).getDataIDs();
+            if(_exportSpaceUserHistoryDialogSelectedRowId != null && _exportSpaceUserHistoryDialogSelectedRowId != ""){
+                $("#" + listId).setSelection(_exportSpaceUserHistoryDialogSelectedRowId);
+            }else{
+                for(var i=0; i<gridIDs.length; i++){
+                    var row = $("#" + listId).getRowData(gridIDs[i]);
+                    if(row.statusval == "1"){
+                        $("#" + listId).setSelection(row.id);
+                    }
+                }
+            }
+        }
+
+        //-- ユーザ選択ダイアログ初期表示
+        function initUserGroupPos(){
+
+            $("#expSpaceUserTabDiv").tabs();
+
+            $("#managerSPUserTable").jqGrid({
+                url : _apiUrl + '/common/ColoradoSearchApi.json',
+                postData : {
+                    empty : "true",
+                    uid : "all"
+                },
+                colNames:[
+                    '',
+                    '{!$Label.label_00039}',
+                    ''
+                ],
+                colModel:[
+                    {name:'id',index:'id', width:60, hidden:true},
+                    {name:'name',index:'name', width:450},
+                    {name:'corporation',corporation:'name', width:180, hidden:true}
+                ],
+                rowNum:10,
+                height: 275,
+                rowList:[10,50,100],
+                sortname: 'name',
+                pager: '#managerSPUserTablePager',
+                viewrecords: true,
+                shrinkToFit : false,
+                multiselect: true,
+                multiboxonly: true,
+                onSelectRow : function(rowid, status, ev){
+                    selRow(0);
+                },
+                onSelectAll : function(aRowids, status){
+                    selRow(0);
+                },
+                loadComplete : function(data){
+                    loadUidList = new Array();
+                    for(var i = 0; i < data.rows.length; i++){
+                        if(uidMap[data.rows[i].id] == null){
+                            uidMap[data.rows[i].id] = false;
+                        }
+                        loadUidList.push(data.rows[i].id);
+                        if(uidMap[data.rows[i].id]){
+                            $(this).setSelection(data.rows[i].id);
+                        }
+                    }
+                    $("#tabSPUser").focus();
+                },
+                gridComplete: function () {
+                    _user_data_count = $(this).getGridParam('records');
+                }
+            });
+
+            $("#managerSPPosTable").jqGrid({
+                url : _apiUrl + '/common/ColoradoSearchApi.json',
+                postData : {
+                    empty : "true",
+                    pid : "all"
+                },
+                colNames:[
+                    '',
+                    '{!$Label.label_00039}',
+                ],
+                colModel:[
+                    {name:'id',index:'id', width:60, hidden:true},
+                    {name:'name',index:'name', width:600},
+                ],
+                rowNum:10,
+                height: 305,
+                rowList:[10,50,100],
+                sortname: 'name',
+                pager: '#managerSPPosTablePager',
+                viewrecords: true,
+                shrinkToFit : false,
+                multiselect: true,
+                multiboxonly: true,
+                onSelectRow : function(rowid, status, ev){
+                    selRow(1);
+                },
+                onSelectAll : function(aRowids, status){
+                    selRow(1);
+                },
+                loadComplete : function(data){
+                    loadPidList = new Array();
+                    for(var i = 0; i < data.rows.length; i++){
+                        if(pidMap[data.rows[i].id] == null){
+                            pidMap[data.rows[i].id] = false;
+                        }
+                        loadPidList.push(data.rows[i].id);
+                        if(pidMap[data.rows[i].id]){
+                            $(this).setSelection(data.rows[i].id);
+                        }
+                    }
+                    $("#tabSPPos").focus();
+                }
+            });
+
+            $("#managerSPGroupTable").jqGrid({
+                url : _apiUrl + '/common/ColoradoSearchApi.json',
+                postData : {
+                    empty : "true",
+                    gid : "all"
+                },
+                colNames:[
+                    '',
+                    '{!$Label.label_00039}',
+                ],
+                colModel:[
+                    {name:'id',index:'id', width:60, hidden:true},
+                    {name:'name',index:'name', width:600},
+                ],
+                rowNum:10,
+                height: 305,
+                rowList:[10,50,100],
+                sortname: 'name',
+                pager: '#managerSPGroupTablePager',
+                viewrecords: true,
+                shrinkToFit : false,
+                multiselect: true,
+                multiboxonly: true,
+                onSelectRow : function(rowid, status, ev){
+                    selRow(2);
+                },
+                onSelectAll : function(aRowids, status){
+                    selRow(2);
+                },
+                loadComplete : function(data){
+                    loadGidList = new Array();
+                    for(var i = 0; i < data.rows.length; i++){
+                        if(gidMap[data.rows[i].id] == null){
+                            gidMap[data.rows[i].id] = false;
+                        }
+                        loadGidList.push(data.rows[i].id);
+                        if(gidMap[data.rows[i].id]){
+                            $(this).setSelection(data.rows[i].id);
+                        }
+                    }
+                    $("#tabSPGroup").focus();
+                }
+            });
+            $("#managerSPUserTable").setGridWidth(705);
+            $("#managerSPPosTable").setGridWidth(705);
+            $("#managerSPGroupTable").setGridWidth(705);
+        }
+
+        function userGroupCorpSearchModalCancel() {
+            uidMap = $.cloneObject(orgUidMap, true);
+            gidMap = $.cloneObject(orgGidMap, true);
+            pidMap = $.cloneObject(orgPidMap, true);
+            $("#userGroupCorpSearchModal").dialog('close');
+        }
+
+        function userGroupCorpSearchModalSubmit() {
+            loadUserGroupPosGrid();
+            $("#userGroupCorpSearchModal").dialog('close');
+            $("#help-info01").hideTips();
+            $("#help-info02").hideTips();
+            $("#help-info03").hideTips();
+            $("#help-info04").hideTips();
+        }
+
+        // ユーザ選択ダイアログOKボタン押下処理
+        function loadUserGroupGrid(){
+            loadUserGroupPosGrid();
+        }
+
+        // 招待スペース表示処理
+        function onSearhSpaceClicked(Id, name){
+            // 招待スペース表示
+            $("#dispUsername").html(getMsg(new Array(name), '{!$Label.label_13140}'));
+            if (_b_listViewLoaded){
+                 $("#listView1").setGridParam({
+                    url : _apiUrl + '/setup/UserInvSpaceListApi.json',
+                    page : 1,
+                    postData: {
+                         userId : Id,
+                         registId: regId
+                    },
+                }).trigger("reloadGrid");
+            } else {
+                initSpaceList(Id);
+                _b_listViewLoaded = true;
+            }
+        }
+
+        function onSearhSpaceClickedClear(){
+            $("#dispUsername").html("");
+            if (_b_listViewLoaded){
+                 $("#listView1").jqGrid('clearGridData');
+            }
+        }
+
+        function delUserAndGroupPos(){
+            var rows = $("#settingUsrGrpPosList").jqGrid('getGridParam','selarrrow');
+            if(rows.length == 0){
+                return;
+            }
+            for(var i = 0; i < rows.length; i++){
+                if(uidMap[rows[i]] != null){
+                    uidMap[rows[i]] = false;
+                }
+                if(gidMap[rows[i]] != null){
+                    gidMap[rows[i]] = false;
+                }
+                if(pidMap[rows[i]] != null){
+                    pidMap[rows[i]] = false;
+                }
+            }
+            loadUserGroupPosGrid();
+            // 招待スペースクリア
+            $("#dispUsername").html("");
+            _b_listViewLoaded = false;
+            $("#listView1").jqGrid('clearGridData');
+        }
+
+        function selRow(type){
+            var rows;
+            switch(type){
+            case 0:
+                rows = $("#managerSPUserTable").jqGrid('getGridParam','selarrrow');
+                for(var i = 0; i < loadUidList.length; i++){
+                    if($.inArray(loadUidList[i], rows) >= 0){
+                        uidMap[loadUidList[i]] = true;
+                    }else{
+                        uidMap[loadUidList[i]] = false;
+                    }
+                }
+                break;
+            case 1:
+                rows = $("#managerSPPosTable").jqGrid('getGridParam','selarrrow');
+                for(var i = 0; i < loadPidList.length; i++){
+                    if($.inArray(loadPidList[i], rows) >= 0){
+                        pidMap[loadPidList[i]] = true;
+                    }else{
+                        pidMap[loadPidList[i]] = false;
+                    }
+                }
+                break;
+            case 2:
+                rows = $("#managerSPGroupTable").jqGrid('getGridParam','selarrrow');
+                for(var i = 0; i < loadGidList.length; i++){
+                    if($.inArray(loadGidList[i], rows) >= 0){
+                        gidMap[loadGidList[i]] = true;
+                    }else{
+                        gidMap[loadGidList[i]] = false;
+                    }
+                }
+                break;
+            }
+        }
+
+        // スペース一覧初期表示
+        function initSpaceList(Id){
+            // スペース一覧初期表示
+            $("#listView1").jqGrid({
+                url : _apiUrl + '/setup/UserInvSpaceListApi.json',
+                postData: {
+                    userId : Id,
+                    registId: regId,
+                    sidx: 'spacepath'
+                },
+                datatype: "jsonp",
+                jsonReader :{
+                    repeatitems : false,
+                    id          : "id"
+                },
+                colNames:[
+                    '',
+                    '{!$Label.label_00039}',
+                    '',
+                    '{!$Label.label_10029}',
+                    'spacepath',
+                ],
+                colModel:[
+                    {name:'id',index:'id', width:175, hidden:true},
+                    {name:'name',index:'name', width:400, align:"left", sortable:true},
+                    {name:'type',index:'type', width:50, align:"center", sortable:false, hidden : true},
+                    {name:'role',index:'role', width:230, align:"center", sortable:true},
+                    {name:'spacepath',index:'spacepath', width:50, sortable:true, hidden : true}
+                ],
+                rowNum : 10,
+                width: getBrowserWidth() - 380,
+                rowList:[10,50,100],
+                sortname: 'spacepath',
+                pager: '#listView1Pager',
+                viewrecords: true,
+                multiselect: false,
+                multiboxonly: false,
+                shrinkToFit : true,
+                onPaging : function(b) {
+                    $(this).setGridParam({
+                       postData : {
+                           useCache : "true"
+                       }
+                    });
+                },
+                loadComplete : function(data) {
+                },
+                gridComplete:function(){ resizeGrid();},
+                onSortCol: function(name,index){ },
+            });
+        }
+
+        // 抽出切替
+        function changeView(f){
+            var $img;
+            var btnText;
+            if (cnt > 0) {
+                cnt = 0;
+                // 招待ユーザ抽出の場合
+                $("#SpaceSPList").hide();
+                $("#UserSPList").show();
+                $("#searchlbtn").show();
+                $("#SearchSPUserInputText").val("");
+                $("#invSpaceUserSearchSelectRole").val("");
+                $("#SearchSPSpaceInputText").val("");
+                $("#SPspaceSearcharea").hide();
+                $("#SPuserSearcharea").show();
+                _b_SusersGridNow = true;
+                _exportSelectedTargetBreadCrumbs = "";
+                if(f) execSearch();
+                btnText = "{!$Label.solxyzcso001__label_13141}";
+                counterBtnText = "{!$Label.label_13142}";
+                $("#changeViewbtn").removeClass("last").addClass("item");
+            } else {
+                cnt = 1;
+                // 招待スペースの場合
+                $("#UserSPList").hide();
+                $("#SpaceSPList").show();
+                $("#searchlbtn").hide();
+                $("#dispUsername").html("");
+                $("#searchSPSpaceDiv").dialog("close");
+                $("#searchSPUserDiv").dialog("close");
+                _exportSelectedTargetBreadCrumbs = "";
+                btnText = "{!$Label.label_13142}";
+                counterBtnText = "{!$Label.solxyzcso001__label_13141}";
+                $("#changeViewbtn").removeClass("item").addClass("last");
+                resizeGrid();
+            }
+            $("#c_headLeftSubTitle").text("");
+            $(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:changeViewButton}')).val("");
+            $("#c_headLeftSubTitle").text(counterBtnText);
+            $(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:changeViewButton}')).val(btnText);
+        }
+
+        function onSearchSPUserClearClicked(){
+            // 招待ユーザの検索Clearボタン
+            _invSpaceListLoading = false;
+            if (!_b_SusersGridNow){
+                _b_SusersGridNow = true;
+                $("#SPspaceSearcharea").hide();
+                $("#SPuserSearcharea").show();
+            }
+
+            $("#SearchSPUserInputText").val("");
+            $("#invSpaceUserSearchSelectRole").val(0);
+            $("#SPuserSearchlist").setGridParam({
+                page:1,
+                postData : {
+                    search_role : "0",
+                    search_text : "",
+                },
+                loadComplete : function(data){
+                },
+                gridComplete: function () {
+                    _invUserSearchCount = _invUserCount;
+                }
+            }).trigger("reloadGrid");
+        }
+
+        function onSearchSPSpaceClearClicked(){
+            // 招待スペースの検索Clearボタン
+            _invUserListLoading = false;
+            $("#SearchSPSpaceInputText").val("");
+        }
+
+        function onSearchSPUserOkClicked(){
+            // 招待ユーザの検索ボタン
+            _invSpaceListLoading = false;
+            if (!_b_SusersGridNow){
+                _b_SusersGridNow = true;
+                $("#SPspaceSearcharea").hide();
+                $("#SPuserSearcharea").show();
+            }
+            $("#SPuserSearchlist").setGridParam({
+                page:1,
+                postData : {
+                    search_role : $("#invSpaceUserSearchSelectRole").val(),
+                    search_text : $("#SearchSPUserInputText").val(),
+                },
+                loadComplete : function(data){
+                },
+                gridComplete: function () {
+                    _invUserSearchCount = $(this).getGridParam('records');
+                }
+            }).trigger("reloadGrid");
+        }
+
+        function onSearchSPSpaceOkClicked(){
+            // 招待スペースの検索ボタン
+            if($.trim($("#SearchSPSpaceInputText").val()) == ""){
+                alert(getMsg(new Array("1"), '{!$Label.msg_00055}'));
+                return;
+            }
+            _nowSpacePath = $(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} h3')).text();
+            _invUserListLoading = false;
+            $(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} h3')).text("-");
+            _exportSelectedTargetSpaceCount = 0;
+            _exportSelectedTargetSpaceName = "";
+
+            if (_b_SusersGridNow){
+                _b_SusersGridNow = false;
+                $("#SPuserSearcharea").hide();
+                $("#SPspaceSearcharea").show();
+            }
+            if(_invSpaceListLoading){
+                $("#SPspaceSearchlist").setGridParam({
+                    page:1,
+                    postData : {
+                        searchstr   : $("#SearchSPSpaceInputText").val(),
+                        asrt : "search" + _nowAsert,
+                        spaceId : _nowSpaceId,
+                    },
+                }).trigger("reloadGrid");
+            } else {
+                if(_invSpaceUserFirst){
+                    _invSpaceUserFirst = false;
+                    onSearchSPSpace($("#SearchSPSpaceInputText").val());
+                }else{
+                    $("#SPspaceSearchlist").setGridParam({
+                        page:1,
+                        postData : {
+                            searchstr   : $("#SearchSPSpaceInputText").val(),
+                            asrt : "search" + _nowAsert,
+                            spaceId : _nowSpaceId,
+                        },
+                    }).trigger("reloadGrid");
+                }
+            }
+        }
+
+        function onSearchSPUserClicked(){
+            _invUserCount = $("#SPuserSearchlist").getGridParam('records');
+            _invUserSearchCount = _invUserCount;
+            if (_actualUserCount > 0){
+                loadSearchRoleList();
+                $("#searchSPUserDiv").dialog("open");
+                $("#searchSPSpaceDiv").dialog("close");
+
+                var callback =  function(data){
+                    $(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} div')).css("background-color","#7593d7").css("border-color","#7593d7");
+                    $(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} h3')).text(data["path"]);
+                    _exportSelectedTargetSpaceName = data["path"];
+                }
+                secureGetAsync('/space/path.json', {spaceId : _nowSpaceId, pt : true}, callback);
+            }else{
+                // 表示済みの場合は何もしない
+                if (_invUserListLoading){
+                    return;
+                }
+                alert('{!$Label.msg_01145}');
+            }
+        }
+
+        function onSearchSPSpaceClicked(){
+            $("#searchSPSpaceDiv").dialog("open");
+            $("#searchSPUserDiv").dialog("close");
+        }
+
+        function deleteInvSpaceUser(){
+            var ids = jQuery("#invSearchUserGroupPos").jqGrid('getGridParam','selarrrow');
+            if(ids.length > 0 && confirm("{!$Label.label_13143}")){
+//                blockUI();
+
+                var param = {
+                    "spaceid" : _nowSpaceId,
+                    "idList" : ids.join(",")
+                }
+
+                var callback = function (data) {
+//                    $.unblockUI();
+                    if(!data.result){
+                        alert(data.msg);
+                    }
+                    $("#invSearchUserGroupPos").trigger("reloadGrid");
+                };
+                var callerror = function (data) {
+                    alert(data);
+                };
+                securePostAsync('/space/user/RoleListForSelect.json', param, callback, callerror);
+            }
+        }
+
+        function onSelectUserGroupCorpClicked(){
+            // 被招待者の選択
+            $("#managerSPUserTable").trigger("reloadGrid");
+            $("#managerSPGroupTable").trigger("reloadGrid");
+            $("#managerSPPosTable").trigger("reloadGrid");
+            orgUidMap = $.cloneObject(uidMap, true);
+            orgGidMap = $.cloneObject(gidMap, true);
+            orgPidMap = $.cloneObject(pidMap, true);
+            $("#userGroupCorpSearchModal").dialog('open');
+        }
+
+        function onUserGroupCorpSearchOkClicked(){
+
+        }
+
+        // ユーザ検索のロール表示用
+        function loadSearchRoleList() {
+            $("#invSpaceUserSearchSelectRole").empty();
+            var optNoSelect = $("<option>");
+            optNoSelect.attr("value", "0");
+            optNoSelect.html("{!$Label.label_10431}");
+            $("#invSpaceUserSearchSelectRole").append(optNoSelect);
+
+            var callback = function (data) {
+                for(var key in data.role_names){
+                    var optRole = $("<option>");
+                    optRole.attr("value", key);
+                    optRole.text(data.role_names[key].slice(0,34));
+                    $("#invSpaceUserSearchSelectRole").append(optRole);
+                }
+            };
+            var callerror = function (data) {
+                alert(data);
+            };
+            // エラーのためGETに変更
+            secureGetAsync('/space/user/RoleListForSelect.json', {"space_id" : _nowSpaceId, "space_user" : "true"}, callback, callerror);
+        }
+
+        function onExportSpaceUserMenuClicked(){
+            $("#searchSPUserDiv").dialog("close");
+            $("#searchSPSpaceDiv").dialog("close");
+
+            _exportSelectedSearchSpaces = _selectedSearchSpaces;
+            _SPbeforeSpaceList = _exportSelectedSearchSpaces;
+            if ($(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} h3')).text() == "") {
+                $("#exportDialogSelectedSearchSpace").html("{!$Label.label_13144}");
+                _exportSelectedSearchSpaces = "";
+                searchSpaceIDs = "";
+                _exportSelectedTargetSpaceId = null;
+            } else if($(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} h3')).text() == "-") {
+                $("#exportDialogSelectedSearchSpace").html(_nowSpacePath);
+                searchSpaceIDs = _nowSpaceId;
+                _exportSelectedTargetSpaceCount = 1;
+                _exportSelectedSearchSpaces = "";
+            } else {
+                $("#exportDialogSelectedSearchSpace").html($(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} h3')).text());
+                searchSpaceIDs = _nowSpaceId;
+                _exportSelectedTargetSpaceCount = 1;
+                _exportSelectedSearchSpaces = "";
+            }
+
+            _exportSelectedTargetBreadCrumbs = "";
+            if (cnt < 1) {
+                $("#exportLanguage").val(_language);
+                $("#exportDialogLanguageSpan").html($("#exportLanguage option:selected").html());
+                $("#exportOutputSpace").html("{!$Label.label_evidence_00006}");
+                $("#exportOutputSpace").removeClass("error");
+                $("#exportDialogError").html("");
+
+                $("#exportSpaceUserDialog").dialog("open");
+            } else {
+                $("#exportUSLanguage").val(_language);
+                $("#exportUSDialogLanguageSpan").html($("#exportUSLanguage option:selected").html());
+                $("#exportUSOutputSpace").html("{!$Label.label_evidence_00006}");
+                $("#exportUSOutputSpace").removeClass("error");
+                $("#exportUSDialogError").html("");
+                if(_exportSelectedTargetUserId != ""){
+                    var msg = getMsg(new Array(_exportSelectedTargetUserName, _exportSelectedTargetUserCount -1), '{!$Label.label_13145}');
+                    $("#exportUSDialogUserInput").html(msg);
+                } else {
+                    $("#exportUSDialogUserInput").html("{!$Label.label_evidence_00001}");
+                    _exportSelectedTargetUserCount = _user_data_count;
+                }
+                if(_exportSelectedTargetUserCount < MAX_FILECNT){
+                    $("#exportUserSpaceDialog").dialog("open");
+                } else {
+                    alert(getMsg(new Array(MAX_FILECNTDSP), "{!$Label.msg_01146}"));
+                }
+            }
+        }
+
+        // スペースユーザのエクスポート処理
+        function onExportSUDialogOkClicked(){
+            exportDialogButtonDisable();
+
+            $("#exportOutputSpace").removeClass("error");
+            $("#exportDialogError").html("");
+
+            var err = new Array();
+
+            if (_exportSelectedTargetSpaceCount > 0){
+                if (_exportSelectedSearchSpaces != ""){
+                    searchSpaceIDs = "";
+                    for(var key in _exportSelectedSearchSpaces){
+                        if(searchSpaceIDs != ""){
+                            searchSpaceIDs += ",";
+                         }
+                        searchSpaceIDs += key;
+                    }
+                }
+            }
+
+            if(_exportSelectedTargetBreadCrumbs==null || _exportSelectedTargetBreadCrumbs==""){
+                $("#exportOutputSpace").addClass("error");
+                err.push("{!$Label.label_evidence_00006}");
+                alert("{!$Label.label_evidence_00006}");
+                exportDialogButtonEnable();
+            }
+
+            if(err.length > 0){
+//                $("#exportDialogError").html(err.join("<br />"));
+                exportDialogButtonEnable();
+                return;
+            }
+
+            if(!confirm(getMsg(new Array('{!$Label.label_13154}'), '{!$Label.msg_01139}'))){
+                exportDialogButtonEnable();
+                return;
+            }
+
+            var param = {
+                    search_space_ids    : searchSpaceIDs,
+                    lang                : $("#exportLanguage").val(),
+                    space_id            : _exportSelectedOutputSpaceId,
+                    space_path          : _exportSelectedTargetBreadCrumbsRejectRoot,
+                    space_type          : _exportSelectedTargetRootType,
+                    url                 : serverUrl,
+                    search_type         : cnt,
+                }
+            var callback = function (data) {
+                if(data["alert"] != null){
+                    alert(data["alert"]);
+                    return;
+                }else{
+                    $("#exportSpaceUserDialog").dialog("close");
+                }
+                exportDialogButtonEnable();
+            };
+            var callerror = function (data) {
+                alert(data);
+            };
+            securePostAsync('/setup/SpaceUserExportRegistAPI.json', param, callback, callerror);
+        }
+
+        function exportDialogButtonDisable(){
+            $("#exportDialogOkButton").attr("disabled", "disabled");
+            $("#exportDialogCancelButton").attr("disabled", "disabled");
+            $(".export-dialog-edit").attr("disabled", "disabled");
+        }
+
+        function exportDialogButtonEnable(){
+            $("#exportDialogOkButton").attr("disabled", "");
+            $("#exportDialogCancelButton").attr("disabled", "");
+            $(".export-dialog-edit").attr("disabled", "");
+        }
+
+        function onExportSUDialogCancelClicked(){
+            $("#exportSpaceUserDialog").dialog("close");
+        }
+
+        // ユーザスペースのエクスポート処理
+        function onExportUSDialogOkClicked(){
+            exportUSDialogButtonDisable();
+
+            $("#exportUSOutputSpace").removeClass("error");
+            $("#exportUSDialogError").html("");
+
+            var err = new Array();
+
+            if(_exportSelectedTargetBreadCrumbs==null || _exportSelectedTargetBreadCrumbs==""){
+                $("#exportUSOutputSpace").addClass("error");
+                err.push("{!$Label.label_evidence_00006}");
+                alert("{!$Label.label_evidence_00006}");
+                exportDialogButtonEnable();
+            }
+
+            if(err.length > 0){
+//                $("#exportUSDialogError").html(err.join("<br />"));
+                exportUSDialogButtonEnable();
+                return;
+            }
+
+            if(!confirm(getMsg(new Array('{!$Label.label_13153}'), '{!$Label.msg_01139}'))){
+                exportUSDialogButtonEnable();
+                return;
+            }
+
+            var param = {
+                    search_user_ids     : _exportSelectedTargetUserId,
+                    lang                : $("#exportUSLanguage").val(),
+                    space_id            : _exportSelectedOutputSpaceId,
+                    space_path          : _exportSelectedTargetBreadCrumbsRejectRoot,
+                    space_type          : _exportSelectedTargetRootType,
+                    url                 : serverUrl,
+                    search_type         : cnt
+                }
+            var callback = function (data) {
+                if(data["alert"] != null){
+                    alert(data["alert"]);
+                    return;
+                }else{
+                    $("#exportUserSpaceDialog").dialog("close");
+                }
+                exportUSDialogButtonEnable();
+            };
+            var callerror = function (data) {
+                alert(data);
+            };
+            securePostAsync('/setup/SpaceUserExportRegistAPI.json', param, callback, callerror);
+        }
+
+        function exportUSDialogButtonDisable(){
+            $("#exportUSDialogOkButton").attr("disabled", "disabled");
+            $("#exportUSDialogCancelButton").attr("disabled", "disabled");
+            $(".export-dialog-edit").attr("disabled", "disabled");
+        }
+
+        function exportUSDialogButtonEnable(){
+            $("#exportUSDialogOkButton").attr("disabled", "");
+            $("#exportUSDialogCancelButton").attr("disabled", "");
+            $(".export-dialog-edit").attr("disabled", "");
+        }
+
+        function onExportUSDialogCancelClicked(){
+            $("#exportUserSpaceDialog").dialog("close");
+        }
+
+        function onExportSpaceOkClicked(){
+            $("#selectSpaceDialog").dialog("close");
+        }
+
+        // ツリー表示
+        function buildNestedList(treeNodes, rootId) {
+              var nodesBypid = {};
+
+              $.each(treeNodes, function(i, node) {
+                if (!(node.pid in nodesBypid)) nodesBypid[node.pid] = [];
+                nodesBypid[node.pid].push(node);
+              });
+
+              function buildTree(children) {
+                var $container = $("<ul>");
+
+                if (!children) return;
+                $.each(children, function(i, child) {
+                    var targetstr;
+                    if(child.deco == "target"){
+                        targetstr = $("<li>", {text: child.name}).attr('id',  child.id).addClass("target");
+                    }else{
+                        targetstr = $("<li>", {text: child.name}).attr('id',  child.id).addClass("nontarget");
+                    }
+                    targetstr.appendTo($container)
+                  .append( buildTree(nodesBypid[child.cid]) );
+                });
+                return $container;
+              }
+              return buildTree(nodesBypid[rootId]);
+        }
+
+        function SpaceClick(myid) {
+            $("#SearchSPUserInputText").val("");
+            $("#invSpaceUserSearchSelectRole").val("");
+            $("#SearchSPSpaceInputText").val("");
+            if (!_b_SusersGridNow){
+                _b_SusersGridNow = true;
+                $("#SPspaceSearcharea").hide();
+                $("#SPuserSearcharea").show();
+            }
+            $("#SPuserSearchlist").setGridParam({
+                url: _apiUrl + '/contentsmanagement/InvitedGuestListV2Get.json',
+                postData:{
+                    spaceId     : myid,
+                    row_num     : 1,
+                    space_user  : "true",
+                    search_text : "",
+                    search_role : "0"
+                },
+                loadComplete : function(data){
+                    _actualUserCount = data.records;
+                },
+                gridComplete: function () {
+                    _invUserCount = $(this).getGridParam('records');
+                    _invUserSearchCount = _invUserCount;
+                }
+             });
+            $('#SPuserSearchlist').trigger('reloadGrid');
+
+            var callback =  function(data){
+                $(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} div')).css("background-color","#7593d7").css("border-color","#7593d7");
+                $(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} h3')).text(data["path"]);
+                $(".folder a, .folderShare a, .folderS a, .folderD a, .folderDRed a, .folderDBlue a").each(function(){
+                    if(($(this).attr("id") == searchmyid)||($(this).attr("id") == searchmyid2)){
+                        $(this).css({color:"red"});
+                    }else{
+                        $(this).css({color:"black"});
+                    }
+                });
+                $("#pathTd").show();
+                _exportSelectedTargetSpaceName = data["path"];
+            }
+            secureGetAsync('/space/path.json', {spaceId : myid, pt : true}, callback);
+            _exportSelectedTargetSpaceCount = 0;
+        }
+
+        function changeSpace(url){
+            var strs = url.replace(/^.*#/, '').split(":");
+            var myid = strs[0];
+            // spacePathに表示可能なパスを設定
+            searchmyid = 'a_' + myid;
+            searchmyid2 = myid;
+            var callback =  function(data){
+            $(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} div')).css("background-color","#7593d7").css("border-color","#7593d7");
+            $(getId('{!$Component.spaceUserExportPage:ExportForm:ExportPageBlock:ExportSpacePath} h3')).text(data["path"]);
+            $("#pathTd").show();
+                _exportSelectedTargetSpaceName = data["path"];
+            }
+            secureGetAsync('/space/path.json', {spaceId : myid, pt : true}, callback);
+            $("#SPspaceSearcharea").hide();
+            $("#SPuserSearcharea").show();
+            SpaceClick(myid);
+            _nowSpaceId = myid;
+            $("#searchSPSpaceDiv").dialog("close");
+            $("#searchSPUserDiv").dialog("close");
+        }
+
+        //  招待ユーザ検索処理
+        function execSearch(){
+            _b_SusersGridNow = true;
+            var searchName = $.trim($("#SearchSPUserInputText").val());
+            $("#SPspaceSearcharea").hide();
+            $("#SPuserSearcharea").show();
+            var role =  $("#invSpaceUserSearchSelectRole").val();
+            if(!_b_SusersGridLoaded){
+                _b_SusersGridLoaded = true;
+                onSearchSPUser(role, searchName);
+            }else{
+                $("#SPuserSearchlist").setGridParam({
+                    page:1,
+                    url: _apiUrl + '/space.user/spaceInvUserList.json',
+                    postData:{
+                        search_role     :role,
+                        search_text     : searchName,
+                    },
+                    gridComplete: function () {
+                        _invUserSearchCount = $(this).getGridParam('records');
+                    }
+                 });
+                $('#SPuserSearchlist').trigger('reloadGrid');
+            }
+        }
+
+        //  招待スペース検索処理
+        function execSPSpaceSearch(){
+            _b_SusersGridNow = false;
+            $("#invSpaceUserSearchSelectRole").val(0);
+            var searchName = $.trim($("#SearchSPSpaceInputText").val());
+            $("#SPuserSearcharea").hide();
+            $("#SPspaceSearcharea").show();
+            if(!_b_SspaceGridLoaded){
+                _b_SspaceGridLoaded = true;
+                onSearchSPSpace(searchName);
+            }else{
+                $("#SPspaceSearchlist").setGridParam({
+                    page:1,
+                    url: _apiUrl + '/contentsmanagement/spaceContentsListV2Get.json',
+                    postData:{
+                        searchstr : searchName,
+                        asrt : "search" + _nowAsert,
+                        spaceId : _nowSpaceId,
+                        sidx : "path"
+                    },
+                    loadComplete: function(data) {
+                        _invSpaceListLoading = true;
+                        //console.log(data);
+                        $(".space_action").each(function(){
+                            var href = $(this).attr("href");
+                            $(this).attr("href", "javascript:changeSpace('" + href + "');");
+                        });
+                    }
+                 });
+                $('#SPspaceSearchlist').trigger('reloadGrid');
+            }
+        }
+
+        //  招待ユーザ一覧表示
+        function onSearchSPUser(role, searchName){
+            $('#SPuserSearchlist').jqGrid({
+            url: _apiUrl + '/contentsmanagement/InvitedGuestListV2Get.json',
+            postData: {
+                type    : "role",
+                spaceId : _nowSpaceId
+            },
+            datatype: "jsonp",
+            jsonReader :{
+                repeatitems : false,
+                id          : "id"
+            },
+            colNames:[
+                '',
+                '{!$Label.label_00039}',
+                '',
+                '{!$Label.label_10029}',
+                ''
+            ],
+            colModel:[
+                {name:'id',index:'id', width:175, hidden:true},
+                {name:'name',index:'name', width:400, align:"left"},
+                {name:'type',index:'type', width:50, align:"center", sortable:false, hidden:true},
+                {name:'role',index:'role', width:230, align:"center"},
+                {name:'action',index:'action', width:80, align:"center", resizable:false, sortable:false, hidden: true}
+            ],
+            rowNum: 50,
+            rowList: [10,50,100],
+            width: getBrowserWidth(),
+            height: getBrowserHeight()-320,
+            sortname: 'id',
+            viewrecords: true,
+            multiselect: false,
+//            pager: '#inv_space_user_pager',
+            pager: '#SPuserSearchlistPager',
+            shrinkToFit: true,
+            loadComplete: function(data) {
+                _invUserListLoading = true;
+                _actualUserCount = data.records;
+
+
+            },
+            });
+            $("#SPuserSearchlist").jqGrid('navGrid','#SPuserSearchlistPager',{edit:false,add:false,del:false,refresh:false,search:false});
+            resizeGrid();
+        }
+
+        //  招待スペース一覧表示
+        function onSearchSPSpace(searchName){
+            $('#SPspaceSearchlist').jqGrid({
+                url: _apiUrl + '/contentsmanagement/spaceContentsListV2Get.json',
+                postData: {
+                    spaceId : _nowSpaceId,
+                    searchstr : searchName,
+                    asrt : "search" + _nowAsert,
+                    sidx : "path",
+                },
+                datatype: "jsonp",
+                jsonReader :{
+                    repeatitems : false,
+                    id          : "id"
+                },
+                colNames:[
+                    '',
+                    '{!$Label.label_00039}',
+                    '',
+                    '',
+                    '{!$Label.label_10029}',
+                ],
+                colModel:[
+                    {name:'id',index:'id', width:175, hidden:true},
+                    {name:'name',index:'name', width:400, align:"left"},
+                    {name:'simpleName',index:'simpleName', width:50, align:"center", sortable:false, hidden : true},
+                    {name:'type',index:'type', width:50, align:"center", sortable:false, hidden : true},
+                    {name:'role',index:'role', width:230, align:"center"},
+                ],
+                rowNum: 50,
+                rowList: [10,50,100],
+                width: getBrowserWidth() - 250,
+                height: getBrowserHeight() - 286,
+                sortname: 'name',
+                viewrecords: true,
+                multiselect: false,
+                shrinkToFit: true,
+                pager: '#SPspaceSearchlistPager',
+                loadComplete: function(data) {
+                    _invSpaceListLoading = true;
+                    $(".space_action").each(function(){
+                        var href = $(this).attr("href");
+                        $(this).attr("href", "javascript:changeSpace('" + href + "');");
+                    });
+                },
+            });
+            $("#SPspaceSearchlist").jqGrid('navGrid','#SPspaceSearchlistPager',{edit:false,add:false,del:false,refresh:false,search:false});
+            resizeGrid();
+        }
+
+        //  スペースクリック招待ユーザ一覧表示
+        function onSearchUser(id){
+            if (!_b_SusersGridNow){
+                _b_SusersGridNow = true;
+                $("#SPspaceSearcharea").hide();
+                $("#SPuserSearcharea").show();
+            }
+            $('#SPuserSearchlist').jqGrid({
+                url: _apiUrl + '/contentsmanagement/InvitedGuestListV2Get.json',
+                postData: {
+                    spaceId : id,
+                },
+                datatype: "jsonp",
+                jsonReader :{
+                    repeatitems : false,
+                    id          : "id"
+                },
+                colNames:[
+                    '',
+                    '{!$Label.label_00039}',
+                    '',
+                    '{!$Label.label_10029}',
+                    ''
+                ],
+                colModel:[
+                    {name:'id',index:'id', width:175, hidden:true},
+                    {name:'name',index:'name', width:400, align:"left"},
+                    {name:'type',index:'type', width:50, align:"center", sortable:false, hidden:true},
+                    {name:'role',index:'role', width:230, align:"center"},
+                    {name:'action',index:'action', width:80, align:"center", resizable:false, sortable:false}
+                ],
+                rowNum: 50,
+                rowList: [10,50,100],
+                width: getBrowserWidth(),
+                height: getBrowserHeight(),
+                sortname: 'id',
+                viewrecords: true,
+                multiselect: true,
+                multiboxonly: true,
+                pager: '#inv_space_user_pager',
+                shrinkToFit: true,
+                loadComplete: function(data) {
+                    _invUserListLoading = true;
+                },
+                onSelectRow: function(id, b_check){
+                    if(!_invUserListLoading){
+                    }
+                }
+            });
+            $("#SPuserSearchlist").jqGrid('navGrid','#SPuserSearchlistPager',{edit:false,add:false,del:false,refresh:false,search:false});
+            resizeGrid();
+        }
+
+        function resizeGrid(){
+            $("#settingUsrGrpPosList").setGridWidth(getBrowserWidth() - 375);
+            $("#listView1").setGridWidth(getBrowserWidth() - 375);
+            $("#container_parent").height(getBrowserHeight()-280);
+            $("#bottom-left").height(getBrowserHeight()-280);
+            $("#gview_SPuserSearchlist .ui-jqgrid-bdiv").height(getBrowserHeight()-300);
+        }
+
+        function clickmenubuttonSP(obj) {
+            $("#contextMenulist").hide();
+            var posX = obj.offset().left;
+            var posY = obj.offset().top;
+            var width = obj.outerWidth();
+            var height = obj.outerHeight();
+            $(".positionHelper").css("left", posX).css('top', posY);
+            button = obj;
+            return true;
+        }
+
+        function viewErr(array){
+            $(".err").remove();
+            var dom = "<ul class='err'>"
+            for(var i = 0; i < array.length; i++){
+                dom += "<li>" + array[i] + "</li>";
+            }
+            dom += "</ul>";
+            $("#sectionHeader").html(dom);
+            resizeGrid();
+        }
+
+        // エクスポート言語
+        function onExportDialogLanguageEditClicked(){
+            if (cnt < 1) {
+                $("#exportDialogLanguageDisplay").css("display", "none");
+                $("#exportDialogLanguageEdit").css("display", "block");
+                $("#exportLanguage").focus();
+            } else {
+                $("#exportUSDialogLanguageDisplay").css("display", "none");
+                $("#exportUSDialogLanguageEdit").css("display", "block");
+                $("#exportUSLanguage").focus();
+            }
+        }
+
+        // エクスポート対象スペース
+        function onExportDialogSelectSpaceClicked(){
+            $("#spaceListLoading").css({
+                "display"   : "block",
+                "top"       : "170px",
+                "left"      : "230px"
+            });
+            var callback =  function(data){
+                if (data.result) {
+                    _spaceTreeList = data["tree"];
+                    setSpaceList();
+                }
+            }
+            secureGetAsync('/space/user/spaceTreeListGet.json', {}, callback);
+            $("#selectSpaceDialog").dialog("open");
+        }
+
+        function getSpaceList(){
+            var callback =  function(data){
+                if (data.result) {
+                    _spaceTreeList = data["tree"];
+                }
+            }
+            secureGetAsync('/space/user/spaceTreeListGet.json', {}, callback);
+        }
+
+        function setSpaceList(){
+            $("#spaceList").html("");
+
+            var callback =  function(data){
+                if (data.result) {
+                    var branches = $("#spaceList").html(data["tree"]);
+                    $("#spaceList").treeview({
+                        url         : '/setup/SpaceTreeChildrenSPTApi.json',
+                        add         : branches,
+                        animated    : "fast",
+                        persist     : "fixed-close",
+                        cookieId    : "evidenceSpaceTree",
+                        callback: function(elements){
+                            setTimeout(function(){
+                                setChildSpaceListCheck(_exportSelectedSearchSpaces,elements);
+                            },100);
+                        },
+                    });
+
+                    setSpaceListCheck(_exportSelectedSearchSpaces);
+
+                    $("#spaceListLoading").css("display", "none");
+                }
+            }
+            secureGetAsync('/setup/SpaceTreeRootSPTApi.json', {}, callback);
+        }
+
+        function setSpaceListCheck(arr){
+            for(var key in arr){
+                $("#spaceList").find("input[value=" + key + "]").attr("checked", "checked");
+            }
+        }
+
+        function setChildSpaceListCheck(arr,elm){
+            var $ul = elm;
+            var $li = $ul.children("li");
+
+            var existInterLock = false;     //  下位連動フラグの有無（false:下位連動なし、true:下位連動あり）
+            var interlock = "";             //  下位連動フラグの値（"checked":チェックする、"":チェックしない）
+
+            //  下位連動フラグがあった場合
+            var objChk = $("#spaceList").find("input[value=" + elm.prevObject[0].id + "]");
+            if(objChk.attr("interlock") != null){
+                existInterLock = true;
+                interlock = objChk.attr("interlock");
+            }
+
+            // [下位連動]する場合
+            if(existInterLock == true) {
+                $li.each(function() {
+                    var obj = $("#spaceList").find("input[value=" + $(this).attr("id") + "]");
+                    // 下位にも[下位連動]フラグ(interlock)を付加する
+                    obj.attr("interlock", interlock);
+                    // 連動する
+                    obj.attr("checked", interlock);
+                });
+                return false;
+            }
+
+            for(var key in arr){
+                // 追加表示する要素にのみチェックを入れる
+                var lookup = false;
+                $li.each(function() {
+                    if ($(this).attr("id") == key) {
+                        lookup = true;
+                        return false;
+                    }
+                });
+                if (lookup) {
+                    $("#spaceList").find("input[value=" + key + "]").attr("checked", "checked");
+                }
+            }
+        }
+
+        /*--------------------------------------------------------------*/
+        /*  [対象スペース選択]ダイアログのチェックボックスのクリック時  */
+        /*--------------------------------------------------------------*/
+        function onSearchSpaceChecked(obj){
+            if($("#spacelistAutoselect").attr("checked")){
+                //  下位のチェック状態の変更と、[下位連動]フラグ(interlock)の付加
+                var value =  $(obj).attr("checked") ? "checked" : "";
+                $(obj).closest("li").find("input[value^=SPACE_]").attr({checked:value, interlock:value});
+            }
+        }
+
+        /*----------------------------------------------------*/
+        /*  [対象スペース選択]ダイアログの[キャンセル]押下時  */
+        /*----------------------------------------------------*/
+        function onSelectSpaceDialogCancelClicked(){
+            $("#selectSpaceDialog").dialog("close");
+        }
+
+        /*--------------------------------------------*/
+        /*  [対象スペース選択]ダイアログの[OK]押下時  */
+        /*--------------------------------------------*/
+        function onSelectSpaceDialogOkClicked(){
+
+            //--------------------------------//
+            //  選択したスペースの一覧を生成  //
+            //--------------------------------//
+            var SPspaces = new Object();
+            var selectedSearchSpace = "";
+            _exportSelectedTargetSpaceCount = 0;
+            $("#spaceList").find("input[value^=SPACE_][selectable=1]:checked, input[value^=SPACE_][selectable=1][interlock=checked]").each(function(){
+                if($(this).attr("checked") == true){
+                    SPspaces[$(this).val()] = $("#spaceList").find("span[spaceid=" + $(this).val() + "]").html();
+                    if(selectedSearchSpace == ""){
+                        selectedSearchSpace += SPspaces[$(this).val()];
+                        _exportSelectedTargetSpaceName = SPspaces[$(this).val()];
+                    }else{
+                        selectedSearchSpace += ",&nbsp;" + SPspaces[$(this).val()];
+                    }
+                    _exportSelectedTargetSpaceCount++;
+                }
+
+                if(($(this).attr("interlock") != null) && ($(this).attr("interlock") == "checked")){
+                    // 下位連動フラグ(interlock)が"checked"の場合、
+                    // このスペース配下が読み込まれていない場合は、
+                    // 末端までのスペースが選択されたものとして処理する
+                    var id = $(this).val();
+                    var $li = $("#spaceList").find("li#" + id);
+                    if($li.hasClass("hasChildren")){
+                        if(_spaceTreeList != null){
+                            for(var i = 0; i < _spaceTreeList.length; i++){
+                                var info = _spaceTreeList[i];
+                                var path = info.parentPath;
+                                if(!path){
+                                }else{
+                                    if(path.indexOf(id)!=-1){
+                                        SPspaces[info.spaceId] = info.spaceName;
+                                        if(selectedSearchSpace == ""){
+                                            selectedSearchSpace += info.spaceName;
+                                            _exportSelectedTargetSpaceName = info.spaceName;
+                                        }else{
+                                            selectedSearchSpace += ",&nbsp;" + info.spaceName;
+                                        }
+                                        _exportSelectedTargetSpaceCount++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            //------------------------------------------------------//
+            // 今回選択したスペース一覧に、
+            // 前回選択したスペース一覧（_SPbeforeSpaceList）から
+            // 以下のスペースを除いたスペースを追加
+            // ・今回、選択したスペース
+            // ・今回、未選択とされたスペース
+            // ・今回、下位連動で未選択とされたスペース
+            //------------------------------------------------------//
+            // 前回選択したスペース一覧を取得
+            _SPbeforeSpaceList = _exportSelectedSearchSpaces
+
+            // 前回選択したスペース一覧から、今回、選択したスペースを削除
+            if (_SPbeforeSpaceList != null && _SPbeforeSpaceList != ""){
+                for(var key in _SPbeforeSpaceList){
+                    if(SPspaces[key] != null){
+                        delete _SPbeforeSpaceList[key];
+                    }
+                }
+            }
+
+            // 前回選択したスペース一覧から、今回、未選択とされたスペースを削除
+            $("#spaceList").find("input[value^=SPACE_][selectable=1][checked=false]").each(function(){
+                delete _SPbeforeSpaceList[$(this).val()];
+            });
+
+            // 前回選択したスペース一覧から、今回、下位連動で未選択とされたスペースを削除
+            $("#spaceList").find("input[value^=SPACE_][selectable=1][interlock='']").each(function(){
+                // 下位連動フラグ(interlock)が""の場合、
+                // このスペース配下が読み込まれていない場合は、
+                // 末端までのスペースが選択解除されたものとして処理する
+                var id = $(this).val();
+                var $li = $("#spaceList").find("li#" + id);
+                if($li.hasClass("hasChildren")){
+                    if(_spaceTreeList != null){
+                        for(var i = 0; i < _spaceTreeList.length; i++){
+                            var info = _spaceTreeList[i];
+                            var path = info.parentPath;
+                            if(!path){
+                            }else{
+                                if(path.indexOf(id)!=-1){
+                                    delete _SPbeforeSpaceList[info.spaceId];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 今回選択したスペース一覧に追加
+            if (_SPbeforeSpaceList != null && _SPbeforeSpaceList != ""){
+                for(var key in _SPbeforeSpaceList){
+                    SPspaces[key] = _SPbeforeSpaceList[key];
+                    if(selectedSearchSpace == ""){
+                        selectedSearchSpace += _SPbeforeSpaceList[key];
+                        _exportSelectedTargetSpaceName = _SPbeforeSpaceList[key];
+                    }else{
+                        selectedSearchSpace += ",&nbsp;" + _SPbeforeSpaceList[key];
+                    }
+                    _exportSelectedTargetSpaceCount++;
+                }
+            }
+
+            if(selectedSearchSpace==""){
+                selectedSearchSpace = "-";
+                _exportSelectedTargetSpaceName = "-";
+                _exportSelectedTargetSpaceCount = 0;
+            }
+
+            if (_exportSelectedTargetSpaceCount > 0){
+                var msg = getMsg(new Array(_exportSelectedTargetSpaceName, _exportSelectedTargetSpaceCount -1), '{!$Label.label_13145}');
+                $("#exportDialogSelectedSearchSpace").html(msg);
+                _exportSelectedSearchSpaces = SPspaces;
+            } else {
+                $("#exportDialogSelectedSearchSpace").html("{!$Label.label_13144}");
+                _exportSelectedSearchSpaces = "";
+                _exportSelectedTargetSpaceId = null;
+                searchSpaceIDs = "";
+            }
+            var b_eq = true;
+            for(var key in _selectedSearchSpaces){
+                if(!(key in _exportSelectedSearchSpaces)){
+                    b_eq = false;
+                    break;
+                }
+            }
+            if(b_eq){
+                for(var key in _exportSelectedSearchSpaces){
+                    if(!(key in _selectedSearchSpaces)){
+                        b_eq = false;
+                        break;
+                    }
+                }
+            }
+            if (_exportSelectedTargetSpaceCount < 1){
+                b_eq = false;
+            }
+            if(b_eq){
+                $("#exportDialogSelectedSearchSpace").removeClass("export-dialog-modified");
+            }else{
+                $("#exportDialogSelectedSearchSpace").addClass("export-dialog-modified");
+            }
+
+            $("#selectSpaceDialog").dialog("close");
+        }
+
+        // エクスポート出力先
+        function onExportDialogOutputSpaceEditClicked(){
+            if(_exportSelectedTargetBreadCrumbs != ""){
+                $("#selectTargetSpaceDialogSelectedSpan").html(_exportSelectedTargetBreadCrumbs);
+            }else{
+                $("#selectTargetSpaceDialogSelectedSpan").html("");
+            }
+            setTargetSpaceList();
+            $("#selectTargetSpaceDialog").dialog("open");
+        }
+
+        function setTargetSpaceList(){
+            $("#targetSpaceList").html("");
+            $("#targetSpaceListLoading").css({
+                "display"   : "block",
+                "top"       : "190px",
+                "left"      : "230px",
+            });
+
+            var callback =  function(data){
+                if (data.result) {
+                    var branches = $("#targetSpaceList").html(data["tree"]);
+                    $("#targetSpaceList").treeview({
+                        url         : '/evidence/targetSpaceTreeChildren.json',
+                        add         : branches,
+                        animated    : "fast",
+                        persist     : "fixed-close",
+                        cookieId    : "evidenceTargetSpaceTree",
+                        callback    : function(elements){
+                            setTimeout(function(){
+                                if(_exportSelectedTargetSpaceId != null && _exportSelectedTargetSpaceId != ""){
+                                    $("#targetSpaceList").find("[spaceid=" + _exportSelectedTargetSpaceId + "]").addClass("targetspacelist-selected");
+                                }
+                            },100);
+                        },
+                    });
+                    if(_exportSelectedTargetSpaceId != null && _exportSelectedTargetSpaceId != ""){
+                        $("#targetSpaceList").find("[spaceid=" + _exportSelectedTargetSpaceId + "]").addClass("targetspacelist-selected");
+                    }
+                    $("#targetSpaceListLoading").css("display", "none");
+                }
+            }
+            secureGetAsync('/evidence/targetSpaceTreeRoot.json', {}, callback);
+        }
+
+        function onSelectTargetSpaceDialogCancelClicked(){
+            $("#selectTargetSpaceDialog").dialog("close");
+        }
+
+        function onSelectTargetSpaceDialogOkClicked(){
+            if (cnt > 0) {
+                $("#exportUSOutputSpace").html(_exportSelectedTargetBreadCrumbs);
+            } else {
+                $("#exportOutputSpace").html(_exportSelectedTargetBreadCrumbs);
+            }
+            $("#selectTargetSpaceDialog").dialog("close");
+        }
+
+        function onTargetSpaceClicked(obj){
+            _exportSelectedOutputSpaceId = $(obj).attr("spaceid");
+            $(".targetspacelist-selected").removeClass("targetspacelist-selected");
+            $(obj).addClass("targetspacelist-selected");
+            _exportSelectedTargetBreadCrumbs = getTargetSpaceBreadCrumbs($(obj).attr("spaceid"), $(obj).html());
+            $("#selectTargetSpaceDialogSelectedSpan").html(_exportSelectedTargetBreadCrumbs);
+        }
+
+        function getTargetSpaceBreadCrumbs(spaceId, childrenBreadCrumbs){
+            var parentNode = $("[spaceid=" + spaceId + "]").closest("li").closest("ul");
+            if(parentNode.attr("class") != "filetree"){
+                var parentSpan = parentNode.closest("li").find("span a");
+                if(parentSpan.attr("root") == "1"){
+                    _exportSelectedTargetRootType = parentSpan.attr("type");
+                    _exportSelectedTargetBreadCrumbsRejectRoot = childrenBreadCrumbs;
+                }
+                return getTargetSpaceBreadCrumbs(
+                    parentSpan.attr("spaceid"),
+                    parentSpan.html() + " > " + childrenBreadCrumbs
+                );
+            }else{
+                return childrenBreadCrumbs;
+            }
+        }
+
+        // ロールの変更画面表示
+        function mdfy_user(userName, userId, role){
+            //  ユーザID
+            $("#spaceUserManager_mdfyUserId").val(userId);
+            //  ユーザ／グループ
+            $("#spaceUserManager_mdfyUserName").val(unescape(userName));
+            //  現在の役割
+            $("#spaceUserManager_nowRole").val($("#spaceUserManager_" + role).text());
+            //  役割
+            $("#spaceUserManager_" + role).attr("selected", "selected");
+            $('#spaceUserManager_allModfy').attr('checked', 'checked');
+
+            //  役割の変更画面の表示
+            $("#spaceUserManager_modalDialogDiv").dialog({modal:true, width:450, title: "{!$Label.label_10277}"});
+        }
+
+        function invUserListReload(){
+            $("#SPuserSearchlist").trigger("reloadGrid");
+        }
+
+        function onClearUGCClicked(type){
+            switch(type){
+            case 0:
+                $("#user-search-txt").val("");
+                $("#managerSPUserTable").setGridParam({
+                    postData:{
+                        search : "",
+                        type : 0
+                    }
+                }).trigger("reloadGrid");
+                break;
+            case 1:
+                $("#pos-search-txt").val("");
+                $("#managerSPPosTable").setGridParam({
+                    postData:{
+                        search : "",
+                        type : 2
+                    }
+                }).trigger("reloadGrid");
+                break;
+
+            case 2:
+                $("#group-search-txt").val("");
+                $("#managerSPGroupTable").setGridParam({
+                    postData:{
+                        search : "",
+                        type : 1
+                    }
+                }).trigger("reloadGrid");
+                break;
+            }
+        }
+
+
+        function onSearchUGCClicked(type){
+            var pd;
+            switch(type){
+            case 0:
+                var searchText = $.trim($("#user-search-txt").val());
+                if($("#user-search-txt").val() == $("#user-search-txt").attr("placeholder")){
+                    searchText = "";
+                }
+                pd = {
+                    search : searchText,
+                    type : 0
+                };
+                var c = $("#user-search-corp").val();
+                var p = $("#user-search-post").val();
+                if(c != "none"){
+                    pd.c = c;
+                }else if(p != "none"){
+                    pd.p = p;
+                }else{
+                    delete $("#managerSPUserTable").getGridParam().postData.c;
+                    delete $("#managerSPUserTable").getGridParam().postData.p;
+                }
+
+                $("#managerSPUserTable").clearGridData();
+                $("#managerSPUserTable").setGridParam({
+                    postData : pd
+                }).trigger("reloadGrid");
+                break;
+            case 1:
+                var searchText = $.trim($("#pos-search-txt").val());
+                if($("#pos-search-txt").val() == $("#pos-search-txt").attr("placeholder")){
+                    searchText = "";
+                }
+                pd = {
+                    search : searchText,
+                    type : 2
+                };
+                $("#managerSPPosTable").clearGridData();
+                $("#managerSPPosTable").setGridParam({
+                    postData : pd
+                }).trigger("reloadGrid");
+                break;
+            case 2:
+                var searchText = $.trim($("#group-search-txt").val());
+                if($("#group-search-txt").val() == $("#group-search-txt").attr("placeholder")){
+                    searchText = "";
+                }
+                pd = {
+                    search : searchText,
+                    type : 1
+                };
+                $("#managerSPGroupTable").clearGridData();
+                $("#managerSPGroupTable").setGridParam({
+                    postData : pd
+                }).trigger("reloadGrid");
+                break;
+            }
+        }
+
+        function modalDialogDivClose(){
+            $("#modalDialogSUDiv").dialog("close");
+            $("#modalDialogSUDiv").html("");
+        }
+/*
+        function blockUI() {
+            $.blockUI({
+                // message: '<div><img src="/image/loading.gif" class="loading" />{!$Label.label_10152}</div>',
+                message: '<div><img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="loading" />{!$Label.label_10152}</div>',
+                css: {
+                    width:'150px',
+                    left:'45%',
+                    height:'40px',
+                    'padding-top':'15px',
+                    "text-align" : "center",
+                    opacity : 1,
+                    "background-color" : "white",
+                },
+            });
+        }
+*/
+        function switchEditorToGrid() {
+        }
+
+        </script>
+
+        <style type="text/css">
+        .folder > a{
+            color: #000000;
+        }
+        .folderS > a{
+            color: #000000;
+        }
+        .folderShare > a{
+            color: #000000;
+        }
+
+        .folder_2{
+            display : block;
+            float:left;
+            width:18px;
+            height:17px;
+            background-image:url("{!URLFOR($Resource.cso, 'css/images/folder_2_s.png')}");
+            background-repeat : no-repeat;
+        /*    background-size:16px 16px;*/
+            margin:-3px 2px -6px 0px;
+            border: none;
+        }
+
+        .folder_2_b{
+            display : block;
+            float:left;
+            width:36px;
+            height:36px;
+            background-image:url("{!URLFOR($Resource.cso, 'css/images/folder_2_m.png')}");
+            background-repeat : no-repeat;
+            border: none;
+        }
+
+        .folder_disclose_blue{
+            display : block;
+            float:left;
+            width:36px;
+            height:36px;
+            background-image:url("{!URLFOR($Resource.cso, 'css/images/folder_disclose_blue_32.png')}");
+            background-repeat : no-repeat;
+            border: none;
+        }
+
+        .folder_disclose_red{
+            display : block;
+            float:left;
+            width:36px;
+            height:36px;
+            background-image:url("{!URLFOR($Resource.cso, 'css/images/folder_disclose_red_32.png')}");
+            background-repeat : no-repeat;
+            border: none;
+        }
+
+        .folder-share{
+            display : block;
+            float:left;
+            width:36px;
+            height:36px;
+            background-image:url("{!URLFOR($Resource.cso, 'css/images/folder-share_m.png')}");
+            background-repeat : no-repeat;
+            border: none;
+        }
+
+        .secure_folder_2_b{
+            display : block;
+            float:left;
+            width:36px;
+            height:36px;
+            background-image:url("{!URLFOR($Resource.cso, 'css/images/secure_folder_2_m.png')}");
+            background-repeat : no-repeat;
+            border: none;
+        }
+
+        .jqgrid-list-standard-name-bottom{
+            color: black;
+            font-size: 100%;
+        }
+
+        .jqgrid-list-standard-name-top{
+            color: gray;
+            font-size: 10.5px;
+        }
+
+        .innerTable {
+            margin-top: 5px;
+        }
+
+        .innerTable th {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .innerTable td {
+            border: none !important;
+            padding: 5px !important;
+        }
+
+        .innerTable_down {
+            margin: 20px 0px 5px 15px;
+        }
+
+        .innerTable_down th {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .innerTable_down td {
+            border: none !important;
+            padding: 5px !important;
+        }
+
+        .separatorDiv{
+            width: 100%;
+        }
+
+        .separatorDiv div{
+            color: white;
+            padding: 3px 0px 3px 5px;
+            font-weight: bold;
+        }
+
+        .commentDiv{
+            width: 300px;
+            height: 100px;
+            border: solid 1px silver;
+        }
+
+        .historyTbl {
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .historyTbl th{
+            font-weight: bold;
+            min-width: 80px;
+        }
+
+        .historyTbl *{
+            color: blue;
+        }
+
+        .chevron {
+            /*background: url('/image/s-arrow.gif') no-repeat right center;*/
+            background: url('{!URLFOR($Resource.cso, "image/001_45.gif")}') no-repeat right center;
+            font-weight: bold;
+            padding-right: 20px;
+            margin-right: -5px;
+        }
+
+        . .invSpaceUserSearchBox {
+            margin-left: 20px;
+        }
+        . .input-header {
+            float: right;
+            font-weight: bold;
+            margin: 0 10px 0 0;
+            padding: 5px 0 0 0;
+        }
+        . .button-box {
+            float: right;
+            margin: 10px 15px 0 0;
+        }
+
+         .button-box {
+            float: right;
+            margin: 10px 15px 0 0;
+        }
+
+         .button-box {
+            float: right;
+            margin: 10px 15px 0 0;
+        }
+
+        #exportTable th {
+            text-align: right;
+            font-weight: bold;
+            padding-right: 5px;
+            min-width: 75px;
+            vertical-align: top;
+        }
+        .export-dialog-edit {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            cursor: pointer;
+            float: left;
+            margin: 0 5px 0 5px;
+        }
+        .export-dialog-lock {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            float: left;
+            margin: 0 5px 0 5px;
+        }
+        .export-dialog-selected-search-space {
+            width: 395px;
+            width: 380px\9; /* IE8 */
+            max-height: 80px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: block;
+            float: left;
+        }
+        .export-dialog-selected-search-space:not(:target) {
+            width: 395px\9; /* IE9 */
+        }
+        .export-dialog-selected-search-action {
+            width: 395px;
+            width: 380px\9; /* IE8 */
+            max-height: 80px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: block;
+            float: left;
+        }
+        .export-dialog-selected-search-action:not(:target) {
+            width: 395px\9; /* IE9 */
+        }
+        .export-dialog-selected-output-space {
+            width: 395px;
+            width: 380px\9; /* IE8 */
+            max-height: 80px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: block;
+            float: left;
+        }
+        .export-dialog-selected-output-space:not(:target) {
+            width: 395px\9; /* IE9 */
+        }
+        .export-dialog-input {
+            margin: 0 0 0 23px;
+            display: none;
+        }
+        .export-dialog-input-timezone {
+            width: 380px;
+        }
+        .export-dialog-search-count {
+            display: inline-block;
+            margin: 0 0 0 0;
+        }
+        .export-dialog-explanation {
+            margin: 20px 0 10px 50px;
+        }
+        .export-dialog-explanation-1 {
+            margin: 0;
+        }
+        .export-dialog-explanation-2 {
+            margin: 0;
+        }
+        .export-history-dialog-explanation-box-1 {
+            float: left;
+            width: 340px;
+            margin-top: 10px;
+        }
+        .export-history-dialog-explanation-box-1 p {
+            margin: 0;
+        }
+        .export-history-dialog-explanation-box-2 {
+            float: left;
+            width: 340px;
+            margin-top: 20px;
+        }
+        .export-history-dialog-explanation-box-2 p {
+            margin: 0;
+        }
+        .error {
+            color: red;
+        }
+        .export-dialog-search-count-info {
+            vertical-align: middle;
+        }
+        .export-dialog-error {
+            color: red;
+            font-weight: bold;
+            background-color: yellow;
+        }
+        .export-dialog-modified {
+            color: #FF9E00;
+            font-weight: bold;
+        }
+
+        .ui-tabs {
+            background : none;
+            border:none;
+        }
+
+        .ui-tabs .ui-tabs-nav {
+            background: none;
+            border:none;
+        }
+
+        .ui-tabs .ui-tabs-panel {
+            background : none;
+            border:2px solid #11579c;
+        }
+
+        .ui-widget-header .ui-state-default {
+            background : none;
+            border: 2px solid #DFEFFC;
+
+        }
+
+        .ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+            background: #11579c;
+            border: 1px solid #11579c;
+
+        }
+
+        .ui-tabs .ui-tabs-nav li.ui-tabs-selected a{
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+
+        .ui-corner-all {
+            border-radius: 5px 5px 5px 5px;
+        }
+        .tab-inner {
+            margin-top: 8px;
+            height: 340px
+        }
+        .searchlist-autoselect {
+            float: left;
+            padding: 15px 0 0 0;
+        }
+
+        .search-txt {
+            width: 300px;
+            margin: 0 0 10px 0;
+        }
+
+        .tab-ugp_inner {
+            margin-top: 8px;
+            height: 400px
+        }
+
+        .tree-area {
+            height: 680px;
+            /*-- width: 200px; --*/
+            overflow: auto;
+        }
+        /*-- グループツリー文字色 --*/
+        .target {
+            color: blue;
+            font-weight: normal;
+            cursor: pointer;
+            text-decoration:underline;
+        }
+        .nontarget {
+            color: black;
+            font-weight: normal;
+            cursor: pointer;
+            text-decoration:underline;
+        }
+        .activetarget {
+            color: red !important;
+            font-weight: normal;
+            cursor: pointer;
+            text-decoration:underline;
+        }
+        .spacelist {
+            height: 300px;
+            width: 475px;
+            overflow: auto;
+            border: solid 1px #909090;
+        }
+        .spacelist-autoselect {
+            float: left;
+            padding: 15px 0 0 0;
+        }
+        .select-space-dialog-selectable {
+
+        }
+        .select-space-dialog-unselectable {
+            color: #B0B0B0 !important;
+            cursor: default !important;
+        }
+        .select-target-space-dialog-selectable {
+
+        }
+        .select-target-space-dialog-unselectable {
+            color: #B0B0B0 !important;
+            cursor: default !important;
+        }
+        .loading2 {
+            width: 36px;
+            height: 36px;
+            /*background-image: url(/image/loading.gif);*/
+            background-image: url('{!URLFOR($Resource.cso, "image/loading.gif")}');
+            display: none;
+            position: absolute;
+        }
+        #targetSpaceList {
+            height: 300px;
+            width: 475px;
+            overflow: auto;
+            border: solid 1px #909090;
+        }
+        #targetSpaceList .targetspacelist-selected{
+            color: red;
+        }
+        .select-target-space-dialog-selected-span {
+            display: block;
+            margin: 2px 0 0 3px;
+        }
+        .select-target-space-dialog-selected {
+            height: 20px;
+            width: 475px;
+            background-color: #E4E4E4;
+            border-top: solid 1px #909090;
+            border-right: solid 1px #909090;
+            border-left: solid 1px #909090;
+            overflow: hidden;
+        }
+
+        #spacePath a{
+            font-weight: bold;
+            color: #FFFFFF;
+            line-height:20px;
+            height:20px;
+        }
+
+        #top-left {
+            width: 260px;
+            vertical-align: bottom;
+            border: 1px solid gray;
+            border-bottom-style: none;
+        }
+
+        #middle-left {
+            width: 260px;
+            height: 5px;
+            border: 1px solid gray;
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        #bottom-left {
+            width: 260px;
+            vertical-align: top;
+            border: 1px solid gray;
+        }
+
+        /*
+        #spacePath{
+            <!--c:choose>
+                <c:when test="<%= request.getHeader("User-Agent").indexOf("iPad") >= 0 || request.getHeader("User-Agent").indexOf("iPhone") >= 0 %>">
+                    min-width:669px;
+                </c:when>
+                <c:otherwise>
+                    min-width:680px;
+                </c:otherwise>
+            </c:choose-->
+        }
+        */
+
+        .help-info01 {
+            vertical-align: middle;
+        }
+        .help-info02 {
+            vertical-align: middle;
+        }
+        .help-info03 {
+            vertical-align: middle;
+        }
+        .help-info04 {
+            vertical-align: middle;
+        }
+        </style>
+        <!-- warapper -->
+        <div id="c_wrapper">
+            <!-- content container -->
+            <table id="c_container" cellspacing="0" border="0">
+                <tr id="c_header">
+                    <!-- left menu container -->
+                    <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                        <apex:include pageName="SOLXYZCSO001__SettingMenu" />
+                    </td>
+                    <!-- right header container -->
+                    <td id="c_headLeft" nowrap="nowrap">
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/SpaceUserEx.png')}" alt="{!$Label.solxyzcso001__label_10098}" title="{!$Label.solxyzcso001__label_10098}" />
+                         <h1 id="c_headLeftTitle">{!$Label.label_13152}</h1>
+                        <br/>
+                         <h2 id="c_headLeftSubTitle">{!$Label.label_13142}</h2>
+                    </td>
+                    <!-- 操作ボックス -->
+                    <td id="c_headRight">
+                        <apex:include pageName="SOLXYZCSO001__OperationLinks" />
+                    </td>
+                </tr>
+                <tr>
+                    <!-- right content container -->
+                    <td id="c_right" colspan="2">
+                        <apex:form id="ExportForm">
+                            <apex:pageBlock id="ExportPageBlock">
+                                <div class="c_command_l" id="listViewCommand">
+                                    <ul class="c_command_pipe">
+                                        <li class="item" id="searchGroupbtn"><!-- エクスポートボタン -->
+                                            <button class="btn c_commandButton" id="exportButton" onclick="clickmenubuttonSP($(this)); return false;">
+                                                {!$Label.label_evidence_00012}
+                                                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/arrow_down.png')}" alt="create space" styleClass="c_commandButton_r_img"/>
+                                            </button>
+                                        </li>
+                                        <li class="item" id="changeViewbtn"><!-- 表示切替ボタン -->
+                                            <apex:commandButton id="changeViewButton" value="{!$Label.solxyzcso001__label_13141}" onclick="changeView(false); return false;"/>
+                                        </li>
+                                        <li class="last" id="btnUserInfoSelect"><!-- 検索ボタン -->
+                                            <button class="btn c_commandButton" id="searchlbtn" onclick="clickmenubuttonSP($(this)); return false;">
+                                                {!$Label.label_00069}
+                                                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/arrow_down.png')}" alt="create space" styleClass="c_commandButton_r_img"/>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div id="sectionHeader"></div>
+                                    <div id="SpaceSPList" style="display: none;" >
+                                        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_13157}" collapsible="false" />
+                                        <div style="padding: 0px;">
+                                            <table id="spaceExportTable" cellspacing="10"  cellpadding="10" >
+                                                <tr>
+                                                    <!-- （上）選択結果一覧 -->
+                                                    <td>
+                                                        <div style="float: right; /*padding-top: 10px;*/ padding-right: 40px;">
+                                                            <button class="btn c_commandButton" onclick="delUserAndGroupPos(); return false;">
+                                                                <!-- img src="/image/remove.png" /-->
+                                                                {!$Label.field_common_remove}
+                                                            </button>
+                                                            <button class="btn c_commandButton" onclick="onSelectUserGroupCorpClicked(); return false;">
+                                                                <!--img src="/image/add.png" /-->
+                                                                {!$Label.label_10020}
+                                                            </button>
+                                                        </div>
+                                                        <div style="padding-top: 30px;">
+                                                            <div id="settingUsrGrpPosListArea" class="innerContentsDiv">
+                                                                <table id="settingUsrGrpPosList" cellspacing="0" cellpadding="0" ></table>
+                                                                <div id="settingUsrGrpPosListPager"></div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10586}" collapsible="false" />
+                                        <table  cellspacing="10"  cellpadding="10" width="100%">
+                                            <tr>
+                                                <td valign="top">
+                                                    <!-- （下）スペース一覧表示-->
+                                                    <div id ="fullPathDisplay"></div>
+                                                    <div id="listViewArea" class="innerContentsDiv">
+                                                        <table id="listView1" cellspacing="0" cellpadding="0" ></table>
+                                                        <div id="listView1Pager"></div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div id="UserSPList">
+                                        <!-- 招待ユーザ抽出の場合 -->
+                                        <table  cellspacing="0"  cellpadding="0" width="100%">
+                                            <tr>
+                                                <!-- (左)スペースツリー表示 -->
+                                                <td id="top-left" bgcolor="white">
+                                                    <div class="sidebar" id="sidebarDiv" style="margin:0px 0px 0px 25px;">
+                                                        <div class="sidebarModule createNewModule" style="margin-bottom:0px;">
+                                                            <div class="sidebarModuleBody sidebarModuleBodyNoHeader">
+                                                                <div class="menuButton" id="createNew">
+                                                                    <div class="menuButtonButton brandPrimaryBgr brandPrimaryBrd2" id="createNewButton" style="white-space: nowrap;">
+                                                                        <span  class="menuButtonLabel" id="createNewLabel" tabindex="0">{!$Label.label_00053}</span>
+                                                                        <span class="brandMenuButtonArrow brandPrimaryFgrBrdTop"></span>
+                                                                    </div>
+                                                                    <div class="menuButtonMenu" id="createNewMenu">
+                                                                        <a href="?#" onclick="side_collaboration_reload(false); return false;" style="white-space: nowrap;">
+                                                                            <img src="{!URLFOR($Resource.cso, '/image/space-collabo-16.png')}" class="space_select_img"/>{!$Label.label_00052}
+                                                                        </a>
+                                                                        <a href="?#" onclick="side_companyhome_reload(false); return false;" style="white-space: nowrap;">
+                                                                            <img src="{!URLFOR($Resource.cso, '/image/space-company-16.png')}" class="space_select_img"/>{!$Label.label_00053}
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <script  type="text/javascript">new MenuButton('createNew', false);</script>
+                                                </td>
+                                                <td style="vertical-align: bottom;">
+                                                    <div id="spacePathDiv" class="innerContentsDiv LabelBGColor subLabelHeight" >
+                                                        <table style="width: 100%;" cellspacing="0" cellpadding="0">
+                                                            <tr>
+                                                                <td id="showPathArrowBox" style="width:20px; cursor: pointer;overflow:hidden; display:none;">
+                                                                </td>
+                                                                <td valign="middle" id="pathTd" style="display:none;">
+                                                                        <apex:pageBlockSection title="  " collapsible="false" id="ExportSpacePath"/>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td id="middle-left" bgcolor="white"></td>
+                                                <!-- (右)招待ユーザ一覧表示 -->
+                                                <td rowspan="2" style="vertical-align: top;">
+                                                    <div id ="SPuserSearcharea">
+                                                        <table style="width: 100%;" cellspacing="0" cellpadding="0">
+                                                            <tr>
+                                                                <td>
+                                                                    <table id="SPuserSearchlist"></table>
+                                                                    <div id="SPuserSearchlistPager"></div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                    <div id ="SPspaceSearcharea">
+                                                        <table style="width: 100%;" cellspacing="0" cellpadding="0">
+                                                            <tr>
+                                                                <td>
+                                                                    <table id="SPspaceSearchlist"></table>
+                                                                    <div id="SPspaceSearchlistPager"></div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td id="bottom-left" bgcolor="white">
+                                                    <div style="padding-top: 0px; padding-left: 0px; overflow: auto; width:260px;">
+                                                        <div style="color: white; vertical-align:top;">
+                                                            <!--img alt="" src="/image/loading.gif" style="position: absolute; top: 10%;left: 100px; display: none;" id="loadingGif"/-->
+                                                            <apex:include pageName="SOLXYZCSO001__SpaceUserExportSidebar" />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                <!-- エクスポートメニュー -->
+                                <div id="exportPullMenu" style="display: none;">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="onExportSpaceUserMenuClicked();">{!$Label.label_evidence_00012}</a></li>
+                                        <li><a href="javascript:void(0);" onclick="onexportSpaceUserHistoryMenuClicked();">{!$Label.label_evidence_00024}</a></li>
+                                    </ul>
+                                </div>
+                                <!-- 検索メニュー -->
+                                <div id="searchPullMenu" style="display: none;">
+                                    <ul style="z-index: 1000">
+                                        <li><a href="javascript:void(0);" onclick="onSearchSPUserClicked();">{!$Label.label_invite_user_search_00001}</a></li>
+                                        <li><a href="javascript:void(0);" onclick="onSearchSPSpaceClicked();">{!$Label.label_13146}</a></li>
+                                    </ul>
+                                </div>
+                                <!-- ユーザ選択ダイアログ -->
+                                <div id="userGroupCorpSearchModal" class="modal"  title="{!$Label.label_13147}"  style="display: none;">
+                                    <div id="expSpaceUserTabDiv">
+                                        <ul>
+                                            <li><a href="#tabUSUser">{!$Label.label_10131}</a></li>
+                                            <li><a href="#tabUSPos">{!$Label.label_11071}</a></li>
+                                            <li><a href="#tabUSGroup">{!$Label.label_10022}</a></li>
+                                        </ul>
+                                        <!-- ユーザタブ -->
+                                        <div id="tabUSUser" class="tab-ugp_inner">
+                                                <input type="text" id="user-search-txt" class="search-txt" maxlength="255" placeholder="{!$Label.label_10448}" />
+                                                <input type="button" id="tabSPUser" class="btn" style="margin-bottom:15px;" value="{!$Label.label_00069}" onclick="onSearchUGCClicked(0);" />
+                                                <input type="button" class="btn" style="margin-bottom:15px;" value="{!$Label.label_00070}" onclick="onClearUGCClicked(0);" />
+                                                <table>
+                                                    <tr>
+                                                        <td>
+                                                            <div style="padding-top: 10px;">
+                                                                <table id="managerSPUserTable"></table>
+                                                                <div id="managerSPUserTablePager"></div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                        </div>
+                                        <!-- 部署・役職タブ -->
+                                        <div id="tabUSPos" class="tab-ugp_inner">
+                                                <input type="text" id="pos-search-txt" class="search-txt" maxlength="255" placeholder="{!$Label.label_11098}" />
+                                                <input type="button" id="tabSPPos" class="btn" style="margin-bottom:15px;" value="{!$Label.label_00069}" onclick="onSearchUGCClicked(1);" />
+                                                <input type="button" class="btn" style="margin-bottom:15px;" value="{!$Label.label_00070}" onclick="onClearUGCClicked(1);" />
+                                                    <table>
+                                                        <tr>
+                                                            <td>
+                                                                <div style="padding-top: 10px;">
+                                                                    <table id="managerSPPosTable"></table>
+                                                                    <div id="managerSPPosTablePager"></div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                <div class="searchlist-autoselect">
+                                                    <table>
+                                                        <tr>
+                                                            <td>
+                                                                <label>
+                                                                    <input id="searchlistAutoselectP" type="checkbox" />
+                                                                    {!$Label.label_13148}
+                                                                </label>
+                                                                <img id="help-info01" src="{!$Label.field_CSO_URL}/image/tooltip.png" class="help-info01" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <label>
+                                                                    <input id="searchlistAutoUserselectP" type="checkbox" />
+                                                                    {!$Label.label_13149}
+                                                                </label>
+                                                                <img id="help-info02" src="{!$Label.field_CSO_URL}/image/tooltip.png" class="help-info02" />
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                        </div>
+                                        <!-- グループタブ -->
+                                        <div id="tabUSGroup" class="tab-ugp_inner">
+                                                <input type="text" id="group-search-txt" class="search-txt" maxlength="255" placeholder="{!$Label.label_13002}" />
+                                                <input type="button" id="tabSPGroup"  class="btn" style="margin-bottom:15px;" value="{!$Label.label_00069}" onclick="onSearchUGCClicked(2);" />
+                                                <input type="button" class="btn" style="margin-bottom:15px;" value="{!$Label.label_00070}" onclick="onClearUGCClicked(2);" />
+                                                    <table>
+                                                        <tr>
+                                                            <td>
+                                                                <div style="padding-top: 10px;">
+                                                                    <table id="managerSPGroupTable"></table>
+                                                                    <div id="managerSPGroupTablePager"></div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                <div class="searchlist-autoselect">
+                                                    <table>
+                                                        <tr>
+                                                            <td>
+                                                                <label>
+                                                                    <input id="searchlistAutoselectG" type="checkbox" />
+                                                                    {!$Label.label_13148}
+                                                                </label>
+                                                                <img id="help-info03" src="{!$Label.field_CSO_URL}/image/tooltip.png" class="help-info03" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <label>
+                                                                    <input id="searchlistAutoUserselectG" type="checkbox" />
+                                                                    {!$Label.label_13149}
+                                                                </label>
+                                                                <img id="help-info04" src="{!$Label.field_CSO_URL}/image/tooltip.png" class="help-info04" />
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                        </div>
+                                    </div>
+                                    <div class="button-box"  style="float: right;">
+                                        <input type="button" class="btn" value="{!$Label.field_common_cancel}" style="margin-bottom:15px;" onclick="userGroupCorpSearchModalCancel();" />
+                                        <input type="button" class="btn" value="{!$Label.field_common_ok}" style="margin-bottom:15px;" onclick="userGroupCorpSearchModalSubmit();" />
+                                    </div>
+                                </div>
+
+                                <!-- 招待ユーザの検索 -->
+                                <div id="searchSPUserDiv" class="modal"  style="display: none;"  title="{!$Label.label_invite_user_search_00001}" >
+                                    <table class="invSpaceUserSearchBox">
+                                        <tr>
+                                            <td class="input-header">{!$Label.label_10029}</td>
+                                            <td><select id="invSpaceUserSearchSelectRole"></select></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="input-header">{!$Label.label_00039}</td>
+                                            <td><input id="SearchSPUserInputText" type="text" style="width: 180px;" maxlength="255" /></td>
+                                        </tr>
+                                    </table>
+                                    <div class="button-box" style="float: right;">
+                                        <input type="button" class="btn" value="{!$Label.label_00070}" style="margin-bottom:15px;" onclick="onSearchSPUserClearClicked();" />
+                                        <input type="button" class="btn" value="{!$Label.label_00069}" style="margin-bottom:15px;" onclick="onSearchSPUserOkClicked();" />
+                                    </div>
+                                </div>
+
+                                <!-- 招待スペースの検索 -->
+                                <div id="searchSPSpaceDiv" class="modal"  style="display: none;"  title="{!$Label.label_13146}" >
+                                    <table class="invSPSpaceSearchBox">
+                                        <tr>
+                                            <td class="input-header">{!$Label.label_00039}</td>
+                                            <td><input id="SearchSPSpaceInputText" type="text" style="width: 180px;" maxlength="255" /></td>
+                                        </tr>
+                                    </table>
+                                    <div class="button-box" style="float: right;">
+                                        <input type="button" class="btn" value="{!$Label.label_00070}" style="margin-bottom:15px;" onclick="onSearchSPSpaceClearClicked();" />
+                                         <input type="submit" class="btn" value="{!$Label.label_00069}" style="margin-bottom:15px;" onclick="onSearchSPSpaceOkClicked();" />
+                                    </div>
+                                </div>
+
+                                <!-- スペースユーザのエクスポート -->
+                                <div id="exportSpaceUserDialog" class="modal"   style="display: none;"  title="{!$Label.label_evidence_00016}">
+                                    <p id="exportDialogError" class="export-dialog-error"></p>
+                                    <table id="exportTable" cellpadding="5">
+                                        <tr>
+                                            <th>{!$Label.label_evidence_00017}</th>
+                                            <td>
+                                                <div id="exportDialogLanguageDisplay">
+                                                    <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogLanguageEditClicked();" />
+                                                    <span id="exportDialogLanguageSpan"></span>
+                                                </div>
+                                                <div id="exportDialogLanguageEdit" class="export-dialog-input">
+                                                    <select name="exportLanguage" id="exportLanguage">
+                                                        <option value="ja">{!$Label.label_13056}</option>
+                                                        <option value="zh">{!$Label.label_13048}</option>
+                                                        <option value="en">{!$Label.label_13049}</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_evidence_00013}</th>
+                                            <td>
+                                                <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogSelectSpaceClicked();" />
+                                                <span id="exportDialogSelectedSearchSpace" class="export-dialog-selected-search-space">-</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_evidence_00019}</th>
+                                            <td>
+                                                <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogOutputSpaceEditClicked();" />
+                                                <span id="exportOutputSpace" class="export-dialog-selected-output-space"></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <div class="export-dialog-explanation">
+                                        <p class="export-dialog-explanation-1">{!$Label.label_evidence_00021}</p>
+                                        <p class="export-dialog-explanation-2">{!$Label.msg_01141}</p>
+                                    </div>
+                                    <div class="button-box" style="float: right;">
+                                        <input id="exportDialogCancelButton" type="button" class="btn" value="{!$Label.field_common_cancel}" style="margin-bottom:15px;" onclick="onExportSUDialogCancelClicked();" />
+                                        <input id="exportDialogOkButton" type="button" class="btn" value="{!$Label.label_evidence_00023}" style="margin-bottom:15px;" onclick="onExportSUDialogOkClicked();" />
+                                    </div>
+                                </div>
+
+                                <!-- ユーザスペースのエクスポート -->
+                                <div id="exportUserSpaceDialog" class="modal"   style="display: none;"  title="{!$Label.label_evidence_00016}">
+                                    <p id="exportUSDialogError" class="export-dialog-error"></p>
+                                    <table id="exportTable" cellpadding="5">
+                                        <tr>
+                                            <th>{!$Label.label_evidence_00017}</th>
+                                            <td>
+                                                <div id="exportUSDialogLanguageDisplay">
+                                                    <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogLanguageEditClicked();" />
+                                                    <span id="exportUSDialogLanguageSpan"></span>
+                                                </div>
+                                                <div id="exportUSDialogLanguageEdit" class="export-dialog-input">
+                                                    <select name="exportUSLanguage" id="exportUSLanguage">
+                                                        <option value="ja">{!$Label.label_13056}</option>
+                                                        <option value="zh">{!$Label.label_13048}</option>
+                                                        <option value="en">{!$Label.label_13049}</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_10449}</th>
+                                            <td>
+                                            <p class="export-dialog-explanation-2"><span id="exportUSDialogUserInput" /></p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_evidence_00019}</th>
+                                            <td>
+                                                <img src="{!URLFOR($Resource.cso, 'image/001_45.gif')}" class="export-dialog-edit" onclick="onExportDialogOutputSpaceEditClicked();" />
+                                                <span id="exportUSOutputSpace" class="export-dialog-selected-output-space"></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <div class="export-dialog-explanation">
+                                        <p class="export-dialog-explanation-1">{!$Label.label_evidence_00021}</p>
+                                        <p class="export-dialog-explanation-2">{!$Label.msg_01141}</p>
+                                    </div>
+                                    <div class="button-box" style="float: right;">
+                                        <input id="exportUSDialogCancelButton" type="button" class="btn" value="{!$Label.field_common_cancel}" style="margin-bottom:15px;" onclick="onExportUSDialogCancelClicked();" />
+                                        <input id="exportUSDialogOkButton" type="button" class="btn" value="{!$Label.label_evidence_00023}" style="margin-bottom:15px;" onclick="onExportUSDialogOkClicked();" />
+                                    </div>
+                                </div>
+
+
+                                <!-- エクスポート対象スペース -->
+                                <div id="selectSpaceDialog" class="modal"  style="display: none;" title="{!$Label.label_evidence_00033}">
+                                    <p>{!$Label.msg_01142}</p>
+                                    <div id="spaceList" class="spacelist"></div>
+                                    <div id="spaceListLoading" class="loading2"></div>
+                                    <div class="spacelist-autoselect">
+                                        <label>
+                                            <input id="spacelistAutoselect" type="checkbox" checked="Checked" />
+                                            {!$Label.label_evidence_00035}
+                                        </label>
+                                    </div>
+                                    <div class="button-box" style="float: right;">
+                                        <input type="button" class="btn" value="{!$Label.field_common_cancel}" style="margin-bottom:15px;" onclick="onSelectSpaceDialogCancelClicked();" />
+                                        <input type="button" class="btn" value="{!$Label.field_common_ok}" style="margin-bottom:15px;" onclick="onSelectSpaceDialogOkClicked();" />
+                                    </div>
+                                </div>
+
+                                <!-- エクスポート出力先 -->
+                                <div id="selectTargetSpaceDialog" class="modal"  style="display: none;" title="{!$Label.label_evidence_00042}">
+                                    <p>{!$Label.label_evidence_00043}</p>
+                                    <div class="select-target-space-dialog-selected">
+                                        <span id="selectTargetSpaceDialogSelectedSpan" class="select-target-space-dialog-selected-span"></span>
+                                    </div>
+                                    <div id="targetSpaceList"></div>
+                                    <div id="targetSpaceListLoading" class="loading2"></div>
+                                    <div class="button-box"  style="float: right;">
+                                        <input type="button" class="btn" value="{!$Label.field_common_cancel}" style="margin-bottom:15px;" onclick="onSelectTargetSpaceDialogCancelClicked();" />
+                                        <input type="button" class="btn" value="{!$Label.field_common_ok}" style="margin-bottom:15px;" onclick="onSelectTargetSpaceDialogOkClicked();" />
+                                    </div>
+                                </div>
+
+                                <!-- エクスポート履歴 -->
+                                <div id="exportSpaceUserHistoryDialog" class="modal"  style="display: none;"  title="{!$Label.label_evidence_00024}">
+                                    <div id="exportSpaceUserHistoryDialogTab" >
+                                        <ul>
+                                            <li title="{!$Label.msg_01143}"><a href="#exportSPTabUnfinished">{!$Label.label_evidence_00025}</a></li>
+                                            <li title="{!$Label.msg_01144}"><a href="#exportSPTabFinished">{!$Label.label_evidence_00026}</a></li>
+                                        </ul>
+                                        <div id="exportSPTabUnfinished" class="tab-inner">
+                                            <table id="exportSpaceUserHistoryUnfinishedList"></table>
+                                            <div id="exportSpaceUserHistoryUnfinishedListPager"></div>
+                                        </div>
+                                        <div id="exportSPTabFinished" class="tab-inner">
+                                            <table id="exportSpaceUserHistoryFinishedList"></table>
+                                            <div id="exportSpaceUserHistoryFinishedListPager"></div>
+                                        </div>
+                                        <div id="exportSpaceUserHistoryDialogExplanation" style="float: left;">
+                                            <p>{!$Label.label_evidence_00029}</p>
+                                        </div>
+                                        <div class="button-box" style="float: right;">
+                                            <input id="exportHistoryStopButton" type="button" class="btn" value="{!$Label.label_evidence_00032}" style="margin-bottom:15px;" onclick="onexportSpaceUserHistoryDialogExportStopClicked();" />
+                                            <input id="exportHistoryOkButton" type="button" class="btn" value="{!$Label.field_common_ok}" style="margin-bottom:15px;" onclick="onexportSpaceUserHistoryDialogOkClicked();" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- エクスポート条件確認 -->
+                                <div id="exportConditionDialog" class="modal"   style="display: none;"  title="{!$Label.label_evidence_00016}">
+                                    <table id="exportConditionTable" cellpadding="5">
+                                        <tr>
+                                            <th>{!$Label.label_evidence_00017}</th>
+                                            <td>
+                                                <span id="exportConditionLanguageSpan"></span>
+                                                <div id="exportConditionLanguageEdit" class="export-dialog-input">
+                                                    <select name="exportConditionLanguage" id="exportConditionLanguage">
+                                                        <option value="ja">{!$Label.label_13056}</option>
+                                                        <option value="zh">{!$Label.label_13048}</option>
+                                                        <option value="en">{!$Label.label_13049}</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_13151}</th>
+                                            <td>
+                                                <span id="exportConditionInput" class="export-dialog-selected-output-space"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_evidence_00019}</th>
+                                            <td>
+                                                <span id="exportConditionOutputSpace" class="export-dialog-selected-output-space"></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <div class="export-dialog-explanation">
+                                        <p class="export-dialog-explanation-1">{!$Label.label_evidence_00021}</p>
+                                        <p class="export-dialog-explanation-2">{!$Label.msg_01141}</p>
+                                    </div>
+                                    <div class="button-box" style="float: right;">
+                                        <input id="exportConditionDialogOkButton" type="button" class="btn" value="{!$Label.field_common_ok}" style="margin-bottom:15px;" onclick="onExportConditionDialogOkClicked();" />
+                                    </div>
+                                </div>
+                            </apex:pageBlock>
+                        </apex:form>
+                    </td>
+                </tr>
+            </table>
+            <div id="copyright">{!$Label.label_00001}</div>
+            <!-- ポップアップ -->
+            <div id="spaceUserManager_modalDialogDiv" style="display: none;">
+                <table style="text-align:center;" class="roleChangeTbl">
+                    <tr>
+                        <th>{!$Label.label_10075}</th>
+                        <td>
+                            <input id="spaceUserManager_mdfyUserId" type="hidden"/>
+                            <input id="spaceUserManager_mdfyUserName" type="text" disabled="disabled" readonly="readonly" class="middleWidth" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{!$Label.label_10278}</th>
+                        <td><input id="spaceUserManager_nowRole" name="spaceUserManager_nowRole" type="text" disabled="disabled" readonly="readonly"  class="middleWidth"  /></td>
+                    </tr>
+                    <tr>
+                        <th>{!$Label.label_10276}</th>
+                        <td><select id="spaceUserManager_roleList" name="spaceUserManager_roleList" size="10"></select></td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td><label><input type="checkbox" id="spaceUserManager_allModfy" name="spaceUserManager_allModfy" checked="checked"/>{!$Label.label_10076}</label></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="text-align: center; padding-top: 10px;">
+                            <hr/>
+                            <input type="button" class="btn" id="spaceUserManager_mdfy_ok"     value="{!$Label.label_00075}" style="margin-bottom:15px;" onclick="spaceUserManager_editUserRole();" />
+                            <input type="button" class="btn" id="spaceUserManager_mdfy_cancel" value="{!$Label.label_00058}" style="margin-bottom:15px;" onclick="spaceUserManager_modalDialogDivClose();" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    <apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+    </apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(csoUserInfo.uid == null && csoUserInfo.showErrPage == false, true, false)}">{!$Label.solxyzcso001__msg_00142}</apex:outputPanel>
+    <!-- コンテンツダウンロードIFRAME -->
+    <iframe id="GroupUser_downframe" height="0" width="0" style="display:none"/>
+
+</apex:page>

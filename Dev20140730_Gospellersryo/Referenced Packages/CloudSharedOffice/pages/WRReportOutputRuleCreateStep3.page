@@ -1,0 +1,467 @@
+<apex:page controller="SOLXYZCSO001.WRReportOutputRuleCreateController" tabStyle="WRRuleTab__tab">
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__iosstyle, 'ios-checkboxes.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__iosstyle, 'themes/ios-checkboxes.css')}" />
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<iframe src="{!$Label.field_CSO_URL}/common/AuthenticationApi?id={!URLENCODE($User.UserName)}&tk={!ecmToken}&isEvidence=false" height="0" width="0" id="auth_frame" style="display:none;"/>
+<style type="text/css">
+.navi_message{
+    font-size:1.1em;
+    margin:40px 0 15px 0;
+}
+.form_table {
+    margin-left:50px;
+}
+.form_table_label {
+    font-size:0.9em;
+    padding-top:10px;
+    padding-right:15px;
+    width:130px;
+    min-width:130px;
+    text-align:right;
+    font-weight:bold;
+    color:#4a4a56 !important;
+}
+.form_table_label_sub {
+    font-size:0.9em;
+    width:75px;
+    min-width:75px;
+}
+.form_table_label_normal {
+    padding-top:5px;
+    text-align:right;
+}
+.form_table_radio{
+    min-width:100px;
+    width:100px;
+}
+.form_table_data {
+    padding-top:5px;
+}
+.ios-checkbox-container{
+    width:120px;
+}
+.fieldset_style_containar{
+    border:1px solid silver;
+    background-color:white;
+    padding:8px 8px 8px 8px;
+    display:none;
+}
+.c_require{
+    width:4px;
+    height:23px;
+    float: left;
+}
+.cb-enable, .cb-disable, .cb-enable span, .cb-disable span {
+    background: url({!URLFOR($Resource.iosstyle, 'switch.gif')}) repeat-x;
+    display: block;
+    float: left;
+}
+.cb-enable span, .cb-disable span {
+    line-height: 30px;
+    display: block;
+    background-repeat: no-repeat;
+    font-weight: bold;
+}
+.cb-enable span {
+    background-position: left -90px;
+    padding: 0 10px;
+}
+.cb-disable span {
+    background-position: right -180px;
+    padding: 0 10px;
+}
+.cb-disable.selected {
+    background-position: 0 -30px;
+}
+.cb-disable.selected span {
+    background-position: right -210px;
+    color: #fff;
+}
+.cb-enable.selected {
+    background-position: 0 -60px;
+}
+.cb-enable.selected span {
+    background-position: left -150px;
+    color: #fff;
+}
+.switch label {
+    cursor: pointer;
+}
+.switch input {
+    display: none;
+}
+h3{
+    font-size:12px !important;
+}
+</style>
+<script type="text/javascript">
+var isClickedByChangeContentType = false;
+$(document).ready(function(){
+    $(".cb-enable").click(function(){
+        if(!({!isOutputFileOption} && $(this).parent().children('.toggle_check_text').attr('class').indexOf('excelOutputTypeCheck') > 0
+                && $('input[id$="contentTypeCheck"]').val() == 'true' && $('input[id$="selectContentType:0"]').attr('checked'))
+            && !({!isOutputFileOption} && $(this).parent().children('.toggle_check_text').attr('class').indexOf('pdfPasswordCheck') > 0
+                && $('input[id$="contentTypeCheck"]').val() == 'true' && $('input[id$="selectContentType:1"]').attr('checked'))){
+            var parent = $(this).parents('.switch');
+            $('.cb-disable',parent).removeClass('selected');
+            $(this).addClass('selected');
+            $(this).parent().children('.toggle_check_text').val('true');
+            $(this).parent().parent().next().show();
+
+            // ファイル形式の変更の場合に、選択値によってExcel出力方式とPDFパスワードをOFFにする
+            if ($(this).parent().children('.toggle_check_text').attr('class').indexOf('contentTypeCheck') > 0) {
+                changeContentType();
+            }
+        }
+    });
+    $(".cb-disable").click(function(){
+        if('{!JSENCODE(outputInstruction)}' != 'System' || $(this).parent().children('.toggle_check_text').attr('class').indexOf('notificationCheck') > 0 || isClickedByChangeContentType){
+            var parent = $(this).parents('.switch');
+            $('.cb-enable',parent).removeClass('selected');
+            $(this).addClass('selected');
+            $(this).parent().children('.toggle_check_text').val('false');
+            $(this).parent().parent().next().hide();
+            isClickedByChangeContentType = false;
+        }
+    });
+    $.each($('.toggle_check_text'), function(){
+        if($(this).val() == 'true'){
+            $(this).parent().children('.cb-enable').click();
+        } else {
+            $(this).parent().children('.cb-disable').click();
+        }
+    });
+
+    // 保存先デフォルト指定
+    $('input[name="output"]').val(['{!JSENCODE(saveMode)}']);
+
+    // 保存先指定の項目制御
+    switchSaveMode();
+});
+// 出力先チェック切替
+function switchSaveMode(){
+    var output = $('input[name="output"]:checked').val();
+    if (output == "ecmSpace") {  //ECMスペース
+        $("#saveSpaceTxt").attr("disabled", false);
+        $("#saveSpaceBtn").attr("disabled", false).removeClass('btnDisabled');
+        $("#saveFolderTxt").val("").attr("disabled", true);
+        $("#saveFolderBtn").attr("disabled", true).addClass('btnDisabled');
+        $('.contentsListAddFlag').attr("disabled", false);
+        $('input[id$="saveMode"]').val("ecmSpace");
+    } else if (output == "folder") {  // フォルダ
+        $("#saveSpaceTxt").val("").attr("disabled", true);
+        $("#saveSpaceBtn").attr("disabled", true).addClass('btnDisabled');
+        $("#saveFolderTxt").attr("disabled", false);
+        $("#saveFolderBtn").attr("disabled", false).removeClass('btnDisabled');
+        $('.contentsListAddFlag').attr("disabled", true);
+        $('input[id$="saveMode"]').val("folder");
+    } else if (output == "attach") {  // 添付ファイル
+        $("#saveSpaceTxt").val("").attr("disabled", true);
+        $("#saveSpaceBtn").attr("disabled", true).addClass('btnDisabled');
+        $("#saveFolderTxt").val("").attr("disabled", true);
+        $("#saveFolderBtn").attr("disabled", true).addClass('btnDisabled');
+        $('.contentsListAddFlag').attr("disabled", true);
+        $('input[id$="saveMode"]').val("attach");
+    }
+}
+// 出力先スペースの選択
+function openSpaceSearchWindow(){
+    var openResult = window.open('{!$Page.FE_SpaceSearch}', 'ShohinSearchWindow', 'width=670,height=400,resizable=yes,toolbar=no,status=no,scrollbars=yes,menubar=no,directories=no,location=no,dependant=yes');
+    if (openResult == null){
+        alert("{!$Label.msg_010086_fe}");
+    }
+}
+// 子画面からの戻り値処理(ECMスペース)
+function spaceSearchReturn(Id, Name) {
+    $('input[id$="saveSpaceId"]').val([Id]);
+    $('input[id$="saveSpace"]').val([Name]);
+    $('input[id$="saveSpaceTxt"]').val([Name]);
+}
+// 子画面からの戻り値処理(ドキュメント)
+function folderReturn(Id, Name) {
+    $('input[id$="saveFolderId"]').val([Id]);
+    $('input[id$="saveFolder"]').val([Name]);
+    $('input[id$="saveFolderTxt"]').val([Name]);
+}
+
+// 出力先フォルダーの選択
+function openFolderSearchWindow(){
+    var searchPageUrl = "{!$Page.FE_FolderSearch}";
+    var openResult = window.open( searchPageUrl,'ShohinSearchWindow','width=300, height=200, menubar=no, toolbar=no, location=no, scrollbars=no, status=no, left=400, top=300');
+    if (openResult == null){
+        alert("{!$Label.msg_010086_fe}");
+    }
+}
+// セレクトボックス間移動
+function move(moveFrom, moveTo, to, destbox){
+    // 移動後、移動データを削除
+    $('.'+ moveFrom + ' option:selected').each(function(){
+        $('.'+ moveTo).append($("<option>").val($(this).val()).text($(this).text()));
+        $(this).remove();
+    });
+
+    var addItem = '';
+    $('.' + to).children().each(function(){
+        addItem += ',' + $(this).val();
+    });
+    $('.' + destbox).val(addItem.substring(1, addItem.length));
+    return false;
+}
+function onHelp(){
+    top.window.open('{!$Page.WRReportOutputRuleHelp}', '', 'width=750, height=650, menubar=no, toolbar=no, scrollbars=yes');
+}
+function clickLabel(elem){
+    $(elem).prev().click();
+}
+// ファイル形式変更
+function changeContentType() {
+    // Excel⇒PDFの場合、Excel出力方式をOFFにする
+    if ($('input[id$="selectContentType:0"]').attr('checked')) {
+        if ({!isExcelOutputTypeSelectable}) {
+            isClickedByChangeContentType = true;
+            $('#excelOutputTypeOff').click();
+        }
+        if ('{!JSENCODE(outputInstruction)}' == 'System' && {!pdfInputFlag}) {
+            $('#pdfPasswordCheckOn').click();
+        }
+    } else {
+        // PDF⇒Excelの場合、PDFパスワード入力をOFFにする
+        if ({!pdfInputFlag}) {
+            isClickedByChangeContentType = true;
+            $('#pdfPasswordCheckOff').click();
+        }
+        if ('{!outputInstruction}' == 'System' && {!isExcelOutputTypeSelectable}) {
+            $('#excelOutputTypeOn').click();
+        }
+    }
+}
+</script>
+<apex:sectionHeader title="{!$Label.solxyzcso001__label_wr_outputrule_00016}" subtitle="{!$Label.solxyzcso001__label_wr_outputrule_00039}" />    <!-- 帳票出力ルール 新規帳票出力ルール（ステップ３/４） -->
+<apex:pageMessages />
+<apex:form >
+<apex:pageBlock >
+    <apex:pageBlockSection title="{!$Label.solxyzcso001__label_wr_outputrule_00040}" collapsible="false"/>    <!-- ステップ３: 出力内容設定 -->
+    <apex:pageBlockButtons dir="RTL">
+        <apex:commandButton action="{!cancel}" value="{!$Label.solxyzcso001__label_wr_outputrule_00024}"/>    <!-- キャンセル -->
+        <apex:commandButton action="{!next3}" value="{!$Label.solxyzcso001__label_wr_outputrule_00025}"/>    <!-- 次へ -->
+        <apex:commandButton action="{!prev3}" value="{!$Label.solxyzcso001__label_wr_outputrule_00036}"/>    <!-- 前へ -->
+    </apex:pageBlockButtons>
+<div style="padding:0 60px 0 60px">
+    <div class="navi_message">{!$Label.solxyzcso001__msg_wr_outputrule_00008}</div>    <!-- ルール適用時の帳票の出力内容を設定してください。設定する項目をONにすると入力できます -->
+
+    <apex:pageBlockSection title="{!$Label.solxyzcso001__label_wr_outputrule_00037}" collapsible="false"/>    <!-- 基本入力項目 -->
+    <table class="form_table" cellspacing="5">
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00041}</td>    <!-- ファイル名 -->
+            <td class="form_table_radio">
+                <div class="field switch">
+                    <label class="cb-enable"><span>ON&nbsp;</span></label>
+                    <label class="cb-disable selected"><span>OFF</span></label>
+                    <apex:inputText value="{!fileNameCheck}" styleClass="toggle_check_text fileNameCheck"/>
+                </div>
+            </td>
+            <td class="form_table_data" style="display:none">
+                <apex:inputText size="50" value="{!fileName}" maxlength="250"/>
+                <a href="javascript:void(0);" onclick="onHelp()">{!$Label.label_wr_outputrule_00042}</a>    <!-- 命名規則ヘルプ -->
+            </td>
+        </tr>
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00043}</td>    <!-- 保存先 -->
+            <td class="form_table_radio">
+                <div class="field switch">
+                    <label class="cb-enable"><span>ON&nbsp;</span></label>
+                    <label class="cb-disable selected"><span>OFF</span></label>
+                    <apex:inputText value="{!saveSpaceCheck}" styleClass="toggle_check_text saveSpaceCheck" />
+                </div>
+            </td>
+            <td class="form_table_data" style="display:none">
+                <table>
+                <apex:outputText rendered="{!isECMActiveUser}">
+                    <tr>
+                        <td><input type="radio" name="output" id="save_ecm" value="ecmSpace" onclick="switchSaveMode()"/></td>
+                        <td style="white-space: nowrap;"><label for="save_ecm">{!$Label.label_wf_30056}</label></td>
+                        <td style="white-space: nowrap;">
+                            <span id="saveOption">
+                                <input size="40" type="text" id="saveSpaceTxt" readonly="readonly" value="{!saveSpace}"/>
+                                <input type="button" class="btn" value="{!$Label.label_wf_00069}" id="saveSpaceBtn" onclick="openSpaceSearchWindow()"/>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr style="display:{!IF(outputInstruction == 'User' && pageType == 'DetailPage', 'table-row', 'none')}">
+                        <td colspan="3">
+                            <div style="margin:0px 0px 20px 30px"><apex:inputCheckbox value="{!contentsListAddFlag}" styleClass="contentsListAddFlag"/><label onclick="clickLabel(this)">{!$Label.label_wr_outputrule_00044}</label></div>    <!-- 出力時にCSOコンテンツリストに追加する -->
+                        </td>
+                    </tr>
+                </apex:outputText>
+                <tr>
+                    <td><input type="radio" name="output" id="save_folder" value="folder" onclick="switchSaveMode()"/></td>
+                    <td style="white-space: nowrap;"><label for="save_folder">{!$Label.label_wf_30057}</label></td>
+                    <td style="white-space: nowrap;">
+                        <span id="saveOption">
+                            <input size="40" type="text" id="saveFolderTxt" readonly="readonly" disabled="disabled" value="{!saveFolder}"/>
+                            <input type="button" class="btn" value="{!$Label.label_wf_00069}" id="saveFolderBtn" disabled="disabled" onclick="openFolderSearchWindow()"/>
+                        </span>
+                    </td>
+                </tr>
+                <tr style="display:{!IF(outputInstruction == 'User', 'table-row', 'none')}">
+                    <td><input type="radio" name="output" id="save_attach" value="attach" onclick="switchSaveMode()"/></td>
+                    <td style="white-space: nowrap;"><label for="save_attach">{!$Label.label_wf_00082}</label></td>
+                    <td></td>
+                </tr>
+                </table>
+                <apex:inputHidden value="{!saveMode}" Id="saveMode"/>
+                <apex:inputHidden value="{!saveSpaceId}" id="saveSpaceId" />
+                <apex:inputHidden value="{!saveSpace}" id="saveSpace"/>
+                <apex:inputHidden value="{!saveFolderId}" id="saveFolderId"/>
+                <apex:inputHidden value="{!saveFolder}" id="saveFolder"/>
+            </td>
+        </tr>
+        <apex:outputPanel rendered="{!isOutputFileOption}">
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00045}</td>    <!-- ファイル形式 -->
+            <td class="form_table_radio">
+                <div class="field switch">
+                    <label class="cb-enable" id="contentTypeOn"><span>ON&nbsp;</span></label>
+                    <label class="cb-disable selected" id="contentTypeOff"><span>OFF</span></label>
+                    <apex:inputText id="contentTypeCheck" value="{!contentTypeCheck}" styleClass="toggle_check_text contentTypeCheck" />
+                </div>
+            </td>
+            <td class="form_table_data" style="display:none">
+                <apex:selectRadio value="{!contentType}" id="selectContentType" onclick="changeContentType()">
+                    <apex:selectOptions value="{!contentTypeOptions}"/>
+                </apex:selectRadio>
+            </td>
+        </tr>
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!isExcelOutputTypeSelectable}">
+        <tr>
+            <td class="form_table_label">{!$Label.label_wf_00448}</td>    <!-- Excel出力方式-->
+            <td class="form_table_radio">
+                <div class="field switch">
+                    <label class="cb-enable" id="excelOutputTypeOn"><span>ON&nbsp;</span></label>
+                    <label class="cb-disable selected" id="excelOutputTypeOff"><span>OFF</span></label>
+                    <apex:inputText value="{!excelOutputTypeCheck}" styleClass="toggle_check_text excelOutputTypeCheck" />
+                </div>
+            </td>
+            <td class="form_table_data" style="display:none">
+                <apex:selectRadio value="{!excelOutputType}">
+                    <apex:selectOptions value="{!excelOutputTypeOptions}"/>
+                </apex:selectRadio>
+            </td>
+        </tr>
+        </apex:outputPanel>
+    </table>
+
+    <!-- 追加入力項目 -->
+<apex:outputPanel id="addInputPanel" styleClass="addInputPanel" rendered="{!IF(userInputFlag == false && pdfInputFlag == false, false, true)}">
+    <apex:pageBlockSection title="{!$Label.solxyzcso001__label_wr_outputrule_00046}" collapsible="false"/>    <!-- 追加入力項目 -->
+    <apex:outputPanel id="userInputPanel" styleClass="userInputPanel" rendered="{!userInputFlag}">
+    <table class="form_table" cellspacing="5">
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00047}</td>    <!-- ユーザー入力 -->
+            <td class="form_table_radio">
+                <div class="field switch">
+                    <label class="cb-enable"><span>ON&nbsp;</span></label>
+                    <label class="cb-disable selected"><span>OFF</span></label>
+                    <apex:inputText value="{!userSelectCheck}" styleClass="toggle_check_text userSelectCheck" />
+                </div>
+            </td>
+            <td class="form_table_data" style="display:none">
+                <table>
+                    <apex:repeat value="{!userInputFields}" var="userInput">
+                        <tr>
+                            <td class="form_table_label_normal">{!userInput.labelName}</td>
+                            <td class="form_table_data">
+                                <img src="{!URLFOR($Resource.iosstyle, 'require.png')}" class="c_require" style="display:{!IF(userInput.required == true, 'block', 'none')}"/>
+                                <apex:inputText size="50" value="{!userInput.inputValue}" maxlength="1024"/>
+                            </td>
+                        </tr>
+                    </apex:repeat>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </apex:outputPanel>
+    <apex:outputPanel id="pdfInputPanel" styleClass="pdfInputPanel" rendered="{!pdfInputFlag}">
+    <table class="form_table" cellspacing="5">
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00048}</td>    <!-- PDFパスワード -->
+            <td class="form_table_radio">
+                <div class="field switch">
+                    <label class="cb-enable" id="pdfPasswordCheckOn"><span>ON&nbsp;</span></label>
+                    <label class="cb-disable selected" id="pdfPasswordCheckOff"><span>OFF</span></label>
+                    <apex:inputText value="{!pdfPasswordCheck}" styleClass="toggle_check_text pdfPasswordCheck" />
+                </div>
+            </td>
+            <td class="form_table_data" style="display:none">
+                <table>
+                    <tr style="display:{!IF(needPdfOpenPWInputField == true, 'table-row', 'none')}">
+                        <td>{!$Label.solxyzcso001__label_wf_30054}</td>
+                        <td><apex:inputText size="50" maxlength="50" value="{!pdfOpenPassword}" id="pdfOpenPassword"/></td>
+                    </tr>
+                    <tr style="display:{!IF(needPdfAuthorizePWInputField == true, 'table-row', 'none')}">
+                        <td>{!$Label.solxyzcso001__label_wf_30055}</td>
+                        <td><apex:inputText size="50" maxlength="50" value="{!pdfAuthorizePassword}" id="pdfAuthorizePassword"/></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </apex:outputPanel>
+</apex:outputPanel>
+
+    <!-- 通知設定 -->
+    <apex:pageBlockSection title="{!$Label.solxyzcso001__label_wr_outputrule_00050}" collapsible="false"/>    <!-- 通知設定 -->
+    <table class="form_table" cellspacing="5">
+        <tr>
+            <td class="form_table_label">{!$Label.label_wr_outputrule_00049}</td>    <!-- Chatter通知 -->
+            <td class="form_table_radio">
+                <div class="field switch">
+                    <label class="cb-enable"><span>ON&nbsp;</span></label>
+                    <label class="cb-disable selected"><span>OFF</span></label>
+                    <apex:inputText value="{!notificationCheck}" styleClass="toggle_check_text notificationCheck" />
+                </div>
+            </td>
+            <td class="form_table_data" style="display:none">
+                <table width="100" >
+                    <tr>
+                        <td colspan="3">
+                            <div><apex:inputCheckbox value="{!feedComment}"/><label onclick="clickLabel(this)">{!$Label.label_wr_outputrule_00051}</label></div>     <!-- 出力レコードのフィードに投稿 -->
+                            <br/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>{!$Label.label_wr_outputrule_00052}</div>    <!-- 選択可能Chatterグループ -->
+                            <apex:outputPanel >
+                                <apex:selectList size="10" style="min-width: 150px; width:250px;" multiselect="true" styleClass="notAddChatterGroup">
+                                    <apex:selectOptions value="{!addableChatterGroupOptions}"/>
+                                </apex:selectList>
+                            </apex:outputPanel>
+                        </td>
+                        <td align="center" style="width: *; vertical-align: middle;">
+                            <input type="button" class="btn" value="{!$Label.label_10020}" style="width:60px;" onclick="move('notAddChatterGroup', 'addedChatterGroup', 'addedChatterGroup', 'addGroupList')"/>
+                            <input type="button" class="btn" value="{!$Label.label_00072}" style="width:60px;" onclick="move('addedChatterGroup', 'notAddChatterGroup', 'addedChatterGroup', 'addGroupList')"/>
+                            <apex:inputText value="{!addedChatterGroup}" styleClass="addGroupList" style="display:none"/>
+                        </td>
+                        <td>
+                            <div>{!$Label.solxyzcso001__label_wr_outputrule_00053}</div>    <!-- 選択済みChatterグループ -->
+                            <apex:outputpanel >
+                                <apex:selectList size="10" style="min-width: 150px; width:250px;" multiselect="true" styleClass="addedChatterGroup">
+                                    <apex:selectOptions value="{!addedChatterGroupOptions}"/>
+                                </apex:selectList>
+                            </apex:outputpanel>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+</apex:pageBlock>
+</apex:form>
+</apex:page>

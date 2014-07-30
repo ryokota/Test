@@ -1,0 +1,144 @@
+<apex:page sidebar="false" showHeader="false" controller="SOLXYZCSO001.DownloadPopupWindowController" action="{!init}">
+
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<script type="text/javascript">
+
+jQuery.event.add(window, "load", function() {
+
+    //  InquiryDetail, RelatedContentsDetail, RelatedContentsList
+    if("{!downloadType}" == "standard"){
+        download_standard("{!spaceId}", "{!fileId}", "{!version}", "{!type}");
+    }
+
+    //  SpacePortal（single）
+    if("{!downloadType}" == "single"){
+        download_portal_single("{!fileId}", "{!spaceId}", "{!function}")
+    }
+    //  SpacePortal（multiple）
+    if("{!downloadType}" == "multiple"){
+        var fileIdList = top.window.opener.MultipleDownloadFileIdList;
+        var fileName   = top.window.opener.MultipleDownloadFileName;
+        download_multiple(fileIdList, fileName);
+    }
+    //  SpacePortal（checkout）
+    if("{!downloadType}" == "checkout"){
+        download_portal_checkout("{!fileId}")
+    }
+
+    //  DocumentContentsInfo
+    if("{!downloadType}" == "ContentsInfo"){
+        download_contentsInfo("{!fileId}", "{!version}", "{!type}");
+    }
+
+    //  WorkflowDetailInfo
+    if("{!downloadType}" == "workflow"){
+        download_workflow("{!fileId}", "{!version}", "{!workflowId}");
+    }
+
+});
+
+function download_standard(spaceId, fileId, version, type){
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SingleContentsDownloadApi.json', JSON.stringify({"spaceId" : spaceId, "fileId" : fileId, "ver" : version, "type" : type}), callback, callerror);
+}
+
+function download_portal(refSpaceId, fileId, version){
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SingleContentsDownloadApi.json', JSON.stringify({"fileId" : fileId, "ver" : version, "refSpaceId" : refSpaceId}), callback, callerror);
+}
+
+function download_multiple(downloadIdList, fileName){
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/MultipleContentsDownloadApi.json', JSON.stringify({"fileId" : downloadIdList, "fileName" : fileName}), callback, callerror);
+}
+
+function download_contentsInfo(fileId, version, type){
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SingleContentsDownloadApi.json', JSON.stringify({"fileId" : fileId, "ver" : version, "type" : type}), callback, callerror);
+}
+
+function download_workflow(id, version, wfid){
+    CsoScript_loadingStart();
+    securePostAsync('/workflowmanagement/WorkflowContentsDownloadApi.json', JSON.stringify({"fileId" : id, "ver" : version, "workflowID" : wfid}), callback, callerror);
+}
+
+
+function callback(data){
+    if(data == null){
+        CsoScript_loadingStop();
+        alert('{!$Label.msg_00323}');
+        return;
+    }
+    if(eval(data.result) == true){
+        setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+    }else{
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data.message != null) && (data.message != "")){
+            errMsg = data.message;
+        }
+        alert(errMsg);
+    }
+}
+function callerror(data){
+    CsoScript_loadingStop();
+    var errMsg = '{!$Label.msg_00323}';
+    if((data instanceof Array) == false){
+        errMsg = data;
+    }
+    alert(errMsg);
+}
+
+
+function downloadExec(url){
+    location.href = url;
+}
+
+
+function download_portal_single(docId, spaceId, callFunction){
+    var callbackDLCheck = function(msg){
+        var isDL = msg.result;
+        if(isDL == "false"){
+            alert('{!$Label.msg_symbolic_00011}');
+            return;
+        }
+
+        var callbackInit = function(msg){
+            var startFunction = $('<div/>').html(callFunction).text();
+            eval(startFunction);
+        };
+
+        // Init呼び出し
+        secureGetAsync('/contentsmanagement/contentsDownloadInit.json', 'doc_id=' + docId, callbackInit);
+
+    }
+    secureGetAsync('/contentsmanagement/symbolicLinkDLCheck.json', {"contentsId" : docId, "spaceId" :  spaceId, "type" : 0}, callbackDLCheck);
+}
+
+function download_portal_checkout(id){
+    var callback = function(checkoutData){
+        CsoScript_loadingStop();
+        if(checkoutData["result"]){
+            eval(checkoutData.result);
+        }else{
+            alert(checkoutData["message"]);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+    };
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/contentsCheckOut.json', {'fileId' : id, 'type' : 'out'}, callback, callerror);
+}
+
+function startContentsDownload(fileId, version, refSpaceId){
+    download_portal(refSpaceId, fileId, version);
+}
+
+</script>
+</apex:page>

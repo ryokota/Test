@@ -1,0 +1,285 @@
+<apex:page showHeader="false" sidebar="false" controller="SOLXYZCSO001.AddContentController" tabStyle="ContentTab__tab">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/droppy.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<!-- apex:stylesheet value="{!URLFOR($Resource.cso, 'css/ui.jqgrid.custom.css')}" / -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/document.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(csouserinfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csouserinfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csouserinfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<apex:include rendered="{!IF(BrowserName=='ie',true,false)}" pageName="SOLXYZCSO001__CSOSirverlight"/>
+<style type="text/css">
+img.image {
+    width : 20px;
+    height : 20px;
+}
+
+.float{
+    display: none;
+    width: 400px;
+    border: solid 1px gray;
+    z-index: 1100;
+    position: absolute;
+    top : 0px;
+    left : 0px;
+    border:1px solid #A9A9A9;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    -moz-box-shadow:1px 1px 3px #c0c0c0;
+    -webkit-box-shadow:1px 1px 3px #c0c0c0;
+    box-shadow:1px 1px 3px #c0c0c0;
+    float:left;
+    background-color:#f7f7f7;
+    padding: 10px 20px 20px 20px;
+    max-width:1000px;
+}
+
+</style>
+<script type="text/javascript">
+var chatter_comment = false;
+var chatter_direct = false;
+var chatter_files = '';
+var space = '';
+var operation = '';
+var groupid = '';
+var id = null;
+var obj = null;
+
+$(load_handler).bind('change', function(){
+    $('#ResultList').clearGridData();
+    $('#okbutton').focus();
+
+    var data = new Object();
+    var docInfoList = $('#decodework').html('{!HTMLENCODE(query)}').text();
+    var updateFile = $('#decodework').html('{!HTMLENCODE(updateFile)}').text();
+
+    var callback = function(data){
+        CsoScript_loadingStop();
+        if(!data.result){
+            alert(data.message);
+            return;
+        }
+
+        // chatter設定
+        chatter_comment = data.chatter_comment;
+        chatter_direct = data.chatter_direct;
+        chatter_files = data.chatter_files;
+        space = data.space;
+        operation = data.operation;
+        groupid = data.groupid;
+
+        if('{!$User.CSOChatter__c}' == 'true'){
+            // 「Chatterで自動通知する」場合
+            if (true == chatter_direct) {
+                top.window.opener.sendChatterComment(chatter_files, space, operation, groupid);
+            }
+        }
+
+        $('#ResultList').jqGrid({
+            url : _apiUrl + '/contentsmanagement/contentsAddResultListV2Get.json',
+            datatype : 'jsonp',
+            jsonReader :{
+                repeatitems: false,
+                id         : "id"
+            },
+            colNames : [
+                '',
+                '',
+                '{!$Label.label_10477}',
+                '{!$Label.label_10140}',
+                '{!$Label.label_10013}',
+                '{!$Label.label_10038}',
+                '{!$Label.label_10012}',
+                '',
+            ],
+            colModel:[{name:'id',index:'id', width:60, hidden:true},
+                      {name:'result',index:'result', width:30},
+                      {name:'name', index:'name', width:300, align : 'left'},
+                      {name:'size',index:'size', width:60, align:"right", hidden:true},
+                      {name:'savedate',index:'savedate', width:110, align:"center", hidden:true},
+                      {name:'version',index:'version', width:60,align:"center", hidden:true},
+                      {name:'icon',index:'icon', width : 240, align : "left"},
+                      {name:'explanation',index:'explanation', hidden : true}
+            ],
+            height : getBrowserHeight() - 230,
+            width : getBrowserWidth() - 35,
+            sortname: 'name',
+            viewrecords: true,
+            pager : '#pager',
+            rowList:[10, 50, 100],
+            rowNum : 50,
+            shrinkToFit : false,
+            loadui:'disabled',
+
+            loadComplete : function(data) {
+                $('#totalcount').text(data.rows.length.toString());
+            },
+            beforeSelectRow : function(id, e) {
+                var tagName = $(e.target)[0].tagName;
+                if (tagName.toUpperCase() == "IMG") {
+                    return false;
+                }
+                return true;
+            },
+            onSelectRow : function(id) {
+                if(id != null && obj != null){
+                    var row = $("#ResultList").jqGrid("getRowData", id);
+                    var offset = obj.offset();
+                    var x = offset.left;
+                    var y = offset.top;
+
+                    $("#explanationDiv").show();
+                    var width = $("#explanationDiv").width();
+                    var height = $("#explanationDiv").height();
+
+                    var imageWidth = $("#image").width();
+                    var imageHeight = $("#image").height();
+                    $("#explanation").html(row.explanation.replace(/\n/g, "<br />"));
+                    $("#explanationDiv").css({top : y - 10, left : x - width - 40 - imageWidth});
+
+                    var k = $("#explanationDiv").offset();
+
+                    $("#image").css({top : 10, left : width + 40}).show();
+                    id = null;
+                    obj = null;
+                } else {
+                    $("#image,#explanationDiv").hide();
+                }
+            }
+        });
+
+        $("#ResultList").trigger('reloadGrid');
+
+        $(window).unload(function() {
+            if('{!$User.CSOChatter__c}' == 'true'){
+                //「コメントを入力してChatterで通知する」場合
+                if (true == chatter_comment) {
+                    top.window.opener.displayChatterComment(chatter_files, space, operation, groupid);
+                }
+//                // 「Chatterで自動通知する」場合
+//                if (true == chatter_direct) {
+//                    top.window.opener.sendChatterComment(chatter_files, space, operation, groupid);
+//                }
+            }
+            if (top.window.opener && top.window.opener.reloadNow) {
+                if(data.moved){
+                    top.window.opener.openUploadInfo();
+                }
+                top.window.opener.reloadNow();
+                top.window.close();
+            }
+        });
+
+        $(window).resize(resizeGrid);
+        resizeGrid();
+        setTimeout('CsoScript_loadingStop()', 1000);
+    };
+
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+    };
+    var serverUrl = window.location.protocol + "//" + window.location.host
+    //カスタムオブジェクトのコンテンツ連携の不具合対応
+    //top.window.opener.securePostAsync('/contentsmanagement/contentsAddConfirm.json', JSON.stringify({docInfoList : docInfoList, updateFile : updateFile}), callback, callerror);
+    if(top.window.opener == null){
+        securePostAsync('/contentsmanagement/contentsAddConfirm.json', JSON.stringify({docInfoList : docInfoList, updateFile : updateFile, url : serverUrl}), callback, callerror);
+    } else{
+        try{
+            top.window.opener.securePostAsync('/contentsmanagement/contentsAddConfirm.json', JSON.stringify({docInfoList : docInfoList, updateFile : updateFile, url : serverUrl}), callback, callerror);
+        }catch(e){
+            securePostAsync('/contentsmanagement/contentsAddConfirm.json', JSON.stringify({docInfoList : docInfoList, updateFile : updateFile, url : serverUrl}), callback, callerror);
+        }
+    }
+});
+
+function showInfo(id, obj) {
+    this.id = id;
+    this.obj = obj;
+}
+
+/*
+ * リサイズ処理
+ */
+function resizeGrid(){
+    var browserType = getBrowserType();
+    var browserHeight = getBrowserHeight();
+    var browserWidth = getBrowserWidth();
+
+    if(browserWidth < 650){
+        $('#ResultList').setGridWidth(650);
+    } else {
+        $('#ResultList').setGridWidth(browserWidth - 35);
+    }
+
+    $("#ResultList").setGridHeight(browserHeight - 230);
+}
+
+/*
+ * OKボタン処理
+ */
+function winClose(){
+    top.window.close();
+}
+</script>
+<!-- ヘッダー -->
+<div id="c_head">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/up.png')}"/>
+    <div id="c_headTitle">
+        {!$Label.solxyzcso001__label_00002}
+    </div>
+    <div id="c_headSubTitle">
+        {!$Label.solxyzcso001__label_10141}
+    </div>
+</div>
+<apex:form >
+<apex:pageBlock tabStyle="ContentTab__tab" >
+    <div style="height:30px;margin-bottom:8px;">
+    <table height="20px" width="100%" align="left">
+        <tr>
+            <td width="50%">
+                {!$Label.label_10357}&nbsp;&nbsp;&nbsp;&nbsp;{!$Label.label_10030}&nbsp;:&nbsp;<span id="totalcount"></span>
+            </td>
+            <td width="50%">
+                <apex:commandButton value="{!$Label.solxyzcso001__label_00059}" onclick="winClose();return false;"/>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <table id="ResultList"></table>
+    <div id="pager"/>
+    <div style="height:30px;margin-top:8px;">
+    <table height="20px" width="100%" align="left">
+        <tr>
+            <td width="50%"></td>
+            <td width="50%">
+                <apex:commandButton value="{!$Label.solxyzcso001__label_00059}" onclick="winClose();return false;"/>
+            </td>
+        </tr>
+    </table>
+    </div>
+</apex:pageBlock>
+</apex:form>
+<div id="explanationDiv" class="float" style="width:150px;">
+    <img id="image" alt="" src="{!URLFOR($Resource.cso, '/image/yama_right.png')}" style="display:none; height: 20px; position: absolute; top: 345px; left: -25px;"/>
+    <span id="explanation" style="text-align:left; vertical-align:top;"></span>
+</div>
+<input id="updateFile" name="updateFile" type="hidden" value="{!updateFile}" />
+<div id="decodework" style="display:none"/>
+</apex:page>

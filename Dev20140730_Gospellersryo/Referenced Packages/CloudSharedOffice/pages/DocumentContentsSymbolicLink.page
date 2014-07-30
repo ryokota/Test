@@ -1,0 +1,162 @@
+<apex:page sidebar="false" showHeader="false" cache="false" controller="SOLXYZCSO001.SpacePortalController">
+<style type="text/css">
+// SpacePortal に移動
+</style>
+<script type="text/javascript">
+var ActionFlg;
+function init_symbolicLink(){
+    $("#loadingSymbolicLinkTree").show();
+    $("#symbolicLinkTree").empty();
+    $("#linkToSpaceId").empty();
+    $("#linkToSpaceId").val("");
+    $("#linkToSpaceName").empty();
+    $("#linkToSpaceName").val("");
+
+    var callback =  function(data){
+        var branches = $(data["tree"]).appendTo("#symbolicLinkTree");
+        $("#symbolicLinkTree").treeview({
+            collapsed: true,
+            add: branches,
+            url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+            isLinkTo: true,
+            asrt:"copy"
+        });
+        $("#loadingSymbolicLinkTree").hide();
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"copy", "itemsType": 1, "itemsIds": "", "returnType":"html", "isLinkTo":"true"}, callback);
+}
+
+function change_link_to_space(node, id){
+    if(g_symbolicLink.preSelectNode){
+        $(g_symbolicLink.preSelectNode).removeClass("selectNode");
+    }
+    $("#linkToSpaceName").val($(node).text());
+    $("#linkToSpaceId").val(id);
+    $(node).addClass("selectNode");
+    g_symbolicLink.preSelectNode = node;
+
+    return false;
+}
+
+/*
+ * シンボリックリンクを作成
+ */
+function execSymbolicLink(){
+
+    // シンボリックリンク作成の場合
+    if(g_symbolicLink.symbolicLinkIds.length < 1){
+        var msg = getMsg(new Array('{!$Label.label_symbolic_00003}'), '{!$Label.msg_00036}'); // リンク，{0}するコンテンツが選択されていません。
+        alert(msg);
+        return;
+    }
+
+    if($("#linkToSpaceId").val().length == 0){
+        alert("{!$Label.msg_symbolic_00004}");  // リンク先のスペースを選択してください。
+        return;
+    }
+
+    var msg = "{!$Label.msg_symbolic_00005}";  // リンクコンテンツを作成します。よろしいですか？
+
+    if (confirm(msg)) {
+        $("#symbolicLink_OkBtn").attr({"disabled":"disabled"});
+        $("#symbolicLink_CancelBtn").attr({"disabled":"disabled"});
+        $("#modalDialogDiv").dialog("close");
+
+        var linkToIds = '';
+        for(var iIds = 0; iIds < g_symbolicLink.symbolicLinkIds.length; iIds++){
+            if (iIds > 0) {
+                linkToIds = linkToIds + ',';
+            }
+            linkToIds = linkToIds + g_symbolicLink.symbolicLinkIds[iIds];
+        }
+
+        var callback = function(symbLinkcoutback){
+            CsoScript_loadingStop();
+            if(symbLinkcoutback["result"]){
+                linkToDialogDivClose();
+                reloadNow();
+            } else {
+                alert(symbLinkcoutback["message"]);
+            }
+
+            $("#symbolicLink_OkBtn").removeAttr("disabled");
+            $("#symbolicLink_CancelBtn").removeAttr("disabled");
+        };
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+
+        var nowAsrt = getAsrt();
+        var sourceSpaceId = '';
+        if(nowAsrt == 'tag' || nowAsrt == 'search'){
+            var ids = jQuery("#listView1").jqGrid('getGridParam','selarrrow');
+            for(i in ids){
+                var row = $("#listView1").jqGrid('getRowData', ids[i]);
+                sourceSpaceId = row.spaceId;
+            }
+        } else {
+            sourceSpaceId = space_portal_ref_space_id;
+        }
+
+        var destSpaceId = $("#linkToSpaceId").val();
+        var isCopy = true; //$("#isCopy").attr("checked");
+        var isMove = true; //$("#isMove").attr("checked");
+        var isViewIcon = $("#isViewIcon").attr("checked");
+        CsoScript_loadingStart();
+        securePostAsync('/contentsmanagement/SymbolicLinkCreate.json', {"idlist": linkToIds, "sourceSpaceId": sourceSpaceId, "destSpaceId": destSpaceId, "isCopy": isCopy, "isMove": isMove, "isViewIcon": isViewIcon }, callback, callerror);
+    }
+}
+
+/*
+ * linkToDialogを閉じる
+ */
+function linkToDialogDivClose(){
+    $("#linkToDialog").dialog("close");
+}
+</script>
+
+<div id="linkToDialog" style="display:none">
+    <form>
+    <table class="symbolicLinkContentsTbl">
+        <tr>
+            <td align="left" colspan="2">{!$Label.label_symbolic_00010}</td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_symbolic_00009}</th>
+            <td>
+                <input type="text" disabled="disabled" id="linkToSpaceName" style="width:100%; border: none; background-color: #EEEEEE;"></input>
+                <input type="hidden" id="linkToSpaceId" name="recieveId" />
+            </td>
+        </tr>
+        <tr>
+            <th></th>
+            <td>
+                <!--
+                <label><input type="checkbox" id="isCopy" name="isCopy" checked="checked" />{!$Label.label_symbolic_00006}</label>
+                <label><input type="checkbox" id="isMove" name="isMove" checked="checked" />{!$Label.label_symbolic_00007}</label>
+                -->
+                <label><input type="checkbox" id="isViewIcon" name="isViewIcon" checked="checked" />{!$Label.label_symbolic_00008}</label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+            <div style="width: 570px;max-width:570px; height: 300px; overflow: auto; border: 1px solid #999999; background-color: white;">
+                <ul id="symbolicLinkTree" class="selectTree filetree">
+                </ul>
+                <span id="loadingSymbolicLinkTree" style="display:none;">
+                    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="position: absolute; top: 50%;left: 47%; " id="symbolicLinkTreeLoadImg" />
+                </span>
+            </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: center;">
+                <input type="button" class="btn" value="{!$Label.label_00075}" id="symbolicLink_OkBtn"     onclick="execSymbolicLink();" />
+                <input type="button" class="btn" value="{!$Label.label_00058}" id="symbolicLink_CancelBtn" onclick="linkToDialogDivClose();"/>
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+</apex:page>

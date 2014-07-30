@@ -1,0 +1,95 @@
+<apex:page controller="SOLXYZCSO001.FE_AppConfigController" sidebar="false" action="{!init}">
+<apex:iframe src="/apex/CSO_WR_Error?code={!wr_userInfo.code}&massage={!wr_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(wr_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(wr_userInfo.showErrPage == false, true, false)}">
+<apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+    <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+</apex:outputpanel>
+
+<apex:outputpanel rendered="{!hasWR && hasPermissionWRAdmin}">
+
+<apex:include pageName="SOLXYZCSO001__WRCSOBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td id="c_left" bgcolor="#f2f2f3" style="min-height:39px;max-height:39px;">
+                <apex:include pageName="SOLXYZCSO001__WRSettingMenu"/>
+            </td>
+            <td valign="top">
+                <table width="100%">
+                    <tr>
+                        <td id="c_headLeft" height="39px" style="min-height:39px;max-height:39px;">
+                            <h1 id="c_headLeftTitle">{!$Label.label_wr_report_20010}</h1><br/>
+                            <h2 id="c_headLeftSubTitle">{!$Label.label_wr_report_20015}</h2>
+                        </td>
+                        <!-- 操作ボックス -->
+                        <td id="c_headRight" height="39px" style="min-height:39px;max-height:39px;">
+                            <apex:include pageName="SOLXYZCSO001__WROptionsLink"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right" colspan="2">
+                            <apex:pageBlock >
+                                <apex:form >
+                                    <apex:pageMessages />
+                                    <apex:pageblock mode="maindetail">
+                                        <apex:pageblockbuttons location="top">
+                                            <apex:commandbutton value="{!$Label.solxyzcso001__field_common_new}"
+                                                action="{!newEstimateNumbering}" />
+                                        </apex:pageblockbuttons>
+                                    </apex:pageblock>
+                                    <apex:pageblock id="IchiranBlock" mode="maindetail">
+                                        <apex:pageblocktable value="{!EstimateNumberingList}" var="row"
+                                            rowClasses="{odd,even}">
+                                            <apex:column headerValue="{!$Label.solxyzcso001__label_cm_action}"
+                                                style="width:70px;" rendered="{!isAdmin}">
+                                                <apex:commandLink action="{!editEstimateNumberings}"
+                                                    value="{!$Label.solxyzcso001__field_common_edit}">
+                                                    <apex:param name="selectedRoo" value="{!row.Id}"
+                                                        assignTo="{!EstimateNumberingSelected}" />
+                                                </apex:commandLink>
+                                                <!-- <apex:outputlabel >&nbsp;|&nbsp;</apex:outputlabel>  -->
+                                                <apex:outputtext >|</apex:outputtext>
+                                                <apex:commandlink action="{!deleteEstimateNumberings}"
+                                                    value="{!$Label.solxyzcso001__label_wf_00031}" onclick="CsoScript_loadingStart()">
+                                                    <apex:param name="selectedRoo" value="{!row.Id}"
+                                                        assignTo="{!EstimateNumberingSelected}" />
+                                                    </apex:commandLink>
+                                            </apex:column>
+                                            <apex:column headervalue="{!$Label.solxyzcso001__label_wf_30003}">
+                                                <apex:outputfield value="{!row.Name}" />
+                                            </apex:column>
+                                            <apex:column headervalue="{!$Label.solxyzcso001__label_wf_30004}">
+                                                <apex:outputField value="{!row.SOLXYZCSO001__Explanation__c}" />
+                                            </apex:column>
+                                            <apex:column headervalue="{!$Label.solxyzcso001__label_wf_30005}">
+                                                <apex:outputField value="{!row.SOLXYZCSO001__NumberingFormat__c}" />
+                                            </apex:column>
+                                        </apex:pageblocktable>
+                                    </apex:pageblock>
+                                </apex:form>
+                            </apex:pageBlock>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div id="copyright" >{!$Label.field_CSO_copyright}</div>
+</apex:outputpanel>
+</apex:outputPanel>
+</apex:page>

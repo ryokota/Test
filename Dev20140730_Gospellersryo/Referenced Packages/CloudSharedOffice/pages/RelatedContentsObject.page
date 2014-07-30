@@ -1,0 +1,216 @@
+<apex:page controller="SOLXYZCSO001.RelatedContentsObjectController" sidebar="false" action="{!init}">
+
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+
+<script type="text/javascript" src="/soap/ajax/28.0/connection.js"></script>
+<script type="text/javascript" src="/soap/ajax/28.0/apex.js"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.metadatajs,'salesforce-metadata.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip-load.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip-inflate.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip-deflate.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'encoding.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'base64.js')}" charset="utf-8"></script>
+
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<script type="text/javascript">
+var __sfdcSessionId = '{!GETSESSIONID()}';
+
+</script>
+<script type="text/javascript">
+  function confirmCancel() {
+      var isCancel = confirm("{!$Label.msg_010082_fe}");
+      if (isCancel)
+          return true;
+      return false;
+  }
+
+  function save() {
+    CsoScript_loadingStart();
+
+    var objNameApi = $('select[id$="ol"]').val();
+    var objName = objNameApi.substring(0, objNameApi.indexOf('__c',0));
+    var objLabel = $('select[id$="ol"]').children(':selected').text();
+
+    var zip;
+    zip = new JSZip();
+    zip.file("src/package.xml", "<Package xmlns=\"http://soap.sforce.com/2006/04/metadata\"><version>28.0</version><types><members>*</members><name>ApexPage</name></types></Package>");
+
+    //CSO コンテンツ連携画面
+    var contentsSelectPage = "";
+    contentsSelectPage = contentsSelectPage + "<apex\:page id=\"page\" sidebar=\"false\" showHeader=\"false\"";
+    contentsSelectPage = contentsSelectPage + " standardController=\"" + objNameApi + "\" extensions=\"solxyzcso001.CSOUserInfoExt\" action=\"{\!init}\" tabStyle=\"" + objNameApi + "\"> ";
+//    contentsSelectPage = contentsSelectPage + " standardController=\"" + objNameApi + "\" extensions=\"CSOUserInfoExt\" action=\"{\!init}\" tabStyle=\"" + objNameApi + "\"> ";
+    contentsSelectPage = contentsSelectPage + "<apex\:form id=\"form\"> ";
+    contentsSelectPage = contentsSelectPage + "<apex\:variable var=\"Sf_ID\" value=\"{\!$CurrentPage.parameters.id}\" /> ";
+    contentsSelectPage = contentsSelectPage + "<apex\:variable var=\"Sf_name\" value=\"{\!" + objNameApi + ".Name}\" /> ";
+    contentsSelectPage = contentsSelectPage + "<apex\:variable var=\"Sf_type\" value=\"" + objName + "\" /> ";
+    contentsSelectPage = contentsSelectPage + "<apex\:variable var=\"Sf_typeName\" value=\"" + objLabel  +"\" /> ";
+    contentsSelectPage = contentsSelectPage + "<apex\:variable var=\"pageType\" value=\"list\" /> ";
+    contentsSelectPage = contentsSelectPage + "<apex\:variable var=\"pagePrefix\" value=\"false\" /> ";
+    contentsSelectPage = contentsSelectPage + "<apex\:detail id=\"detail\"/> ";
+    contentsSelectPage = contentsSelectPage + "<solxyzcso001\:ContentsSelectComp id=\"contentsSelectComp\" csoUserInfo=\"{\!cso_UserInfo}\"/> ";
+//    contentsSelectPage = contentsSelectPage + "<c\:ContentsSelectComp id=\"contentsSelectComp\" csoUserInfo=\"{\!cso_UserInfo}\"/> ";
+    contentsSelectPage = contentsSelectPage + "</apex\:form> ";
+    contentsSelectPage = contentsSelectPage + "<solxyzcso001\:AddSpaceComp id=\"addSpaceComp\" csoUserInfo=\"{\!cso_UserInfo}\"/> ";
+//    contentsSelectPage = contentsSelectPage + "<c\:AddSpaceComp id=\"addSpaceComp\" csoUserInfo=\"{\!cso_UserInfo}\"/> ";
+    contentsSelectPage = contentsSelectPage + "</apex\:page> ";
+    zip.file("src/pages/ContentsSelect" + objName + ".page", contentsSelectPage );
+    zip.file("src/pages/ContentsSelect" + objName + ".page-meta.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ApexPage xmlns=\"http://soap.sforce.com/2006/04/metadata\"><apiVersion>28.0</apiVersion><label>ContentsSelect" + objName + "</label></ApexPage>");
+
+    //CSO コンテンツリスト画面
+    var relatedContentsListCustomPage = "";
+    relatedContentsListCustomPage = relatedContentsListCustomPage + "<apex\:page id=\"page\" sidebar=\"false\" showHeader=\"false\"  ";
+    relatedContentsListCustomPage = relatedContentsListCustomPage + " standardController=\"" + objNameApi + "\" extensions=\"solxyzcso001.CSOUserInfoExt\" action=\"{\!init}\" tabStyle=\"" + objNameApi + "\"> ";
+//    relatedContentsListCustomPage = relatedContentsListCustomPage + " standardController=\"" + objNameApi + "\" extensions=\"CSOUserInfoExt\" action=\"{\!init}\" tabStyle=\"" + objNameApi + "\"> ";
+    relatedContentsListCustomPage = relatedContentsListCustomPage + "<apex\:variable var=\"Sf_type\" value=\"" + objName + "\" />  ";
+    relatedContentsListCustomPage = relatedContentsListCustomPage + "<apex\:variable var=\"Sf_name\" value=\"{\!" + objNameApi + ".Name}\" />  ";
+    relatedContentsListCustomPage = relatedContentsListCustomPage + "<apex\:variable var=\"Sf_typeName\" value=\"" + objLabel  +"\" />  ";
+    relatedContentsListCustomPage = relatedContentsListCustomPage + "<apex\:variable var=\"pagePrefix\" value=\"false\" />  ";
+    relatedContentsListCustomPage = relatedContentsListCustomPage + "<apex\:variable var=\"retURL\" value=\"{\!\'/\'&$CurrentPage.parameters.Id}\"/>  ";
+    relatedContentsListCustomPage = relatedContentsListCustomPage + "<apex\:variable var=\"nameSpace\" value=\"solxyzcso001\" />  ";
+    relatedContentsListCustomPage = relatedContentsListCustomPage + "<solxyzcso001\:RelatedContentsListComp id=\"relatedContentsListComp\" csoUserInfo=\"{\!cso_UserInfo}\"/>  ";
+//    relatedContentsListCustomPage = relatedContentsListCustomPage + "<c\:RelatedContentsListComp id=\"relatedContentsListComp\" csoUserInfo=\"{\!cso_UserInfo}\"/>  ";
+    relatedContentsListCustomPage = relatedContentsListCustomPage + "</apex\:page>  ";
+    zip.file("src/pages/RelatedContentsList" + objName + ".page", relatedContentsListCustomPage );
+    zip.file("src/pages/RelatedContentsList" + objName + ".page-meta.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ApexPage xmlns=\"http://soap.sforce.com/2006/04/metadata\"><apiVersion>28.0</apiVersion><label>RelatedContentsList" + objName + "</label></ApexPage>");
+
+    //CSO コンテンツリスト詳細画面
+    var relatedContentsDetailPage = "";
+    relatedContentsDetailPage = relatedContentsDetailPage + "<apex\:page id=\"page\" standardController=\"" + objNameApi + "\" extensions=\"solxyzcso001.CSOUserInfoExt\" action=\"{\!init}\" tabStyle=\"" + objNameApi + "\"> ";
+//    relatedContentsDetailPage = relatedContentsDetailPage + "<apex\:page id=\"page\" standardController=\"" + objNameApi + "\" extensions=\"CSOUserInfoExt\" action=\"{\!init}\" tabStyle=\"" + objNameApi + "\"> ";
+    relatedContentsDetailPage = relatedContentsDetailPage + "<apex\:variable var=\"Sf_type\" value=\"" + objName + "\" />  ";
+    relatedContentsDetailPage = relatedContentsDetailPage + "<apex\:variable var=\"Sf_typeName\" value=\"" + objLabel  + "\" />  ";
+    relatedContentsDetailPage = relatedContentsDetailPage + "<apex\:variable var=\"pagePrefix\" value=\"false\" />   ";
+    relatedContentsDetailPage = relatedContentsDetailPage + "<solxyzcso001\:RelatedContentsDetailComp id=\"relatedContentsDetailComp\" csoUserInfo=\"{\!cso_UserInfo}\"/>  ";
+//    relatedContentsDetailPage = relatedContentsDetailPage + "<c\:RelatedContentsDetailComp id=\"relatedContentsDetailComp\" csoUserInfo=\"{\!cso_UserInfo}\"/>  ";
+    relatedContentsDetailPage = relatedContentsDetailPage + "</apex\:page>  ";
+    zip.file("src/pages/RelatedContentsDetail" + objName + ".page", relatedContentsDetailPage);
+    zip.file("src/pages/RelatedContentsDetail" + objName + ".page-meta.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ApexPage xmlns=\"http://soap.sforce.com/2006/04/metadata\"><apiVersion>28.0</apiVersion><label>RelatedContentsDetail" + objName + "</label></ApexPage>");
+
+    //CSO コンテンツ編集画面
+    var relatedContentsEditPage = "";
+    relatedContentsEditPage = relatedContentsEditPage + " <apex\:page id=\"page\" StandardController=\"" + objNameApi + "\" extensions=\"solxyzcso001.CSOUserInfoExt\" action=\"{\!init}\" tabStyle=\"" + objNameApi + "\">  ";
+//    relatedContentsEditPage = relatedContentsEditPage + " <apex\:page id=\"page\" StandardController=\"" + objNameApi + "\" extensions=\"CSOUserInfoExt\" action=\"{\!init}\" tabStyle=\"" + objNameApi + "\">  ";
+    relatedContentsEditPage = relatedContentsEditPage + " <apex\:variable var=\"Sf_type\" value=\"" + objName + "\" />  ";
+    relatedContentsEditPage = relatedContentsEditPage + " <apex\:variable var=\"Sf_typeName\" value=\"" + objLabel  + "\" />  ";
+    relatedContentsEditPage = relatedContentsEditPage + " <apex\:variable var=\"pagePrefix\" value=\"false\" />  ";
+    relatedContentsEditPage = relatedContentsEditPage + " <solxyzcso001\:RelatedContentsEditComp id=\"relatedContentsEditComp\" csoUserInfo=\"{\!cso_UserInfo}\"/>  ";
+//    relatedContentsEditPage = relatedContentsEditPage + " <c\:RelatedContentsEditComp id=\"relatedContentsEditComp\" csoUserInfo=\"{\!cso_UserInfo}\"/>  ";
+    relatedContentsEditPage = relatedContentsEditPage + " </apex\:page>  ";
+    zip.file("src/pages/RelatedContentsEdit" + objName + ".page", relatedContentsEditPage);
+    zip.file("src/pages/RelatedContentsEdit" + objName + ".page-meta.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ApexPage xmlns=\"http://soap.sforce.com/2006/04/metadata\"><apiVersion>28.0</apiVersion><label>RelatedContentsEdit" + objName + "</label></ApexPage>");
+
+    //CSO コンテンツビューアー画面の作成
+    var relatedContentsViewerPage = "";
+    relatedContentsViewerPage = relatedContentsViewerPage  + " <apex\:page id=\"page\" sidebar=\"false\" showHeader=\"false\"  standardController=\"" + objNameApi + "\" extensions=\"solxyzcso001.CSOUserInfoExt\" action=\"{\!init}\" tabStyle=\"" + objNameApi + "\">  ";
+//    relatedContentsViewerPage = relatedContentsViewerPage  + " <apex\:page id=\"page\" sidebar=\"false\" showHeader=\"false\"  standardController=\"" + objNameApi + "\" extensions=\"CSOUserInfoExt\" action=\"{\!init}\" tabStyle=\"" + objNameApi + "\">  ";
+    relatedContentsViewerPage = relatedContentsViewerPage  + " <apex\:variable var=\"Sf_type\" value=\"" + objName + "\" />  ";
+    relatedContentsViewerPage = relatedContentsViewerPage  + " <apex\:variable var=\"Sf_name\" value=\"{\!" + objNameApi + ".Name}\" />  ";
+    relatedContentsViewerPage = relatedContentsViewerPage  + " <apex\:variable var=\"Sf_typeName\" value=\"" + objLabel  + "\" />  ";
+    relatedContentsViewerPage = relatedContentsViewerPage  + " <apex\:variable var=\"retURL\" value=\"{\!'/'&$CurrentPage.parameters.Id}\"/>  ";
+    relatedContentsViewerPage = relatedContentsViewerPage  + " <apex\:variable var=\"isSelected\" value=\"false\"/>  ";
+    relatedContentsViewerPage = relatedContentsViewerPage  + " <apex\:variable var=\"nameSpace\" value=\"solxyzcso001\" />  ";
+    relatedContentsViewerPage = relatedContentsViewerPage  + " <apex\:variable var=\"pagePrefix\" value=\"false\" />  ";
+    relatedContentsViewerPage = relatedContentsViewerPage  + "  <SOLXYZCSO001\:RelatedContentsViewerComp id=\"relatedContentsViewerComp\" csoUserInfo=\"{\!cso_UserInfo}\"/>  ";
+//    relatedContentsViewerPage = relatedContentsViewerPage  + " <c\:RelatedContentsViewerComp id=\"relatedContentsViewerComp\" csoUserInfo=\"{\!cso_UserInfo}\"/>  ";
+    relatedContentsViewerPage = relatedContentsViewerPage  + " </apex\:page>  ";
+    zip.file("src/pages/RelatedContentsViewer" + objName + ".page", relatedContentsViewerPage);
+    zip.file("src/pages/RelatedContentsViewer" + objName + ".page-meta.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ApexPage xmlns=\"http://soap.sforce.com/2006/04/metadata\"><apiVersion>28.0</apiVersion><label>RelatedContentsViewer" + objName + "</label></ApexPage>");
+
+    var req;
+    req = new sforce.DeployRequest();
+    var rollbackOnErrorXML= new sforce.Xml()
+    rollbackOnErrorXML.rollbackOnError= 'ture';
+    req.deployOptions = rollbackOnErrorXML;
+    req.zipFile = zip.generate({base64: true});
+    var content = zip.generate();
+    sforce.metadata.deploy(req, waitForDoneDep(function (result) {
+        console.log(result);
+        CsoScript_loadingStop();
+        alert('{!$Label.msg_00404}');
+    }));
+    return true;
+  }
+
+  function waitForDoneDep(callback) {
+    function getResult(id) {
+        sforce.metadata.checkDeployStatus(id, callback);
+    }
+    function check(results) {
+        var done = results[0].getBoolean("done");
+        if (!done) {
+            setTimeout( function(){ sforce.metadata.checkStatus([results[0].id], check); }, 3000);
+        } else {
+            getResult(results[0].id);
+        }
+    }
+    return function (result) {
+        check([result]);
+    };
+  }
+
+
+</script>
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td id="c_left" bgcolor="#f2f2f3" style="min-height:39px;max-height:39px;">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <td valign="top">
+                <table width="100%">
+                    <tr>
+                        <td id="c_headLeft" height="39px" style="min-height:39px;max-height:39px;">
+                            <h1 id="c_headLeftTitle">{!$Label.label_13158}</h1><br/>
+                            <h2 id="c_headLeftSubTitle">{!$Label.label_13159}</h2>
+                        </td>
+                        <td id="c_headRight" height="39px" style="min-height:39px;max-height:39px;">
+                            <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right" colspan="2">
+                            <apex:pageBlock >
+
+                                <apex:form >
+                                  <apex:pageMessages id="message"/>
+                                  <apex:pageBlock mode="maindetail">
+                                      <apex:pageBlockButtons >
+                                        <input type="button" value="{!$Label.field_common_save}" onclick="save();" class="btn"/>
+                                      </apex:pageBlockButtons>
+                                      <apex:pageBlockSection title="" columns="1">
+                                        <apex:pageBlockSectionItem >
+
+                                          <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00050}" for="ol" />
+                                          <apex:selectList value="{!selectObj}" size="1" id="ol" >
+                                            <apex:selectOptions value="{!optionList}"  />
+                                          </apex:selectList>
+                                        </apex:pageBlockSectionItem>
+                                      </apex:pageBlockSection>
+                                  </apex:pageBlock>
+                              </apex:form>
+                            </apex:pageBlock>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div id="copyright" >{!$Label.field_CSO_copyright}</div>
+</apex:page>

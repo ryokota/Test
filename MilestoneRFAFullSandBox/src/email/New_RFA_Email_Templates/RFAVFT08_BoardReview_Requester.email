@@ -1,0 +1,34 @@
+<messaging:emailTemplate subject="要取締役会承認（Approved / Requires BOD Approval）: {!relatedTo.Name} -【{!relatedTo.RequestTitle__c}】" recipientType="User" relatedToType="RFA__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = " font-size:14px;">
+
+                    <p>
+                    以下のRFA承認申請は、取締役会の承認が必要です。<BR/>
+                    手続きについては、コーポレートアドミニストレーション部に連絡をし、対応をしてください。<br/>
+                    This RFA requires BOD approval. Please contact Corporate Administration for further proceeding.
+                    </p>
+                    <BR/>
+
+                    <!--<c:RFAVFT_C03_BODReviewBody rfaObj="{!relatedTo}"/><br/>-->
+                    
+                    <p>
+                    内容を確認する場合には下記リンクをクリックし、承認申請リクエスト文書を開いてください:<BR/>
+                    Click this link to open the RFA Request Document:<BR/>  
+                    <B><a href="{!$Label.RFA_CL026}/{!relatedTo.Id}">{!relatedTo.Name}</a></B>
+                    <BR/></p>
+                    <BR/>
+                    
+                    <!--<p>このEメールは、本承認申請の申請者または主要連絡先の方へ送られています。<BR/>
+                    You are receiving this email because you are the Requester or Primary Point of Contact(s) of this RFA.
+                    </p>
+                    <BR/>
+                    <p>ご質問がございましたら、 <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a> へご連絡ください。<BR/>
+                    If you have any inquiries kindly contact <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a>.
+                    </p>-->
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Profit Center</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Profit Centers</value>
+    </caseValues>
+    <fields>
+        <label><!-- Active/Inactive --></label>
+        <name>ActiveInactive__c</name>
+        <picklistValues>
+            <masterLabel>Active</masterLabel>
+            <translation><!-- Active --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Inactive</masterLabel>
+            <translation><!-- Inactive --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- This field is used for recalculation of sharing model. --></help>
+        <label><!-- Need Recalculation --></label>
+        <name>NeedRecalculation__c</name>
+    </fields>
+    <fields>
+        <label><!-- Profit Center Name --></label>
+        <name>ProfitCenterName__c</name>
+    </fields>
+    <layouts>
+        <layout>Profit Center Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Profit Center Number --></nameFieldLabel>
+    <namedFilters>
+        <errorMessage><!-- You may only select Active Profit Centers and the Profit Center must have a Location Coordinator assigned to it. Contact the appropriate Location Coordinator if you cannot find a particular Profit Center. --></errorMessage>
+        <name>nf_01Id00000016kuSEAQ_00Nd000000594cmEAA</name>
+    </namedFilters>
+    <startsWith>Consonant</startsWith>
+    <webLinks>
+        <label><!-- Update_Sharing_for_Attached_RFAs --></label>
+        <name>Update_Sharing_for_Attached_RFAs</name>
+    </webLinks>
+</CustomObjectTranslation>

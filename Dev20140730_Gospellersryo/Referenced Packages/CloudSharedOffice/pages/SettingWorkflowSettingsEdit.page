@@ -1,0 +1,401 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingWorkflowController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_workflow_settings == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_workflow_settings == 'true' && userInfo.showErrPage == false, true, false)}">
+
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+
+<script type="text/javascript">
+
+
+$(function(){
+    var callback =  function(data){
+        if(data.result){
+            displayInit(data);
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowSettingsInfo.json', {}, callback);
+});
+
+function displayInit(data){
+    var highlight = data.highlight;
+
+    $.each(highlight, function(index, value) {
+        var str = '<tr>';
+        if(index == 0){
+            str += '<th>{!$Label.label_10688}</th>';
+        }else{
+            str += '<th></th>';
+        }
+        str = str + '<td>';
+        str += '<input type="checkbox" id="effective' + value.no + '" class="checkbox" onclick="onEffectiveChange(' + value.no + ')" />';
+        str += '<div class="colors" style="background-color: ' + value.color + '"></div>';
+        str += '<div class="span-txt">';
+        if('ja'!='{!userInfo.locale}' && 'zh'!='{!userInfo.locale}'){
+            str += '{!$Label.label_10690}';
+        }
+        str += '<input type="text" id="effective_span' + value.no + '" name="effective_span' + value.no + '" class="span" maxLength="4" value="' + value.effective_span + '"/>{!$Label.label_10019}';
+        if('ja'=='{!userInfo.locale}' || 'zh'=='{!userInfo.locale}'){
+            str += '{!$Label.label_10690}';
+        }
+        str += '</div>';
+        str += '<div class="reminder"><label><input type="checkbox" id="reminder' + value.no + '" name="reminder' + value.no + '" class="checkbox"/>{!$Label.label_10689}</label></div>';
+        str += '</td></tr>';
+        $('#highlightDiv').append(str);
+        show_checkbox('effective' + value.no, value.effective);
+        show_checkbox('reminder' + value.no, value.reminder);
+        onEffectiveChange(value.no);
+    });
+
+    show_checkbox('weekend_work', data.weekend_work);
+
+    $('#registUserName').text(data.regist_uname);
+    $('#registDate').text(data.regist_date);
+    var updateUserName = data.update_uname;
+    var updateDate     = data.update_date;
+    if(updateUserName.length <= 0) updateUserName = "-";
+    if(updateDate.length <= 0) updateDate = "-";
+    $('#updateUserName').text(updateUserName);
+    $('#updateDate').text(updateDate);
+}
+
+function show_checkbox(id, check){
+    if(eval(check)){
+        $('#' + id).attr('checked', 'checked');
+    } else {
+        $('#' + id).attr('checked', '');
+    }
+}
+
+function onEffectiveChange(number){
+    if($("#effective" + number).attr("checked")){
+        $("#effective_span" + number).attr("disabled", "");
+        $("#reminder" + number).attr("disabled", "");
+    }else{
+        $("#effective_span" + number).attr("disabled", "disabled");
+        $("#reminder" + number).attr("disabled", "disabled");
+        $("#effective_span" + number).val("");
+        $("#reminder" + number).attr("checked", "");
+    }
+}
+
+function onCancelClick(){
+    location.href = "SettingWorkflowSettingsInfo";
+}
+
+function onOkClick(){
+    $(".btn").attr("disabled", "disabled");
+
+    var styleClass = "error";
+    $("[id^=effective_span]").removeClass(styleClass);
+    var err = [];
+
+    var validSpanIsNumeric = true;
+    var i=0;
+    var regIsNumeric = /^[1-9][0-9]{0,3}$/;
+    while($("#effective_span"+i).length > 0){
+        if($("#effective"+i).attr("checked")){
+            if(!$("#effective_span"+i).val().match(regIsNumeric)){
+                validSpanIsNumeric = false;
+//                $("#effective_span"+i).addClass(styleClass);
+            }
+        }
+        i++;
+    }
+    if(!validSpanIsNumeric){
+        err.push(getMsg(new Array("{!$Label.label_10019}", 1, 9999), "{!$Label.msg_00320}"));
+    }
+
+    if(validSpanIsNumeric && $("#effective0").attr("checked") && $("#effective1").attr("checked")){
+        if(parseInt($("#effective_span0").val()) >= parseInt($("#effective_span1").val())){
+//            $("#effective_span1").addClass(styleClass);
+            err.push("{!$Label.msg_00318}");
+        }
+    }
+
+    if (err.length > 0){
+        alert(err.join("\n"));
+        $(".btn").removeAttr("disabled");
+        return false;
+    }
+    
+    var highlight = [
+        {
+            no                : "0",
+            effective         : $("#effective0").attr("checked") ? "1" : "0",
+            effective_span    : $("#effective_span0").val(),
+            reminder          : $("#reminder0").attr("checked") ? "1" : "0",
+        },
+        {
+            no                : "1",
+            effective         : $("#effective1").attr("checked") ? "1" : "0",
+            effective_span    : $("#effective_span1").val(),
+            reminder          : $("#reminder1").attr("checked") ? "1" : "0",
+        }
+    ];
+
+    var query = {
+        highlight     : JSON.stringify(highlight),
+        weekend_work  : $("#weekend_work").attr("checked") ? "1" : "0",
+    };
+
+    CsoScript_loadingStart();
+    securePostAsync(
+        '/workflowmanagement.setting/WorkflowSettingsEdit.json',
+        query,
+        function(data){
+            if(!data.result){
+                CsoScript_loadingStop();
+                if((data.userMsg != null) && (data.userMsg != "")){
+                    alert(data.userMsg);
+                }
+                if((data.message != null) && (data.message != "")){
+                    alert(data.message);
+                }
+                $(".btn").removeAttr("disabled");
+                return false;
+            }
+            location.href = "SettingWorkflowSettingsInfo";
+        },
+        function(data){
+            CsoScript_loadingStop();
+            alert("WorkflowSettingsEdit:" + data);
+            $(".btn").removeAttr("disabled");
+        }
+    );
+
+    return true;
+}
+</script>
+
+<style type="text/css">
+#editMain {
+    width:100%;
+    height: 100%;
+}
+
+.separatorDiv{
+    position:relative;
+    width: 100%;
+    vertical-align: bottom;
+}
+
+#separatorDiv div{
+    color: white;
+    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+#detailDiv{
+    padding: 5px 0px 5px 30px;
+}
+
+#detailDiv table th{
+    text-align: right;
+    padding-right: 10px;
+    font-weight: bold;
+    white-space:nowrap;
+}
+
+#detailDiv table td {
+    white-space:nowrap;
+}
+
+.detailTbl th {
+    vertical-align: center;
+    width: 100px;
+    height: 20px;
+}
+
+.detailTbl td {
+    vertical-align: center;
+}
+
+.historyTbl {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.historyTbl th{
+    font-weight: bold;
+    width: 100px;
+}
+
+//.historyTbl *{
+//    color: blue;
+//}
+
+.checkbox{
+    display: block;
+    width: 16px;
+    margin: 0 5px 0 5px;
+    vertical-align: middle;
+    float: left;
+}
+
+.colors {
+    height: 19px;
+    width: 60px;
+    float: left;
+    display: block;
+    margin: 1px 0 0 5px;
+}
+.span-txt {
+    height: 20px;
+    width: 120px;
+    margin: 0 0 0 20px;
+    float: left;
+}
+.span {
+    width: 40px;
+}
+.reminder {
+    margin: 3px 0 0 20px;
+    float: left;
+}
+.weekend-work {
+    float: left;
+}
+
+.space th, .space td {
+    height: 14px;
+}
+
+.highlightDiv th {
+    width: 90px;
+    height: 26px;
+    font-weight: bold;
+    text-align: right;
+}
+.highlightDiv td {
+    min-width: 260px;
+    padding-left: 10px;
+}
+
+.weekendDiv th {
+    width: 90px;
+    height: 26px;
+    font-weight: bold;
+    text-align: right;
+}
+.weekendDiv td {
+    min-width: 260px;
+    padding-left: 10px;
+}
+
+</style>
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/WF_Settings.png')}" alt="{!$Label.solxyzcso001__label_10676}" title="{!$Label.solxyzcso001__label_10676}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10673}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_10797}</h2>
+            </td>
+            <!-- ����{�b�N�X -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+
+                        <apex:pageBlockButtons >
+                            <input class="btn" type="button" value="{!$Label.label_00075}" onclick="onOkClick();return false;" />
+                            <input class="btn" type="button" value="{!$Label.label_00058}" onclick="onCancelClick();return false;" />
+                        </apex:pageBlockButtons>
+
+                        <div id ="editMain">
+                           <!-- �ڍ� -->
+                            <apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}"  collapsible="false"/>
+                            <div id="detailDiv">
+                                <table>
+                                <tr>
+                                <td>
+                                    <div id="highlightDiv">
+                                    </div>
+                                    <table class="space">
+                                        <tr><th></th><td></td></tr>
+                                    </table>
+                                    <div id="weekendDiv">
+                                        <table>
+                                            <tr>
+                                                <th>{!$Label.label_10686}</th>
+                                                <td>
+                                                    <div class="weekend-work">
+                                                        <label>
+                                                        <input type="checkbox" id="weekend_work" name="weekend_work" class="checkbox"/>
+                                                        {!$Label.label_10687}
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                                </tr>
+                                </table>
+
+                                <table>
+
+                                    <tr>
+                                        <td>
+                                            <table class="historyTbl">
+                                                <tr>
+                                                    <th>{!$Label.label_10015}</th>
+                                                    <td><span id="registUserName"></span></td>
+                                                    <th>{!$Label.label_10005}</th>
+                                                    <td><span id="registDate"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>{!$Label.label_10024}</th>
+                                                    <td><span id="updateUserName"></span></td>
+                                                    <th>{!$Label.label_10006}</th>
+                                                    <td><span id="updateDate"></span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </div>
+                        </div>
+
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

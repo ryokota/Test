@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>false</available>
+    <description>To Primary Point of Contact when they are added to an RFA</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>RFA01 Upon addition - PPOC</name>
+    <style>none</style>
+    <subject>起案通知 (Information Only) : {!RFA__c.Name} - {!RFA__c.RequestTitle__c}</subject>
+    <textOnly>以下の承認申請リクエスト (RFA) が起案されました。
+You have been identified as a of the following RFA that is currently in {!RFA__c.Stage__c}.
+
+
+**********************************************************************************************************************************
+
+案件名 (Request Title) :
+{!RFA__c.RequestTitle__c}
+
+コストセンター (Cost Center) :
+{!RFA__c.Cost_Center_Number__c}
+{!RFA__c.CostCenterName__c}
+
+申請金額 (Request Amount) :
+¥ {!RFA__c.RequestAmountFunctionalCurrency__c}
+
+
+**********************************************************************************************************************************
+
+
+内容を確認する場合には下記リンクをクリックし、承認申請の文書を開いてください:
+Click this link to open the RFA Request Document: {!RFA__c.Name}
+
+
+ご質問がございましたら、{!RFA__c.CreatedBy} へご連絡ください。
+If you have any inquiries kindly contact {!RFA__c.CreatedBy}.</textOnly>
+    <type>custom</type>
+</EmailTemplate>

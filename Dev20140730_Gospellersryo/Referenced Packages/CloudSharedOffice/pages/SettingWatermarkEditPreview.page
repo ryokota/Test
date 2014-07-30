@@ -1,0 +1,369 @@
+<apex:page cache="false" >
+
+<div id="wrapper">
+    <div id="preview_container">
+        <div class="preview_container_header">{!$Label.label_10656}</div>
+
+        <table>
+            <tr>
+                <td style="height: 300px; text-align: center;">
+                    <!-- プレビューエリア -->
+                    <div id="preview_canvas"></div>
+                </td>
+                <td rowspan="2" style="padding: 5px;">
+                    <!-- 設定エリア -->
+                    <div id="preview_config_container" style="overflow:hidden;display:none; padding: 10px;">
+                        <div style="width: 600px; margin-left: -2px; height: 30px">
+                            <ul id="config_panel_container">
+                                <li id="PDF_TabConfig"                         ><a href="#PDF_TabSpaceConfig"    >{!$Label.label_10649}</a></li>
+                                <li id="PDF_TabTimestamp"  style="display:none"><a href="#PDF_TabSpaceTimestamp" >...</a></li>
+                                <li id="PDF_TabUserName"   style="display:none"><a href="#PDF_TabSpaceUserName"  >...</a></li>
+                                <li id="PDF_TabUserId"     style="display:none"><a href="#PDF_TabSpaceUserId"    >...</a></li>
+                                <li id="PDF_TabUserCorp"   style="display:none"><a href="#PDF_TabSpaceUserCorp"  >...</a></li>
+                                <li id="PDF_TabUserPost"   style="display:none"><a href="#PDF_TabSpaceUserPost"  >...</a></li>
+                                <li id="PDF_TabUserNumber" style="display:none"><a href="#PDF_TabSpaceUserNumber">...</a></li>
+                                <li id="PDF_TabUserEmail"  style="display:none"><a href="#PDF_TabSpaceUserEmail" >...</a></li>
+                                <li id="PDF_TabUserText"   style="display:none"><a href="#PDF_TabSpaceUserText"  >...</a></li>
+                                <li id="PDF_TabUserImage"  style="display:none"><a href="#PDF_TabSpaceUserImage" >...</a></li>
+                                <li id="PDF_TabAddItem"      class="wm-add-tab">
+                                    <a href="#PDF_X"><img src="{!URLFOR($Resource.cso, 'image/Gear.png')}" style="border: none; width: 14px; height: 14px; margin: 0;"/></a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="config_panel_row" id="PDF_TabSpaceConfig">
+                            <table>
+                                <tr>
+                                    <th>{!$Label.label_10602}</th>
+                                    <td class="config_panel_slider"><div id="PDF_SliderAlpha"></div></td>
+                                    <td class="config_panel_slider_value">&nbsp;&nbsp;<input type="text" id="PDF_SliderAlphaValue" class="config_panel_slider_value_input" size="2" maxlength="3" onchange="changeAlphaText(this);sliderEffect('', PDF_ID_SliderAlpha, $(this).val());"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="config_panel_row" id="PDF_TabSpaceTimestamp" style="overflow:auto;">
+                            <table class="config_panel" cellspacing="5">
+                                <tr>
+                                    <th>{!$Label.label_10603}</th>
+                                    <td colspan="2"><input type="text" id="PDF_FontSizeTextTimestamp" class="slider_value_input" size="2" maxlength="3" onchange="changeFontSize(this);"/></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10653}</th>
+                                    <td colspan="2">
+                                        <select id="PDF_ColorTimestamp" onchange="changeTextImage(this);">
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10604}</th>
+                                    <td colspan="2"><input type="text" id="PDF_FormatTextTimestamp" size="30" maxlength="50" onchange="isTimestampFormat(this);"/></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10616}</th>
+                                    <td colspan="2">
+                                        <table id="PDF_TablePositionTimestamp" class="config_panel_pos_tbl"></table>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowAngleTimestamp">
+                                    <th>{!$Label.label_10601}</th>
+                                    <td class="config_panel_slider"><div id="PDF_SliderAngleTimestamp"></div></td>
+                                    <td class="config_panel_slider_value">&nbsp;&nbsp;<input type="text" id="PDF_SliderAngleValueTimestamp" class="config_panel_slider_value_input" size="2" maxlength="3" onchange="changeAngleText(this);sliderEffect(PDF_ID_PreviewObjectTimestamp, PDF_ID_SliderAngleTimestamp, $(this).val());"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="config_panel_row" id="PDF_TabSpaceUserName" style="overflow:auto;">
+                            <table class="config_panel" cellspacing="5">
+                                <tr>
+                                    <th>{!$Label.label_10603}</th>
+                                    <td colspan="2"><input type="text" id="PDF_FontSizeTextUserName" class="slider_value_input" size="2" maxlength="3" onchange="changeFontSize(this);"/></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10653}</th>
+                                    <td colspan="2">
+                                        <select id="PDF_ColorUserName" onchange="changeTextImage(this);">
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10616}</th>
+                                    <td colspan="2">
+                                        <table id="PDF_TablePositionUserName" class="config_panel_pos_tbl"></table>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowAngleUserName">
+                                    <th>{!$Label.label_10601}</th>
+                                    <td class="config_panel_slider"><div id="PDF_SliderAngleUserName"></div></td>
+                                    <td class="config_panel_slider_value">&nbsp;&nbsp;<input type="text" id="PDF_SliderAngleValueUserName" class="config_panel_slider_value_input" size="2" maxlength="3" onchange="changeAngleText(this);sliderEffect(PDF_ID_PreviewObjectUserName, PDF_ID_SliderAngleUserName, $(this).val());"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="config_panel_row" id="PDF_TabSpaceUserId" style="overflow:auto;">
+                            <table class="config_panel" cellspacing="5">
+                                <tr>
+                                    <th>{!$Label.label_10603}</th>
+                                    <td colspan="2"><input type="text" id="PDF_FontSizeTextUserId" class="slider_value_input" size="2" maxlength="3" onchange="changeFontSize(this);"/></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10653}</th>
+                                    <td colspan="2">
+                                        <select id="PDF_ColorUserId" onchange="changeTextImage(this);">
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10616}</th>
+                                    <td colspan="2">
+                                        <table id="PDF_TablePositionUserId" class="config_panel_pos_tbl"></table>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowAngleUserId">
+                                    <th>{!$Label.label_10601}</th>
+                                    <td class="config_panel_slider"><div id="PDF_SliderAngleUserId"></div></td>
+                                    <td class="config_panel_slider_value">&nbsp;&nbsp;<input type="text" id="PDF_SliderAngleValueUserId" class="config_panel_slider_value_input" size="2" maxlength="3" onchange="changeAngleText(this);sliderEffect(PDF_ID_PreviewObjectUserId, PDF_ID_SliderAngleUserId, $(this).val());"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="config_panel_row" id="PDF_TabSpaceUserCorp" style="overflow:auto;">
+                            <table class="config_panel" cellspacing="5">
+                                <tr>
+                                    <th>{!$Label.label_10603}</th>
+                                    <td colspan="2"><input type="text" id="PDF_FontSizeTextCorp" class="slider_value_input" size="2" maxlength="3" onchange="changeFontSize(this);"/></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10653}</th>
+                                    <td colspan="2">
+                                        <select id="PDF_ColorCorp" onchange="changeTextImage(this);">
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10616}</th>
+                                    <td colspan="2">
+                                        <table id="PDF_TablePositionCorp" class="config_panel_pos_tbl"></table>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowAngleCorp">
+                                    <th>{!$Label.label_10601}</th>
+                                    <td class="config_panel_slider"><div id="PDF_SliderAngleCorp"></div></td>
+                                    <td class="config_panel_slider_value">&nbsp;&nbsp;<input type="text" id="PDF_SliderAngleValueCorp" class="config_panel_slider_value_input" size="2" maxlength="3" onchange="changeAngleText(this);sliderEffect(PDF_ID_PreviewObjectCorp, PDF_ID_SliderAngleCorp, $(this).val());"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="config_panel_row" id="PDF_TabSpaceUserPost" style="overflow:auto;">
+                            <table class="config_panel" cellspacing="5">
+                                <tr>
+                                    <th>{!$Label.label_10603}</th>
+                                    <td colspan="2"><input type="text" id="PDF_FontSizeTextPost" class="slider_value_input" size="2" maxlength="3" onchange="changeFontSize(this);"/></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10653}</th>
+                                    <td colspan="2">
+                                        <select id="PDF_ColorPost" onchange="changeTextImage(this);">
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10616}</th>
+                                    <td colspan="2">
+                                        <table id="PDF_TablePositionPost" class="config_panel_pos_tbl"></table>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowAnglePost">
+                                    <th>{!$Label.label_10601}</th>
+                                    <td class="config_panel_slider"><div id="PDF_SliderAnglePost"></div></td>
+                                    <td class="config_panel_slider_value">&nbsp;&nbsp;<input type="text" id="PDF_SliderAngleValuePost" class="config_panel_slider_value_input" size="2" maxlength="3" onchange="changeAngleText(this);sliderEffect(PDF_ID_PreviewObjectPost, PDF_ID_SliderAnglePost, $(this).val());"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="config_panel_row" id="PDF_TabSpaceUserNumber" style="overflow:auto;">
+                            <table class="config_panel" cellspacing="5">
+                                <tr>
+                                    <th>{!$Label.label_10603}</th>
+                                    <td colspan="2"><input type="text" id="PDF_FontSizeTextNumber" class="slider_value_input" size="2" maxlength="3" onchange="changeFontSize(this);"/></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10653}</th>
+                                    <td colspan="2">
+                                        <select id="PDF_ColorNumber" onchange="changeTextImage(this);">
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10616}</th>
+                                    <td colspan="2">
+                                        <table id="PDF_TablePositionNumber" class="config_panel_pos_tbl"></table>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowAngleNumber">
+                                    <th>{!$Label.label_10601}</th>
+                                    <td class="config_panel_slider"><div id="PDF_SliderAngleNumber"></div></td>
+                                    <td class="config_panel_slider_value">&nbsp;&nbsp;<input type="text" id="PDF_SliderAngleValueNumber" class="config_panel_slider_value_input" size="2" maxlength="3" onchange="changeAngleText(this);sliderEffect(PDF_ID_PreviewObjectNumber, PDF_ID_SliderAngleNumber, $(this).val());"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="config_panel_row" id="PDF_TabSpaceUserEmail" style="overflow:auto;">
+                            <table class="config_panel" cellspacing="5">
+                                <tr>
+                                    <th>{!$Label.label_10603}</th>
+                                    <td colspan="2"><input type="text" id="PDF_FontSizeTextEmail" class="slider_value_input" size="2" maxlength="3" onchange="changeFontSize(this);"/></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10653}</th>
+                                    <td colspan="2">
+                                        <select id="PDF_ColorEmail" onchange="changeTextImage(this);">
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10616}</th>
+                                    <td colspan="2">
+                                        <table id="PDF_TablePositionEmail" class="config_panel_pos_tbl"></table>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowAngleEmail">
+                                    <th>{!$Label.label_10601}</th>
+                                    <td class="config_panel_slider"><div id="PDF_SliderAngleEmail"></div></td>
+                                    <td class="config_panel_slider_value">&nbsp;&nbsp;<input type="text" id="PDF_SliderAngleValueEmail" class="config_panel_slider_value_input" size="2" maxlength="3" onchange="changeAngleText(this);sliderEffect(PDF_ID_PreviewObjectEmail, PDF_ID_SliderAngleEmail, $(this).val());"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="config_panel_row" id="PDF_TabSpaceUserText" style="overflow:auto;">
+                            <table class="config_panel" cellspacing="5">
+                                <tr>
+                                    <th>{!$Label.label_10603}</th>
+                                    <td colspan="2"><input type="text" id="PDF_FontSizeTextText" class="slider_value_input" size="2" maxlength="3" onchange="changeFontSize(this);"/></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10653}</th>
+                                    <td colspan="2">
+                                        <select id="PDF_ColorText" onchange="changeTextImage(this);">
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10654}</th>
+                                    <td colspan="2"><input type="text" id="PDF_FreeText" size="30" maxlength="100" onchange="changeTextImage(this);" onblur="changeTextImage(this);"/></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10616}</th>
+                                    <td colspan="2">
+                                        <table id="PDF_TablePositionText" class="config_panel_pos_tbl"></table>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowAngleText">
+                                    <th>{!$Label.label_10601}</th>
+                                    <td class="config_panel_slider"><div id="PDF_SliderAngleText"></div></td>
+                                    <td class="config_panel_slider_value">&nbsp;&nbsp;<input type="text" id="PDF_SliderAngleValueText" class="config_panel_slider_value_input" size="2" maxlength="3" onchange="changeAngleText(this);sliderEffect(PDF_ID_PreviewObjectText, PDF_ID_SliderAngleText, $(this).val());"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="config_panel_row" id="PDF_TabSpaceUserImage" style="overflow:auto;">
+                            <table class="config_panel" cellspacing="5">
+                                <tr>
+                                    <th>{!$Label.label_10582}</th>
+                                    <td colspan="2">
+                                        <div id="button-container">
+                                            <input type="text" name="WM_fileName" id="WM_fileName" readonly="readonly" style="width:250px; padding: 6px;"/>
+                                            <input type="button" class="btn" id="WM_selectFile" value="{!$Label.label_10512}"/>
+                                            <input type="button" class="btn" id="WM_uploadFile" style="display: none;" value="OK" />
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowSizeUserImage">
+                                    <th>{!$Label.label_10140}</th>
+                                    <td>
+                                        <table class="config_panel_img_size_tbl">
+                                            <tr>
+                                                <td>
+                                                    <div><input type="text" id="PDF_SpinWidth"  value="0" size="2" maxlength="4" style="padding: 2px; vertical-align: -2px; margin-bottom: 5px;"/></div>
+                                                    <div><input type="text" id="PDF_SpinHeight" value="0" size="2" maxlength="4" style="padding: 2px; vertical-align: -2px;"/></div>
+                                                </td>
+                                                <td align="left">
+                                                    <img id="PDF_SpinJoin" src="{!URLFOR($Resource.cso, 'image/join.png')}" style="cursor: pointer;" onclick="spinJoinOnClick();" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowPositionUserImage">
+                                    <th>{!$Label.label_10616}</th>
+                                    <td colspan="2">
+                                        <table id="PDF_TablePositionUserImage" class="config_panel_pos_tbl"></table>
+                                    </td>
+                                </tr>
+                                <tr id="PDF_RowAngleUserImage">
+                                    <th>{!$Label.label_10601}</th>
+                                    <td class="config_panel_slider"><div id="PDF_SliderAngleUserImage"></div></td>
+                                    <td class="config_panel_slider_value">&nbsp;&nbsp;<input type="text" id="PDF_SliderAngleValueUserImage" class="config_panel_slider_value_input" size="2" maxlength="3" onchange="changeAngleText(this);sliderEffect(PDF_ID_PreviewObjectUserImage, PDF_ID_SliderAngleUserImage, $(this).val());"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="background-color: white; height: 50px; width: 250px;">
+                        <table style="width: 100%; padding-top:12px;">
+                            <tr>
+                                <th>{!$Label.label_10140}</th>
+                                <td>
+                                    <select id="PDF_paperSize" onchange="itemRearrangeAll();">
+                                        <option value="A4">{!$Label.label_10594}</option>
+                                        <option value="A3">{!$Label.label_10595}</option>
+                                        <option value="B5">{!$Label.label_10596}</option>
+                                        <option value="B4">{!$Label.label_10597}</option>
+                                    </select>
+                                </td>
+                                <th>{!$Label.label_10598}</th>
+                                <td>
+                                    <select id="PDF_Direction" onchange="changeDirection();">
+                                        <option value="1">{!$Label.label_10599}</option>
+                                        <option value="2">{!$Label.label_10600}</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div style="display: none;" id="PDF_addRemoveObjectDialog" title="{!$Label.label_10655}">
+    <div style="text-align: center;">
+        <table style="width: 100%;">
+            <tr>
+                <td>
+                    <select multiple="multiple" id="PDF_wm_taget_l" class="PDF_wm_taget">
+                        <option value="PDF_OptionTargetTimestamp">{!$Label.label_10581}</option>
+                        <option value="PDF_OptionTargetUserName">{!$Label.label_10021}</option>
+                        <option value="PDF_OptionTargetUserId">{!$Label.label_10003}</option>
+                        <option value="PDF_OptionTargetCorp">{!$Label.label_10650}</option>
+                        <option value="PDF_OptionTargetPost">{!$Label.label_10652}</option>
+                        <option value="PDF_OptionTargetNumber">{!$Label.label_10651}</option>
+                        <option value="PDF_OptionTargetEmail">{!$Label.label_10016}</option>
+                        <option value="PDF_OptionTargetText">{!$Label.label_10654}</option>
+                        <option value="PDF_OptionTargetUserImage">{!$Label.label_10582}</option>
+                    </select>
+                </td>
+                <td style="padding: 10px;">
+                    <div style="padding-bottom: 10px;">
+                        <input type="button" value="{!$Label.label_10020}" class="btn" onclick="move('PDF_wm_taget_l', 'PDF_wm_taget_r');"/>
+                    </div>
+                    <input type="button" value="{!$Label.label_00072}" class="btn" onclick="move('PDF_wm_taget_r', 'PDF_wm_taget_l');"/>
+                </td>
+                <td>
+                    <select multiple="multiple" id="PDF_wm_taget_r" class="PDF_wm_taget">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <input type="button" value="{!$Label.label_00059}" class="btn" onclick="keepSelectTarget();$('#PDF_addRemoveObjectDialog').dialog('close');" style="margin-top:12px;"/>
+                    <input type="button" value="{!$Label.label_00058}" class="btn" onclick="$('#PDF_addRemoveObjectDialog').dialog('close');"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+</apex:page>

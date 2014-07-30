@@ -1,0 +1,151 @@
+<apex:page id="Page" cache="false" controller="SOLXYZCSO001.SpaceUserController" tabStyle="ContentTab__tab">
+
+<style type="text/css">
+.mailText {
+    border: 1px solid gray;
+    width: 400px;
+    height: 150px;
+    background-color: white;
+    overflow: auto;
+    text-align: left;
+}
+</style>
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $('input[type!="submit"][type!="button"], select').keypress(function(e){
+          if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+            return false;
+          }else{
+            if(e.type == "select") return false;
+            return true;
+          }
+        });
+    });
+
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+        if({!if(wizard2_notMailSend != 'yes', 'false', 'true')} == true){
+            $("#mailSend").attr({"checked":"checked"});
+        }
+        if({!wizard1_applyChildren} == true){
+            $("#applyChildren").attr({"checked":"checked"});
+        }
+
+        //  招待するユーザの追加
+        insertAddUsers();
+    });
+
+    //========================//
+    //  招待するユーザの追加  //
+    //========================//
+    function insertAddUsers(){
+        var addList = $("#addUsers");
+
+        //  一覧をクリア
+        addList.empty();
+
+        //  一覧に追加
+        var option = '';
+        <apex:repeat value="{!addUserOptions}" var="opp" >
+            option = $('{!opp}');
+            option.attr("class", "item");
+            addList.append(option);
+        </apex:repeat>
+    }
+
+    //======//
+    //  OK  //
+    //======//
+    function okOnClick(){
+        if(confirm("{!$Label.solxyzcso001__msg_00048}") == false){
+            return false;
+        }
+    }
+
+</script>
+
+<apex:form id="Form">
+
+    <apex:pageBlock tabStyle="ContentTab__tab">
+        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10280}{!spacePath}"  collapsible="false"/>
+    </apex:pageBlock>
+
+    <apex:pageBlock id="Block" tabStyle="ContentTab__tab">
+
+        <!-- エラー／警告メッセージ表示エリア -->
+        <apex:pageMessages />
+
+        <table style="width: 100%; overflow:hidden;">
+            <tr>
+                <td></td>
+            </tr>
+            <tr>
+                <td style="padding-left: 10px;">
+                    <div style="display:{!if(isPublic == true,'block','none')}">
+                        {!$Label.label_10069}
+                    </div>
+                    <div style="display:{!if(isPublic == true,'none','block')}">
+                        {!$Label.label_10078}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 0px 0px 10px 10px;">
+                    <select id="addUsers" name="addUsers" size="10" style="width: 400px;" multiple="multiple">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 10px;">
+                    <label><input type="checkbox" disabled="disabled" id="mailSend" />{!$Label.label_10376}</label>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 0px 0px 10px 10px;">
+                    <div>
+                        <apex:inputTextarea id="mailText" value="{!wizard3_mailText }" styleClass="mailText" disabled="{!if(wizard2_notMailSend != 'yes', 'true', 'false')}"/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 10px;">
+                    <label>
+                        <input type="checkbox" disabled="disabled" id="applyChildren" />
+                        {!$Label.label_10076}
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 10px;">{!$Label.label_10074}</td>
+            </tr>
+        </table>
+
+
+        <!-- コマンドボタン -->
+        <apex:pageBlockButtons location="bottom">
+
+            <table width="100%">
+                <tr>
+                    <td align="right">
+                        <!-- [OK] -->
+                        <apex:commandButton styleClass="btn userInvBtn" action="{!register}" onclick="return okOnClick()" value="{!$Label.solxyzcso001__label_00059}"/>
+                        <!-- [戻る] -->
+                        <apex:commandButton styleClass="btn userInvBtn" action="{!page2}" value="{!$Label.solxyzcso001__label_00068}"/>
+                        <!-- [キャンセル] -->
+                        <input class="btn userInvBtn" type="button" value="{!$Label.label_00058}" onclick="top.window.close();" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </td>
+                </tr>
+            </table>
+
+        </apex:pageBlockButtons>
+
+    </apex:pageBlock>
+
+</apex:form>
+
+</apex:page>

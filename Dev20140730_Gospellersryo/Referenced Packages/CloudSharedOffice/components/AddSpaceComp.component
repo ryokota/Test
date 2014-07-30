@@ -1,0 +1,340 @@
+<apex:component id="addSpaceComp" access="global" allowDML="true" Controller="SOLXYZCSO001.ContentsSelectCompController">
+<apex:outputText escape="false" value="</span>"/>
+<apex:attribute name="csoUserInfo" access="global" description="required" assignTo="{!cso_UserInfo}" type="SOLXYZCSO001.CSOUserInfo" required="false"/>
+
+<!-- CSO共通スクリプト -->
+<c:CsoScriptComp id="csoScript"/>
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.customfields.css')}" />
+<c:CustomFieldsPluginComp id="customFieldsPluginComp"/>
+
+<style type="text/css">
+
+.spaceCreateTable th {
+    text-align: right;
+    min-width:70px;
+}
+.spaceCreateTable td {
+    overflow: hidden;
+}
+.th-left {
+    font-size: 11px;
+    color: black;
+    text-align: left;
+    background-color: #EFF3FF;
+    LINE-HEIGHT: 13px;
+    padding-right: 20px;
+    padding-left: 20px
+}
+
+</style>
+
+
+<script type="text/javascript">
+
+    var registSpace_isChatterFlg = false;            //  Chatter連携の有無
+
+    //============//
+    //  初期処理  //
+    //============//
+    function init_space_create(){
+    	//  カスタム項目
+		$("#customfieldsTblRegist").customfields({
+			obj_id	: "",
+			attach	: "space",
+			edit	: true,
+		});
+
+        //  初期化
+        $("#chatterParent").hide();
+        $("#chatterrow").hide();
+        $("#createSpaceName").val("");
+        $("#explanation").val("");
+        $("#chatterparent").removeAttr('checked');
+        var select_chatter_group = $(document.getElementById("{!$Component.page.addSpaceComp.addSpaceComp.registSpace_Form.registSpace_select_chatter_group}"));
+        select_chatter_group.attr("selectedIndex", 0);
+
+        //  スペース作成画面を表示
+        $("#registSpaceDialog").dialog({modal:true, width:680, "title":"{!$Label.label_10177}", autoOpen:false});
+        $("#explanation").keyup(function(){
+            viewCommentLength("explanation", "registSpace_remainder", 512);
+        });
+        $("#registSpace_remainder").text(getMsg(new Array('512'), '{!$Label.label_10227}'));
+        
+        //  各ボタンを無効化
+        $("#registSpace_OkBtn").attr({"disabled":"disabled"});
+        $("#registSpace_CancelBtn").attr({"disabled":"disabled"});
+        
+        registSpace_isChatterFlg = {!IsChatter};
+
+        var callback =  function(data){
+            //  各ボタンを有効化
+            $("#registSpace_OkBtn").removeAttr("disabled");
+            $("#registSpace_CancelBtn").removeAttr("disabled");
+
+            //  chatter連携
+            var select_chatter_group = $(document.getElementById("{!$Component.page.addSpaceComp.addSpaceComp.registSpace_Form.registSpace_select_chatter_group}"));
+
+            if((data["isShared"] == null) || (data["isShared"] == false) || (select_chatter_group.children().length <= 0)){
+                registSpace_isChatterFlg = false;
+            }
+            if(registSpace_isChatterFlg == false){
+                $("#chatterrow").hide();
+            }
+            else{
+                $("#chatterrow").show();
+                //  [Chatter]
+                var bindingoption = $(data["bindingoption"]);
+                $("#chatter_select").empty();
+                var str="";
+                $.each(bindingoption, function(n, Object){
+                    if(n!=0){
+                        str+="<option value='"+Object.value+"'>"+Object.text+"</option>";
+                    }else{
+                        str+="<option value='"+Object.value+"' selected=selected>"+Object.text+"</option>";
+                    }
+                });
+                $("#chatter_select").append(str);
+                chatter_onchecked();
+                //  [親スペースの設定を引き継ぐ] と [共有先グループ]
+                if (data["isParent"]) {
+                    var parentOption = data["parent_option"];
+                    if(parentOption == null){
+                        parentOption = $("#chatter_select").val();
+                    }
+                    var parentGroup = data["parent_group"];
+                    if(parentGroup == null){
+                        parentGroup = select_chatter_group.val();
+                    }
+                    $("#parent_option").val(parentOption);
+                    $("#parent_group").val(parentGroup);
+                    $("#chatterParent").show();
+                }
+            }
+            
+            $("#registSpaceDialog").dialog("open");
+        };
+        secureGetAsync('/contentsmanagement/SpaceCreateInit.json', {} , callback);
+    }
+
+    //======================================//
+    //  親スペースの設定を引き継ぐの変更時  //
+    //======================================//
+    function chatter_parent(){
+        if($("input[name='chatterparent']:checked").val() == 'on'){
+            $("#chatter_select").val($("#parent_option").val());
+            $("#select_chatter_group").val($("#parent_group").val());
+            chatter_onchecked();
+        }
+    }
+
+    //===================//
+    //  chatterの変更時  //
+    //===================//
+    function chatter_onchecked(){
+        var select_chatter_group = $(document.getElementById("{!$Component.page.addSpaceComp.addSpaceComp.registSpace_Form.registSpace_select_chatter_group}"));
+
+        //  「chatterで通知しない」場合
+        if($("#chatter_select").val() == "None"){
+            //  共有先グループを無効化
+            select_chatter_group.attr("disabled", "disabled");
+        }
+        else{
+            //  共有先グループを有効化
+            select_chatter_group.removeAttr("disabled");
+        }
+    }
+
+    //======//
+    //  OK  //
+    //======//
+    function spaceCreateValidate(){
+    	var err = new Array();
+    	
+    	CsoScript_loadingStart();
+
+        //  スペース名のチェック
+        var spaceNameVal = $.trim($("#createSpaceName").val());
+        if(spaceNameVal.length == 0){
+            err.push("{!$Label.msg_00033}");
+        }
+        if(spaceNameVal.match(/^.*[\\|/|:|\*|?|\"|<|>|\|].*$/)){
+            err.push('{!$Label.msg_00215}');
+        }
+        //  説明のチェック
+        var regexp = RegExp(/\r\n|\r|\n/g);
+        var spaceExplanationVal = $("#explanation").val().replace(regexp, "\r\n");
+        if(spaceExplanationVal.length > 512){
+            err.push("{!$Label.msg_00007}");
+        } else {
+        	spaceExplanationVal = $.trim(spaceExplanationVal);
+        }
+
+        //  共有先グループのチェック
+        var select_chatter_group = $(document.getElementById("{!$Component.page.addSpaceComp.addSpaceComp.registSpace_Form.registSpace_select_chatter_group}"));
+        var groupID = select_chatter_group.val();
+        var groupName = $(document.getElementById("{!$Component.page.addSpaceComp.addSpaceComp.registSpace_Form.registSpace_select_chatter_group}")).children(':selected').text();
+        if(groupID == null){
+            groupID = "";
+        }
+        if(groupName == null){
+            groupName = "";
+        }
+        var chatterSel = $("#chatter_select").val();
+        if((registSpace_isChatterFlg == true) && (chatterSel != "None") && (groupID == "")){
+            err.push("{!$Label.msg_00117}");
+        }
+        
+        //  カスタム項目
+        var customFieldsVal = $("#customfieldsTblRegist").cfValues();
+        
+        var args = {
+        	"spaceNameVal"			: spaceNameVal,
+        	"spaceExplanationVal"	: spaceExplanationVal,
+        	"groupID"				: groupID,
+        	"groupName"				: groupName,
+        	"chatterSel"			: chatterSel,
+        	"customFieldsVal"		: customFieldsVal
+        };
+        
+        //  カスタム項目
+       	$("#customfieldsTblRegist").cfValidator({
+       		"err"		: err,
+       		"errClass"	: "",
+       		"args"		: args,
+       		"success"	: registSpaceSuccess,
+       		"fail"		: registSpaceFail
+       	});
+    }
+    
+    var registSpaceSuccess = function(args) {
+    	//  各ボタンを無効化
+        $("#registSpace_OkBtn").attr({"disabled":"disabled"});
+        $("#registSpace_CancelBtn").attr({"disabled":"disabled"});
+        
+        //  登録処理の呼び出し
+        var userSte = '{"createSpaceName":null, "explanation":null, "checkbo":false, "keyt":null, "auditing":null, "riskPremium":[]}';
+        var param = {
+        	"userSte"		: userSte,
+        	"spaceId"		: "",
+        	"spaceName"		: args.spaceNameVal,
+        	"explanation"	: args.spaceExplanationVal,
+        	"customfields"	: args.customFieldsVal 
+        };
+        
+        if (registSpace_isChatterFlg) {
+	        $.extend(param, {
+	        	"isChatter"					: registSpace_isChatterFlg,
+	        	"chatter_select"			: args.chatterSel,
+	        	"select_chatter_group"		: args.groupID,
+	        	"select_chatter_group_name"	: args.groupName,
+	        	"inheritParent"				: $("#chatterparent").attr("checked") 
+	        });
+        }
+        
+        var callback =  function(data){
+            CsoScript_loadingStop();
+            if(data["result"]){
+                registSpaceDialogClose();
+                reloadNow();
+                reloadTree();
+            }
+            else{
+                var errMsg = data["message"];
+                if((errMsg == null) || (errMsg == "")){
+                    errMsg = "{!$Label.msg_00118}";
+                }
+                alert(errMsg);
+            }
+
+            //  各ボタンを有効化
+            $("#registSpace_OkBtn").removeAttr("disabled");
+            $("#registSpace_CancelBtn").removeAttr("disabled");
+        };
+        
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+        
+		securePostAsync('/contentsmanagement/SpaceCreate.json', param, callback, callerror);
+    }
+    
+    var registSpaceFail = function(args) {
+    	CsoScript_loadingStop();
+    	return false;
+    }
+
+    //==============================//
+    //  スペース作成画面のクローズ  //
+    //==============================//
+    function registSpaceDialogClose(){
+        $("#registSpaceDialog").dialog("close");
+    }
+
+</script>
+
+<div id="registSpaceDialog" style="max-height:500px;overflow-y:auto;display:none;">
+<table style="width: 100%" cellpadding="0">
+    <tr>
+        <td style="width: 20px;"></td>
+        <td>
+            <table id="customfieldsTblRegist" class="spaceCreateTable customfields" style="padding-bottom:3px;">
+                <tr cfname="name">
+                    <th>{!$Label.label_11061}</th>
+                    <td class="c_require">
+                        <form action="#" onsubmit="spaceCreateValidate(); return false;">
+                            <input name="createSpaceName" id="createSpaceName" type="text" maxlength="255" class="c_text_l" />
+                        </form>
+                    </td>
+                </tr>
+                <tr cfname="explanation">
+                    <th>{!$Label.label_10012}</th>
+                    <td>
+                        <table>
+                            <tr>
+                                <td align="right"><div id="registSpace_remainder" style="padding-bottom: 0.3em"/></td>
+                            </tr>
+                            <tr>
+                                <td><textarea name="explanation" id="explanation" style="width: 450px; resize: none; height: 150px;"></textarea></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr id="chatterrow" cfname="chatter" style="{!IF(IsChatter, '', 'display:none')}">
+                    <th>{!$Label.label_13224}</th>
+                    <td style="padding-top:10px;">
+                        <span id="chatterParent">
+                            {!$Label.label_10151}
+                            <input type="checkbox" class="checkbox" id="chatterparent" name="chatterparent" onclick="chatter_parent()"/>
+                            <input id="parent_option" name="operation" type="hidden" value="" />
+                            <input id="parent_group" name="operation" type="hidden" value="" />
+                            <br/>
+                        </span>
+                        <select id="chatter_select" name="chatter_select" onchange="chatter_onchecked()"></select>
+                        <apex:form id="registSpace_FORM" style="margin-top:2px;margin-bottom:1px;">
+                       {!$Label.solxyzcso001__label_10150}
+                        <span id="registSpace_loading" style="display:none">
+                            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="width:12px;" />{!$Label.solxyzcso001__label_10152}
+                        </span>
+                        <apex:selectList id="registSpace_select_chatter_group" size="1" disabled="disabled">
+                            <apex:selectOptions value="{!shareTargetGroupOptions}"></apex:selectOptions>
+                        </apex:selectList>
+                        </apex:form>
+
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td style="text-align: center; padding-top: 10px; padding-right: 30px;">
+            <input class="btn" type="button" value="{!$Label.label_00075}" id="registSpace_OkBtn" onclick="spaceCreateValidate()" />
+            <input class="btn" type="button" value="{!$Label.label_00058}" id="registSpace_CancelBtn" onclick="registSpaceDialogClose()" />
+        </td>
+    </tr>
+</table>
+</div>
+<apex:outputText escape="false" value="<span>"/>
+</apex:component>

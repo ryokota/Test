@@ -1,0 +1,276 @@
+what,kind,bundleId,bundleVersion,description,time
+started,bundle,org.eclipse.equinox.p2.operations,2.0.0.v20100510,"org.eclipse.equinox.p2.operations",1401071913319
+started,bundle,org.eclipse.equinox.p2.reconciler.dropins,1.1.0.v20100525,"org.eclipse.equinox.p2.reconciler.dropins",1401071913319
+started,bundle,org.eclipse.equinox.p2.repository,2.0.1.R36x_v20100823,"org.eclipse.equinox.p2.repository",1401071913320
+started,bundle,org.eclipse.equinox.p2.ui.sdk.scheduler,1.0.0.v20100507-1815,"org.eclipse.equinox.p2.ui.sdk.scheduler",1401071913320
+started,bundle,org.eclipse.equinox.p2.updatechecker,1.1.101.R36x_v20100823,"org.eclipse.equinox.p2.updatechecker",1401071913321
+started,bundle,org.eclipse.equinox.preferences,3.3.0.v20100503,"org.eclipse.equinox.preferences",1401071913322
+started,bundle,org.eclipse.equinox.registry,3.5.0.v20100503,"org.eclipse.equinox.registry",1401071913322
+started,bundle,org.eclipse.equinox.security,1.0.200.v20100503,"org.eclipse.equinox.security",1401071913323
+started,bundle,org.eclipse.equinox.util,1.0.200.v20100503,"org.eclipse.equinox.util",1401071913323
+started,bundle,org.eclipse.help,3.5.0.v20100524,"org.eclipse.help",1401071913324
+started,bundle,org.eclipse.jdt.core,3.6.1.v_A68_R36x,"org.eclipse.jdt.core",1401071913325
+started,bundle,org.eclipse.jdt.core.manipulation,1.3.0.v20100520-0800,"org.eclipse.jdt.core.manipulation",1401071913326
+started,bundle,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui",1401071913328
+started,bundle,org.eclipse.jface,3.6.1.M20100825-0800,"org.eclipse.jface",1401071913328
+started,bundle,org.eclipse.jsch.core,1.1.200.I20100505-1245,"org.eclipse.jsch.core",1401071913329
+started,bundle,org.eclipse.mylyn.bugzilla.core,3.4.2.v20100902-0100-e3x,"org.eclipse.mylyn.bugzilla.core",1401071913329
+started,bundle,org.eclipse.mylyn.bugzilla.ui,3.4.2.v20100909-0100-e3x,"org.eclipse.mylyn.bugzilla.ui",1401071913330
+started,bundle,org.eclipse.mylyn.commons.net,3.4.1.v20100625-2100-e3x,"org.eclipse.mylyn.commons.net",1401071913330
+started,bundle,org.eclipse.mylyn.commons.ui,3.4.0.v20100608-0100-e3x,"org.eclipse.mylyn.commons.ui",1401071913331
+started,bundle,org.eclipse.mylyn.context.core,3.4.1.v20100909-0100-e3x,"org.eclipse.mylyn.context.core",1401071913331
+started,bundle,org.eclipse.mylyn.context.ui,3.4.1.v20100909-0100-e3x,"org.eclipse.mylyn.context.ui",1401071913332
+started,bundle,org.eclipse.mylyn.monitor.ui,3.4.0.v20100608-0100-e3x,"org.eclipse.mylyn.monitor.ui",1401071913332
+started,bundle,org.eclipse.mylyn.tasks.ui,3.4.2.v20100902-0100-e3x,"org.eclipse.mylyn.tasks.ui",1401071913333
+started,bundle,org.eclipse.mylyn.team.ui,3.4.2.v20100909-0100-e3x,"org.eclipse.mylyn.team.ui",1401071913334
+started,bundle,org.eclipse.team.core,3.5.100.R36x_v20100825-0800,"org.eclipse.team.core",1401071913335
+started,bundle,org.eclipse.team.cvs.core,3.3.300.I20100526-0800,"org.eclipse.team.cvs.core",1401071913335
+started,bundle,org.eclipse.team.cvs.ui,3.3.301.R36x_v20100825-0800,"org.eclipse.team.cvs.ui",1401071913336
+started,bundle,org.eclipse.team.ui,3.5.101.R36x_v20100825-0800,"org.eclipse.team.ui",1401071913337
+started,bundle,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui",1401071913338
+started,bundle,org.eclipse.ui.console,3.5.0.v20100526,"org.eclipse.ui.console",1401071913338
+started,bundle,org.eclipse.ui.editors,3.6.1.r361_v20100825-0800,"org.eclipse.ui.editors",1401071913339
+started,bundle,org.eclipse.ui.forms,3.5.2.r36_v20100702,"org.eclipse.ui.forms",1401071913340
+started,bundle,org.eclipse.ui.ide,3.6.1.M20100825-0800,"org.eclipse.ui.ide",1401071913341
+started,bundle,org.eclipse.ui.net,1.2.100.I20100505-1245,"org.eclipse.ui.net",1401071913342
+started,bundle,org.eclipse.ui.views,3.5.0.I20100527-0800,"org.eclipse.ui.views",1401071913343
+started,bundle,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"org.eclipse.ui.workbench",1401071913343
+started,bundle,org.eclipse.ui.workbench.texteditor,3.6.1.r361_v20100714-0800,"org.eclipse.ui.workbench.texteditor",1401071913344
+started,bundle,org.eclipse.update.configurator,3.3.100.v20100512,"org.eclipse.update.configurator",1401071913345
+started,bundle,org.eclipse.update.core,3.2.402.R36x_v20100629,"org.eclipse.update.core",1401071913346
+started,bundle,org.eclipse.update.scheduler,3.2.300.v20100512,"org.eclipse.update.scheduler",1401071913347
+started,bundle,org.eclipse.wst.common.project.facet.core,1.4.102.v201008170019,"org.eclipse.wst.common.project.facet.core",1401071913347
+started,bundle,com.salesforce.ide.api,28.0.1.201309101331,"com.salesforce.ide.api",1401071913348
+started,bundle,com.salesforce.ide.core,28.0.1.201309101331,"com.salesforce.ide.core",1401071913348
+started,bundle,com.salesforce.ide.core.compatibility,28.0.1.201309101331,"com.salesforce.ide.core.compatibility",1401071913349
+started,bundle,com.salesforce.ide.core.compatibility.auth.platformdb,28.0.1.201309101331,"com.salesforce.ide.core.compatibility.auth.platformdb",1401071913349
+started,bundle,com.salesforce.ide.ui,28.0.1.201309101331,"com.salesforce.ide.ui",1401071913349
+started,bundle,com.salesforce.ide.ui.editors.intro,28.0.1.201309101331,"com.salesforce.ide.ui.editors.intro",1401071913350
+started,bundle,com.salesforce.ide.upgrade,28.0.1.201309101331,"com.salesforce.ide.upgrade",1401071913350
+started,bundle,org.eclipse.epp.usagedata.gathering,1.3.1.R201102081640,"org.eclipse.epp.usagedata.gathering",1401071913350
+started,bundle,org.eclipse.epp.usagedata.recording,1.3.1.R201102081640,"org.eclipse.epp.usagedata.recording",1401071913351
+os,sysinfo,,,"win32",1401071913354
+arch,sysinfo,,,"x86_64",1401071913354
+ws,sysinfo,,,"win32",1401071913354
+locale,sysinfo,,,"ja_JP",1401071913354
+processors,sysinfo,,,"4",1401071913354
+java.runtime.name,sysinfo,,,"Java(TM) SE Runtime Environment",1401071913354
+java.runtime.version,sysinfo,,,"1.6.0_45-b06",1401071913354
+java.specification.name,sysinfo,,,"Java Platform API Specification",1401071913354
+java.specification.vendor,sysinfo,,,"Sun Microsystems Inc.",1401071913354
+java.specification.version,sysinfo,,,"1.6",1401071913354
+java.vendor,sysinfo,,,"Sun Microsystems Inc.",1401071913354
+java.version,sysinfo,,,"1.6.0_45",1401071913354
+java.vm.info,sysinfo,,,"mixed mode",1401071913354
+java.vm.name,sysinfo,,,"Java HotSpot(TM) 64-Bit Server VM",1401071913354
+java.vm.specification.name,sysinfo,,,"Java Virtual Machine Specification",1401071913354
+java.vm.specification.vendor,sysinfo,,,"Sun Microsystems Inc.",1401071913354
+java.vm.specification.version,sysinfo,,,"1.0",1401071913354
+java.vm.vendor,sysinfo,,,"Sun Microsystems Inc.",1401071913354
+java.vm.version,sysinfo,,,"20.45-b01",1401071913354
+error,log,,,"ERROR [2014-05-26 11:38:36,592] (RefreshResourceAction.java:fetchRemoteComponents:94) - Unable to refresh resource(s)\r\n",1401071916600
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401071916611
+started,bundle,hr.multimodus.apexeditorls,1.1.2,"hr.multimodus.apexeditorls",1401071922373
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401071924312
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401071931504
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401071962094
+error,log,,,"ERROR [2014-05-26 11:39:27,993] (RefreshResourceAction.java:fetchRemoteComponents:94) - Unable to refresh resource(s)\r\n",1401071967997
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401071968005
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072024289
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072028040
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401072074964
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.cut",1401072106878
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072108058
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072113157
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401072113722
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401072121998
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401072134004
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401072213007
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401072253482
+no handler,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.undo",1401072254519
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072258001
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072262566
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401072422396
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072603596
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072607838
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072611112
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072623448
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072657109
+started,bundle,org.eclipse.debug.core,3.6.0.v20100519,"org.eclipse.debug.core",1401072669680
+started,bundle,org.eclipse.debug.ui,3.6.1.v20100901_r361,"org.eclipse.debug.ui",1401072669746
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072670355
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072673545
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.window.customizePerspective",1401072673557
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072675154
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072690645
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072696128
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072782295
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.file.properties",1401072782305
+error,log,,,"ERROR [2014-05-26 11:53:06,572] (RefreshResourceAction.java:fetchRemoteComponents:94) - Unable to refresh resource(s)\r\n",1401072786576
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072786583
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072787963
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072790756
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072809309
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.file.properties",1401072809318
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072813749
+started,bundle,org.eclipse.ui.cheatsheets,3.4.0.v20100427,"org.eclipse.ui.cheatsheets",1401072854847
+started,bundle,org.eclipse.search,3.6.0.v20100520-0800,"org.eclipse.search",1401072856081
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072858223
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072865795
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401072904153
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072905555
+error,log,,,"ERROR [2014-05-26 11:55:11,090] (RefreshResourceAction.java:fetchRemoteComponents:94) - Unable to refresh resource(s)\r\n",1401072911094
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072911101
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072912807
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401072920631
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401073155538
+started,bundle,org.eclipse.ltk.core.refactoring,3.5.100.v20100526-0800,"org.eclipse.ltk.core.refactoring",1401073167729
+started,bundle,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors",1401073167880
+error,log,,,"ERROR [2014-05-26 11:59:27,945] (BaseMultiPageEditorPart.java:run:117) - Unable to get describe object for project 'MilestoneRFA_CM01'\r\n",1401073167950
+error,log,,,"Unable to get describe object for project 'MilestoneRFA_CM01'",1401073167955
+started,bundle,org.eclipse.compare.core,3.5.100.I20100526-0800,"org.eclipse.compare.core",1401073168395
+started,bundle,org.eclipse.wst.sse.ui,1.2.3.v201102102045,"org.eclipse.wst.sse.ui",1401073168417
+started,bundle,org.eclipse.wst.sse.core,1.1.504.v201102160550,"org.eclipse.wst.sse.core",1401073168429
+started,bundle,org.eclipse.wst.xml.core,1.1.503.v201102102045,"org.eclipse.wst.xml.core",1401073168477
+started,bundle,org.eclipse.wst.common.uriresolver,1.1.401.v201004280700,"org.eclipse.wst.common.uriresolver",1401073168587
+started,bundle,org.eclipse.wst.xml.ui,1.1.103.v201101122108,"org.eclipse.wst.xml.ui",1401073168616
+started,bundle,org.eclipse.wst.validation,1.2.201.v201101270100,"org.eclipse.wst.validation",1401073168755
+started,bundle,org.eclipse.wst.xsd.core,1.1.503.v201011121919,"org.eclipse.wst.xsd.core",1401073168758
+started,bundle,org.eclipse.emf.common,2.6.0.v20100914-1218,"org.eclipse.emf.common",1401073168779
+started,bundle,org.eclipse.emf.ecore,2.6.1.v20100914-1218,"org.eclipse.emf.ecore",1401073168797
+started,bundle,org.eclipse.wst.dtd.ui,1.0.500.v201004290328,"org.eclipse.wst.dtd.ui",1401073168833
+opened,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401073168920
+started,bundle,org.eclipse.xsd,2.6.0.v20100914-1218,"org.eclipse.xsd",1401073168923
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401073169001
+started,bundle,org.eclipse.emf.ecore.xmi,2.5.0.v20100521-1846,"org.eclipse.emf.ecore.xmi",1401073169060
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401073169154
+started,bundle,org.eclipse.wst.internet.cache,1.0.400.v201004280700,"org.eclipse.wst.internet.cache",1401073169245
+started,bundle,org.eclipse.wst.common.frameworks,1.2.0.v201003040800,"org.eclipse.wst.common.frameworks",1401073169800
+started,bundle,org.eclipse.core.variables,3.2.400.v20100505,"org.eclipse.core.variables",1401073170418
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401073172090
+activated,view,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui.PackageExplorer",1401073181445
+closed,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401073181446
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401073184724
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076671896
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076807986
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076808142
+error,log,,,"ERROR [2014-05-26 13:00:52,724] (BaseMultiPageEditorPart.java:run:117) - Unable to get describe object for project 'MilestoneRFA_CM01'\r\n",1401076852733
+error,log,,,"Unable to get describe object for project 'MilestoneRFA_CM01'",1401076852738
+opened,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401076852961
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401076853228
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076853313
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076855418
+no handler,command,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui.edit.text.java.search.declarations.in.workspace",1401076870922
+started,bundle,org.eclipse.mylyn.java.tasks,3.4.0.v20100608-0100-e3x,"org.eclipse.mylyn.java.tasks",1401076872297
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076873377
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.findReplace",1401076873412
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.cut",1401076885044
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076886402
+activated,view,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui.PackageExplorer",1401076889701
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401076904721
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076906792
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.findReplace",1401076906829
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401076907323
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076910497
+activated,view,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui.PackageExplorer",1401076923253
+error,log,,,"ERROR [2014-05-26 13:02:13,988] (BaseMultiPageEditorPart.java:run:117) - Unable to get describe object for project 'MilestoneRFA_CM01'\r\n",1401076933997
+error,log,,,"Unable to get describe object for project 'MilestoneRFA_CM01'",1401076934000
+opened,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401076934163
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401076934754
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076934823
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076936370
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076938312
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.findReplace",1401076938351
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076952489
+activated,view,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui.PackageExplorer",1401076958051
+error,log,,,"ERROR [2014-05-26 13:03:02,385] (BaseMultiPageEditorPart.java:run:117) - Unable to get describe object for project 'MilestoneRFA_CM01'\r\n",1401076982395
+error,log,,,"Unable to get describe object for project 'MilestoneRFA_CM01'",1401076982399
+opened,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401076982502
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401076982636
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076982688
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401076984153
+activated,view,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui.PackageExplorer",1401077005467
+error,log,,,"ERROR [2014-05-26 13:03:25,653] (BaseMultiPageEditorPart.java:run:117) - Unable to get describe object for project 'MilestoneRFA_CM01'\r\n",1401077005677
+error,log,,,"Unable to get describe object for project 'MilestoneRFA_CM01'",1401077005682
+opened,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077005791
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077005953
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077006020
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077007634
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077016450
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.findReplace",1401077016483
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077020008
+activated,view,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui.PackageExplorer",1401077030831
+error,log,,,"ERROR [2014-05-26 13:04:05,190] (BaseMultiPageEditorPart.java:run:117) - Unable to get describe object for project 'MilestoneRFA_CM01'\r\n",1401077045202
+error,log,,,"Unable to get describe object for project 'MilestoneRFA_CM01'",1401077045207
+opened,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077045316
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077045898
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077045969
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077047632
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077054787
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077056008
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077070807
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.findReplace",1401077070837
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077149222
+activated,view,org.eclipse.ui.views,3.5.0.I20100527-0800,"org.eclipse.ui.views.ContentOutline",1401077149309
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077153894
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.copy",1401077187293
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077193583
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077195177
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077196276
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077201301
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077201345
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077203442
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077207381
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077207492
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077215584
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077217971
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077238293
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077241992
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077242101
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.copy",1401077245337
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077247027
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077578123
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077581011
+activated,view,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui.PackageExplorer",1401077584472
+error,log,,,"ERROR [2014-05-26 13:13:20,424] (BaseMultiPageEditorPart.java:run:117) - Unable to get describe object for project 'MilestoneRFA_CM01'\r\n",1401077600433
+error,log,,,"Unable to get describe object for project 'MilestoneRFA_CM01'",1401077600438
+opened,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077600557
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077600653
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077600704
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077601825
+activated,view,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui.PackageExplorer",1401077643689
+error,log,,,"ERROR [2014-05-26 13:14:08,141] (BaseMultiPageEditorPart.java:run:117) - Unable to get describe object for project 'MilestoneRFA_CM01'\r\n",1401077648152
+error,log,,,"Unable to get describe object for project 'MilestoneRFA_CM01'",1401077648156
+opened,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077648273
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.apex",1401077648409
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077648464
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077649608
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.copy",1401077671630
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077681662
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077685686
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401077690302
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401080151722
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401080155972
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401080163519
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401080167584
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401080170655
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401084065975
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401084067325
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401087722210
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401087730642
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401090261268
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401090277663
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401090339177
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401090346656
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401100755063
+deactivated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401100756578
+activated,workbench,org.eclipse.ui.workbench,3.6.1.M20100826-1330,"",1401100867068
+activated,view,org.eclipse.jdt.ui,3.6.1.r361_v20100825-0800,"org.eclipse.jdt.ui.PackageExplorer",1401100872132
+opened,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.html",1401100904362
+activated,editor,com.salesforce.ide.ui.editors,28.0.1.201309101331,"com.salesforce.ide.ui.editors.html",1401100904585
+started,bundle,org.eclipse.wst.css.ui,1.0.502.v201101122002,"org.eclipse.wst.css.ui",1401100917824
+started,bundle,org.eclipse.wst.html.ui,1.0.504.v201101122108,"org.eclipse.wst.html.ui",1401100917835
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.cut",1401100921485
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401100924709
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.cut",1401100938389
+executed,command,org.eclipse.ui,3.6.1.M20100826-1330,"org.eclipse.ui.edit.paste",1401100945446

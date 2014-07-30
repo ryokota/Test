@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Final approval mail sending group</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Final approval mail sending groups</value>
+    </caseValues>
+    <fields>
+        <label><!-- Category --></label>
+        <name>CM_Category__c</name>
+        <picklistValues>
+            <masterLabel>B. Approval of Customer Terms and Conditions</masterLabel>
+            <translation><!-- B. Approval of Customer Terms and Conditions --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>D. Credit Terms / Policies</masterLabel>
+            <translation><!-- D. Credit Terms / Policies --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Company receiving after approval mail --></label>
+        <name>CM_Company_receiving_after_approval_mail__c</name>
+        <picklistValues>
+            <masterLabel>CCCJ</masterLabel>
+            <translation><!-- CCCJ --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCEJ</masterLabel>
+            <translation><!-- CCEJ --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>EXS</masterLabel>
+            <translation><!-- EXS --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>FVCe</masterLabel>
+            <translation><!-- FVCe --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>FVS</masterLabel>
+            <translation><!-- FVS --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>MFD</masterLabel>
+            <translation><!-- MFD --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>MIKUNI</masterLabel>
+            <translation><!-- MIKUNI --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>TOKYO</masterLabel>
+            <translation><!-- TOKYO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>TONE</masterLabel>
+            <translation><!-- TONE --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>UVXN</masterLabel>
+            <translation><!-- UVXN --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>WEX</masterLabel>
+            <translation><!-- WEX --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Description --></label>
+        <name>CM_Description__c</name>
+    </fields>
+    <fields>
+        <label><!-- External ID --></label>
+        <name>CM_External_ID__c</name>
+    </fields>
+    <fields>
+        <label><!-- Active --></label>
+        <name>CM_IsActive__c</name>
+    </fields>
+    <fields>
+        <help><!-- If you check, you can see from other users. --></help>
+        <label><!-- open --></label>
+        <name>CM_OpenCheck__c</name>
+    </fields>
+    <fields>
+        <label><!-- Sub Category1 --></label>
+        <name>CM_Sub_Category1__c</name>
+        <picklistValues>
+            <masterLabel>1. Approval of Field Sales Operation and VM Customer Agreement</masterLabel>
+            <translation><!-- 1. Approval of Field Sales Operation and VM Customer Agreement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Initial setting of credit limits</masterLabel>
+            <translation><!-- 1. Initial setting of credit limits --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Approval of Customer Agreement for CS KAM</masterLabel>
+            <translation><!-- 2. Approval of Customer Agreement for CS KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Changes of credit limits</masterLabel>
+            <translation><!-- 2. Changes of credit limits --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Approval of Customer Agreement for Food KAM</masterLabel>
+            <translation><!-- 3. Approval of Customer Agreement for Food KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Credit period</masterLabel>
+            <translation><!-- 3. Credit period --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Approval of Customer Agreement for SAKAYA KAM</masterLabel>
+            <translation><!-- 4. Approval of Customer Agreement for SAKAYA KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</masterLabel>
+            <translation><!-- 5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>6. Approval of Customer Agreement for Corporate KAM</masterLabel>
+            <translation><!-- 6. Approval of Customer Agreement for Corporate KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>7. Approval of Customer Agreement for FV - Corporate Sales</masterLabel>
+            <translation><!-- 7. Approval of Customer Agreement for FV - Corporate Sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</masterLabel>
+            <translation><!-- 7. Approval of Customer Agreement for FV - OCS, Shop Caffe --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>7. Approval of Customer Agreement for FV - VM</masterLabel>
+            <translation><!-- 7. Approval of Customer Agreement for FV - VM --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Sub Category2 --></label>
+        <name>CM_Sub_Category2__c</name>
+        <picklistValues>
+            <masterLabel>01. Contract unit price</masterLabel>
+            <translation><!-- 01. Contract unit price --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>02. Special price / Promotion discount</masterLabel>
+            <translation><!-- 02. Special price / Promotion discount --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>03. FS selling price</masterLabel>
+            <translation><!-- 03. FS selling price --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>04. FS commission (Variable)</masterLabel>
+            <translation><!-- 04. FS commission (Variable) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>05. FS commission (Fixed)</masterLabel>
+            <translation><!-- 05. FS commission (Fixed) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>06. Key money / Rebate / Spot / Other</masterLabel>
+            <translation><!-- 06. Key money / Rebate / Spot / Other --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>07. Only in the case of Rebate</masterLabel>
+            <translation><!-- 07. Only in the case of Rebate --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>08. Other support</masterLabel>
+            <translation><!-- 08. Other support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>09. Promotion / Other expense</masterLabel>
+            <translation><!-- 09. Promotion / Other expense --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Amount of Credit limit</masterLabel>
+            <translation><!-- 1. Amount of Credit limit --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>10. Promotion (Cooperation / Sampling)</masterLabel>
+            <translation><!-- 10. Promotion (Cooperation / Sampling) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Credit limit</masterLabel>
+            <translation><!-- 2. Credit limit --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Credit period</masterLabel>
+            <translation><!-- 3. Credit period --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Non-standard Equipment</masterLabel>
+            <translation><!-- a. Non-standard Equipment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Vending Equipment parts</masterLabel>
+            <translation><!-- b. Vending Equipment parts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>c. Incidental work</masterLabel>
+            <translation><!-- c. Incidental work --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>d. Vending Equipment Lease</masterLabel>
+            <translation><!-- d. Vending Equipment Lease --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>e. Equipment retirement</masterLabel>
+            <translation><!-- e. Equipment retirement --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Sub Category3 --></label>
+        <name>CM_Sub_Category3__c</name>
+        <picklistValues>
+            <masterLabel>Create less risk to the company (shortening credit terms) &gt; 10,000,000 yen</masterLabel>
+            <translation><!-- Create less risk to the company (shortening credit terms) &gt; 10,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Create more risk to the company (lengthening credit terms) &gt; 10,000,000 yen</masterLabel>
+            <translation><!-- Create more risk to the company (lengthening credit terms) &gt; 10,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Create more risk to the company (lengthening credit terms) &gt; 10,000,000 yen (Initial credit limit &gt; 25,000,000 yen and change is &gt; 25%)</masterLabel>
+            <translation><!-- Create more risk to the company (lengthening credit terms) &gt; 10,000,000 yen (Initial credit limit &gt; 25,000,000 yen and change is &gt; 25%) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Payment Terms &gt; 1 month and &lt; 2 months</masterLabel>
+            <translation><!-- Payment Terms &gt; 1 month and &lt; 2 months --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Payment Terms ≧ 2 months</masterLabel>
+            <translation><!-- Payment Terms ≧ 2 months --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>≦ 10,000,000 yen</masterLabel>
+            <translation><!-- ≦ 10,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 10,000,000 yen</masterLabel>
+            <translation><!-- ＞ 10,000,000 yen --></translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Fixed Group Member Layout</layout>
+        <sections>
+            <label><!-- - New Section --></label>
+            <section>- New Section</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+        <sections>
+            <label><!-- 新規セクション --></label>
+            <section>新規セクション</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Standard User Group Layout</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+        <sections>
+            <label><!-- 新規セクション --></label>
+            <section>新規セクション</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>Group Name</nameFieldLabel>
+    <recordTypes>
+        <label><!-- Fixed Group Member --></label>
+        <name>Fixed_Group_Member</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- Standard Group Member --></label>
+        <name>Standard_Group_Member</name>
+    </recordTypes>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Project Management</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Project Managements</value>
+    </caseValues>
+    <fields>
+        <label><!-- 受付の件数 --></label>
+        <name>AcceptCount__c</name>
+    </fields>
+    <fields>
+        <label><!-- 確認中の件数 --></label>
+        <name>CheckCount__c</name>
+    </fields>
+    <fields>
+        <label><!-- 解決済の件数 --></label>
+        <name>CompletedCount__c</name>
+    </fields>
+    <fields>
+        <label><!-- 進捗率バー --></label>
+        <name>ProgressBar__c</name>
+    </fields>
+    <fields>
+        <label><!-- 進捗率 --></label>
+        <name>ProgressPercent__c</name>
+    </fields>
+    <fields>
+        <label><!-- 総件数 --></label>
+        <name>TotalCount__c</name>
+    </fields>
+    <layouts>
+        <layout>プロジェクト管理レイアウト</layout>
+        <sections>
+            <label><!-- Issue発生件数 --></label>
+            <section>Issue発生件数</section>
+        </sections>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>Project Management Name</nameFieldLabel>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

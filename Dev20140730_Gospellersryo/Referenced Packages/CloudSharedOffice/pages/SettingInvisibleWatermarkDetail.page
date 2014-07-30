@@ -1,0 +1,464 @@
+<apex:page cache="false" sidebar="false" controller="SOLXYZCSO001.SettingDigimarkController" tabStyle="setting__tab" action="{!init}">
+    <apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_digimark == 'false', true, false)}">{!$Label.solxyzcso001__msg_00137}</apex:outputPanel>
+    <apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}" />
+    <apex:outputPanel rendered="{!IF(userInfo.proAuth_digimark == 'true' && userInfo.showErrPage == false, true, false)}">
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__CsoBridge" />
+        <!-- CSS -->
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+        <!-- JS -->
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /></apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__CsoScript" />
+            <style type="text/css">
+                #editProfileMain {
+                    width:100%;
+                    height: 100%;
+                }
+                .separatorDiv {
+                    position:relative;
+                    width: 100%;
+                    vertical-align: bottom;
+                }
+                #separatorDiv div {
+                    color: white;
+                    padding: 3px 0px 3px 5px;
+                    font-weight: bold;
+                }
+                #detailDiv {
+                    padding: 5px 0px 5px 10px;
+                }
+                #detailDiv table th {
+                    text-align: right;
+                    padding-right: 10px;
+                    font-weight: bold;
+                    white-space:nowrap;
+                }
+                #detailDiv table td {
+                    white-space:nowrap;
+                }
+                .innerTable tbl01 {
+                    color: #0000CD;
+                }
+                .historyTbl {
+                    margin-top: 15px;
+                    margin-bottom: 15px;
+                    margin-left: 15px;
+                }
+                .historyTbl th {
+                    font-weight: bold;
+                    width: 100px;
+                }
+                .historyTbl * {
+                }
+                div.border {
+                    border-style:solid;
+                    border-width:1px;
+                    border-color : #999999;
+                    border-collapse:collapse;
+                    width:500px;
+                    height:400px;
+                    overflow:auto;
+                }
+                .config_panel_slider .ui-widget-header {
+                    border: 1px solid #4297d7;
+                    background: #5c9ccc;
+                    color: #ffffff;
+                    font-weight: bold;
+                    -moz-border-radius: 5px;
+                    -webkit-border-radius: 5px;
+                    border-radius: 5px;
+                }
+                .config_panel_slider .ui-slider-range {
+                    border: 0
+                }
+            </style>
+            <div id="c_wrapper">
+                <!-- content container -->
+                <table id="c_container" cellspacing="0" border="0">
+                    <tr>
+                        <!-- left menu container -->
+                        <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                            <apex:include pageName="SOLXYZCSO001__SettingMenu" />
+                        </td>
+                        <!-- right header container -->
+                        <td id="c_headLeft" nowrap="nowrap">
+                            <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/digimark_icon.png')}" alt="{!$Label.solxyzcso001__label_13100}" title="{!$Label.solxyzcso001__label_13100}" />
+                             <h1 id="c_headLeftTitle">{!$Label.label_11009}</h1>
+
+                            <br/>
+                             <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_13100}</h2>
+
+                        </td>
+                        <!-- 操作ボックス -->
+                        <td id="c_headRight">
+                            <apex:include pageName="SOLXYZCSO001__OperationLinks" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right" colspan="2">
+                            <apex:form >
+                            <apex:pageBlock >
+                                <!-- コマンドボタン -->
+                                <apex:pageBlockButtons >
+                                    <apex:commandButton id="btnDelete" value="{!$Label.solxyzcso001__label_00072}" onclick="removeButton();return false;" />
+                                    <apex:commandButton id="btnEdit" value="{!$Label.solxyzcso001__label_00073}" onclick="editButton();return false;"/>
+                                    <apex:commandButton id="btnCancel" value="{!$Label.solxyzcso001__label_00058}" action="{!cancel}" />
+                                </apex:pageBlockButtons>
+                                <apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}" collapsible="false" />
+                                <div id="editMain">
+                                    <div id="detailDiv">
+                                        <table>
+                                            <tr>
+                                                <td style="vertical-align: top;width:350px;">
+                                                    <table cellspacing="5" style="margin: 5px 0px 5px 10px;">
+                                                        <tr>
+                                                            <th>{!$Label.label_10450}</th>
+                                                            <td colspan="2">
+                                                                <input type="checkbox" name="DM_enabled" id="DM_enabled" disabled="true"/>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>{!$Label.label_11043}</th>
+                                                            <td colspan="2">
+                                                                <div style="height:20px;">
+                                                                <span id="DM_name"></span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="limited" style="display:none;">
+                                                            <th>{!$Label.label_10579}</th>
+                                                            <td colspan="2">
+                                                                <label>
+                                                                    <input type="checkbox" name="DM_timing" id="DM_timingSpace" disabled="true"/>{!$Label.label_11013}</label>
+                                                                <label>
+                                                                    <input type="checkbox" name="DM_timing" id="DM_timingDelivery" disabled="true"/>{!$Label.label_11014}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="limited" style="display:none;">
+                                                            <th>{!$Label.label_13101}</th>
+                                                            <td style="vertical-align: top;" colspan="2">
+                                                                <table cellspacing="5" style="margin: 5px 0px 5px 10px;">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_BMP" id="TA_BMP" disabled="true"/>{!$Label.label_13102}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_GIF" id="TA_GIF" disabled="true"/>{!$Label.label_13103}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_PNG" id="TA_PNG" disabled="true"/>{!$Label.label_13104}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_TIFF" id="TA_TIFF" disabled="true"/>{!$Label.label_13105}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_JPEG" id="TA_JPEG" disabled="true"/>{!$Label.label_13106}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_PDF" id="TA_PDF" disabled="true"/>{!$Label.label_13107}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_docx" id="TA_docx" disabled="true"/>{!$Label.label_13108}</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label>
+                                                                                <input type="checkbox" name="TA_pptx" id="TA_pptx" disabled="true"/>{!$Label.label_13109}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="vertical-align: top;">
+                                                    <table class="historyTbl">
+                                                        <tr>
+                                                            <th id="DM_HeaderCreator">{!$Label.label_10015}</th>
+                                                            <td><span id="DM_registUserName"></span>
+                                                            </td>
+                                                            <th id="DM_HeaderCreateDate">{!$Label.label_10005}</th>
+                                                            <td><span id="DM_registDate"></span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th id="DM_HeaderUpdator">{!$Label.label_10024}</th>
+                                                            <td><span id="DM_updateUserName"></span>
+
+                                                            </td>
+                                                            <th id="DM_HeaderUpdateDate">{!$Label.label_10006}</th>
+                                                            <td><span id="DM_updateDate"></span>
+
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <!-- 適用スペース -->
+                                    <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10586}" collapsible="false" />
+                                    <div id="applySpaceDiv" style="padding: 0 20px 0 20px">
+                                        <div class="c_command_l">
+                                        </div>
+                                        <!-- jqGrid -->
+                                        <div id="spaceList-container">
+                                            <table id="spaceList"></table>
+                                            <div id="spaceListPager"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </apex:pageBlock>
+                            </apex:form>
+                        </td>
+                    </tr>
+                </table>
+                <div id="copyright">{!$Label.solxyzcso001__label_00001}</div>
+            </div>
+            <script type="text/javascript">
+                var DM_DigimarkId = "dummy";
+                var DM_err = false;
+
+                var limited = false;
+
+                function DM_displayInit(data) {
+                    var info = data.detail.info;
+
+                }
+
+                function DM_check(id, check) {
+                    $('#' + id).attr('checked', eval(check));
+                }
+            </script>
+            <script type="text/javascript">
+                var DM_spaces = [];
+
+                jQuery.event.add(window, "load", function () {
+                        /*--  ブラウザの種類を保持  --*/
+                        DM_browserType = getBrowserType();
+
+                        /*--  IDを保持  --*/
+                        DM_DigimarkId = "{!definitionId}";
+
+                        /*--  設定情報を取得  --*/
+                        var callback = function (data, status) {
+                            if (!data.result) {
+                                var errMsg = data.message;
+                                if ((errMsg != null) && (errMsg != "")) {
+                                    alert(errMsg);
+                                }
+                                return;
+                            }
+                            initData(data);
+                        };
+                        var callerror = function (data) {
+                            alert("DigimarkDetailApi:" + data);
+                        };
+
+                        secureGetAsync('/setup/DigimarkDetailApi.json?id=' + DM_DigimarkId, '', callback, callerror);
+
+                        /*--  適用スペースの初期化  --*/
+                        initDigimarkSpaceList();
+                    });
+
+                function initDigimarkSpaceList() {
+                    /*--  編集の場合  --*/
+                    if (DM_DigimarkId != "") {
+
+                        var callback = function (data, status) {
+                            for (i = 0; i < data.records; i++) {
+                                DM_spaces.push({
+                                        id: data.rows[i].id,
+                                        space_name: data.rows[i].space_name,
+                                        space_info: data.rows[i].space_info
+                                    });
+                            }
+                            var opt = {
+                                data: DM_spaces,
+                                datatype: "local"
+                            };
+                            $('#spaceList').clearGridData();
+                            $('#spaceList').setGridParam(opt);
+                            $('#spaceList').trigger("reloadGrid");
+                        };
+                        var callerror = function (data) {
+                            alert("DigimarkSpaceListApi:" + data);
+                        };
+
+                        var searchQuery = {
+                            page: 1,
+                            rows: 1000000,
+                            sord: "asc",
+                            sidx: "id",
+                            nd: "_",
+                            _search: "false"
+                        }
+
+                        secureGetAsync('/setup/DigimarkSpaceListApi.json?id=' + DM_DigimarkId, searchQuery, callback, callerror);
+                    }
+
+                    var rows = $.cookie("digimarkSpaceRows");
+                    if (!rows) {
+                        rows = 50;
+                    }
+
+                    $("#spaceList").jqGrid({
+                            data: DM_spaces,
+                            datatype: "local",
+                            jsonReader: {
+                                repeatitems: false,
+                                id: "id"
+                            },
+                            colNames: ['',
+                                '{!$Label.solxyzcso001__label_10155}',
+                                ''
+                            ],
+                            colModel: [{
+                                    name: 'id',
+                                    index: 'id',
+                                    hidden: true
+                                }, {
+                                    name: 'space_info',
+                                    index: 'space_name',
+                                    width: 550
+                                }, {
+                                    name: 'space_name',
+                                    index: 'space_name',
+                                    hidden: true
+                                }
+                            ],
+                            rowNum: 50,
+                            height: 200,
+                            width: $("#RightPane").width(),
+                            rowList: [10, 50, 100],
+                            sortname: 'space_name',
+                            pager: '#spaceListPager',
+                            viewrecords: true,
+                            multiselect: false,
+                            loadComplete: function (data) {
+                                var r = $(this).getGridParam("rowNum");
+                                $.cookie("digimarkSpaceRows", $(this).getGridParam("rowNum"));
+                            }
+                        });
+                }
+
+                function initData(data) {
+                    DM_check('DM_enabled', data.detail.info.enable);
+                    $('#DM_name').text(data.detail.info.name);
+                    DM_check('DM_timingSpace', data.detail.info.timingSpace);
+                    DM_check('DM_timingDelivery', data.detail.info.timingDelivery);
+
+                    DM_check('TA_BMP', data.detail.info.invisibleTarget.bmp);
+                    DM_check('TA_GIF', data.detail.info.invisibleTarget.gif);
+                    DM_check('TA_PNG', data.detail.info.invisibleTarget.png);
+                    DM_check('TA_TIFF', data.detail.info.invisibleTarget.tiff);
+                    DM_check('TA_JPEG', data.detail.info.invisibleTarget.jpeg);
+                    DM_check('TA_PDF', data.detail.info.invisibleTarget.pdf);
+                    DM_check('TA_docx', data.detail.info.invisibleTarget.docx);
+                    DM_check('TA_pptx', data.detail.info.invisibleTarget.pptx);
+
+                    $('#DM_registUserName').text(data.detail.registUserName);
+                    $('#DM_registDate').text(data.detail.registDate);
+                    $('#DM_updateUserName').text(data.detail.updateUserName);
+                    $('#DM_updateDate').text(data.detail.updateDate);
+
+                    if(data.detail.limited){
+                        $('.limited').hide();
+                    } else {
+                        $('.limited').show();
+                    }
+
+                    resizeGrid();
+                    $(window).resize(resizeGrid);
+                }
+
+                function hideRegisterInfo() {
+                    $("#DM_HeaderCreator").text("");
+                    $("#DM_HeaderCreateDate").text("");
+                    $("#DM_HeaderUpdator").text("");
+                    $("#DM_HeaderUpdateDate").text("");
+                }
+
+                function resizeGrid() {
+                    var height = getBrowserHeight() - 570;
+                    $("#spaceList").setGridWidth(1);
+                    $("#spaceList").setGridWidth($("#spaceList-container").innerWidth());
+
+                    if (height >= 270) {
+                        $("#spaceList").setGridHeight(height);
+                    }
+                }
+
+                function cancelOnClick() {
+                    cancelOnClickMain();
+                }
+
+                function cancelOnClickMain() {
+                    if ("{!type}" == "detail") {
+                        location.href = "SettingDigimarkDetail?id=" + DM_DigimarkId;
+                    } else {
+                        location.href = "SettingDigimarkList";
+                    }
+                }
+
+                function editButton(){
+                    location.href = "SettingDigimarkEdit?id=" + DM_DigimarkId;
+                }
+
+                function removeButton(){
+                        var hasSpace = '{!hasSpace}';
+                        var msg;
+                        if(hasSpace == "true"){
+                            msg = '{!$Label.solxyzcso001__msg_01018}';
+                        }else{
+                            msg = '{!$Label.solxyzcso001__msg_01035}';
+                        }
+                        if (confirm(msg)) {
+                            CsoScript_loadingStart();
+                            var callback = function(data){
+                                // 削除できなかった場合にはメッセージを表示する
+                                if(data.result == false){
+                                    alert(data.message);
+                                }
+                                location.href = "SettingDigimarkList";
+                                CsoScript_loadingStop();
+                            }
+
+                            var callerror =  function(data){
+                                CsoScript_loadingStop();
+                                alert(data);
+                            };
+                            securePostAsync('/setup/digimarkDeleteApi.json',{'id' : DM_DigimarkId}, callback,callerror);
+                        }
+                    }
+
+            </script>
+            <apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+    </apex:outputPanel>
+</apex:page>

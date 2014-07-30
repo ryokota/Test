@@ -1,0 +1,42 @@
+<messaging:emailTemplate subject="申請取り下げ通知（RFA is Closed）: {!relatedTo.Name} -【{!relatedTo.RequestTitle__c}】" recipientType="User" relatedToType="RFA__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+            <!--   <p>
+                       <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="TO :"/> &nbsp;<apex:outputText value="{!relatedTo.CreatedBy.name}"/><br/>
+                    </p>
+                    <p>
+                        <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="CC :"/> &nbsp;
+                        <apex:outputText value="{!relatedTo.POC_Name__c}, " rendered="{!relatedTo.POC_Name__c!=null}"/>
+                        <apex:outputText value="{!relatedTo.CO_CREATOR_Name__c}, " rendered="{!relatedTo.CO_CREATOR_Name__c!=null}"/>
+                        <apex:outputText value="{!relatedTo.LOC_Name__c}" rendered="{!relatedTo.LOC_Name__c!=null}"/>
+                        <br/>
+                    </p> -->
+                 <div style = " font-size:14px;">      
+                              
+                    <p>
+                    以下のRFA承認申請が取り下げられましたのでお知らせ致します。<br/>
+                    This RFA has been closed.
+                    </p><br/>
+                    
+                    <!--<c:RFA_C02_EmailTemplateBodyRFA rfaObj="{!relatedTo}"/><br/>-->
+                    <c:RFAVFT_C00_EmailTemplate_Close rfaObj="{!relatedTo}"/><br/>
+                                        
+                    <p>
+                   内容を確認する場合にはこのリンクをクリックし、承認申請リクエスト文書を開いてください:<BR/>
+                    Click this link to open the RFA Request Document:<BR/>
+                    <B><a href="{!$label.RFA_CL026}/{!relatedTo.Id}">{!relatedTo.Name}</a></B>
+                    </p>
+                    <!--<p>
+                    このEメールは、あなたがこの承認申請の申請者または主要連絡先であるため送られています。<BR/>
+                    You are receiving this email because you are the Requester or Primary Point of Contact(s) of this RFA.
+                    </p>-->
+                    <p>ご質問がございましたら、 <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a> へご連絡ください。<BR/>
+                    If you have any inquiries kindly contact <a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a>.<BR/>
+                    <BR/>
+                    </p> <BR/>
+                 </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

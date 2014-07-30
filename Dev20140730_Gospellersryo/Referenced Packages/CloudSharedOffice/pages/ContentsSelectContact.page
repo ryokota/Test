@@ -1,0 +1,20 @@
+<apex:page sidebar="true" showHeader="true" standardController="Contact" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Contact">
+<apex:form >
+<apex:variable var="Sf_ID" value="{!Id}" />
+<apex:variable var="Sf_name" value="{!Contact.name}" />
+<apex:variable var="Sf_type" value="Contact" />
+<apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Contact}" />
+<apex:variable var="pageType" value="list" />
+
+  <apex:detail />
+  <!-- 
+  <apex:include pageName="ContentsSelect"/>
+   -->
+  <c:ContentsSelectComp id="contentsSelectComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:form>
+<!-- スペース登録 -->
+<!-- 
+<apex:include pageName="AddSpace"/>
+ -->
+<c:AddSpaceComp id="addSpaceComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

@@ -1,0 +1,36 @@
+<div style = " font-size:14px;">
+
+<p>
+以下の承認申請リクエスト (RFA) が起案されました。<BR/> 
+You have been identified as a of the following RFA that is currently in {!RFA__c.Stage__c}.<BR/><BR/>
+</p> 
+
+<p>
+**********************************************************************************************************************************<BR/>
+<ul>
+<li><U>案件名 (Request Title)</U> : <BR/> 
+<B>{!RFA__c.RequestTitle__c}</B></li><BR/>
+
+<li><U>コストセンター (Cost Center)</U> : <BR/> 
+<B>{!RFA__c.Cost_Center_Number__c}</B><BR/>
+<B>{!RFA__c.CostCenterName__c}</B></li><BR/>
+
+<li><U>申請金額 (Request Amount)</U> : <BR/> 
+<B>¥ {!RFA__c.RequestAmountFunctionalCurrency__c}</B></li><BR/>
+</ul>
+**********************************************************************************************************************************<BR/>
+</p>
+
+<p><BR/>
+内容を確認する場合には下記リンクをクリックし、承認申請の文書を開いてください:<BR/>
+Click this link to open the RFA Request Document: <B><a href="{!RFA__c.Link}">{!RFA__c.Name}</a><BR/></B>
+</p>
+
+
+<p><BR/>
+ご質問がございましたら、<B><a href="mailto:{!RFA__c.Requester_Email__c}?subject=RE : 起案通知（Information Only）: {!RFA__c.Name} - {!RFA__c.RequestTitle__c}">{!RFA__c.CreatedBy}</a></B> へご連絡ください。<BR/>
+If you have any inquiries kindly contact <B><a href="mailto:{!RFA__c.Requester_Email__c}?subject=RE : 起案通知（Information Only）: {!RFA__c.Name} - {!RFA__c.RequestTitle__c}">{!RFA__c.CreatedBy}</a></B>.<BR/>
+<BR/>RFA01
+</p>
+
+ </div>

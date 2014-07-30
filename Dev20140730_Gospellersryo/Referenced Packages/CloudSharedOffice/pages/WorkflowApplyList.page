@@ -1,0 +1,1332 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.WorkflowApplyListController" tabStyle="workflow__tab" action="{!init}">
+<apex:iframe src="{!$Page.SOLXYZCSO001__CSO_Error}?code={!csoUserInfo.code}&massage={!csoUserInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(csoUserInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(csoUserInfo.uid == null && csoUserInfo.showErrPage == true,false,true)}">
+<apex:outputPanel id="err" rendered="{!IF(csoUserInfo.proAuth_workflow_standard == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.proAuth_workflow_standard == 'true', true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/contextMenu.css?20130227')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/fg.menu.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/onclickMenue_plus-min.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<apex:include pageName="SOLXYZCSO001__WorkflowComment"/>
+<script src="/soap/ajax/24.0/connection.js" type="text/javascript"></script>
+<script src="/soap/ajax/24.0/apex.js" type="text/javascript"></script>
+
+<style type="text/css">
+.jqGridIcon{
+    margin: 3px;
+}
+
+#searchDiv th {
+    font-weight: bold;
+    width: 120px;
+    min-width: 120px;
+    text-align: right;
+    padding : 5px;
+}
+
+#searchDiv td {
+    width: *;
+    text-align: left;
+    padding : 5px;
+}
+
+#searchDiv table {
+    width : 100%;
+}
+
+img.condition {
+    width: 20px;
+    height: 20px;
+}
+
+.chevron {
+    background: url("{!URLFOR($Resource.cso, 'image/s-arrow.gif')}") no-repeat right center;
+    font-weight: bold;
+    padding-right: 20px;
+}
+
+#contextMenulist {
+    width: 240px;
+    top:90px;
+    left:550px;
+    z-index:1050;
+    display: none;
+}
+
+ul.viewlist {
+/*
+    display: none;
+    width : 200px;
+    z-index: 1050;
+*/
+    list-style-type: none;
+/*
+    padding-left : 5px;
+*/
+}
+
+li.viewitem {
+    font-size : 0.8em;
+}
+
+.status-base{
+    border: 2px solid;
+    padding: 3px 10px;
+    /* width: 100px; */
+    /* font-size: 16px; */
+    text-align: center;
+}
+.status-0{
+    border-color: #696969;
+    color: #696969;
+    background-color: #e6e6e6;
+    font-weight: bold;
+}
+.status-1{
+    border-color: #1e90ff;
+    color: #1e90ff;
+    background-color: #e0ffff;
+    font-weight: bold;
+}
+.status-2{
+    border-color: #2e8b57;
+    color: #FFFFFF;
+    background-color: #2e8b57;
+}
+.status-3{
+    border-color: #4169e1;
+    color: #FFFFFF;
+    background-color: #4169e1;
+}
+.status-4{
+    border-color: #e50000;
+    color: #FFFFFF;
+    background-color: #e50000;
+}
+.status-5{
+    border-color: #8b4513;
+    color: #8b4513;
+    background-color: #fff0f5;
+    font-weight: bold;
+}
+.status-6{
+    border-color: #e50000;
+    color: #e50000;
+    background-color: #fff0f5;
+    font-weight: bold;
+}
+.status-7{
+    border-color: #c71585;
+    color: #c71585;
+    background-color: #fff0f5;
+    font-weight: bold;
+}
+.status-8 {
+    border-color: #de82a7;
+    color: #de82a7;
+    background-color: #fff0f5;
+    font-weight: bold;
+}
+
+</style>
+
+<script type="text/javascript">
+
+var datePickerFormat = "yy/mm/dd";
+
+<apex:outputPanel layout="none" rendered="{!IF(csoUserInfo.locale == 'en', true, false)}">
+datePickerFormat = "mm/dd/yy";
+</apex:outputPanel>
+
+function isDatePickerFormatValid(value, instance) {
+    if (!instance[0]) return false;
+    var inst = $.datepicker._getInst(instance[0]);
+    var dateFormat = $.datepicker._get(inst, 'dateFormat');
+    try {
+        var date = $.datepicker.parseDate(dateFormat, value, $.datepicker._getFormatConfig(inst));
+    } catch(e) {
+        return false;
+    }
+
+    return true;
+}
+
+function isDatePickerFromToValid(fromElement, toElement) {
+    var fromDate = $(fromElement).datepicker('getDate');
+    var toDate = $(toElement).datepicker('getDate');
+
+    return toDate.getTime() >= fromDate.getTime();
+}
+
+</script>
+
+<script type="text/javascript">
+
+/**
+ * リリースノート言語判別用
+ */
+//sforce.connection.sessionId = '{!$Api.Session_ID}';
+//var lang = sforce.apex.execute("GlobalTokenAccessor", "getLanguage", {});
+var releasenote_url = "";
+var application_url  = _apiUrl + "{!$Label.label_application_url}";
+
+
+var lang_ja = {!lang_ja};
+var lang_en = {!lang_en};
+var lang_zh = {!lang_zh};
+
+if(lang_ja){
+    releasenote_url = "{!$Label.label_releasenote_url}";
+    manual_url = "{!$Label.solxyzcso001__label_manual}";
+}else if(lang_zh){
+    releasenote_url = "{!$Label.label_releasenote_url_zh}";
+    manual_url = "{!$Label.solxyzcso001__label_manual_zh}";
+//}else if(lang_en== 'en_US'){
+//    releasenote_url = "{!$Label.label_releasenote_url_en}";
+//    manual_url = "{!$Label.solxyzcso001__label_manual_en}";
+}else{
+    releasenote_url = "{!$Label.label_releasenote_url_en}";
+    manual_url = "{!$Label.solxyzcso001__label_manual_en}";
+}
+
+
+
+jQuery.event.add(window, "load", function(){
+readyForSync();
+
+if(lang_ja ){
+    $("#manual_span_ja").css("display", "inline");
+}else if(lang_zh){
+    manual_url = "{!$Label.solxyzcso001__label_manual_zh}";
+    $("#manual_span_zh").css("display", "inline");
+//}else if(lang  == 'en_US'){
+//    $("#manual_span_en").css("display", "inline");
+}else{
+    $("#manual_span_en").css("display", "inline");
+}
+
+
+    initWorkflowComment();
+
+    $(window).resize(resizeGrid);
+
+    var rows = localStorage.getItem("workflowApplyListRows");
+    if (!rows) {
+        rows = 50;
+    }
+
+    var viewtype = localStorage.getItem("wf_viewtype");
+    if (!viewtype) {
+        viewtype = "request";
+    }
+
+    if(eval({!csoUserInfo.proAuth_workflow_manage}) == true){
+        $("#manageAllList").show();
+    }
+    else{
+        if (viewtype == "manage") {
+            viewtype = "request";
+        }
+    }
+
+    setPageTitle(viewtype);
+
+
+    $("button.untreated").menu({
+        content : $("#untreatedviewlist").html(),
+        showSpeed : 100,
+        width : 180
+    });
+
+    $("button.approve").menu({
+        content : $("#approveviewlist").html(),
+        showSpeed : 100,
+        width : 180
+    });
+
+    $("button.apply").menu({
+        content : $("#applyviewlist").html(),
+        showSpeed : 100,
+        width : 180
+    });
+
+    $("#applyList").jqGrid({
+        url:_apiUrl + '/workflowmanagement/appliedList.json',
+        postData : {
+            manage : false,
+            type   : viewtype
+        },
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id       : "id"
+        },
+        colNames : [
+            '',
+            '{!$Label.label_10587}',
+            '{!$Label.label_10123}',
+            '{!$Label.label_10678}',
+            '{!$Label.label_10697}',
+            '{!$Label.label_10738}',
+            '{!$Label.label_10691}',
+            '{!$Label.label_10699}',
+            '{!$Label.label_10698}',
+            '{!$Label.label_10739}',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            ''
+        ],
+        colModel : [
+            {name : "id", index : "id", hidden : true},
+            {name : "condition", index : "condition", width : 30, align : "center"},
+            {name : "workflow", index : "workflow", width : 300},
+            {name : "category", index : "category", width : 140},
+            {name : "status", index : "status", width : 140, align : "center"},
+            {name : "remaining", index : "remaining", width : 90, align : "right", hidden : true},
+            {name : "applicant", index : "applicant", width : 90, align : "center"},
+            {name : "enddate", index : "enddate", align : "center", width:100, hidden : true},
+            {name : "updatedate", index : "updatedate", width : 100, align : "center"},
+            {name : "finalApprover", index : "finalApprover", width : 90, align : "center", hidden : true, sortable : false},
+            {name : "withdraw", index : "withdraw", hidden : true},
+            {name : "copy", index : "copy", hidden : true},
+            {name : "apply", index : "apply", hidden : true},
+            {name : "pullback", index : "pullback", hidden : true},
+            {name : "approve", index : "approve", hidden : true},
+            {name : "color", index : "color", hidden : true},
+            {name : "simpleName", index : "simpleName", hidden : true}
+        ],
+        rowNum : rows,
+        autowidth : true,
+        height: 200,
+        rowList:[10, 50, 100],
+        sortname: 'updatedate',
+        sortorder: "desc",
+        pager: '#applyListPager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly : true,
+        loadComplete : function(data) {
+            resizeGrid();
+            var r = $(this).getGridParam("rowNum");
+            localStorage.setItem("workflowApplyListRows", $(this).getGridParam("rowNum"));
+            $("#contextMenulist").hide();
+            localStorage.setItem("wf_viewtype", data.type);
+
+            if (data.rows) {
+                for (var i = 0; i < data.rows.length; i++) {
+                    var row = data.rows[i];
+                    if (row.color != "") {
+                        $("tr#" + row.id).css({"background" : row.color});
+                    }
+                }
+            }
+
+            var rows = $(this).getRowData();
+            var ids = [];
+            for (var i in rows) {
+                var row = rows[i];
+                ids.push(row.id);
+            }
+            localStorage.setItem("wflist", JSON.stringify(ids));
+        },
+        onSelectRow : onSelectRow,
+        onSelectAll : onSelectRow
+    });
+
+    resizeGrid();
+
+    $("#searchDiv").dialog({
+        autoOpen : false,
+        modal : false,
+        width : 500,
+        height : 350,
+        title : '{!$Label.label_00069}',
+        open : function(e) {
+            loadCategory();
+        },
+        close : function(e) {
+            $("#number,#workflowName,#title,#applicant,#condition,#fromDate,#toDate").val("");
+            $("#category").val("all");
+        }
+    });
+
+    $("#fromDate,#toDate").datepicker({
+        dateFormat : datePickerFormat
+    });
+
+    $("#fromDate").change(function(e) {
+        $("#toDate").datepicker("option", {
+            minDate : $("#fromDate").val()
+        });
+    });
+    initMobableElement();
+});
+
+function view(type) {
+
+    var param = $("#applyList").getGridParam().postData;
+
+    param.type = type;
+    delete param.number;
+    delete param.workflowName;
+    delete param.title;
+    delete param.category;
+    delete param.applicant;
+    delete param.condition;
+    delete param.fromDate;
+    delete param.toDate;
+
+    $("#applyList").setGridParam({postData : param}).trigger("reloadGrid");
+    setPageTitle(type);
+
+    $("#searchDiv").dialog("close");
+}
+
+function setPageTitle(type) {
+    var pageTitle;
+    switch (type) {
+    case "request":
+        pageTitle = "{!$Label.label_10706}";
+        break;
+    case "agentrequest":
+        pageTitle = "{!$Label.label_10707}";
+        break;
+    case "allapprove":
+        pageTitle = "{!$Label.label_10800}";
+        break;
+    case "planapprove":
+        pageTitle = "{!$Label.label_10801}";
+        break;
+    case "allapply":
+        pageTitle = "{!$Label.label_10803}";
+        break;
+    case "running":
+        pageTitle = "{!$Label.label_10830}";
+        break;
+    case "complete":
+        pageTitle = "{!$Label.label_10831}";
+        break;
+    case "manage":
+        pageTitle = "{!$Label.label_10702}";
+        break;
+    }
+
+    $("#c_headLeftSubTitle").text(pageTitle);
+}
+
+function onSelectRow(id, status) {
+    $("#contextMenulist").show();
+
+    var sel = $("#applyList").getGridParam("selarrrow");
+    if (sel.length == 0) {
+        $("#contextMenulist").hide();
+        return;
+    } else if (sel.length == 1) {
+        var ctx = $("#applyList");
+        var ret = ctx.find("#" + sel[0] + " td");
+
+        var colModel = ctx.getGridParam('colModel');
+        var itemName;
+        for (var i=0; i<colModel.length; ++i) {
+            if (colModel[i].name === 'simpleName') {
+                itemName = $(ret[i]).text();
+            }
+        }
+
+        $("#titleTemp").text(itemName);
+
+        ajustTitleLength("#contextMenuHeader", "#titleTemp",itemName);
+    } else {
+        $("#contextMenuHeader").text(sel.length.toString() + " " + '{!$Label.label_10234}');
+    }
+
+    var withdrawEnable = true;
+    var copyEnable = true;
+    var applyEnable = true;
+    var pullbackEnable = true;
+    var approveEnable = true;
+
+    if (sel.length > 1) {
+        copyEnable = false;
+//      applyEnable = false;
+    }
+
+    for (var i = 0; i < sel.length; i++) {
+        var row = $("#applyList").getRowData(sel[i]);
+
+        if (row.withdraw != "true") {
+            withdrawEnable = false;
+        }
+
+        if (row.copy != "true") {
+            copyEnable = false;
+        }
+
+        if (row.apply != "true") {
+            applyEnable = false;
+        }
+
+        if (row.pullback != "true") {
+            pullbackEnable = false;
+        }
+
+        if (row.approve != "true") {
+            approveEnable = false;
+        }
+    }
+
+    $(".contextMenu").unbind("click");
+
+    if (withdrawEnable) {
+        $("#contextmenuWithdraw").removeClass("contextMenuDisable").addClass("contextMenuEnable").click(withdraw);
+        $("#contextmenuWithdraw").show();
+    } else {
+        $("#contextmenuWithdraw").addClass("contextMenuDisable").removeClass("contextMenuEnable").unbind("click", withdraw);
+        $("#contextmenuWithdraw").hide();
+    }
+
+    if (copyEnable) {
+        $("#contextmenuCopy").removeClass("contextMenuDisable").addClass("contextMenuEnable").click(copyApply);
+        $("#contextmenuCopy").show();
+    } else {
+        $("#contextmenuCopy").addClass("contextMenuDisable").removeClass("contextMenuEnable").unbind("click", copyApply);
+        $("#contextmenuCopy").hide();
+    }
+
+    if (applyEnable) {
+        $("#contextmenuApply").removeClass("contextMenuDisable").addClass("contextMenuEnable").click(apply);
+        $("#contextmenuApply").show();
+    } else {
+        $("#contextmenuApply").addClass("contextMenuDisable").removeClass("contextMenuEnable").unbind("click", apply);
+        $("#contextmenuApply").hide();
+    }
+
+    if (pullbackEnable) {
+        $("#contextmenuPullback,#contextmenuCancelApproval").removeClass("contextMenuDisable").addClass("contextMenuEnable");
+        $("#contextmenuPullback,#contextmenuCancelApproval").show();
+        $("#contextmenuPullback").click(pullback);
+        $("#contextmenuCancelApproval").click(cancel);
+    } else {
+        $("#contextmenuPullback,#contextmenuCancelApproval").addClass("contextMenuDisable").removeClass("contextMenuEnable");
+        $("#contextmenuPullback").unbind("click", pullback);
+        $("#contextmenuCancelApproval").unbind("click", cancel);
+        $("#contextmenuPullback,#contextmenuCancelApproval").hide();
+    }
+
+    if (approveEnable) {
+        $("#contextmenuRemand,#contextmenuReject,#contextmenuApprove").removeClass("contextMenuDisable").addClass("contextMenuEnable");
+        $("#contextmenuRemand").click(remand);
+        $("#contextmenuReject").click(reject);
+        $("#contextmenuApprove").click(approve);
+        $("#contextmenuRemand,#contextmenuReject,#contextmenuApprove").show();
+    } else {
+        $("#contextmenuRemand,#contextmenuReject,#contextmenuApprove").addClass("contextMenuDisable").removeClass("contextMenuEnable");
+        $("#contextmenuRemand").unbind("click", remand);
+        $("#contextmenuReject").unbind("click", reject);
+        $("#contextmenuApprove").unbind("click", approve);
+        $("#contextmenuRemand,#contextmenuReject,#contextmenuApprove").hide();
+    }
+}
+
+function resizeGrid(){
+    var height = getBrowserHeight() - 350;
+    if (height >= 270) {
+        $("#applyList").setGridHeight(height);
+    }
+    $("#applyList-container").width(getBrowserWidth() - 80);
+    $("#applyList").setGridWidth($("#applyList-container").innerWidth(), true);
+}
+
+function openSearchDialog(){
+    $("#searchDiv").dialog("open");
+}
+
+function approve() {
+    var ids = $("#applyList").getGridParam("selarrrow");
+
+    if (ids.length == 0) {
+        return false;
+    } else {
+        setId(ids);
+        openApproveComment();
+    }
+
+    return false;
+}
+
+function pullback() {
+    $("#contextMenulist").hide();
+    var ids = $("#applyList").getGridParam("selarrrow");
+
+    if (ids.length == 0) {
+        return false;
+    }
+
+    setId(ids);
+    openPullbackComment();
+
+    return false;
+}
+
+function cancel() {
+    var ids = $("#applyList").getGridParam("selarrrow");
+
+    if (ids.length == 0) {
+        return false;
+    } else {
+        setId(ids);
+        openCancelComment();
+    }
+
+    return false;
+}
+
+function remand() {
+    var ids = $("#applyList").getGridParam("selarrrow");
+
+    if (ids.length == 0) {
+        return false;
+    } else {
+        setId(ids);
+        openRemandComment();
+    }
+
+    return false;
+}
+
+function reject() {
+    var ids = $("#applyList").getGridParam("selarrrow");
+
+    if (ids.length == 0) {
+        return false;
+    } else {
+        setId(ids);
+        openRejectComment();
+    }
+
+    return false;
+}
+
+function withdraw() {
+    $("#contextMenulist").hide();
+    var id = $("#applyList").getGridParam("selarrrow");
+
+    if (id.length == 0) {
+        return false;
+    }
+
+    var flg = true;
+    for (var i in id) {
+        var row = $("#applyList").getRowData(id[i]);
+        if (row.withdraw != "true") {
+            flg = false;
+            break;
+        }
+    }
+
+    if (flg == false) {
+        return false;
+    }
+
+    if (!confirm('{!$Label.msg_00312}')) {
+        return false;
+    }
+
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+        CsoScript_loadingStop();
+        $("#applyList").trigger("reloadGrid");
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("withdraw:" + data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    $(".btn").attr("disabled", "disabled");
+    CsoScript_loadingStart();
+    var wfid = JSON.stringify(id);
+    securePostAsync('/workflowmanagement/withdraw.json', {wfid : wfid}, callback, callerror);
+
+    return false;
+}
+
+function apply() {
+    $("#contextMenulist").hide();
+    var id = $("#applyList").getGridParam("selarrrow");
+
+    if (id.length == 0) {
+        return false;
+    }
+
+    var flg = true;
+    for (var i in id) {
+        var row = $("#applyList").getRowData(id[i]);
+        if (row.apply != "true") {
+            flg = false;
+            break;
+        }
+    }
+
+    if (flg == false) {
+        return false;
+    }
+
+    if (!confirm('{!$Label.msg_00309}')) {
+        return false;
+    }
+
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            return false;
+        }
+        CsoScript_loadingStop();
+        $("#applyList").trigger("reloadGrid");
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("apply:" + data);
+    };
+
+    CsoScript_loadingStart();
+    var wfid = JSON.stringify(id);
+    securePostAsync('/workflowmanagement/startWorkflow.json', {wfid : wfid}, callback, callerror);
+
+    return false;
+}
+
+function copyApply() {
+    $("#contextMenulist").hide();
+    var id = $("#applyList").getGridParam("selarrrow");
+    if (id.length != 1) {
+        return false;
+    }
+
+    var row = $("#applyList").getRowData(id[0]);
+    if (row.copy != "true") {
+        return false;
+    }
+
+    openApplyNew(row.id, true);
+}
+
+function openApplyNew(id, copy) {
+
+    select_workflowId = id;
+    window.open('{!$Page.WorkflowApply}?callType=popup&cFlg=' + copy + '&ecmSessionId=' + __ecmSessionId, 'WorkflowApply', 'width=900, height=700, menubar=no, toolbar=no, scrollbars=yes');
+
+}
+var select_workflowId = "";
+function getWorkflowId(){
+    return select_workflowId;
+}
+
+function reloadNow() {
+    $("#applyList").trigger("reloadGrid");
+}
+
+function clearClick() {
+    $("#number,#workflowName,#title,#applicant,#condition,#fromDate,#toDate").val("");
+    $("#category").val("all");
+    return execSearch();
+}
+
+function execSearch() {
+    var number = $("#number").val();
+    var workflowName = $("#workflowName").val();
+    var title = $("#title").val();
+    var category = $("#category").val();
+    var applicant = $("#applicant").val();
+    var condition = $("#condition").val();
+    var fromDate = $("#fromDate").val();
+    var toDate = $("#toDate").val();
+
+    var errFlag = false;
+
+    if (fromDate.length > 0 && !isDatePickerFormatValid(fromDate, $("#fromDate"))) {
+        alert('{!$Label.msg_00325}');
+        errFlag = true;
+    }
+
+    if (toDate.length > 0 && !isDatePickerFormatValid(toDate, $("#toDate"))) {
+        alert('{!$Label.msg_00326}');
+        errFlag = true;
+    }
+
+    if (fromDate.length > 0 && toDate.length > 0 && !isDatePickerFromToValid($("#fromDate"), $("#toDate"))) {
+        alert('{!$Label.msg_00327}');
+        errFlag = true;
+    }
+
+    if (errFlag == true) {
+        return false;
+    }
+
+    var param = {
+        number : number,
+        workflowName : workflowName,
+        title : title,
+        category : category,
+        applicant : applicant,
+        condition : condition,
+        fromDate : fromDate,
+        toDate : toDate
+    }
+
+    $("#applyList").setGridParam({page : 1, postData : param}).trigger("reloadGrid");
+
+    return false;
+}
+
+function loadCategory(){
+    var callback =  function(data, status){
+        if(data["alert"]!=null){
+            alert(data["alert"]);
+            return;
+        }
+        $("#category").html(data.options);
+    };
+    var callerror =  function(data){
+        alert("workflowCategoryInfoForSelect:" + data);
+    };
+    secureGetAsync('/workflowmanagement/setting/workflowCategoryInfoForSelect.json', {manage : false}, callback, callerror);
+}
+
+function clickmenubutton(obj) {
+    $("#contextMenulist").hide();
+    return true;
+}
+
+function showDetail(id, kind) {
+    var url = "{!$Page.WorkflowDetail}?workflowId=" + id + "&kind=" + kind;
+
+    var wflist = localStorage.getItem("wflist");
+    if (wflist) {
+        var prev, next;
+        var ids = JSON.parse(wflist);
+
+        for (var i in ids) {
+            var index = parseInt(i);
+            if (ids[index] == id) {
+
+                if (index > 0) {
+                    prev = ids[index - 1];
+                }
+
+                if (index < ids.length - 1) {
+                    next = ids[index + 1];
+                }
+            }
+        }
+
+        if (prev) {
+            url += "&prev=" + prev;
+        }
+
+        if (next) {
+            url += "&next=" + next;
+        }
+    }
+
+    location.href = url;
+}
+
+function ajustTitleLength(dsplayArea,tempArea,itemName){
+
+    var dsplayAreaWidth,tmpAreaWidth;
+    var work;
+    var pathCut = false;
+    var terminator =0;
+    var itemNameCut = false;
+
+
+    $(dsplayArea).css("title",itemName);
+    $(tempArea).text(itemName);
+
+    dsplayAreaWidth =  $(dsplayArea).width() - 0;
+    tmpAreaWidth = $(tempArea).width() - 0;
+
+    //do untill the title fits in.
+    work = itemName;
+    while (dsplayAreaWidth < tmpAreaWidth) {
+        //remove the last letter.
+        work = itemName.substring(0, work.length -1);
+
+        $(tempArea).text(work);
+        tmpAreaWidth = $(tempArea).width() - 0;
+
+        itemNameCut = true;
+
+        //just in case
+        if(terminator >= 130){
+            break;
+        }
+        terminator++;
+    }
+
+    //put "..." if the item name has been changed.
+    if(itemNameCut == true){
+        work = itemName.substring(0, work.length -2);
+        work = work + "...";
+    }
+
+    //set item name
+    $(dsplayArea).text(work);
+
+}
+
+function showAll() {
+    view("manage");
+}
+
+function callSecureGetAsync(url, param, callback, callerror){
+    secureGetAsync(url, param, callback, callerror);
+}
+
+function callSecurePostAsync(url, param, callback, callerror){
+    securePostAsync(url, param, callback, callerror);
+}
+
+</script>
+
+
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/WF_list.png')}" alt="{!$Label.solxyzcso001__label_10701}" title="{!$Label.solxyzcso001__label_10701}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10123}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10701}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <style type="text/css">
+                .disk-usage-fs{
+                    margin: 10px;
+                }
+                #headerMenuUsage{
+                    display: none;
+                    width: 250px;
+                    height: 140px;
+                    border: solid 1px gray;
+                    z-index: 1100;
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    border:1px solid #c0c0c0;
+                    border-radius:5px;
+                    -moz-border-radius:5px;
+                    -webkit-border-radius:5px;
+                    -moz-box-shadow:1px 1px 3px #c0c0c0;
+                    -webkit-box-shadow:1px 1px 3px #c0c0c0;
+                    box-shadow:1px 1px 3px #c0c0c0;
+                    float:left;
+                    background-color:#f7f7f7;
+                    margin:10px;
+                    padding:10px;
+                    max-width:1000px;
+                }
+                .diskValueText{
+                    text-align:left;
+                    font-size : 10px;
+                    padding-top:2px;
+                    padding-left:5px;
+                    position: absolute;
+                    min-width: 250px;
+                }
+                .icon{
+                    width: 18px;
+                    height: 18px;
+                    border: none;
+                }
+                .usage_category{
+                    text-align:left;
+                }
+
+                </style>
+                <script type="text/javascript">
+                /*
+                 * 使用量用ロード関数
+                 */
+                jQuery.event.add(window, "load", function(){
+                //$(document).ready(function() {
+                    $("#information").mouseover(function(){
+                        showDiskUsage();
+                    ;})
+                    $("#information").mouseout(function(){
+                        $("#headerMenuUsage").hide();
+                    });
+
+                    usageReload();
+                    $("#disk").progressbar({
+                        value: 0
+                    });
+                    $("#io").progressbar({
+                        value: 0
+                    });
+                });
+
+                /*
+                 * 使用量表示関数
+                 */
+                function showDiskUsage() {
+                    var basepos = $( "#information" ).position();
+                    var posX = basepos.left ;
+                    var posY = basepos.top ;
+                    posX -= 230;
+                    posY += 10;
+                    $("#headerMenuUsage").css("left", posX).css('top', posY);
+                    $("#headerMenuUsage").show();
+                }
+
+                /*
+                 * 各種使用量を取得・設定
+                 */
+                function usageReload(){
+                    var callback = function(data){
+                        if (data["maxDisk"] == "8388608.0 TB") {
+                            $("#disk").progressbar("value",100);
+                            $("#div").css('display', 'block');
+                            $("#hid").css('display', 'none');
+                        } else {
+                            $("#maxDisk").html(data["maxDisk"]);
+                            $("#useDisk").html(data["useDisk"]);
+                            $("#disk").progressbar("value",data["diskPercent"]);
+                            $("#hid").css('display', 'block');
+                            $("#div").css('display', 'none');
+                        }
+                        if (data["maxDelivery"] == "8388608.0 TB") {
+                            $("#io").progressbar("value",100);
+                            $("#divDelivery").css('display', 'block');
+                            $("#hidDelivery").css('display', 'none');
+                        } else {
+                            $("#maxDelivery").html(data["maxDelivery"]);
+                            $("#useDelivery").html(data["useDelivery"]);
+                            $("#io").progressbar("value",data["deliveryPercent"]);
+                            $("#hidDelivery").css('display', 'block');
+                            $("#divDelivery").css('display', 'none');
+                        }
+                    };
+                    // 各使用量を取得
+                    secureGetAsync('/setup/diskDeliveryUsageGet.json', '', callback);
+                }
+                </script>
+
+                <!-- マニュアル -->
+<span id="manual_span_ja" style="display:none;">
+    <apex:outputLink target="_blank" value="{!$Label.solxyzcso001__label_manual}">
+        {!$Label.solxyzcso001__label_10031}
+    </apex:outputLink>
+</span>
+<span id="manual_span_en" style="display:none;">
+    <apex:outputLink target="_blank" value="{!$Label.solxyzcso001__label_manual_en}">
+        {!$Label.solxyzcso001__label_10031}
+    </apex:outputLink>
+</span>
+<span id="manual_span_zh" style="display:none;">
+    <apex:outputLink target="_blank" value="{!$Label.solxyzcso001__label_manual_zh}">
+        {!$Label.solxyzcso001__label_10031}
+    </apex:outputLink>
+</span>
+
+<!--
+<apex:outputLink target="_blank" value="{!$Resource.manual}">
+    {!$Label.solxyzcso001__label_10031}
+    <apex:image url="{!URLFOR($Resource.cso, 'image/Manual.png')}" alt="{!$Label.solxyzcso001__label_10031}" title="{!$Label.solxyzcso001__label_10031}"/>
+</apex:outputLink>
+-->
+
+<!-- サポート -->
+<span style="display:{!IF(csoUserInfo.option_support == 'true' && csoUserInfo.supportUser == 'true', 'inline', 'none')}">
+｜
+    <a href="javascript:void(0);" onclick="window.open('{!$Page.InquiryDialog}', 'inquiry', 'width=700,height=500,left=100,top=100,scrollbars=yes');">
+        {!$Label.label_10181}
+   <!--
+        <apex:image url="{!URLFOR($Resource.cso, 'image/voice-support.png')}" alt="{!$Label.label_10181}" title="{!$Label.label_10181}"/>
+    -->
+    </a>
+</span>
+｜
+<!-- 使用量確認 -->
+<!-- a href="" onclick="return false;" id="userusage">
+    {!$Label.label_10343}
+</a>
+｜-->
+<span>
+    <a id="information" href="javascript:void(0)" onclick="window.open(releasenote_url , 'information', 'width=700,height=500,left=100,top=100,scrollbars=yes');" >
+        {!$Label.label_common_information}
+    </a>
+</span>
+<span style="display:{!IF(csoUserInfo.option_sync == 'true' && csoUserInfo.proAuth_sync_use == 'true', 'inline', 'none')}">
+｜
+    <a href="javascript:void(0)" onclick="window.open(application_url , 'information', 'width=700,height=500,left=100,top=100,scrollbars=yes');" >
+        {!$Label.label_13207}
+    </a>
+</span>
+                <!-- ユーザー使用量 -->
+                <div class="diskusage " id="headerMenuUsage" style="display:none">
+                    <!-- ディスク使用量定義 -->
+                    <fieldset class="disk-usage-fs">
+                        <legend class="usage_category">
+                            <span style="vertical-align: middle;"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/disk.png')}" styleClass="icon"/>{!$Label.label_10089}</span>
+                        </legend>
+                        <div class="diskValueText" id ="hid" >
+                            {!$Label.label_10001}<span id="maxDisk"></span>&nbsp;
+                            {!$Label.label_10002}<span id="useDisk"></span>
+                        </div>
+                        <div  class="diskValueText"  id ="div" style="display: none">
+                            {!$Label.label_10008}
+                        </div>
+                        <div id="disk" style="width: 200px;"></div>
+                    </fieldset>
+                    <!-- 配信使用量定義 -->
+                    <fieldset class="disk-usage-fs">
+                        <legend class="usage_category">
+                            <span style="vertical-align: middle;"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/send.png')}" styleClass="icon"/>{!$Label.label_10090}</span>
+                        </legend>
+                        <div class="diskValueText" id="hidDelivery">
+                            {!$Label.label_10001}<span id="maxDelivery"></span>&nbsp;
+                            {!$Label.label_10002}<span id="useDelivery"></span>
+                        </div>
+                        <div  class="diskValueText"  id ="divDelivery" style="display: none">
+                            {!$Label.label_10008}
+                        </div>
+                        <div id="io" style="width: 200px;"></div>
+                    </fieldset>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+
+
+
+                        <!-- コマンドボタン表示 -->
+                        <div id="viewDiv" class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="item" style="display:none" id="manageAllList">
+                                    <button class="btn c_commandButton" onclick="showAll(); return false;" style="padding-right: 3px;">
+                                        <div>
+                                            {!$Label.label_10702}
+                                        </div>
+                                    </button>
+                                </li>
+                                <li class="item">
+                                    <button class="btn c_commandButton untreated" onclick="return clickmenubutton($(this));" style="padding-right: 3px;">
+                                        <div class="chevron">
+                                            {!$Label.label_10705}
+                                        </div>
+                                    </button>
+                                </li>
+                                <li class="item">
+                                    <button class="btn c_commandButton approve" onclick="return clickmenubutton($(this));" style="padding-right: 3px;">
+                                        <div class="chevron">
+                                            {!$Label.label_10708}
+                                        </div>
+                                    </button>
+                                </li>
+                                <li class="item">
+                                    <button class="btn c_commandButton apply" onclick="return clickmenubutton($(this));" style="padding-right: 3px;">
+                                        <div class="chevron">
+                                            {!$Label.label_10829}
+                                        </div>
+                                    </button>
+                                </li>
+                                <li class="item">
+                                    <!-- 検索ボタン -->
+                                    <button id="searchButton" class="btn c_commandButton" onclick="openSearchDialog();return false;" >
+                                         {!$Label.label_00069}
+                                    </button>
+                                </li>
+                                <li class="last">
+                                    <!-- 新規申請ボタン -->
+                                    <button id="searchButton" class="btn c_commandButton" onclick="openApplyNew('', false);return false;" >
+                                        {!$Label.label_10799}
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+
+
+                        <!-- グリッド -->
+                        <div id="applyList-container">
+                            <table id="applyList"/>
+                            <div id="applyListPager" style="text-align:center;"/>
+                        </div>
+
+
+
+                        <!-- 検索ダイアログ -->
+                        <div id="searchDiv" class="searchDiv" style="display: none;">
+                            <table>
+                                <tr>
+                                    <th>{!$Label.label_10709}</th>
+                                    <td><input type="text" class="c_text_m" id="number" name="number" maxlength="255" /></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10710}</th>
+                                    <td><input type="text" class="c_text_l" id="workflowName" name="workflowName" maxlength="255" /></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10678}</th>
+                                    <td>
+                                        <select id="category" style="width:250px;">
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.field_010062}</th>
+                                    <td><input type="text" class="c_text_l" id="title" name="title" maxlength="255" /></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10711}</th>
+                                    <td><input type="text" class="c_text_l" id="applicant" name="applicant" maxlength="255" /></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10697}</th>
+                                    <td>
+                                        <select id="condition" name="condition" style="width: 150px;">
+                                            <option value="" selected="selected">{!$Label.label_10142}</option>
+                                            <option value="DRAFT">{!$Label.label_10719}</option>
+                                            <option value="WAITING" >{!$Label.label_10712}</option>
+                                            <option value="REMAND">{!$Label.label_10722}</option>
+                                            <option value="APPROVAL">{!$Label.label_10714}</option>
+                                            <option value="CONDITIONAL_APPROVAL">{!$Label.label_10715}</option>
+                                            <option value="REJECTION">{!$Label.label_10713}</option>
+                                            <option value="EXPIRATION">{!$Label.label_10717}</option>
+                                            <option value="WITHDRAWAL">{!$Label.label_10718}</option>
+                                            <option value="ERROR">{!$Label.label_10716}</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10175}</th>
+                                    <td>
+                                        <input type="text" class="c_text_s" id="fromDate" name="fromDate" maxlength="10" />
+                                        {!$Label.label_10316}
+                                        <input type="text" class="c_text_s" id="toDate" name="toDate" maxlength="10" />
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="width: 100%; text-align: center;">
+                                <input type="button" class="btn" value="{!$Label.label_00070}" onclick="return clearClick();" />
+                                <input type="button" class="btn" value="{!$Label.label_00069}" onclick="return execSearch();" />
+                            </p>
+                        </div>
+
+
+                        <div id="contextMenulist" class="movable" >
+                            <div class="contextMenuHeader movable_controller" id="contextMenuHeader"  ></div>
+                            <div class="contextMenu" id="contextmenuWithdraw"      ><img src="{!URLFOR($Resource.cso, 'image/Withdraw.png')}"         class="contextMenuImg"/>{!$Label.label_13169}</div>
+                            <div class="contextMenu" id="contextmenuCopy"          ><img src="{!URLFOR($Resource.cso, 'image/Application_copy.png')}" class="contextMenuImg"/>{!$Label.label_10720}</div>
+                            <div class="contextMenu" id="contextmenuApply"         ><img src="{!URLFOR($Resource.cso, 'image/Application.png')}"      class="contextMenuImg"/>{!$Label.label_10696}</div>
+                            <div class="contextMenu" id="contextmenuPullback"      ><img src="{!URLFOR($Resource.cso, 'image/Pull_back.png')}"        class="contextMenuImg"/>{!$Label.label_10730}</div>
+                            <div class="contextMenu" id="contextmenuCancelApproval"><img src="{!URLFOR($Resource.cso, 'image/Approval_Cancel.png')}"  class="contextMenuImg"/>{!$Label.label_10724}</div>
+                            <div class="contextMenu" id="contextmenuRemand"        ><img src="{!URLFOR($Resource.cso, 'image/Sending_back.png')}"     class="contextMenuImg"/>{!$Label.label_10722}</div>
+                            <div class="contextMenu" id="contextmenuReject"        ><img src="{!URLFOR($Resource.cso, 'image/Rejection2.png')}"       class="contextMenuImg"/>{!$Label.label_13168}</div>
+                            <div class="contextMenu" id="contextmenuApprove"       ><img src="{!URLFOR($Resource.cso, 'image/Approval.png')}"         class="contextMenuImg"/>{!$Label.label_10802}</div>
+                        </div>
+
+                        <div id="untreatedviewlist" style="display:none;">
+                            <ul class="viewlist untreated">
+                                <li class="viewitem" ><a href="javascript:void(0);" onclick="view('request');">{!$Label.label_10706}</a></li>
+                                <li class="viewitem" ><a href="javascript:void(0);" onclick="view('agentrequest');">{!$Label.label_10707}</a></li>
+                            </ul>
+                        </div>
+                        <div id="approveviewlist" style="display:none;">
+                            <ul class="viewlist  approve">
+                                <li class="viewitem" ><a href="javascript:void(0);" onclick="view('allapprove');">{!$Label.label_10800}</a></li>
+                                <li class="viewitem" ><a href="javascript:void(0);" onclick="view('planapprove');">{!$Label.label_10801}</a></li>
+                            </ul>
+                        </div>
+                        <div id="applyviewlist" style="display:none;">
+                            <ul class="viewlist  apply">
+                                <li class="viewitem" ><a href="javascript:void(0);" onclick="view('allapply');">{!$Label.label_10803}</a></li>
+                                <li class="viewitem" ><a href="javascript:void(0);" onclick="view('running');">{!$Label.label_10830}</a></li>
+                                <li class="viewitem" ><a href="javascript:void(0);" onclick="view('complete')">{!$Label.label_10831}</a></li>
+                            </ul>
+                        </div>
+
+
+                        <div><span id="titleTemp" style="display:none;"></span></div>
+
+
+
+
+                    </apex:pageBlock>
+                    <apex:actionFunction name="readyForSync" action="{!readyForSync}" rerender="dummy"/>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!IF(csoUserInfo.uid == null  && csoUserInfo.showErrPage == false,true,false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

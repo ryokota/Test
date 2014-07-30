@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>RFA承認者/ユーザ</value>
+    </caseValues>
+    <fields>
+        <label>代理人１</label>
+        <name>Agent1__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ (代理人１) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>代理人２</label>
+        <name>Agent2__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ (代理人２) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>代理人３</label>
+        <name>Agent3__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ (代理人３) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>代理人有無</label>
+        <name>AgentsAssigned__c</name>
+    </fields>
+    <fields>
+        <label><!-- Alias --></label>
+        <name>Alias__c</name>
+    </fields>
+    <fields>
+        <help><!-- Add comment in both Japanese and English, if any non-Japanese recipient is involved in the approval process (either approver or info copy). --></help>
+        <label>条件/理由</label>
+        <name>ApprovalComments__c</name>
+    </fields>
+    <fields>
+        <label>コメント</label>
+        <name>ApprovalNotes__c</name>
+    </fields>
+    <fields>
+        <help>回覧の承認順序です。数字の小さい順に承認待ち通知メールが配信されます。同じ番号の場合は同時に通知を受け取ります。</help>
+        <label>承認順序</label>
+        <name>ApprovalOrder__c</name>
+    </fields>
+    <fields>
+        <label>承認プロセス</label>
+        <name>ApprovalProcess__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- ApprovalRecieved DateTime --></label>
+        <name>ApprovalRecievedDateTime__c</name>
+    </fields>
+    <fields>
+        <label>承認内容</label>
+        <name>ApprovalRecommendation__c</name>
+        <picklistValues>
+            <masterLabel>Awaiting Approval / 承認待ち</masterLabel>
+            <translation><!-- Awaiting Approval / 承認待ち --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Conditionally Approved / 承認（条件付き）</masterLabel>
+            <translation><!-- Conditionally Approved / 承認（条件付き） --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Rejected / 否認</masterLabel>
+            <translation><!-- Rejected / 否認 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Return to Requester / 差し戻し</masterLabel>
+            <translation><!-- Return to Requester / 差し戻し --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Unconditionally Approved / 承認（条件なし）</masterLabel>
+            <translation><!-- Unconditionally Approved / 承認（条件なし） --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>承認依頼日</label>
+        <name>ApprovalRequestedOn__c</name>
+    </fields>
+    <fields>
+        <label><!-- Approval Count --></label>
+        <name>Approval_Count__c</name>
+    </fields>
+    <fields>
+        <label><!-- Approved By --></label>
+        <name>ApprovedBy__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ (Approved By) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>種別</label>
+        <name>Approver_Source__c</name>
+        <picklistValues>
+            <masterLabel>Appendix 3.B.2</masterLabel>
+            <translation><!-- Appendix 3.B.2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Approver</masterLabel>
+            <translation><!-- Approver --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>COA</masterLabel>
+            <translation><!-- COA --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>COA Group</masterLabel>
+            <translation><!-- COA Group --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>COA Single</masterLabel>
+            <translation><!-- COA Single --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Capital Mgmt.</masterLabel>
+            <translation><!-- Capital Mgmt. --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CokeOne</masterLabel>
+            <translation><!-- CokeOne --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CokeOne Gr.2</masterLabel>
+            <translation><!-- CokeOne Gr.2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CokeOne Manager</masterLabel>
+            <translation><!-- CokeOne Manager --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>ELT</masterLabel>
+            <translation><!-- ELT --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Fix Asset Mgr</masterLabel>
+            <translation><!-- Fix Asset Mgr --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Info Copy</masterLabel>
+            <translation><!-- Info Copy --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Info Copy - BOD</masterLabel>
+            <translation><!-- Info Copy - BOD --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Info Copy - Corporate Administration</masterLabel>
+            <translation><!-- Info Copy - Corporate Administration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Info Copy - Manager</masterLabel>
+            <translation><!-- Info Copy - Manager --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manager</masterLabel>
+            <translation><!-- Manager --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Project</masterLabel>
+            <translation><!-- Project --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Requester</masterLabel>
+            <translation><!-- Requester --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Seal</masterLabel>
+            <translation><!-- Seal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Treasury Mgr</masterLabel>
+            <translation><!-- Treasury Mgr --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>COA略称</label>
+        <name>COA_Acronym__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA Function --></label>
+        <name>COA_Function__c</name>
+    </fields>
+    <fields>
+        <label>COAグループ</label>
+        <name>COA_Group__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA L2 Function E --></label>
+        <name>COA_L2_Function_E__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA L3 Function E --></label>
+        <name>COA_L3_Function_E__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA L4 Function E --></label>
+        <name>COA_L4_Function_E__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA L Level --></label>
+        <name>COA_L_Level__c</name>
+    </fields>
+    <fields>
+        <label><!-- COA Location E --></label>
+        <name>COA_Location_E__c</name>
+    </fields>
+    <fields>
+        <label>会社名</label>
+        <name>Company_Name__c</name>
+    </fields>
+    <fields>
+        <label><!-- CountDays of Pending Approval --></label>
+        <name>CountDaysofPendingApproval__c</name>
+    </fields>
+    <fields>
+        <label>部署</label>
+        <name>Department__c</name>
+    </fields>
+    <fields>
+        <label>Eメールを送信しない</label>
+        <name>DoNotSendEmail__c</name>
+    </fields>
+    <fields>
+        <label><!-- DuplicateRecord --></label>
+        <name>DuplicateRecord__c</name>
+    </fields>
+    <fields>
+        <label>Eメール</label>
+        <name>Email__c</name>
+    </fields>
+    <fields>
+        <label><!-- Active --></label>
+        <name>IsActive__c</name>
+    </fields>
+    <fields>
+        <label>L2ファンクション</label>
+        <name>L2_Function__c</name>
+    </fields>
+    <fields>
+        <label>L3ファンクション</label>
+        <name>L3_Function__c</name>
+    </fields>
+    <fields>
+        <label>L4ファンクション</label>
+        <name>L4_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5 Function --></label>
+        <name>L5_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6 Function --></label>
+        <name>L6_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7 Function --></label>
+        <name>L7_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- Location --></label>
+        <name>Location__c</name>
+    </fields>
+    <fields>
+        <label><!-- Note --></label>
+        <name>Note__c</name>
+    </fields>
+    <fields>
+        <label><!-- NotifyUsers --></label>
+        <name>NotifyUsers__c</name>
+    </fields>
+    <fields>
+        <label><!-- Notifyagent1firsttime --></label>
+        <name>Notifyagent1firsttime__c</name>
+    </fields>
+    <fields>
+        <label><!-- Notifyagent2firsttime --></label>
+        <name>Notifyagent2firsttime__c</name>
+    </fields>
+    <fields>
+        <label><!-- Notifyagent3firsttime --></label>
+        <name>Notifyagent3firsttime__c</name>
+    </fields>
+    <fields>
+        <label><!-- Notifyuserfirsttime --></label>
+        <name>Notifyuserfirsttime__c</name>
+    </fields>
+    <fields>
+        <label><!-- RFAStage --></label>
+        <name>RFAStage__c</name>
+    </fields>
+    <fields>
+        <label><!-- RFA RecordTypeId --></label>
+        <name>RFA_RecordTypeId__c</name>
+    </fields>
+    <fields>
+        <label>RFA起案No.</label>
+        <name>RFA__c</name>
+        <relationshipLabel>RFA承認者/ユーザ</relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Complete --></label>
+        <name>TECH_IsComplete__c</name>
+    </fields>
+    <fields>
+        <label>承認待ち日数</label>
+        <name>TECH_TimeInAwaitingApproval__c</name>
+    </fields>
+    <fields>
+        <label>役職</label>
+        <name>Title__c</name>
+    </fields>
+    <fields>
+        <label>ユーザ名</label>
+        <name>UserName__c</name>
+        <relationshipLabel><!-- RFA承認者/ユーザ (ユーザ名) --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- User Name Unique --></label>
+        <name>User_Name_Unique__c</name>
+    </fields>
+    <fields>
+        <label><!-- isComplete --></label>
+        <name>isComplete__c</name>
+    </fields>
+    <layouts>
+        <layout>Approver Layout</layout>
+        <sections>
+            <label>承認者情報</label>
+            <section>Approver Information</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>RFA申請画面に戻る際は【 RFA起案No. 】をクリックしてください</label>
+            <section>To return to the RFA record, please click the RFA number below.</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Approver Layout for SystemAdmin</layout>
+        <sections>
+            <label>承認者情報</label>
+            <section>Approver Information</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>RFA申請画面に戻る際は【 RFA起案No. 】をクリックしてください</label>
+            <section>To return to the RFA record, please click the RFA number below.</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Info Only Copy Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>主要連絡先情報</label>
+            <section>Reviewer Information</section>
+        </sections>
+        <sections>
+            <label>RFA申請画面に戻る際は【 RFA起案No.】をクリックしてください</label>
+            <section>To return to the RFA record, please click the RFA number below.</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Primary Point of Contact Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>主要連絡先情報</label>
+            <section>Primary Point of Contact Information</section>
+        </sections>
+        <sections>
+            <label>RFA申請画面に戻る際は【 RFA起案No. 】をクリックしてください</label>
+            <section>To return to the RFA record, please click the RFA number below.</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>承認者/ユーザ詳細番号</nameFieldLabel>
+    <recordTypes>
+        <label>a. 承認者</label>
+        <name>RUR_Approver</name>
+    </recordTypes>
+    <recordTypes>
+        <label>c. 参照者</label>
+        <name>RUR_InfoCopyOnly</name>
+    </recordTypes>
+    <recordTypes>
+        <label>b. 問合せ先</label>
+        <name>RUR_PrimaryPointofContact</name>
+    </recordTypes>
+    <validationRules>
+        <errorMessage>承認順序の変更はできません</errorMessage>
+        <name>ApprovalOrder_01_NoChange_RFAOutOfDrAft</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>承認順序を入力してください</errorMessage>
+        <name>Approval_Order_Error</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>自動抽出された承認者の変更はできません</errorMessage>
+        <name>No_Change_for_Approvers_from_COA</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>条件付きの承認または否認の場合、コメントの入力が必須です</errorMessage>
+        <name>RUR_VR01_CommentsMandatoryCondApp</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>同じ承認者に対して同じ代理人を選択することはできません。</errorMessage>
+        <name>RUR_VR02_UniqueAgentSelection</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>承認者と代理人が同じユーザです</errorMessage>
+        <name>RUR_VR03_ApproverCannotBeAgent</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>承認の勧告項目と承認コメント項目は、承認者へ実行されたときだけひも付きます。</errorMessage>
+        <name>RUR_VR04_NoUpdRecom_in_Circul_Validatio</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>承認申請が出されたあとに承認者や代理人を変更することはできません</errorMessage>
+        <name>RUR_VR05_AppandAgent_in_Circul_Validatio</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>承認の勧告は、承認申請が回覧中は入力された状態でなければなりません。承認の勧告を選択するか、キャンセルして前のページに戻ってください。</errorMessage>
+        <name>RUR_VR06_Unblank_Approval_Recommendation</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>承認者へ一旦申請が送信されると、ユーザ名は変更できません</errorMessage>
+        <name>RUR_VR07_NoUpdApprover_in_Circulation</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>レコードタイプを変更することはできません</errorMessage>
+        <name>RUR_VR09_Lock_RecordType</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>承認順序は変更できません。</errorMessage>
+        <name>RUR_VR10_Lock_ApproverOrder</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>承認者の変更はできません</errorMessage>
+        <name>RUR_VR11_Lock_ApproverChange</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>条件なしの承認の場合、コメントの入力は必要ありません</errorMessage>
+        <name>RUR_VR_CommentsMandatoryCondApp</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>申請者自身は承認者として登録できません</errorMessage>
+        <name>Requester_Same_To_Approver</name>
+    </validationRules>
+</CustomObjectTranslation>

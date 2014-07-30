@@ -1,0 +1,573 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingCreatorsLicenseController" tabStyle="setting__tab" action="{!init}">
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_setting_creators_license == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_setting_creators_license == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+
+
+<style type="text/css">
+.creatorsLicense-statusTableTitle {
+    margin: 10px 0 5px 10px;
+}
+.creatorsLicense-statusTableTitle span {
+    font-weight: bold;
+}
+.creatorsLicense-statusTable {
+    border: 1px solid #000000;
+    border-collapse: collapse;
+    margin: 0 0 20px 10px;
+}
+.creatorsLicense-statusTable th {
+    background-color: #CCCCCC;
+    border: 1px solid #000000;
+    font-weight: bold;
+    text-align: center;
+    width: 200px;
+    height: 16px;
+}
+.creatorsLicense-statusTable td {
+    border: 1px solid #000000;
+    text-align: right;
+    height: 16px;
+}
+.creatorsLicense-statusTable td span {
+    margin: 0 3px 0 0;
+}
+.creatorsLicense-separator {
+    margin: 0 10px 0 10px;
+}
+.creatorsLicense-grantLicenseTitle {
+    margin: 10px 0 10px 10px;
+}
+.creatorsLicense-grantLicenseTitle span {
+    font-weight: bold;
+}
+.creatorsLicense-searchBox {
+    margin: 0 0 0 10px;
+}
+.creatorsLicense-selectCorp {
+    width: 120px;
+    margin: 0 10px 0 0;
+}
+.creatorsLicense-selectPost {
+    width: 120px;
+    margin: 0 10px 0 0;
+}
+.creatorsLicense-inputUsername {
+    width: 170px;
+}
+.creatorsLicenseOperateBox {
+    margin: 15px 10px 0 10px;
+}
+.creatorsLicense-userListDiv {
+    margin: 10px 10px 10px 10px;
+}
+.creatorsLicense-userList-name-top {
+    margin-left: 48px;
+}
+.creatorsLicense-userList-name-bottom {
+    margin-left: 48px;
+}
+.creatorsLicense-addUserModal {
+    display: hidden;
+}
+.creatorsLicense-addUserModal-searchBox {
+    margin: 0 0 0 10px;
+}
+.creatorsLicense-addUserModal-selectCorp {
+    width: 120px;
+    margin: 0 10px 0 0;
+}
+.creatorsLicense-addUserModal-selectPost {
+    width: 120px;
+    margin: 0 10px 0 0;
+}
+.creatorsLicense-addUserModal-inputUsername {
+    width: 170px;
+}
+.creatorsLicense-addUserModal-userListDiv {
+    margin: 15px 10px 10px 10px;
+}
+.creatorsLicense-addUserModal-userList-name-top {
+    margin-left: 48px;
+}
+.creatorsLicense-addUserModal-userList-name-bottom {
+    margin-left: 48px;
+}
+.creatorsLicense-addUserModal-buttonBox {
+    float: right;
+    margin: 0 10px 0 0;
+}
+.jqGridIcon {
+    margin: 2px 0 2px 4px;
+}
+#creatorsLicenseUserListDiv{
+    width:810px;
+}
+</style>
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/CreatorsOP.png')}" alt="{!$Label.solxyzcso001__label_10622}" title="{!$Label.solxyzcso001__label_10622}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_13029}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_13032}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+<!--
+                        <apex:pageBlockButtons >
+                           <apex:commandButton id="btnDelete" value="{!$Label.label_00072}" onclick="removeButton();return false;" />
+                           <apex:commandButton id="btnEdit" value="{!$Label.label_00073}" onclick="editButton();return false;"/>
+                           <apex:commandButton id="btnCancel" value="{!$Label.label_00058}" action="{!cancel}" />
+                        </apex:pageBlockButtons>
+-->
+
+<!--
+<div class="innerHtmlHeader">
+    <div style="float: left;">
+        <img alt="role" src="/image/pdf_security.png" width="36px" height="36px" style="margin-right: 10px;"/>
+    </div>
+    <div style="float: left;">
+        <div style="position: absolute;">Creator'sオプション</div>
+        <div style="font-size: 16px; margin-top: 20px; font-weight: bold;">Creator'sオプションライセンス</div>
+    </div>
+</div>
+<div>
+    <div class="separatorDiv LabelBGColor subLabelHeight">
+        <div>Creator'sオプションライセンスの管理</div>
+    </div>
+</div>
+-->
+<div class="creatorsLicense-statusTableTitle">
+    <span>{!$Label.label_13031}</span>
+</div>
+<table class="creatorsLicense-statusTable">
+    <tr>
+        <th>{!$Label.label_13033}</th>
+        <th>{!$Label.label_13034}</th>
+        <th>{!$Label.label_13035}</th>
+    </tr>
+    <tr>
+        <td><span id="creatorsLicenseTotal"></span></td>
+        <td><span id="creatorsLicenseUsed"></span></td>
+        <td><span id="creatorsLicenseRemained"></span></td>
+    </tr>
+</table>
+<hr class="creatorsLicense-separator" />
+<div class="creatorsLicense-grantLicenseTitle">
+    <span>{!$Label.label_13036}</span>
+</div>
+<div class="creatorsLicense-searchBox">
+    <span>{!$Label.label_10097}</span>
+    <select id="creatorsLicenseSelectCorp" class="creatorsLicense-selectCorp"></select>
+    <span>{!$Label.label_10317}</span>
+    <select id="creatorsLicenseSelectPost" class="creatorsLicense-selectPost"></select>
+    <span>{!$Label.label_10021}</span>
+    <input id="creatorsLicenseInputUsername" type="text" class="creatorsLicense-inputUsername"></input>
+    <button class="btn" onclick="onSearchClearClicked(); return false;">{!$Label.label_00070}</button>
+    <button class="btn" onclick="onSearchOkClicked(); return false;">{!$Label.label_00069}</button>
+</div>
+<div class="creatorsLicenseOperateBox">
+    <button class="btn" onclick="onUserAddClicked(); return false;">{!$Label.label_13037}</button>
+    <button class="btn" onclick="onUserDelClicked(); return false;">{!$Label.label_13038}</button>
+</div>
+<div id="creatorsLicenseUserListDiv" class="creatorsLicense-userListDiv">
+    <table id="creatorsLicenseUserList"></table>
+    <div id="creatorsLicenseUserListPager"></div>
+</div>
+<div id="creatorsLicenseAddUserModal" class="creatorsLicense-addUserModal" style="display:none;">
+    <div class="creatorsLicense-addUserModal-searchBox">
+        <span>{!$Label.label_10097}</span>
+        <select id="creatorsLicenseAddUserModalSelectCorp" class="creatorsLicense-addUserModal-selectCorp"></select>
+        <span>{!$Label.label_10317}</span>
+        <select id="creatorsLicenseAddUserModalSelectPost" class="creatorsLicense-addUserModal-selectPost"></select>
+        <span>{!$Label.label_10021}</span>
+        <input id="creatorsLicenseAddUserModalInputUsername" type="text" class="creatorsLicense-addUserModal-inputUsername"></input>
+        <button class="btn" onclick="onAddUserModalSearchOkClicked(); return false;">{!$Label.label_00069}</button>
+        <button class="btn" onclick="onAddUserModalSearchClearClicked(); return false;">{!$Label.label_00070}</button>
+    </div>
+    <div id="creatorsLicenseAddUserModalUserListDiv" class="creatorsLicense-addUserModal-userListDiv">
+        <table id="creatorsLicenseAddUserModalUserList"></table>
+        <div id="creatorsLicenseAddUserModalUserListPager"></div>
+    </div>
+    <div class="creatorsLicense-addUserModal-buttonBox">
+        <button class="btn" onclick="onAddUserModalCancelClicked();">{!$Label.field_common_cancel}</button>
+        <button class="btn" onclick="onAddUserModalOkClicked();">{!$Label.label_13039}</button>
+    </div>
+</div>
+
+
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+
+<script type="text/javascript">
+
+// グローバル変数宣言
+
+// 初期処理
+jQuery.event.add(window, "load", function(){
+    updateOptionInfo();
+
+    var params = {
+    }
+
+    var callback = function(data){
+        if(data["alert"]!=null){
+            alert(data["alert"]);
+        }else{
+            $("#creatorsLicenseSelectCorp").html(data.options);
+            $("#creatorsLicenseAddUserModalSelectCorp").html(data.options);
+        }
+    };
+
+    secureGetAsync('/setup/creators/partnerList.json', params, callback);
+
+    var params = {
+    }
+
+    var callback = function(data){
+         if(data["alert"]!=null){
+            alert(data["alert"]);
+         }else{
+            $("#creatorsLicenseSelectPost").html(data.options);
+            $("#creatorsLicenseAddUserModalSelectPost").html(data.options);
+         }
+     };
+
+    secureGetAsync('/setup/creators/postList.json', params, callback);
+
+    setUserList();
+
+    $(window).resize(resizeForCreatorsLicense).resize();
+
+    $("#creatorsLicenseAddUserModal").dialog({
+        autoOpen    : false,
+        bgiframe    : true,
+        modal       : true,
+        draggable   : true,
+        resizable   : false,
+        closeText   : "Close",
+        width       : 750,
+        height      : 550,
+        buttons     : {}
+    });
+
+    $("#creatorsLicenseAddUserModalInputUsername").keydown(function(e){
+        if(e.keyCode == 13){
+            searchAddUserModalUserList();
+        }
+    });
+});
+
+function updateOptionInfo(){
+
+    var params = {
+    }
+
+    var callback = function(data){
+        if(data["alert"]!=null){
+            alert(data["alert"]);
+        }else{
+            $("#creatorsLicenseTotal").html(data.total);
+            $("#creatorsLicenseUsed").html(data.used);
+            $("#creatorsLicenseRemained").html(data.remained);
+        }
+    };
+
+    secureGetAsync('/setup/creators/optionInfo.json', params, callback);
+
+}
+
+function creatorsLicense_leave(){
+    $(window).unbind("resize", resizeForCreatorsLicense);
+}
+
+function resizeForCreatorsLicense(){
+	var height = getBrowserHeight() - 370;
+	$("#creatorsLicenseUserList").setGridWidth(1);
+    $("#creatorsLicenseUserList").setGridWidth($("#creatorsLicenseUserListDiv").innerWidth());
+    
+    if (height >= 270) {
+    	$("#creatorsLicenseUserList").setGridHeight(height);
+    }
+}
+
+function onSearchClearClicked(){
+    clearUserList();
+}
+
+function onSearchOkClicked(){
+    searchUserList();
+}
+
+function clearUserList(){
+    $("#creatorsLicenseSelectCorp").val(0);
+    $("#creatorsLicenseSelectPost").val(0);
+    $("#creatorsLicenseInputUsername").val("");
+    searchUserList();
+}
+
+function searchUserList(){
+    $("#creatorsLicenseUserList").setGridParam({
+        page : 1,
+        postData : {
+            partner_id : $("#creatorsLicenseSelectCorp").val(),
+            post_id : $("#creatorsLicenseSelectPost").val(),
+            username : $("#creatorsLicenseInputUsername").val(),
+        }
+    }).trigger("reloadGrid");
+}
+
+function onUserAddClicked(){
+    if($("#creatorsLicenseAddUserModalUserList").getGridParam("url") == undefined){
+        setAddUserModalUserList();
+    }else{
+        $("#creatorsLicenseAddUserModalUserList").clearGridData();
+        clearAddUserModalUserList();
+    }
+    $("#creatorsLicenseAddUserModal").dialog("open");
+    $("#creatorsLicenseAddUserModalInputUsername").focus();
+}
+
+function onUserDelClicked(){
+    var selIds = $("#creatorsLicenseUserList").getGridParam("selarrrow");
+    if(selIds.length == 0){
+        alert("{!$Label.msg_01106}");
+        return;
+    }
+    if(!confirm("{!$Label.msg_01108}")){
+        return;
+    }
+
+    var params = {
+        user_ids : selIds.join(",")
+    }
+
+    var callback = function(data){
+        if(data["alert"]!=null){
+            alert(data["alert"]);
+        }else{
+            searchUserList();
+        }
+        updateOptionInfo();
+    };
+
+    secureGetAsync('/setup/creators/removeLicense.json', params, callback);
+
+}
+
+function setUserList(){
+    $("#creatorsLicenseUserList").jqGrid({
+        url         : _apiUrl + "/setup/creators/licensedUserList.json",
+        postData    : {
+            username    : "",
+        },
+        datatype    :"jsonp",
+        jsonReader  : {
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames    : [
+                '',
+                "{!$Label.label_10131}",
+                "{!$Label.label_10097}",
+        ],
+        colModel    : [
+                {name : "id",   index : "id",   hidden : true },
+                {name : "name", index : "name", width : 350 },
+                {name : "org",  index : "org",  width : 250 },
+        ],
+        onSelectRow : function(id, b_check){
+
+        },
+        rowNum      : 30,
+        height      : 300,
+        rowList     : [30,50,100],
+        sortname    : 'name',
+        sortorder   : 'asc',
+        pager       : $('#creatorsLicenseUserListPager'),
+        viewrecords : true,
+        multiselect : true,
+        multiboxonly: true,
+        onPaging    : function(b) {
+            $(this).setGridParam({
+                postData : {
+                    useCache : "true"
+                }
+            });
+        },
+        loadComplete: function(data){
+
+        }
+    });
+    $("#creatorsLicenseUserList").jqGrid('navGrid','#creatorsLicenseUserListPager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function onAddUserModalSearchClearClicked(){
+    clearAddUserModalUserList();
+}
+
+function onAddUserModalSearchOkClicked(){
+    searchAddUserModalUserList();
+}
+
+function clearAddUserModalUserList(){
+    $("#creatorsLicenseAddUserModalSelectCorp").val(0);
+    $("#creatorsLicenseAddUserModalSelectPost").val(0);
+    $("#creatorsLicenseAddUserModalInputUsername").val("");
+    searchAddUserModalUserList();
+}
+
+function searchAddUserModalUserList(){
+    $("#creatorsLicenseAddUserModalUserList").setGridParam({
+        page : 1,
+        postData : {
+            partner_id : $("#creatorsLicenseAddUserModalSelectCorp").val(),
+            post_id : $("#creatorsLicenseAddUserModalSelectPost").val(),
+            username : $.trim($("#creatorsLicenseAddUserModalInputUsername").val()),
+        }
+    }).trigger("reloadGrid");
+}
+
+function onAddUserModalCancelClicked(){
+    $("#creatorsLicenseAddUserModal").dialog("close");
+}
+
+function onAddUserModalOkClicked(){
+    var selIds = $("#creatorsLicenseAddUserModalUserList").getGridParam("selarrrow");
+    if(selIds.length == 0){
+        alert("{!$Label.msg_01107}");
+        return;
+    }
+
+    var params = {
+        user_ids : selIds.join(",")
+    }
+
+    var callback = function(data){
+        if(data["alert"]!=null){
+            alert(data["alert"]);
+        }else{
+            clearUserList();
+            $("#creatorsLicenseAddUserModal").dialog("close");
+        }
+        updateOptionInfo();
+    }
+
+    secureGetAsync('/setup/creators/grantLicense.json', params, callback);
+}
+
+function setAddUserModalUserList(){
+    $("#creatorsLicenseAddUserModalUserList").jqGrid({
+        url         : _apiUrl + "/setup/creators/userList.json",
+        postData    : {
+            username    : "",
+        },
+        datatype    :"jsonp",
+        jsonReader  : {
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames    : [
+                '',
+                "{!$Label.label_10131}",
+                "{!$Label.label_10097}",
+        ],
+        colModel    : [
+                {name : "id",   index : "id",   hidden : true },
+                {name : "name", index : "name", width : 350 },
+                {name : "org",  index : "org",  width : 250 },
+        ],
+        onSelectRow : function(id, b_check){
+
+        },
+        rowNum      : 30,
+        height      : 300,
+        width       : 705,
+        autowidth   : false,
+        rowList     : [30,50,100],
+        sortname    : 'name',
+        sortorder   : 'asc',
+        pager       : $('#creatorsLicenseAddUserModalUserListPager'),
+        viewrecords : true,
+        multiselect : true,
+        multiboxonly: true,
+        onPaging    : function(b) {
+            $(this).setGridParam({
+                postData : {
+                    useCache : "true"
+                }
+            });
+        },
+        loadComplete: function(data){
+
+        }
+    });
+    $("#creatorsLicenseAddUserModalUserList").jqGrid('navGrid','#creatorsLicenseAddUserModalUserListPager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+
+</script>
+
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+
+</apex:page>

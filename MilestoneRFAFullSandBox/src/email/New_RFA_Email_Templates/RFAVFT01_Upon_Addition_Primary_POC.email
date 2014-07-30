@@ -1,0 +1,24 @@
+<messaging:emailTemplate subject="起案通知 (Information Only) : {!relatedTo.RFA__r.Name} -【{!relatedTo.RFA__r.RequestTitle__c}】" recipientType="User" relatedToType="RFAUserRole__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = " font-size:14px;">
+                    <p>以下の承認申請リクエスト (RFA) が起案されました。<br/>
+                    You have been identified as a {!relatedTo.RecordType.Name} of the following RFA that is currently in {!relatedTo.RFA__r.Stage__c}<br/><br/>
+                    </p>
+                    <c:RFAVFT_C01_EmailTemplateBodyRFAuserRole rfaObj="{!relatedTo}"/>
+                    <br/>
+                    <p>
+                    内容を確認する場合には下記リンクをクリックし、承認申請の文書を開いてください:<br/>
+                    Click this link to open the RFA Request Document:<BR/>   
+                    <b><a href="{!$label.RFA_CL026}/{!relatedTo.RFA__c}">{!relatedTo.RFA__r.Name}</a></b></p>
+                    <p>
+                    ご質問がございましたら、<b><a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a></b> へご連絡ください。<BR/>
+                    If you have any inquiries kindly contact <b><a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a></b>.<br/>
+　　　　　　　　　　<br/>　
+                    </p>
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

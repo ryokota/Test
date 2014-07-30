@@ -1,0 +1,514 @@
+<apex:page cache="false" >
+
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+
+    <style type="text/css">
+    /*-- override treeview css --*/
+    .folder {
+        width : auto;
+        min-width : 120px;
+    }
+
+    .folder > a{
+        color: #000000;
+    }
+    .folderS > a{
+        color: #000000;
+    }
+
+    .folderShare > a{
+        color: #000000;
+    }
+
+    a.tag_title {
+        text-decoration: none;
+        color: black;
+    }
+
+    a.tag_title img {
+        width: 10px;
+        height: 10px;
+    }
+
+    #tree ul li a{
+        color: #000000;
+    }
+
+    #tree ul li a:hover{
+        color: red;
+    }
+
+    #sidebar{
+
+    }
+    #tree_div{
+        /*width:250px;
+        max-width:250px;
+        overflow:auto;
+        overflow-x:auto;
+        overflow-y:auto;
+        -ms-overflow-x:auto;
+        -ms-overflow-y:auto;*/
+    }
+
+    #spaceTree{
+        /*overflow:auto;
+        overflow-x:auto;
+        overflow-y:auto;
+        -ms-overflow-x:auto;
+        -ms-overflow-y:auto;*/
+    }
+
+    .innerleftMenu{
+        position:relative;
+        max-width:200px;
+        background-repeat: repeat-x;
+        background-position: left center;
+        padding: 0px 10px 0px 15px;
+        color: #FFFFFF;
+        font-weight: bold;
+        height: 20px;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    #tagNameTreeDiv{
+        color: #000000;
+        display:inline;
+        padding-left:30px;
+        width:150px;
+    }
+
+    #tagNameTree {
+        margin-left:30px;
+        overflow-x:auto
+    }
+
+    #tagLeftTitle{
+        margin-left:30px;
+        padding-top:15px;
+    }
+
+    #spaceMenu{
+        padding: 5px !important;
+        height: auto;
+    }
+
+    #tree ul li{
+        font-size:12px;
+        font-weight:bold;
+    }
+    </style>
+
+    <script type="text/javascript">
+    var openFlag=false;
+    var selectFlag=1;
+    //var tagType=1;
+    //var tagName="";
+
+        var sideRoot = new Array();
+
+        $(document).ready(function(){
+    //      alert("rsidebar start!");
+            side_collaboration_reload(true);
+
+        });
+        function clickmenubutton(obj) {
+            var posX = obj.offset().left;
+            var posY = obj.offset().top;
+            var width = obj.outerWidth();
+            var height = obj.height();
+            var w = $("#createActionMenu").outerWidth() - width;
+
+            if(obj.attr("id") == "settingBtn"){
+                posX = obj.offset().left - 12;
+                posY = obj.offset().top - 12;
+            }else if(obj.attr("id") == "createBtn"){
+                posX = obj.offset().left - w - 12;
+                posY = obj.offset().top - 12;
+            }
+
+            $(".positionHelper").css("left", posX).css('top', posY);
+
+            //hideCsoContextMenu();
+        }
+
+        function contents_reload(asrt){
+            if(sideRoot[asrt]){
+
+//                document.getElementById("iframeContent").src = "/SpaceList?spaceId=" + sideRoot[asrt] + "&asrt=" + asrt;
+
+                init(sideRoot[asrt], asrt);
+            }
+        }
+
+        function side_tag_reload(flg){
+
+            $("#spaceTree").hide();
+
+            jumpFlag=false;
+
+//            $("#control").hide();
+
+            initTree(flg);
+
+            // jqGrid-2row
+//            $("#listView1").showCol("path");
+
+            $("#titleImg").attr("src","image/tag.png?20120525")
+            selectFlag=$("#tagTypeSelect").val();
+             $("#title").empty();
+//            tagType=null;
+//            tagName=null;
+
+            var callback =  function(data, status){
+                initTagTree(data,"tag",'{!$Label.label_00057}','tag',data["title"]);
+                $("#listView1" ).clearGridData();
+                $("#listView1").setGridParam({
+                    url: ''
+                });
+            }
+            secureGetAsync('/taginfo/treeList.json', {"funType":selectFlag}, callback);
+
+        }
+
+        function initTagTree(data,cookieId,tagTitle,asrt,tagTypeName){
+            $("#spaceTitle").html(tagTitle);
+            $("#spaceName").html(tagTitle);
+            $("#spacePath").empty();
+            var branches = $("#tagNameTree").html(data["tree"]);
+            $(".tree_control").each(function(){
+                if($(this).attr("id") == ("control_" + asrt)){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+            });
+            $("#tagNameTree").treeview({
+                animated: "fast",
+
+//                collapsed: true,
+
+                control:"#control_tag",
+                persist: "cookie",
+                cookieId: cookieId,
+                add: branches,
+                cookieOptions : 10,
+            });
+            $("#loadingGif").hide();
+            openFlag=false;
+
+//            showOpenClose();
+
+        }
+
+        function changeState(flag){
+            if(flag){
+                $("#open").attr("style","font-size:12px;text-decoration: none;display:none");
+                $("#openBtn").css("display","none");
+                $("#close").attr("style","font-size:12px;text-decoration: none;display:inline");
+                $("#closeBtn").css("display","inline");
+                openFlag=false;
+            }else{
+                $("#open").attr("style","font-size:12px;text-decoration: none;display:inline");
+                $("#openBtn").css("display","inline");
+                $("#close").attr("style","font-size:12px;text-decoration: none;display:none");
+                $("#closeBtn").css("display","none");
+                openFlag=true;
+            }
+        }
+
+         function reloadTag(){
+
+            $("#otherDiv").hide();
+            $("#listViewArea").show();
+            if(searchFlag){
+                 var searchstr = $.trim($("#keywords").val());
+                 $("#listView1").setGridParam({
+                    url: _apiUrl + '/taginfo/list.json',
+                    postData : {
+                        tagType : $("#tagTypeSelect").val(),
+                        tagName : searchstr,
+                        search : true,
+                    },
+                 }).trigger("reloadGrid");
+            }else{
+                 $("#listView1").trigger("reloadGrid");
+            }
+
+        }
+
+        function searchContents(name, type){
+            $("#otherDiv").hide();
+            $("#listViewArea").show();
+
+            // jqGrid-2row
+//            $("#listView1").showCol("path");
+
+            switchEditorToGrid();
+
+            $("#listView1").setGridParam({
+                url : _apiUrl + '/taginfo/list.json',
+                postData : {
+                    tagType : $("#tagTypeSelect").val(),
+                    tagName : name
+                }
+            });
+            $("#listView1").trigger("reloadGrid");
+            $("#title").text(name);
+            $("#spaceName").show();
+    //      tagType=type;
+    //      tagName=name;
+        }
+
+        //-- INS-タグ検索-張雪-20110623-END --
+
+        function side_myspace_reload(flg){
+            initTree(flg);
+
+            var callback =  function(data, status){
+                send(data);
+                sideRoot["asrt"] = "my";
+                loadTree(data, "myspacetree", "{!$Label.label_00051}", "my", flg);
+            }
+            secureGetAsync('/space/spaceTreeRoot.json', {"asrt":"my"}, callback);
+
+            mSpaceIdentifier =1;
+            //hideCsoContextMenu();
+            $("#spaceTree").show();
+        }
+
+        function side_companyhome_reload(flg){
+            $('#createNewLabel').html('{!$Label.label_00053}');
+            //initTree(flg);
+
+            var callback =  function(data, status){
+//                    send(data);
+                    sideRoot["asrt"] = "company";
+                    changeSpace("#"+data["root"]+":company");
+                    loadTree(data, "companytree", "{!$Label.label_00053}", "company", flg);
+                    var $div = $("li#" + data.root).find("div:first");
+                    if($div.hasClass("hitarea")){
+                        $div.click();
+                    }
+            }
+//            secureGetAsync('/space/spaceTreeRoot.json', {"asrt":"company"}, callback);
+            secureGetAsync('/setup/SpaceTreeRootSPApi.json', {"asrt":"company", 'itemsType' : '2', "returnType":"html"}, callback);
+
+            mSpaceIdentifier =2;
+            //hideCsoContextMenu();
+            $("#spaceTree").show();
+        }
+
+        function side_collaboration_reload(flg){
+            $('#createNewLabel').html('{!$Label.label_00052}');
+            initTree(flg);
+
+            var callback =  function(data, status){
+//                    send(data);
+                    sideRoot["collaboration"] = data["root"];
+                    sideRoot["asrt"] = "collaboration";
+                    changeSpace("#"+data["root"]+":collaboration");
+                    loadTree(data, "collaborationtree", "{!$Label.label_00052}", "collaboration", flg);
+                    var $div = $("li#" + data.root).find("div:first");
+                    if($div.hasClass("hitarea")){
+                        $div.click();
+                    }
+            }
+//            secureGetAsync('/space/spaceTreeRoot.json', {"asrt":"collaboration"}, callback);
+            secureGetAsync('/setup/SpaceTreeRootSPApi.json', {"asrt":"collaboration", 'itemsType' : '2', "returnType":"html"}, callback);
+
+            mSpaceIdentifier =5;
+            //hideCsoContextMenu();
+            $("#spaceTree").show();
+        }
+
+        function side_archive_reload(flg){
+            initTree(flg);
+
+            var callback =  function(data, status){
+                    send(data);
+                    sideRoot["archive"] = data["root"];
+                    sideRoot["asrt"] = "archive";
+                    loadTree(data, "archivetree", "{!$Label.label_00055}", "archive", flg);
+            }
+            secureGetAsync('/space/spaceTreeRoot.json', {"asrt":"archive"}, callback);
+
+            mSpaceIdentifier =4;
+            hideCsoContextMenu();
+            $("#spaceTree").show();
+        }
+
+        function side_garbagespace_reload(flg){
+            initTree(flg);
+
+            var callback =  function(data, status){
+                    send(data);
+                    sideRoot["garbage"] = data["root"];
+                    sideRoot["asrt"] = "garbage";
+                    loadTree(data, "garbagetree", "{!$Label.label_00056}", "garbage", flg);
+            }
+            secureGetAsync('/space/spaceTreeRoot.json', {"asrt":"garbage"}, callback);
+
+            mSpaceIdentifier =3;
+            hideCsoContextMenu();
+            $("#spaceTree").show();
+        }
+
+        function initTree(flg){
+
+            //hideContextMenu();
+            if(!flg){
+                $("#spacePath").html("");
+            }
+            $("#spaceTree").html("");
+            $("#loadingGif").show();
+        }
+
+        function hideContextMenu(){
+            $("#jqContextMenu").hide();
+            $("#jqContextMenu").next().hide();
+        }
+
+        function loadTree(data, cookieId, spaceTitle, asrt, flg){
+
+            if($.cookie(cookieId) == null){
+                $.cookie(cookieId, 5, { expires: 7 });
+            }
+
+            if(!flg){
+                $("#spaceName").html(spaceTitle);
+                $("#titleImg").attr("src","/image/folder.png");
+            }
+            $("#spaceTitle").html(spaceTitle);
+
+            $(".tree_control").each(function(){
+                if($(this).attr("id") == ("control_" + asrt)){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+            });
+
+            var title = decodeURI(spaceTitle);
+            $("#title").empty();
+            $("#title").append(title);
+            jumpFlag=true;
+
+            var branches = $("#spaceTree").html(data["tree"]);
+            $("#spaceTree").treeview({
+                url: '/space/spaceTreeChildren.json',
+                add: branches,
+                asrt: asrt,
+//              control: "#control_" + asrt,
+                animated: "fast",
+                persist: "fixed-open",
+                cookieId: cookieId,
+                cookieOptions : 10
+            });
+
+            if(!flg){
+
+//                reload(data.root, asrt);
+
+                location.href = '#' + data.root + ':' + asrt;
+            }
+
+            $("#loadingGif").hide();
+/*
+            if (!flg) {
+                reload(data.root, asrt);
+            } else {
+                setTimeout(function(){
+                    synchronizedSpaceTree();
+                    changeCurrentTreeColor();
+                }, 10);
+            }
+*/
+        }
+
+        function contextMenuEmpty(){
+            $("#listViewArea").contextMenu("contextMenuEmpty", {
+                menuStyle: {
+                    width: '200px'
+                },
+                bindings : {
+
+                },
+                onContextMenu : function(ev) {
+                    ev.stopImmediatePropagation();
+                    ev.stopPropagation();
+                    return false;
+                }
+            });
+        }
+
+
+        function synchronizedSpaceTree(){
+        //-- スペースが深すぎると自動的に開かないので修正
+//            var $ids = $("#spacePath").children("a");
+
+            var $ids = $("#fullPathDisplay").children("a");
+            if($ids.length == 0){
+                return;
+            }
+            $ids.each(function(){
+                var spaceid = $(this).attr("id");
+                var expanded = expandSpaceTree(spaceid);
+                if(!expanded){
+                    return false;
+                }
+            });
+        }
+
+        function changeCurrentTreeColor(hash, reprocessCount){
+            var url = location.href;
+            if(hash !== undefined){
+                $("#spaceTree").find("#" + hash.split(":")[0]).css({color:"red"});
+
+                if(reprocessCount === undefined){
+                    reprocessCount = 1;
+                }else if(reprocessCount > 100){
+                    return;
+                }
+
+                setTimeout(function(){
+                    changeCurrentTreeColor(hash, ++reprocessCount);
+                }, 10);
+            }else{
+                $(".folder a, .folderShare a, .folderS a, .folderD a, .folderDRed a, .folderDBlue a").each(function(){
+                    var spaceId = getSpaceId();
+                    if($(this).attr("id") == spaceId){
+                        $(this).css({color:"red"});
+                    }else{
+                        $(this).css({color:"black"});
+                    }
+                });
+            }
+        }
+
+        function getSpaceId() {
+            var url = location.href;
+            var a = url.replace(/^.*#/, '').split(":");
+            if (a.length > 0) {
+                return a[0];
+            }
+            return "";
+        }
+
+    </script>
+
+    <!--div id="c_left_container" class="background_white"-->
+        <div class="tree-area" id="container_parent">
+            <div id ="tree_div">
+                <!--img alt="" src="/image/loading.gif" style="position: absolute; top: 40%;left: 100px; display: none;" id="loadingGif" />
+                <ul id="spaceTree" class="filetree" ></ul-->
+                <!-- ローディングエリア -->
+                <div id="loadingGif"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/loading.gif')}" style="margin:50px 0 0 100px" alt="loading"/></div>
+                <!-- スペースツリーエリア -->
+                <!--ul id="spaceTree" class="filetree" style="max-height: 432px;"></ul-->
+                <ul id="spaceTree" class="filetree"></ul>
+            </div>
+        </div>
+    <!--/div-->
+</apex:page>

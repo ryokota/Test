@@ -1,0 +1,316 @@
+<apex:page id="SettingGroupAdminProfileDetail" tabStyle="setting__tab"  controller="SOLXYZCSO001.SettingGroupAdminProfile" sidebar="false" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_group_admin_profile_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_group_admin_profile_manage == 'true', true, false)}">
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+$(function(){
+    CsoScript_loadingStart();
+    secureGetAsync(
+        '/setup/groupadmin/GroupAdminProfileInfoApi.json',
+          {"id" : "{!id}"},
+        function(data) {
+            if (data.result == true) {
+                $(data.userProfileList).each(function(){
+                    var opt = $("<option value=\"" + this.id + "\"></option>");
+                    opt.text(this.name);
+                    $('#addableprofiles').append(opt);
+                });
+                $(data.selectdUserProfileList).each(function(){
+                    var opt = $("<option value=\"" + this.id + "\"></option>");
+                    opt.text(this.name);
+                    $('#addedprofiles').append(opt);
+                });
+                
+                $(data.corpList).each(function(){
+                    var opt = $("<option value=\"" + this.id + "\"></option>");
+                    opt.text(this.name);
+                    $('#addabledomains').append(opt);
+                });
+                $(data.selectedCorpList).each(function(){
+                    var opt = $("<option value=\"" + this.id + "\"></option>");
+                    opt.text(this.name);
+                    $('#addeddomains').append(opt);
+                });                
+                $(data.groupList).each(function(){
+                    var opt = $("<option value=\"" + this.id + "\"></option>");
+                    opt.text(this.name);
+                    $('#defaultgroup_list').append(opt);
+                });
+                CsoScript_loadingStop();
+            }
+        }
+    );
+});
+
+function removeButton(){
+    var name = $("#SettingGroupAdminProfileDetail\\:theForm\\:theBlock\\:inputName").val();
+    return(confirm(getMsg(new Array(decodeURI(name)),"{!$Label.msg_00065}")));
+}
+
+
+</script>
+<!-- wrapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/group-admin-profile.png')}" alt="{!$Label.solxyzcso001__label_10083}" title="{!$Label.solxyzcso001__label_10083}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10260}</h1><br/>
+                <apex:outputLabel ><h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_gap_details}</h2></apex:outputLabel>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form id="theForm">
+                    <apex:pageMessages />
+                    <apex:pageBlock title="{!$Label.solxyzcso001__label_gap_information}" id="theBlock" >
+                        <apex:pageBlockButtons >
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00073}" action="{!editProfile}"/>
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00072}" onclick="return removeButton()" action="{!deleteProfile}"/>
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!cancel}"/>
+                        </apex:pageBlockButtons>
+                        <apex:inputHidden value="{!name}" id="inputName"/>
+                        <apex:pageblockSection columns="1" id="theBlockSectionInfo">                            
+                            <apex:pageBlockSectionItem id="theBlockSectionItemProName">                           
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10185}</apex:outputLabel>
+                                <apex:outputLabel >{!name}</apex:outputLabel>
+                            </apex:pageBlockSectionItem>                                                
+                            <apex:pageBlockSectionItem id="theBlockSectionItemComment">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10012}</apex:outputLabel>
+                                <apex:pageBlockSectionItem id="theBlockSectionItemCommentItem">
+                                   <apex:panelGroup >
+                                        <div><textarea name="comment" id="comment" style="width: 425px; height: 125px; resize: none;" disabled="true">{!comment}</textarea></div>
+                                    </apex:panelGroup>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" id="theBlockSectionUser">
+                            <apex:pageBlockSectionItem id="theBlockSectionItemRegUser">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10015}</apex:outputLabel>
+                                <apex:outputPanel layout="none">
+                                    <apex:outputLabel escape="true" value="{!regUser}" />&nbsp;<apex:outputLabel escape="false" value="{!regDate}" />
+                                </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem id="theBlockSectionItemLastUpUser">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10238}</apex:outputLabel>
+                                <apex:outputPanel layout="none">
+                                    <apex:outputLabel escape="true" value="{!lastUpUser}" />&nbsp;<apex:outputLabel escape="false" value="{!lastUpDate}" />
+                                </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        
+                        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10260}" id="theBlockSectionUserManage">
+                          
+                            <apex:pageBlockSectionItem id="theBlockSectionItemPERMISSION" rendered="false">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_gap_permissionSettings}</apex:outputLabel>
+                                <apex:panelGroup >
+                                    <table>
+                                        <tr>
+                                            <td style="width:150px;">
+                                                <apex:inputCheckbox id="USER_REGIST" disabled="false" selected="{!addUser}"/>
+                                                <apex:outputLabel >User registration</apex:outputLabel>
+                                            </td>
+                                            <td style="width:125px;"> 
+                                                <apex:inputCheckbox id="USER_EDIT" disabled="false" selected="{!repUser}"/>                                    
+                                                <apex:outputLabel >User editing</apex:outputLabel>                                                                                           
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </apex:panelGroup>                  
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem id="theBlockSectionItemAVL_DISKSPACE" rendered="false">
+                                <apex:outputLabel >Available Disk Space</apex:outputLabel>  
+                                <apex:panelGroup >
+                                    <table>
+                                        <tr>
+                                            <td style="width:75px;">
+                                                <apex:outputLabel >Upper limit</apex:outputLabel>
+                                            </td>
+                                            <td style="width:110px;">                                  
+                                                <apex:outputPanel styleClass="requiredInput" layout="block">
+                                                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                                    <apex:inputText value="{!diskLimit}"  style="width:50px;" required="true" disabled="true" id="DISK_LIMIT" maxlength="9"/>GB
+                                                </apex:outputPanel>                                                
+                                            </td>
+                                            <td style="width:175px;">
+                                                <apex:inputCheckbox id="DISK_UNLIMITED" disabled="false" selected="{!diskUnlimited}" onchange="diskUnlimitedOnChange();"/>                         
+                                                <apex:outputLabel >Unlimited</apex:outputLabel>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </apex:panelGroup> 
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem id="theBlockSectionItemAVL_DELIVERYSPACE" rendered="false">
+                                <apex:outputLabel >Available Delivery Space</apex:outputLabel>  
+                                <apex:panelGroup >
+                                    <table>
+                                        <tr>
+                                            <td style="width:75px;">
+                                                <apex:outputLabel >Upper limit</apex:outputLabel>
+                                            </td>
+                                            <td style="width:110px;">                                  
+                                                <apex:outputPanel styleClass="requiredInput" layout="block">
+                                                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                                    <apex:inputText value="{!deliverLimit}"  style="width:50px;" required="true" disabled="true" id="DELIVER_LIMIT" maxlength="9"/>GB
+                                                </apex:outputPanel>                                                
+                                            </td>
+                                            <td style="width:175px;">
+                                                <apex:inputCheckbox id="DELIVERY_UNLIMITED" disabled="false" selected="{!deliverUnlimited}" onchange="deliverUnlimitedOnChange();"/>                         
+                                                <apex:outputLabel >Unlimited</apex:outputLabel>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </apex:panelGroup> 
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem id="theBlockSectionItemEXP_DATE" rendered="false">
+                                <apex:outputLabel >Available Delivery Space</apex:outputLabel>  
+                                <apex:panelGroup >
+                                    <table>
+                                        <tr>
+                                            <td style="width:75px;">
+                                                <apex:outputLabel >Upper limit</apex:outputLabel>
+                                            </td>
+                                            <td style="width:110px;">                                  
+                                                <apex:outputPanel styleClass="requiredInput" layout="block">
+                                                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                                    <apex:inputText value="{!expirationDate}"  style="width:50px;" required="true" disabled="true" id="EXPIRATION_DATE" maxlength="9"/>Month(s)
+                                                </apex:outputPanel>                                                
+                                            </td>
+                                            <td style="width:175px;">
+                                                <apex:inputCheckbox id="EXPIRY_DATE" disabled="false" selected="{!expirationDateUnlimited}" onchange="expirationDateOnChange();"/>                         
+                                                <apex:outputLabel >Unlimited</apex:outputLabel>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </apex:panelGroup> 
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem id="theBlockSectionItemPROFILES" rendered="false">   
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10028}</apex:outputLabel>
+                                <apex:panelGroup >
+                                    <table>
+                                       <tr>
+                                            <td colspan="3">
+                                                <label><input type="radio" name="RADIO_PROFILE" id="PROFILE_ALL" value="false" checked="on" onclick="radioProfileOnChange();"/>{!$Label.label_gap_makeAllProfile}</label>
+                                                <br/>
+                                                <label><input type="radio" name="RADIO_PROFILE" id="PROFILE_SELECT" onclick="radioProfileOnChange();"/>{!$Label.label_gap_setAvailableProfile}</label>
+                                            </td>
+                                        </tr>
+                                        <tr id="PROFILE_ROW">
+                                            <td style="width:250px;">
+                                                <div>{!$Label.label_gap_profileProhibited}</div>
+                                                <select id="addableprofiles" multiple="multiple" style="width:250px; height:200px;">
+                                                </select>
+                                            </td>
+                                            <td style="width:100px; text-align:center;">
+                                                <div><input type="button" class="btn" value='{!$Label.label_10020}' onclick="return move('addableprofiles', 'addedprofiles', true);" /></div>
+                                                <div style="margin-top:20px;"><input type="button" class="btn" value='{!$Label.solxyzcso001__label_00072}' onclick="return move('addedprofiles', 'addableprofiles', false);" /></div>
+                                            </td>
+                                            <td style="width:250px;">
+                                                <div>{!$Label.label_gap_availableProfile}</div>
+                                                <select id="addedprofiles" multiple="multiple" style="width:250px; height:200px;">
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </apex:panelGroup>                              
+                            </apex:pageBlockSectionItem>                            
+                            
+                            <apex:pageBlockSectionItem id="theBlockSectionItemCOMPANIES" rendered="false">   
+                                <apex:outputLabel >Company</apex:outputLabel>                             
+                                <apex:panelGroup >
+                                    <table>
+                                        <tr>
+                                            <td colspan="3">
+                                                <label><input type="radio" name="RADIO_DOMAIN" id="DOMAIN_ALL"    value="true" onclick="radioDomainOnChange();"/>Make all companies available </label>
+                                                <br/>
+                                                <label><input type="radio" name="RADIO_DOMAIN" id="DOMAIN_SELECT" value="false" checked="checked" onclick="radioDomainOnChange();"/>Set available company</label>
+                                            </td>
+                                        </tr>
+                                        <tr id="DOMAIN_ROW">
+                                            <td style="width:250px;">
+                                                <div>Company prohibited from using by standard user</div>
+                                                <select id="addabledomains" class="detailSelect" style="width:250px; height:200px;" size="6" multiple="multiple">
+                                                </select>
+                                            </td>
+                                            <td style="width:100px; text-align:center;">
+                                                <div><input type="button" class="btn" value='{!$Label.label_10020}' onclick="return move('addabledomains', 'addeddomains', true);" /></div>
+                                                <div style="margin-top:20px;"><input type="button" class="btn" value='{!$Label.solxyzcso001__label_00072}' onclick="return move('addeddomains', 'addabledomains', false);" /></div>
+                                            </td>
+                                            <td style="width:250px;">
+                                                <div>Available company</div>
+                                                <select id="addeddomains" class="detailSelect" style="width:250px; height:200px;" size="6" multiple="multiple">
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </apex:panelGroup>                                
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem id="theBlockSectionItemDEFAULT_GROUP">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_gap_defaultMembershipGroup}</apex:outputLabel>
+                                <apex:outputPanel layout="pageDirection">
+                                    <select id="defaultgroup_list" class="detailSelect" style="width:250px; height:200px;" size="6" multiple="multiple">
+                                    </select>
+                                </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_gap_groupmanage}" id="theBlockSectionGroupManage">
+                            <apex:pageBlockSectionItem id="theBlockSectionItemADD_GROUP">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_gap_permissionSettings}</apex:outputLabel>
+                                <apex:outputPanel >                                    
+                                    <apex:inputCheckbox id="ADD_GROUP" disabled="true" selected="{!addGroup}"/>
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_gap_createAGroup}</apex:outputLabel>   
+                                </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+
+</apex:page>

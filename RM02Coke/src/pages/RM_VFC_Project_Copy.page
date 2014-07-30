@@ -1,0 +1,247 @@
+<apex:page standardController="Milestone1_Project__c" sidebar="false" extensions="RM_VFC_Project_CopyCtrl">
+    <head>
+        <script type="text/javascript">
+            function newRFA(SelectedList){
+                
+                if (document.getElementById(SelectedList).value === "") {
+                    return;
+                }
+                
+                if (requireValidation(document.getElementById(SelectedList).value)) {
+                    return false;
+                }
+                
+                createUrl(document.getElementById(SelectedList).value);
+                return;
+            }
+            
+            function requireValidation(recordTypeName){
+            
+                var errMsg = [];
+                
+                if(recordTypeName == '{!$Label.RFA_RecordType_Project_Initiate}'){
+                
+                    if ('{!Milestone1_Project__c.Kickoff__c}' === '') {
+                        errMsg.push('{!$ObjectType.Milestone1_Project__c.Fields.Kickoff__c.Label}');
+                    }
+                    if ('{!Milestone1_Project__c.Deadline__c}' === '') {
+                        errMsg.push('{!$ObjectType.Milestone1_Project__c.Fields.Deadline__c.Label}');
+                    }
+                    if ('{!Milestone1_Project__c.Function__c}' === '') {
+                        errMsg.push('{!$ObjectType.Milestone1_Project__c.Fields.Function__c.Label}');
+                    }
+                    if ('{!Milestone1_Project__c.Project_Leader__c}' === '') {
+                        errMsg.push('{!$ObjectType.Milestone1_Project__c.Fields.Project_Leader__c.Label}');
+                    }
+                    if ('{!Milestone1_Project__c.Project_Sponsor__c}' === '') {
+                        errMsg.push('{!$ObjectType.Milestone1_Project__c.Fields.Project_Sponsor__c.Label}');
+                    }
+                    if ('{!URLENCODE(Milestone1_Project__c.RM_Background_Current_Issue__c)}' === '') {
+                        errMsg.push('{!$ObjectType.Milestone1_Project__c.Fields.RM_Background_Current_Issue__c.Label}');
+                    }
+                    if ('{!URLENCODE(Milestone1_Project__c.Description__c)}' === '') {
+                        errMsg.push('{!$ObjectType.Milestone1_Project__c.Fields.Description__c.Label}');
+                    }
+                    if ('{!URLENCODE(Milestone1_Project__c.RM_Estimated_Benefit_Overview__c)}' === '') {
+                        errMsg.push('{!$ObjectType.Milestone1_Project__c.Fields.RM_Estimated_Benefit_Overview__c.Label}');
+                    }
+                }
+                
+                if (recordTypeName == '{!$Label.RFA_RecordType_Project_Charter}' ||
+                    recordTypeName == '{!$Label.RFA_RecordType_Project_CloseOut}'){
+                    if ('{!Milestone1_Project__c.Project_Classification__c}' === '') {
+                        errMsg.push('{!$ObjectType.Milestone1_Project__c.Fields.Project_Classification__c.Label}');
+                    }
+                }
+                
+                if (errMsg.length !== 0) {
+                    alert('{!$Label.RM_ProjectRequest_ErrMsg}' + '\n・' + errMsg.join('\n・'));
+                    return true;
+                }
+            }
+        
+            function createUrl(recordTypeName) {
+                
+                window.open("about:blank","preview");
+                var form = document.createElement("form");
+                form.setAttribute("id", "go_form");
+                form.setAttribute("name", "go_form");
+                
+                //相対パスの場合、POST処理が正常に動作しない為、絶対パスで表記
+                form.setAttribute("action", "{!salesforceHost}");
+                form.setAttribute("target", "preview");
+                form.style.display = "none";
+                document.body.appendChild(form);
+                
+                var params;
+                
+                if(recordTypeName == '{!$Label.RFA_RecordType_Project_Initiate}'){
+                    
+                    form.setAttribute("method", "get");
+                    
+                    params = {
+                        'RecordType'    : '{!projectInitiateId}',
+                        'pjid'          : '{!JSENCODE(Milestone1_Project__c.Id)}'
+                    }
+                }
+                if (recordTypeName == '{!$Label.RFA_RecordType_Project_Charter}'){
+                
+                    form.setAttribute("method", "get");
+                
+                    params = {
+                        'RecordType'    : '{!projectCharterId}',
+                        'pjid'          : '{!JSENCODE(Milestone1_Project__c.Id)}'
+                    }
+                }
+                
+                if(recordTypeName == '{!$Label.RFA_RecordType_Project_CloseOut}'){
+                
+                    form.setAttribute("method", "get");
+                
+                    params = {
+                        'RecordType'    : '{!projectCloseOutId}',
+                        'pjid'          : '{!JSENCODE(Milestone1_Project__c.Id)}'
+                    }
+                }
+                if(recordTypeName == '{!$Label.RFA_RecordType_General}'){
+                
+                    form.setAttribute("method", "post");
+                
+                    params = {
+                        'RecordType' : '{!generalId}',
+                        '{!$Label.RM_FieldID_RFA_ObjectivesRationaleBackground}' : '【{!$ObjectType.Milestone1_Project__c.Fields.RM_Background_Current_Issue__c.Label}】' +
+                                                '\r\n' +
+                                                '{!JSENCODE(Milestone1_Project__c.RM_Background_Current_Issue__c)}' +
+                                                '\r\n\r\n' +
+                                                '【{!$ObjectType.Milestone1_Project__c.Fields.Description__c.Label}】' +
+                                                '\r\n' +
+                                                '{!JSENCODE(Milestone1_Project__c.Description__c)}',
+                        '{!$Label.RM_FieldID_RFA_BenefitsFinancialMetricsAssumptions}' : '{!JSENCODE(Milestone1_Project__c.RM_Estimated_Benefit_Overview__c)}',
+                        '{!$Label.RM_FieldID_RFA_RequestTitle}' : '{!JSENCODE(Milestone1_Project__c.Name)}',
+                        'nooverride'        :   '1'
+                    }
+                }
+                if(recordTypeName == '{!$Label.RFA_RecordType_CapitalProject}'){
+                
+                    form.setAttribute("method", "post");
+                
+                    params = {
+                        'RecordType' : '{!capitalProjectId}',
+                        '{!$Label.RM_FieldID_RFA_ObjectivesRationaleBackground}' : '【{!$ObjectType.Milestone1_Project__c.Fields.RM_Background_Current_Issue__c.Label}】' +
+                                                '\r\n' +
+                                                '{!JSENCODE(Milestone1_Project__c.RM_Background_Current_Issue__c)}' +
+                                                '\r\n\r\n' +
+                                                '【{!$ObjectType.Milestone1_Project__c.Fields.Description__c.Label}】' +
+                                                '\r\n' +
+                                                '{!JSENCODE(Milestone1_Project__c.Description__c)}',
+                        '{!$Label.RM_FieldID_RFA_BenefitsFinancialMetricsAssumptions}' : '{!JSENCODE(Milestone1_Project__c.RM_Estimated_Benefit_Overview__c)}',
+                        '{!$Label.RM_FieldID_RFA_RequestTitle}' : '{!JSENCODE(Milestone1_Project__c.Name)}',
+                        'nooverride' : '1'
+                    }
+                
+                }
+                
+                if(recordTypeName == '{!$Label.RFA_RecordType_MediumProject}'){
+                    
+                    form.setAttribute("method", "post");
+                    
+                    params = {
+                        'RecordType' : '{!mediumProjectId}',
+                        '{!$Label.RM_FieldID_RFA_ObjectivesRationaleBackground}' : '【{!$ObjectType.Milestone1_Project__c.Fields.RM_Background_Current_Issue__c.Label}】' +
+                                                '\r\n' +
+                                                '{!JSENCODE(Milestone1_Project__c.RM_Background_Current_Issue__c)}' +
+                                                '\r\n\r\n' +
+                                                '【{!$ObjectType.Milestone1_Project__c.Fields.Description__c.Label}】' +
+                                                '\r\n' +
+                                                '{!JSENCODE(Milestone1_Project__c.Description__c)}',
+                        '{!$Label.RM_FieldID_RFA_BenefitsFinancialMetricsAssumptions}' : '{!JSENCODE(Milestone1_Project__c.RM_Estimated_Benefit_Overview__c)}',
+                        '{!$Label.RM_FieldID_RFA_RequestTitle}' : '{!JSENCODE(Milestone1_Project__c.Name)}',
+                        'nooverride' : '1'
+                    }
+                }
+                if(recordTypeName == '{!$Label.RFA_RecordType_SmallProject}'){
+                
+                    form.setAttribute("method", "post");
+                    
+                    params = {
+                        'RecordType' : '{!smallProjectId}',
+                        '{!$Label.RM_FieldID_RFA_ObjectivesRationaleBackground}' : '【{!$ObjectType.Milestone1_Project__c.Fields.RM_Background_Current_Issue__c.Label}】' +
+                                                '\r\n' +
+                                                '{!JSENCODE(Milestone1_Project__c.RM_Background_Current_Issue__c)}' +
+                                                '\r\n\r\n' +
+                                                '【{!$ObjectType.Milestone1_Project__c.Fields.Description__c.Label}】' +
+                                                '\r\n' +
+                                                '{!JSENCODE(Milestone1_Project__c.Description__c)}',
+                        '{!$Label.RM_FieldID_RFA_BenefitsFinancialMetricsAssumptions}' : '{!JSENCODE(Milestone1_Project__c.RM_Estimated_Benefit_Overview__c)}',
+                        '{!$Label.RM_FieldID_RFA_RequestTitle}' : '{!JSENCODE(Milestone1_Project__c.Name)}',
+                        'nooverride' : '1'
+                    }
+                }
+                
+                if(recordTypeName == '{!$Label.RFA_RecordType_CapitalBudget}'){
+                
+                    form.setAttribute("method", "post");
+                    
+                    params = {
+                        'RecordType' : '{!capitalBudgetId}',
+                        '{!$Label.RM_FieldID_RFA_BackgroundCurrentIssue}' : '{!JSENCODE(Milestone1_Project__c.RM_Background_Current_Issue__c)}',
+                        '{!$Label.RM_FieldID_RFA_ProjectObjectives}' : '{!JSENCODE(Milestone1_Project__c.Description__c)}',
+                        '{!$Label.RM_FieldID_RFA_EstimatedBenefitOverview}' : '{!JSENCODE(Milestone1_Project__c.RM_Estimated_Benefit_Overview__c)}',
+                        '{!$Label.RM_FieldID_RFA_RequestTitle}' : '{!JSENCODE(Milestone1_Project__c.Name)}',
+                        '{!$Label.RM_FieldID_RFA_RelatedProject}' : '{!JSENCODE(Milestone1_Project__c.Id)}',
+                        '{!$Label.RM_FieldID_RFA_FunctionL2}' : '{!JSENCODE(Milestone1_Project__c.Function__c)}',
+                        '{!$Label.RM_FieldID_RFA_FunctionL3}' : '{!JSENCODE(Milestone1_Project__c.Sub_Function__c)}',
+                        'nooverride' : '1'
+                    }
+                }
+                
+                if (params !== undefined) {
+                
+                    for (var param in params) {
+                        
+                        if (params[param] !== "") {
+                            var input = document.createElement('input');
+                            input.setAttribute('type', 'hidden');
+                            input.setAttribute('name', param);
+                            input.setAttribute('value', params[param]);
+                            form.appendChild(input);
+                        }
+                    }
+                }
+                document.go_form.submit();
+                document.body.removeChild(form);
+                
+            }
+        </script>
+    </head>
+    <apex:form >
+            <table width="100%">
+                <tr>
+                    <td width="25%">
+                    </td>
+                    <td>
+                        <apex:outputLabel value="Project" />
+                    </td>
+                    <td width="50">
+                        <apex:selectList id="RFA" value="{!selectedProjectRecorType}" size="1" multiselect="false">
+                            <apex:selectOptions value="{!projectRecordTypeOption}" />
+                        </apex:selectList>
+                    </td>
+                    <td>
+                        <input type="button" Value="Go" Onclick="newRFA('{!$Component.RFA}');" style="Width:50px;"/>
+                    </td>
+                    <td>
+                        <apex:outputLabel value="RFA" style="margin-left: 20px;" />
+                    </td>
+                    <td width="50">
+                        <apex:inputfield id="RFAFormal" Value="{!Milestone1_Project__c.RM_RFA_SelectedList_Formal__c}" />
+                    </td>
+                    <td>
+                        <input type="button" Value="Go" Onclick="newRFA('{!$Component.RFAFormal}');" style="Width:50px;"/>
+                    </td>
+                    <td width="30%">
+                    </td>
+                </tr>
+            </table>
+    </apex:form>
+</apex:page>

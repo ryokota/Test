@@ -1,0 +1,387 @@
+<apex:page cache="false" >
+
+<script type="text/javascript">
+
+/*-- =======//
+//  定  数  //
+//======= --*/
+var LEVEL_128BIT         = "0";     /*--  128-bit RC4        --*/
+var LEVEL_40BIT          = "1";     /*--  40-bit  RC4        --*/
+
+var PASSWORD_TYPE_NONE   = "0";     /*--  設定しない         --*/
+var PASSWORD_TYPE_FIXED  = "1";     /*--  固定で設定する     --*/
+var PASSWORD_TYPE_RANDOM = "2";     /*--  ランダムに生成する --*/
+
+/*-- =======//
+//  変  数  //
+//======= --*/
+/*--  エラーの有無  --*/
+var PS_err = false;
+
+
+
+$.fn.extend({
+    togglePassword : function( config ){
+        option = $.extend({
+            "postfix" : "-text"
+        }, config );
+        sync = function(){
+            var i = this.type.toUpperCase() === "PASSWORD" ?
+                this.id + option.postfix :
+                this.id.replace( option.postfix, "" );
+            $( "#" + i ).val( $(this).val() );
+        };
+        toggle = function(){
+            if( this.checked ){
+                $.data( this, "pswd" ).hide();
+                $.data( this, "text" ).show();
+            } else {
+                $.data( this, "pswd" ).show();
+                $.data( this, "text" ).hide();
+            }
+        };
+        this.each( function(){
+            var id, pswd, text, check, handlers;
+            id = this.getAttribute( "data-for" );
+            pswd = $("#" + id );
+            text = $("#" + id + option.postfix );
+            check = $(this);
+            handlers = { keyup : sync, blur : sync };
+            pswd.bind( handlers );
+            text.bind( handlers );
+            $.data( this, "pswd", pswd );
+            $.data( this, "text", text );
+            $(this).click( toggle );
+            toggle.apply( this );
+        });
+    }
+});
+
+function PS_displayInit(detail){
+    var info = detail.info;
+
+     PS_check('PS_enabled', info.enabled);                                  /*--  有効化                    --*/
+     PS_check('PS_timingSpace', info.timingSpace);                          /*--  タイミング（スペース）    --*/
+     PS_check('PS_timingDelivery', info.timingDelivery);                    /*--  タイミング（配信）        --*/
+    $('input[name="PS_level"]').val([info.level]);                          /*--  セキュリティレベル        --*/
+    $('input[name="PS_password"]').val([info.pwType]);                      /*--  パスワード                --*/
+    $('input[name="PS_masterPassword"]').val([info.masterPwType]);          /*--  マスターパスワード        --*/
+    $('input[name="PS_assembly"]').val([info.assembly]);                    /*--  文書アセンブリ            --*/
+    $('input[name="PS_contentsCopy"]').val([info.contentsCopy]);            /*--  内容のコピー              --*/
+    $('input[name="PS_fieldInput"]').val([info.fieldInput]);                /*--  フォームフィールドの入力  --*/
+    $('input[name="PS_explanatoryNote"]').val([info.explanatoryNote]);      /*--  注釈                      --*/
+    $('input[name="PS_contentsEdit"]').val([info.contentsEdit]);            /*--  文書の変更                --*/
+    $('input[name="PS_accessibility"]').val([info.accessibility]);          /*--  アクセシビリティ          --*/
+    $('input[name="PS_print"]').val([info.print]);                          /*--  印刷                      --*/
+     PS_check('PS_lowResolutionPrint', info.lowResolutionPrint);            /*--  低解像度での印刷          --*/
+
+    $('#PS_registUserName').text(detail.registUserName);                    /*--  作成者    --*/
+    $('#PS_registDate').text(detail.registDate);                            /*--  作成日    --*/
+    var updateUserName = detail.updateUserName;
+    var updateDate     = detail.updateDate;
+    if((updateUserName == null) || (updateUserName.length <= 0)) updateUserName = "-";
+    if((updateDate == null) || (updateDate.length <= 0)) updateDate = "-";
+    $('#PS_updateUserName').text(updateUserName);                           /*--  更新者    --*/
+    $('#PS_updateDate').text(updateDate);                                   /*--  更新日    --*/
+}
+
+function PS_displayInit2(detail){
+    var info = detail.info;
+
+    $("#showPW").togglePassword();
+    $("#showMasterPW").togglePassword();
+
+    $("input[name='PS_password']:radio").change(function(){
+        changePasswordType();
+    });
+    $("input[name='PS_masterPassword']:radio").change(function(){
+        changeMasterPasswordType();
+    });
+    $("input[name='PS_explanatoryNote']:radio").change(function(){
+        changeExplanatoryNote();
+    });
+    $("input[name='PS_level']:radio").change(function(){
+        changeLevel();
+    });
+    $("input[name='PS_print']:radio").change(function(){
+        changePrint();
+    });
+
+    changePasswordType();
+    if(info.pwType == PASSWORD_TYPE_FIXED){
+        $('#PS_passwordValue').val(info.pwOpt);
+        $('#PS_passwordValue-text').val(info.pwOpt);
+    }
+    if(info.pwType == PASSWORD_TYPE_RANDOM){
+        $('#PS_passwordLen').val(info.pwOpt);
+    }
+
+    changeMasterPasswordType();
+    if(info.masterPwType == PASSWORD_TYPE_FIXED){
+        $('#PS_masterPasswordValue').val(info.masterPwOpt);
+        $('#PS_masterPasswordValue-text').val(info.masterPwOpt);
+    }
+    if(info.masterPwType == PASSWORD_TYPE_RANDOM){
+        $('#PS_masterPasswordLen').val(info.masterPwOpt);
+    }
+
+    changeLevel();
+    changeExplanatoryNote();
+    changePrint();
+}
+
+function PS_check(id, check){
+    $('#' + id).attr('checked', eval(check));
+}
+
+function PS_checkInputData(){
+    /*-- タイミング選択チェック --*/
+    if(!($('#PS_timingSpace').attr('checked') || $('#PS_timingDelivery').attr('checked'))){
+        PS_err = true;
+        alert('{!$Label.solxyzcso001__msg_00278}');
+    }
+
+    /*-- パスワードチェック --*/
+    var pwOpt  = "";
+    var pwType = $("input:radio[name='PS_password']:checked").val();
+    if(pwType == PASSWORD_TYPE_FIXED){
+        pwOpt = $("#PS_passwordValue").val();
+        if ($.trim(pwOpt) == "") {
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__field_010051}'], '{!$Label.solxyzcso001__msg_00226}'));
+        }
+        else if(!isPassword(pwOpt)){
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__field_010051}'], '{!$Label.solxyzcso001__msg_00300}'));
+        }
+        else if(pwOpt.length < 4){
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__field_010051}', '4'], '{!$Label.solxyzcso001__msg_00234}'));
+        }
+        else if(pwOpt.length > 30){
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__field_010051}', '30'], '{!$Label.solxyzcso001__msg_00230}'));
+        }
+    }
+    if(pwType == PASSWORD_TYPE_RANDOM){
+        pwOpt = $("#PS_passwordLen").val();
+        if (pwOpt == "") {
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__field_010051}', '{!$Label.solxyzcso001__label_10642}'], '{!$Label.solxyzcso001__msg_00298}'));
+        }
+        else if(pwOpt.match(/[^0-9]/g)){
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__field_010051}', '{!$Label.solxyzcso001__label_10642}'], '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else if((parseInt(pwOpt) < 4) || (parseInt(pwOpt) > 30)){
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__field_010051}', '{!$Label.solxyzcso001__label_10642}', '4', '30'], '{!$Label.solxyzcso001__msg_00297}'));
+        }
+    }
+
+    /*-- マスターパスワードチェック --*/
+    var masterPwOpt  = "";
+    var masterPwType = $("input:radio[name='PS_masterPassword']:checked").val();
+    if(masterPwType == PASSWORD_TYPE_FIXED){
+        masterPwOpt = $("#PS_masterPasswordValue").val();
+        if ($.trim(masterPwOpt) == "") {
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__label_10631}'], '{!$Label.solxyzcso001__msg_00226}'));
+        }
+        else if(!isPassword(masterPwOpt)){
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__label_10631}'], '{!$Label.solxyzcso001__msg_00300}'));
+        }
+        else if(masterPwOpt.length < 4){
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__label_10631}', '4'], '{!$Label.solxyzcso001__msg_00234}'));
+        }
+        else if(masterPwOpt.length > 30){
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__label_10631}', '30'], '{!$Label.solxyzcso001__msg_00230}'));
+        }
+    }
+    if(masterPwType == PASSWORD_TYPE_RANDOM){
+        masterPwOpt = $("#PS_masterPasswordLen").val();
+        if (masterPwOpt == "") {
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__label_10631}', '{!$Label.solxyzcso001__label_10642}'], '{!$Label.solxyzcso001__msg_00298}'));
+        }
+        else if(masterPwOpt.match(/[^0-9]/g)){
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__label_10631}', '{!$Label.solxyzcso001__label_10642}'], '{!$Label.solxyzcso001__msg_00285}'));
+        }
+        else if((parseInt(masterPwOpt) < 4) || (parseInt(masterPwOpt) > 30)){
+            PS_err = true;
+            alert(getMsg(['{!$Label.solxyzcso001__label_10631}', '{!$Label.solxyzcso001__label_10642}', '4', '30'], '{!$Label.solxyzcso001__msg_00297}'));
+        }
+    }
+
+    /*-- パスワードの同一チェック --*/
+    if((pwType == PASSWORD_TYPE_FIXED) && (masterPwType == PASSWORD_TYPE_FIXED) && (pwOpt == masterPwOpt) && ($.trim(pwOpt).length > 0)){
+        PS_err = true;
+        alert('{!$Label.solxyzcso001__msg_00299}');
+    }
+}
+
+/*-- パスワードのタイプのonchangeイベント --*/
+function changePasswordType(){
+    var enableValue  = false;
+    var enableLength = false;
+
+    var value = $("input:radio[name='PS_password']:checked").val();
+    if(value == PASSWORD_TYPE_FIXED){
+        enableValue = true;
+    }
+    if(value == PASSWORD_TYPE_RANDOM){
+        enableLength = true;
+    }
+
+    if(enableValue == true){
+        $("#PS_passwordValue").removeAttr("disabled");
+        $("#PS_passwordValue-text").removeAttr("disabled");
+        $("#showPW").removeAttr("disabled");
+    }
+    else{
+        $("#PS_passwordValue").attr("disabled", "disabled");
+        $("#PS_passwordValue-text").attr("disabled", "disabled");
+        $("#showPW").attr("disabled", "disabled");
+    }
+
+    if(enableLength == true){
+        $("#PS_passwordLen").removeAttr("disabled");
+    }
+    else{
+        $("#PS_passwordLen").attr("disabled", "disabled");
+    }
+}
+
+/*-- マスターパスワードのタイプのonchangeイベント --*/
+function changeMasterPasswordType(){
+    var enableValue  = false;
+    var enableLength = false;
+
+    var value = $("input:radio[name='PS_masterPassword']:checked").val();
+    if(value == PASSWORD_TYPE_FIXED){
+        enableValue = true;
+    }
+    if(value == PASSWORD_TYPE_RANDOM){
+        enableLength = true;
+    }
+
+    if(enableValue == true){
+        $("#PS_masterPasswordValue").removeAttr("disabled");
+        $("#PS_masterPasswordValue-text").removeAttr("disabled");
+        $("#showMasterPW").removeAttr("disabled");
+    }
+    else{
+        $("#PS_masterPasswordValue").attr("disabled", "disabled");
+        $("#PS_masterPasswordValue-text").attr("disabled", "disabled");
+        $("#showMasterPW").attr("disabled", "disabled");
+    }
+
+    if(enableLength == true){
+        $("#PS_masterPasswordLen").removeAttr("disabled");
+    }
+    else{
+        $("#PS_masterPasswordLen").attr("disabled", "disabled");
+    }
+}
+
+/*-- 注釈のonchangeイベント --*/
+function changeExplanatoryNote(){
+    var value = $("input:radio[name='PS_explanatoryNote']:checked").val();
+    if(eval(value) == false){
+        /*-- [注釈]が[許可しない]の場合は、                   --*/
+        /*-- [フォームフィールドの入力]も[許可しない]に設定し --*/
+        /*-- 変更できないように無効化する。                   --*/
+        $('input[name="PS_fieldInput"]').val(['false']);
+        $('input[name="PS_fieldInput"]').attr('disabled', 'disabled');
+    }
+    else{
+        var level = $("input:radio[name='PS_level']:checked").val();
+        /*-- [セキュリティレベル]が[40-bit RC4]の場合は、       --*/
+        /*-- [フォームフィールドの入力]の設定は行えない。       --*/
+        /*-- なので、                                           --*/
+        /*-- [フォームフィールドの入力]を[許可する]に設定する。 --*/
+        if(level == LEVEL_40BIT){
+            $('input[name="PS_fieldInput"]').val(['true']);
+        }
+        /*-- [セキュリティレベル]が[40-bit RC4]の場合は、           --*/
+        /*-- [フォームフィールドの入力]を無効化しなければならない。 --*/
+        /*-- なので、                                               --*/
+        /*-- [セキュリティレベル]が[128-bit RC4]の場合のみ、        --*/
+        /*-- [フォームフィールドの入力]を有効化する。               --*/
+        else{
+            $('input[name="PS_fieldInput"]').removeAttr("disabled");
+        }
+    }
+}
+
+/*-- セキュリティレベルのonchangeイベント --*/
+function changeLevel(){
+    var value = $("input:radio[name='PS_level']:checked").val();
+    if(value == LEVEL_40BIT){
+//        $('input[name="PS_assembly"]'          ).attr('disabled', 'disabled');
+        $('input[name="PS_fieldInput"]'        ).attr('disabled', 'disabled');
+        $('input[name="PS_accessibility"]'     ).attr('disabled', 'disabled');
+        $('input[name="PS_lowResolutionPrint"]').attr('disabled', 'disabled');
+//        $('input[name="PS_assembly"]'     ).val(['true']);
+        $('input[name="PS_accessibility"]').val(['true']);
+         PS_check('PS_lowResolutionPrint', 'false');
+
+        /*-- [注釈]が[許可しない]の場合は、                                     --*/
+        /*-- [フォームフィールドの入力]も[許可しない]に設定しなければならない。 --*/
+        /*-- なので、                                                           --*/
+        /*-- [注釈]が[許可する]の場合のみ、                                     --*/
+        /*-- [フォームフィールドの入力]を[許可する]に設定する。                 --*/
+        var explanatoryNote = $("input:radio[name='PS_explanatoryNote']:checked").val();
+        if(eval(explanatoryNote) == true){
+            $('input[name="PS_fieldInput"]').val(['true']);
+        }
+    }
+    else{
+//        $('input[name="PS_assembly"]'     ).removeAttr("disabled");
+        $('input[name="PS_accessibility"]').removeAttr("disabled");
+
+        /*-- [注釈]が[許可しない]の場合は、                     --*/
+        /*-- [フォームフィールドの入力]も[許可しない]に設定し   --*/
+        /*-- 無効化しなければならない。                         --*/
+        /*-- なので、                                           --*/
+        /*-- [注釈]が[許可する]の場合のみ、                     --*/
+        /*-- [フォームフィールドの入力]を有効化する。           --*/
+        var explanatoryNote = $("input:radio[name='PS_explanatoryNote']:checked").val();
+        if(eval(explanatoryNote) == true){
+            $('input[name="PS_fieldInput"]').removeAttr("disabled");
+        }
+
+        /*-- [印刷]が[許可しない]の場合は、                 --*/
+        /*-- [低解像度での印刷]を無効化しなければならない。 --*/
+        /*-- なので、                                       --*/
+        /*-- [印刷]が[許可する]の場合のみ、                 --*/
+        /*-- [低解像度での印刷]を有効化する。               --*/
+        var print = $("input:radio[name='PS_print']:checked").val();
+        if(eval(print) == true){
+            $('input[name="PS_lowResolutionPrint"]').removeAttr("disabled");
+        }
+    }
+}
+
+/*-- 印刷のonchangeイベント --*/
+function changePrint(){
+    var value = $("input:radio[name='PS_print']:checked").val();
+    if(eval(value) == false){
+         PS_check('PS_lowResolutionPrint', 'false');
+        $('input[name="PS_lowResolutionPrint"]').attr('disabled', 'disabled');
+    }
+    else{
+        var level = $("input:radio[name='PS_level']:checked").val();
+        if(level == LEVEL_128BIT){
+            $('input[name="PS_lowResolutionPrint"]').removeAttr("disabled");
+        }
+    }
+}
+
+</script>
+
+</apex:page>

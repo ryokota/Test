@@ -1,0 +1,343 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.CSOUserAdminController" tabStyle="setting__tab" action="{!init}">
+
+<apex:outputPanel id="err" rendered="{!IF(proAuth_user_user_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!IF(proAuth_user_user_manage == 'true', true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<script type="text/javascript">
+  window.sfdcPage.appendToOnloadQueue(function() {openPage()});
+  function openPage(){
+    alertDisk();
+    alertDelivery();
+    AutoName();
+    diskSizeChanged();
+    deliverySizeChanged();
+    reminderActiveChanged();
+  }
+
+  function checkAll(cb) {
+    var inputElem = document.getElementsByTagName("input");
+    if (inputElem.length) {
+      for(var i=0; i<inputElem.length; i++) {
+        if (inputElem[i].id.indexOf('checkedone')!=-1) {
+          inputElem[i].checked = cb;
+        }
+      }
+    } else {
+      inputElem.checked = cb.checked;
+    }
+  }
+
+  function  alertDisk(){
+    if($('input[id$=":isAlertDiskSize"]').attr('checked')  ){
+      $('select[id$=":selectionAlertDiskSize"]').attr("disabled",false);
+      $('input[id$=":AlertDiskSize"]').attr("readonly", false);
+             $('input[id$=":AlertDiskSize"]').css("display", "inline");
+      $('select[id$=":selectionAlertDiskSize"]').css("display", "inline");
+    }else{
+      $('select[id$=":selectionAlertDiskSize"]').attr("disabled",true);
+      $('input[id$=":AlertDiskSize"]').attr("readonly", true);
+              $('input[id$=":AlertDiskSize"]').css("display", "none");
+      $('select[id$=":selectionAlertDiskSize"]').css("display", "none");
+    }
+  }
+
+  function  alertDelivery(){
+    if($('input[id$=":isAlertDeliverySize"]').attr('checked')  ){
+      $('select[id$=":selectionAlertDeliverySize"]').attr("disabled",false);
+      $('input[id$=":AlertDeliverySize"]').attr("readonly",false);
+             $('input[id$=":AlertDeliverySize"]').css("display", "inline");
+      $('select[id$=":selectionAlertDeliverySize"]').css("display", "inline");
+    }else{
+      $('select[id$=":selectionAlertDeliverySize"]').attr("disabled",true);
+      $('input[id$=":AlertDeliverySize"]').attr("readonly",true);
+             $('input[id$=":AlertDeliverySize"]').css("display", "none");
+      $('select[id$=":selectionAlertDeliverySize"]').css("display", "none");
+    }
+  }
+
+  function AutoName(){
+    if($('input[id$=":AutoName"]').attr('checked')  ){
+      $('input[id$=":homeSpacec"]').attr("disabled",true);
+      $('input[id$=":homeSpacec"]').val('');
+    }else{
+      $('input[id$=":homeSpacec"]').attr("disabled",false);
+    }
+  }
+
+  function diskSizeChanged(){
+    if($('input[id$=":diskSizeNoLimit"]').attr('checked')  ){
+      $('input[id$=":diskSize"]').attr("disabled",true);
+      $('input[id$=":diskSize"]').val('');
+    }else{
+      $('input[id$=":diskSize"]').attr("disabled",false);
+    }
+  }
+
+  function deliverySizeChanged(){
+    if($('input[id$=":deliverySizeNoLimit"]').attr('checked')  ){
+      $('input[id$=":deliverySize"]').attr("disabled",true);
+      $('input[id$=":deliverySize"]').val('');
+    }else{
+      $('input[id$=":deliverySize"]').attr("disabled",false);
+    }
+  }
+
+  function reminderActiveChanged(){
+  if($('input[id$=":ReminderActiveCheckbox"]').attr('checked')  ){
+      $('input[id$=":DaysBeforeExpirationTextbox"]').attr("disabled",false);
+    }else{
+      $('input[id$=":DaysBeforeExpirationTextbox"]').attr("disabled",true);
+      $('input[id$=":DaysBeforeExpirationTextbox"]').val('{!daysBeforeExpirationTextbox}');
+    }
+  }
+
+  function presend(){
+    if($('input[id$=":isAlertDiskSize"]').attr('checked')  ){
+      //
+    }else{
+      $('input[id$=":AlertDiskSize"]').attr("value", '');
+    }
+    if($('input[id$=":isAlertDeliverySize"]').attr('checked')  ){
+      //
+    }else{
+      $('input[id$=":AlertDeliverySize"]').attr("value",'');
+    }
+  }
+</script>
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/setting-person.png')}" alt="{!$Label.solxyzcso001__label_ecm_add_user_10000}" title="{!$Label.solxyzcso001__label_ecm_add_user_10000}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10260}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_ecm_add_user_10000}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+              <apex:form onsubmit="presend();">
+                  <apex:pageBlock title="{!$Label.solxyzcso001__label_ecm_add_user_10001}" mode="edit">
+
+                      <apex:pageMessages />
+                      <apex:pageBlockSection >
+                          <apex:pageBlockSectionItem dataStyle="text-align:left;">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_ecm_add_user_10029}</apex:outputLabel>
+                              <apex:outputPanel styleClass="requiredInput" layout="block">
+                                  <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                  <apex:inputText value="{!homeSpacec}" title="{!$Label.solxyzcso001__msg_ecm_add_user_00001}" id="homeSpacec" />&nbsp;&nbsp;
+                                  <apex:inputCheckBox value="{!IsAutoName}" id="AutoName" title="{!$Label.solxyzcso001__label_ecm_add_user_10002}" onclick="AutoName();"/>{!$Label.solxyzcso001__label_ecm_add_user_10003}
+                              </apex:outputPanel>
+                          </apex:pageBlockSectionItem>
+                          <apex:pageBlockSectionItem dataStyle="text-align:left;">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_ecm_add_user_10030}</apex:outputLabel>
+                              <apex:outputPanel styleClass="requiredInput" layout="block">
+                                  <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                  <apex:selectList value="{!selectionEcmProfile}" size="1" style="width:200px;" title="{!$Label.solxyzcso001__label_ecm_add_user_10030}" id="selectionEcmProfile">
+                                      <apex:selectOptions value="{!ecmProfiles}"/>
+                                  </apex:selectList>
+                              </apex:outputPanel>
+                          </apex:pageBlockSectionItem>
+                          <apex:pageBlockSectionItem >
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_ecm_add_user_10004}</apex:outputLabel>
+                              <apex:outputPanel styleClass="requiredInput" layout="block">
+                                  <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                  <apex:inputText value="{!diskSize}" id="diskSize" maxlength="9" title="{!$Label.solxyzcso001__label_ecm_add_user_10005}" label="{!$Label.solxyzcso001__label_ecm_add_user_10004}" />{!$Label.label_ecm_add_user_10006}&nbsp;&nbsp;
+                                  <apex:inputCheckBox value="{!diskSizeNoLimit}" id="diskSizeNoLimit" title="{!$Label.solxyzcso001__label_10008}" onclick="diskSizeChanged();"/>{!$Label.solxyzcso001__label_10008}
+                                  <BR/>&nbsp;&nbsp;{!$Label.msg_ecm_add_user_00002}
+                              </apex:outputPanel>
+                          </apex:pageBlockSectionItem>
+                          <apex:pageBlockSectionItem >
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_ecm_add_user_10007}</apex:outputLabel>
+                              <apex:outputPanel layout="block">
+                                  <apex:inputCheckBox value="{!IsAlertDiskSize}" id="isAlertDiskSize" title="{!$Label.solxyzcso001__label_ecm_add_user_10008}" onclick="alertDisk();"/>{!$Label.solxyzcso001__label_ecm_add_user_10009}
+                                  <apex:inputText value="{!AlertDiskSize}" title="{!$Label.solxyzcso001__label_ecm_add_user_10010}" maxlength="9" id="AlertDiskSize" />
+                                  <apex:selectList value="{!selectionAlertDiskSize}" size="1" style="width:60px;" title="{!$Label.solxyzcso001__label_ecm_add_user_10011}" id="selectionAlertDiskSize">
+                                      <apex:selectOptions value="{!units}"/>
+                                  </apex:selectList>
+                              </apex:outputPanel>
+                          </apex:pageBlockSectionItem>
+                          <apex:pageBlockSectionItem >
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_ecm_add_user_10012}</apex:outputLabel>
+                              <apex:outputPanel styleClass="requiredInput" layout="block">
+                                  <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                  <apex:inputText value="{!deliverySize}" id="deliverySize" maxlength="9" title="{!$Label.solxyzcso001__label_ecm_add_user_10013}"/>{!$Label.label_ecm_add_user_10006}&nbsp;&nbsp;
+                                  <apex:inputCheckBox value="{!deliverySizeNoLimit}" id="deliverySizeNoLimit" title="{!$Label.solxyzcso001__label_10008}" onclick="deliverySizeChanged();"/>{!$Label.solxyzcso001__label_10008}
+                                  <BR/>&nbsp;&nbsp;{!$Label.msg_ecm_add_user_00002}
+                              </apex:outputPanel>
+                          </apex:pageBlockSectionItem>
+                          <apex:pageBlockSectionItem >
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_ecm_add_user_10014}</apex:outputLabel>
+                              <apex:outputPanel layout="block">
+                                  <apex:inputCheckBox value="{!IsAlertDeliverySize}" id="isAlertDeliverySize" title="{!$Label.solxyzcso001__label_ecm_add_user_10008}" onclick="alertDelivery();" />{!$Label.solxyzcso001__label_ecm_add_user_10009}
+                                  <apex:inputText value="{!AlertDeliverySize }" maxlength="9" title="{!$Label.solxyzcso001__label_ecm_add_user_10010}"  id="AlertDeliverySize" />
+                                  <apex:selectList value="{!selectionAlertDeliverySize}" size="1" style="width:60px;" title="{!$Label.solxyzcso001__label_ecm_add_user_10011}" id="selectionAlertDeliverySize">
+                                      <apex:selectOptions value="{!units}"/>
+                                  </apex:selectList>
+                              </apex:outputPanel>
+                          </apex:pageBlockSectionItem>
+                          <apex:pageBlockSectionItem >
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_user_expiration_00000}</apex:outputLabel>
+                              <apex:outputPanel layout="block">
+                                  <apex:outputPanel layout="block"/>
+                                  <apex:selectList value="{!selectionUserStatus}" size="1" style="width:200px;" title="{!$Label.solxyzcso001__label_user_expiration_00000}" id="selectionUserStatus">
+                                      <apex:selectOptions value="{!csoactive}"/>
+                                  </apex:selectList>
+                              </apex:outputPanel>
+                          </apex:pageBlockSectionItem>
+                          <apex:pageBlockSectionItem >
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_user_expiration_00001}</apex:outputLabel>
+                              <apex:outputPanel layout="block">
+                                  <apex:outputPanel layout="block"/>
+                                  <apex:selectList value="{!selectionUserLock}" size="1" style="width:200px;" title="{!$Label.solxyzcso001__label_user_expiration_00001}" id="selectionUserLock">
+                                      <apex:selectOptions value="{!csolock}"/>
+                                  </apex:selectList>
+                              </apex:outputPanel>
+                          </apex:pageBlockSectionItem>
+                          <apex:pageBlockSectionItem >
+                          </apex:pageBlockSectionItem>
+                      </apex:pageBlockSection>
+						<div style="display: table;width:60%;height:100%">
+							<div style="height:auto;display:table-row;">
+								<div style="display: table-cell;height:100%;width:50%;">
+									<fieldset style="height:100%;">
+										<legend>{!$Label.solxyzcso001__label_10524}</legend>
+										<table>
+											<tr>
+												<td>{!$Label.solxyzcso001__label_ecm_add_user_10017}</td>
+												<td><apex:inputText value="{!searchName}" title="{!$Label.solxyzcso001__label_00069}" maxlength="255"/></td>
+											</tr>
+											<tr>
+												<td>{!$Label.solxyzcso001__label_10028}</td>
+												<td>
+													<apex:selectList value="{!selectionEcmProfileforSearch}" size="1" style="width:200px;" title="{!$Label.solxyzcso001__label_ecm_add_user_10030}" id="selectionEcmProfileforSearch">
+														<apex:selectOptions value="{!ecmProfilesforSearch}"/>
+													</apex:selectList>
+												</td>
+											</tr>
+											<tr>
+												<td>{!$Label.solxyzcso001__label_ecm_add_user_10032}</td>
+												<td>
+													<apex:selectList value="{!selectionCSOActive}" size="1" style="width:200px;" title="{!$Label.solxyzcso001__label_ecm_add_user_10030}" id="selectionCSOActive">
+														<apex:selectOptions value="{!csoactive}"/>
+													</apex:selectList>
+												</td>
+											</tr>
+										</table>
+										<apex:commandButton value="{!$Label.solxyzcso001__label_00069}" action="{!search}"/>
+									</fieldset>
+								</div>
+								<div style="display: table-cell;height:100%;width:30%;">
+									<fieldset style="height:100%;">
+										<legend>{!$Label.solxyzcso001__label_user_expiration_00002}</legend>
+										<table>
+											<tr>
+												<td>
+													{!$Label.solxyzcso001__label_user_expiration_00003}
+												</td>
+												<td style="padding: 0px 0px 0px 20px;">
+													<apex:inputCheckBox id="ReminderActiveCheckbox" value="{!reminderActiveCheckbox}" title="{!$Label.solxyzcso001__label_00083}" onclick="reminderActiveChanged();"/>{!$Label.solxyzcso001__label_00083}
+												</td>
+											</tr>
+											<tr>
+												<td colspan="3">&nbsp;</td>
+											</tr>
+											<tr>
+												<td>
+
+												</td>
+												<td style="padding: 0px 0px 0px 20px;">
+													<apex:inputText title="{!$Label.solxyzcso001__label_user_expiration_00004}" id="DaysBeforeExpirationTextbox" value="{!daysBeforeExpirationTextbox}" size="8" style="text-align: right;"/>{!$Label.solxyzcso001__label_user_expiration_00004}
+												</td>
+											</tr>
+										</table>
+										<apex:commandButton value="{!$Label.solxyzcso001__field_common_save}" action="{!reminderNotificationSave}"/>
+									</fieldset>
+								</div>
+							</div>
+						</div>
+                      <apex:pageBlock id="IchiranBlock" mode="maindetail">
+                        <apex:panelGrid columns="2" >
+                            <apex:commandLink onclick="checkAll(true);return false;" >{!$Label.solxyzcso001__label_ecm_add_user_10015}</apex:commandLink>
+                            <apex:commandLink onclick="checkAll(false);return false;" >{!$Label.solxyzcso001__label_ecm_add_user_10016}</apex:commandLink>
+
+                        </apex:panelGrid>
+                        <apex:panelGroup id="ResultGroup" rendered="{!NOT(ISNULL(MyObjectList))}">
+                            <apex:pageBlockTable value="{!MyObjectList}" var="result" id="IchiranTable">
+                                <!--apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10020}" -->
+                                <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10020}" >
+                                    <apex:inputCheckBox value="{!result.IsSelected}" id="checkedone"/>
+                                </apex:column>
+                                <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10021}" value="{!result.Record.Name}"/>
+                                <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10031}" value="{!result.Record.UserName}"/>
+                                <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10023}" value="{!result.Record.Department}"/>
+                                <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10024}" value="{!result.Record.Title}" />
+                                <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10025}" value="{!result.Record.EmployeeNumber}" />
+                                <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10022}" value="{!result.Record.Email}"/>
+                                <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10030}" value="{!result.Record.SOLXYZCSO001__CSOProfileName__c}"/>
+                                <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10032}" value="{!result.Record.CSOActive__c  }"/>
+                            </apex:pageBlockTable>
+                        </apex:panelGroup>
+                        <apex:panelGrid columns="2" >
+                            <apex:commandButton action="{!previous}" value="{!$Label.solxyzcso001__label_ecm_add_user_10027}" disabled="{!NOT(HasPrevious)}" rerender="IchiranBlock"/>
+                            <apex:commandButton action="{!next}" value="{!$Label.solxyzcso001__label_ecm_add_user_10028}" disabled="{!NOT(HasNext)}" rerender="IchiranBlock"/>
+                        </apex:panelGrid>
+                      </apex:pageBlock>
+                      </apex:pageBlock>
+                      <apex:pageBlock mode="maindetail" >
+                          <apex:pageBlockButtons location="bottom">
+                              <apex:commandButton value="{!$Label.solxyzcso001__field_common_save}" action="{!save}" onclick="CsoScript_loadingStart();"/>
+                          </apex:pageBlockButtons>
+                      </apex:pageBlock>
+              </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!IF(uid == null, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

@@ -1,0 +1,16 @@
+<apex:page title="承認申請詳細リスト表示ページ"
+standardController="RFA__c"
+extensions="RFA_CM_VFC01_RequestDetailListController"
+action="{!Initialization}"
+showHeader="false"
+sidebar="false" readOnly="true" cache="false">
+<!--
+<apex:sectionHeader title="{!$Label.RFA_ApprovalBox00}"/>
+-->
+
+<apex:detail subject="{!RFA__c.id}" relatedList="false" title="false" relatedListHover="false" /> 
+
+<apex:repeat value="{!requestDetailsList}" var="rd">
+    <apex:outputField value="{!rd.name}" /><br />
+</apex:repeat>
+ </apex:page>

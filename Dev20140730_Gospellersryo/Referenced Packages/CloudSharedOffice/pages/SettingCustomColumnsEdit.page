@@ -1,0 +1,492 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingCustomColumnsController" tabStyle="setting__tab" >
+
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_list_setting_contents == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_list_setting_contents == 'true' && cso_userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<script type="text/javascript">
+var allColumns = new Array();
+var definitionId = "";
+$(function(){
+    var id;
+    var type = "{!type}";
+
+    var param = {
+        type : type
+    }
+
+    var callback =  function(data){
+            console.log("test.id: " + data.id);
+            console.log("first: " + data.firstSort);
+            console.log("firstD: " + data.firstSortDirection);
+            console.log("second: " + data.dispCols);
+            definitionId = data.id;
+
+            var t;
+            var fsDone = false;
+            var ssDone = false;
+            var ssNone = ((data.secondSort == 'undefined')||(data.secondSort == null));
+            var tempAC = data.allColumns;
+            var sortNum = 0;
+            $("#secondSort").append(
+                $("<option>").attr({
+                    "value"     : "0",
+                    "sort"      : -1
+                }).html('{!$Label.label_13250}')
+            );
+
+            for(var i=0; i<tempAC.length; i++){
+                t = $("<option value=\"" + tempAC[i].key + "\"></option>");
+                t.text(tempAC[i].name);
+
+                var option = $("<option>").attr({
+                    "value"     : tempAC[i].key,
+                    "sort"      : sortNum
+                }).html(tempAC[i].name);
+                allColumns.push(option);
+                $("#hideColumns").append(option);
+                sortNum++;
+            }
+
+            var tempSrtC = data.sortableCols;
+            for(var i=0; i<tempSrtC.length; i++){
+                t2 = $("<option value=\"" + tempSrtC[i].key + "\"></option>");
+                t2.text(tempSrtC[i].name);
+
+                // 第一ソート設定
+                $("#firstSort").append(t2.clone());
+
+                // 第二ソート設定
+                $("#secondSort").append(t2.clone());
+            }
+
+            // 第一ソート初期設定
+            $('#firstSort').val(data.firstSort);
+            if(data.firstSortDirection){
+                $('#firstSortVal').val('true');
+            }else{
+                $('#firstSortVal').val('false');
+            }
+
+            // 第二ソート初期設定
+            if(!ssNone){
+                $('#secondSort').val(data.secondSort);
+                if(data.secondSortDirection){
+                    $('#secondSortVal').val('true');
+                }else{
+                    $('#secondSortVal').val('false');
+                }
+            }
+
+            var tempSC = data.showColumns;
+            // 表示カラム設定
+            for(var ii in tempSC){
+                $('#hideColumns').val(tempSC[ii].key);
+                selectColumns('showColumns', 'hideColumns');
+            }
+
+            $("#rowNum").val(data.rowNum);
+            changeSSV();
+    };
+
+    var callerror =  function(data){
+    };
+
+    secureGetAsync('/listsetting/DefaultSettingGet.json', param, callback, callerror);
+
+    $('#secondSort').change(function(){
+        changeSSV();
+    });
+});
+
+function changeSSV(){
+    if($('#secondSort').val() == 'none'){
+        $('#secondSortVal').attr('disabled', 'disabled');
+    }else{
+        $('#secondSortVal').attr('disabled', '');
+    }
+}
+
+function selectColumns(dstId, srcId){
+/*
+    if (srcId == "showColumns" && ($("#showColumns option").length == $("#showColumns option:selected").length)) {
+        alert('{!$Label.label_13247}');
+        return;
+    }
+*/
+    $("#" + srcId + " option:selected").each(function() {
+        var val = $(this).val();
+        var text = $(this).text();
+        var sortNum = $(this).attr("sort");
+        var option = $("<option>").attr({
+            "value"     : $(this).val(),
+            "sort"      : sortNum
+        }).html($(this).text());
+        $("#" + dstId).append(option);
+        $(this).remove();
+    });
+
+    if(srcId == "showColumns"){
+        var forSortList = new Array();
+        $("#hideColumns").find("option").each(function(){
+            forSortList.push($(this));
+        });
+        forSortList = actionSort(forSortList);
+        for(var i=0; i<forSortList.length; i++){
+            $("#hideColumns").append(forSortList[i]);
+        }
+    }
+}
+
+function clickSaveButton(){
+
+            if ($("#showColumns option").length == 0) {
+                alert('{!$Label.label_13247}');
+                return;
+            } else if ($("#showColumns option").length == $("#showColumns option[value^=CUSTOM_FIELDS_]").length) {
+                alert('{!$Label.label_13269}');
+                return;
+            }
+            /*-- -------- --*/
+            /*-- 登録処理 --*/
+            /*-- -------- --*/
+            var callback = function(data){
+                if (!data.result) {
+                    alert(data.alert);
+                    return;
+                }
+                CsoScript_loadingStop();
+                cancelOnClick();
+            };
+            var callerror =  function(data){
+                CsoScript_loadingStop();
+              //  alert("lifecycleEdit:" + data);
+                $(".btn").removeAttr("disabled");
+            };
+
+            CsoScript_loadingStart();
+
+            console.info(createQuery());
+//            return;
+
+            securePostAsync('/contentsmanagement/list/DefaultSettingUpdate.json', createQuery(), callback, callerror);
+//            secureGetAsync('/contentsmanagement/list/DefaultSettingUpdate.json', createQuery(), callback, callerror);
+
+}
+
+function createQuery(){
+
+    var showCols = new Array();
+    $("#showColumns option").each(function(){
+        showCols.push($(this).val());
+    });
+
+    var query = {};
+    query.id = definitionId;
+    query.type = "content";
+    query.dispCols = showCols.join(",");
+    query.firstSort = $("#firstSort").val();
+    query.secondSort = $("#secondSort").val();
+    query.firstSortDir = $("#firstSortVal").val();
+    query.secondSortDir = $("#secondSortVal").val();
+    query.rowNum = $("#rowNum").val();
+    return query;
+
+}
+
+function cancelOnClick(){
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingCustomColumnsInfo))}?type={!type}&id={!definitionId}';
+}
+
+
+function moveUpElement() {
+  var selectbox = document.getElementById('showColumns');
+  var option_list = selectbox.getElementsByTagName('option');
+  for (var i = 0; i < option_list.length; i++) {
+    if (option_list[i].selected) {
+      if (i > 0 && !option_list[i-1].selected) {
+        selectbox.insertBefore(option_list[i], option_list[i-1]);
+      }
+    }
+  }
+  selectbox.focus();
+}
+
+function moveDownElement() {
+  var selectbox = document.getElementById('showColumns');
+  var option_list = selectbox.getElementsByTagName('option');
+  for (var i = option_list.length-1; i >= 0; i--) {
+    if (option_list[i].selected) {
+      if (i < option_list.length-1 && !option_list[i+1].selected) {
+        selectbox.insertBefore(option_list[i+1], option_list[i]);
+      }
+    }
+  }
+  selectbox.focus();
+}
+
+function actionSort(arr){
+    arr.sort(function(o, n){
+        if($(o).attr("sort") > $(n).attr("sort")){
+            return 1;
+        }else if($(o).attr("sort") < $(n).attr("sort")){
+            return -1;
+        }else{
+            return 0;
+        }
+    });
+    return arr;
+}
+
+function showTips(o, msgCodes) {
+    var obj = $(o);
+    var offset = obj.offset();
+
+    $(".tooltip").css("left", offset.left)
+                 .css('top', offset.top - 137)
+                 .css('position','absolute')
+                 .css('height','auto')
+                 .css('width','auto');
+
+    $('.tooltip').html('');
+    var massage = '';
+    for(var i=0; i<msgCodes.length; i++){
+        massage += msgCodes[i];
+    }
+    $('.tooltip').html(massage);
+
+    $(".tooltip").show();
+}
+</script>
+
+<style type="text/css">
+
+.editDiv{
+    padding: 20px;
+}
+
+.editDiv table th{
+    text-align: right;
+    width: 150px;
+    padding-right: 10px;
+    font-weight: bold;
+}
+
+.editDiv table td {
+    width : 140px;
+}
+
+.editDiv table tr td select.multiple {
+    width : 216px;
+    height : 200px;
+}
+
+.editDiv2{
+    padding: 10px 5px 10px 15px;
+}
+.editDiv2 table th {
+    text-align: right;
+    vertical-align: top;
+    padding-right: 20px;
+    font-weight: bold;
+    white-space:nowrap;
+    padding-bottom: 10px;
+}
+.editDiv2 table td label {
+    display: inline-block;
+    min-width: 150px;
+    margin-right: 10px;
+}
+
+.editDiv2 table td{
+    display: inline-block;
+    min-width: 90px;
+    margin-right: 0px;
+    padding-right: 20px;
+    padding-bottom: 10px;
+}
+
+.arrows{
+    float: right;
+}
+
+.up-down{
+    position: relative;
+    align : right;
+}
+
+#tooltip {
+    background-color: #F7F7F7;
+    border: 1px solid #C0C0C0;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 1px 1px 3px #C0C0C0;
+    display: none;
+    float: left;
+    height: 40px;
+    margin: 10px;
+    max-width: 1000px;
+    padding: 10px;
+    position: absolute;
+    width: 270px;
+    z-index: 1100;
+}
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <!--apex:image url="{!URLFOR($Resource.cso, 'image/u_32.png')}" alt="{!$Label.label_10621}" title="{!$Label.label_10621}"/-->
+                <h1 id="c_headLeftTitle">{!$Label.label_13236}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_13237}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <!-- コマンドボタン表示 -->
+                        <apex:pageBlockButtons >
+                           <apex:commandButton id="btnOk" value="{!$Label.solxyzcso001__field_common_ok}" onclick="clickSaveButton();return false;"/>
+                           <apex:commandButton id="btnCancel" value="{!$Label.solxyzcso001__field_common_cancel}" onclick="cancelOnClick(); return false;"/>
+                        </apex:pageBlockButtons>
+                        <p class="step-header">{!$Label.label_13251}</p>
+                        <div style="padding: 20px 40px;">
+                            <div class="editDiv">
+                                <table>
+                                     <tr>
+                                        <td>
+                                            <div style="margin-bottom:10px; font-weight: bold;">{!$Label.label_13243}</div>
+                                            <select id="hideColumns" multiple="multiple" class="multiple">
+                                            </select>
+                                        </td>
+                                        <td style="text-align:center; width : 80px;">
+                                            <div>
+                                                <!--input type="button" onclick="selectColumns('showColumns', 'hideColumns'); return false;" value="{!$Label.label_wf_00139}" class="btn" /-->
+                                                {!$Label.label_10020}<br />
+                                                <button class="btn up-down" onclick="selectColumns('showColumns', 'hideColumns'); return false;"><img src="{!URLFOR($Resource.cso, 'image/right-arrow.png')}" style="margin: 0px;"></img></button>
+                                            </div>
+                                            <br />
+                                            <div>
+                                                <!--input type="button" onclick="selectColumns('hideColumns', 'showColumns'); return false;" value="{!$Label.label_wf_00140}" class="btn" /-->
+                                                <button class="btn up-down" onclick="selectColumns('hideColumns', 'showColumns'); return false;"><img src="{!URLFOR($Resource.cso, 'image/left-arrow.png')}" style="margin: 0px;"></img></button>
+                                                <br />{!$Label.label_00072}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="margin-bottom:10px; font-weight: bold;">{!$Label.label_13239}
+                                                <img id="help-info01" src="{!$Label.field_CSO_URL}/image/tooltip.png" style="vertical-align:middle;"
+                                                                                                                        onmouseover="showTips(this, new Array('{!$Label.label_13248}'));"
+                                                                                                                        onmouseout="hideTips();"
+                                                                                                                        onclick="showTips(this, new Array('{!$Label.label_13248}'));"/>
+                                            </div>
+                                            <select id="showColumns" name="showColumns" multiple="multiple" class="multiple">
+                                            </select>
+                                        </td>
+                                        <td style="width:40px;">
+                                        <div class="arrows">
+                                            {!$Label.label_10515}<br />
+                                            <button class="btn up-down" onclick="moveUpElement(); return false;"><img src="{!URLFOR($Resource.cso, 'image/up-arrow.png')}" style="margin: 0px;"></img></button>
+                                            <br />&nbsp;<br />
+                                            <button class="btn up-down" onclick="moveDownElement(); return false;"><img src="{!URLFOR($Resource.cso, 'image/down-arrow.png')}" style="margin: 0px;"></img></button>
+                                            <br />{!$Label.label_10516}
+                                        </div>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                            </div>
+
+                            <div class="editDiv2">
+                                <table>
+                                    <tr>
+                                        <th>{!$Label.label_13240}</th>
+                                        <td><select id="firstSort" name="firstSort" style="width:120px;">
+                                            </select></td>
+                                        <td><select id="firstSortVal" name="firstSortVal" style="width:95px;">
+                                            <option value="true" >{!$Label.label_wf_30078}</option>
+                                            <option value="false" >{!$Label.label_wf_30079}</option>
+                                            </select></td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_13241}</th>
+                                        <td><select id="secondSort" name="secondSort" style="width:120px;">
+                                            </select></td>
+                                        <td>
+                                            <select id="secondSortVal" name="secondSortVal" style="width:95px;" >
+                                            <option value="true" >{!$Label.label_wf_30078}</option>
+                                            <option value="false" >{!$Label.label_wf_30079}</option>
+                                            </select>
+                                            <img id="help-info02" src="{!$Label.field_CSO_URL}/image/tooltip.png" style="vertical-align:middle;"
+                                                                                                                    onmouseover="showTips(this, new Array('{!$Label.label_13249}'));"
+                                                                                                                    onmouseout="hideTips();"
+                                                                                                                    onclick="showTips(this, new Array('{!$Label.label_13249}'));"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>{!$Label.label_13242}</th>
+                                        <td><select id="rowNum" name="rowNum" style="width:70px;">
+                                        <option value="10" >10</option>
+                                        <option value="50" >50</option>
+                                        <option value="100" >100</option>
+                                            </select></td>
+
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<div id="tooltip" class="tooltip"></div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

@@ -1,0 +1,239 @@
+<apex:page id="csoupgrade" controller="SOLXYZCSO001.CSOUpGradeController" sidebar="false" tabStyle="setting__tab">
+
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+
+<script type="text/javascript" src="/soap/ajax/28.0/connection.js"></script>
+<script type="text/javascript" src="/soap/ajax/28.0/apex.js"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.metadatajs,'salesforce-metadata.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip-load.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip-inflate.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'jszip-deflate.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'encoding.js')}" charset="utf-8"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.jszip,'base64.js')}" charset="utf-8"></script>
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<script type="text/javascript">
+var __sfdcSessionId = '{!GETSESSIONID()}';
+
+</script>
+<script type="text/javascript">
+  var apex = "";
+  var vf = "";
+  var objectPermissions = '';
+  var fieldPermissions = '';
+  function confirmCancel() {
+    var isCancel = confirm("{!$Label.msg_010082_fe}");
+    if (isCancel)
+      return true;
+    return false;
+  }
+
+  function run() {
+    CsoScript_loadingStart();
+
+    //CSOのオブジェクトリストの取得
+    //TODO
+    //var csoObjs = ["user","ReportMapping__c","ReportCopyTempData__c"];
+    var csoObjs = ["user","SOLXYZCSO001__ReportMapping__c","SOLXYZCSO001__ReportCopyTempData__c"];
+    for (var i=0; i<csoObjs.length; i++) {
+        objectPermissions= objectPermissions + "<objectPermissions>";
+        objectPermissions= objectPermissions + "<allowCreate>true</allowCreate>";
+        objectPermissions= objectPermissions + "<allowDelete>true</allowDelete>";
+        objectPermissions= objectPermissions + "<allowEdit>true</allowEdit>";
+        objectPermissions= objectPermissions + "<allowRead>true</allowRead>";
+        objectPermissions= objectPermissions + "<viewAllRecords>false</viewAllRecords>";
+        objectPermissions= objectPermissions + "<modifyAllRecords>false</modifyAllRecords>";
+        objectPermissions= objectPermissions + "<object>"+ csoObjs[i] +"</object>";
+        objectPermissions= objectPermissions + "</objectPermissions>";
+    }
+
+    //CSOのカスタム項目の取得
+    //TODO
+    //var fields = ["user.ActiveEndDate__c","user.ActiveEndTime__c","user.ActiveStartDate__c","user.ActiveStartTime__c","ReportMapping__c.SearchOperator__c","ReportMapping__c.SearchValue__c","ReportCopyTempData__c.SheetMap__c"];
+    var fields = ["user.SOLXYZCSO001__ActiveEndDate__c","user.SOLXYZCSO001__ActiveEndTime__c","user.SOLXYZCSO001__ActiveStartDate__c","user.SOLXYZCSO001__ActiveStartTime__c","SOLXYZCSO001__ReportMapping__c.SOLXYZCSO001__SearchOperator__c","SOLXYZCSO001__ReportMapping__c.SOLXYZCSO001__SearchValue__c","SOLXYZCSO001__ReportCopyTempData__c.SOLXYZCSO001__SheetMap__c"];
+    for (var idx = 0; idx < fields.length; idx++) {
+        fieldPermissions= fieldPermissions + "<fieldPermissions>";
+        fieldPermissions= fieldPermissions + "<editable>true</editable>";
+        fieldPermissions= fieldPermissions + "<field>"+ fields[idx] + "</field>";
+        fieldPermissions= fieldPermissions + "<readable>true</readable>";
+        fieldPermissions= fieldPermissions + "</fieldPermissions>";
+    }
+    queryApex();
+  }
+
+  function queryApex(){
+    var state = {
+      output : document.getElementById("output"),
+      startTime : new Date().getTime()
+    };
+    var callback = {
+        onSuccess: setResults,
+        onFailure: queryError,
+        source: state
+    };
+    //TODO
+    sforce.connection.query("Select NamespacePrefix, Name From ApexClass Where NamespacePrefix = 'solxyzcso001'",callback);
+//    sforce.connection.query("Select id, NamespacePrefix, Name From ApexClass ",callback);
+  }
+
+  function setResults(result,source){
+    var output = "";
+    var records = result.getArray('records');
+    for (var i = 0; i < records.length; i++) {
+        var record = records[i];
+        output += "<classAccesses><apexClass>" + record.NamespacePrefix + "__" + record.Name + "</apexClass><enabled>true</enabled></classAccesses>";
+    }
+    apex = output;
+    queryVF();
+  }
+
+  function queryVF(){
+    var state = {
+         output : document.getElementById("output"),
+         startTime : new Date().getTime()
+    };
+    var callback = {
+        onSuccess: setVFResults,
+        onFailure: queryError,
+        source: state
+    };
+    //TODO
+    sforce.connection.query("Select NamespacePrefix, Name From ApexPage Where NamespacePrefix = 'solxyzcso001'",callback);
+//    sforce.connection.query("Select id, NamespacePrefix, Name From ApexPage ",callback);
+  }
+
+  function setVFResults(result,source){
+    var output = "";
+    var records = result.getArray('records');
+    for (var i = 0; i < records.length; i++) {
+        var record = records[i];
+        output += "<pageAccesses><apexPage>" + record.NamespacePrefix+ "__" + record.Name + "</apexPage><enabled>true</enabled></pageAccesses>";
+//        output += "<pageAccesses><apexPage>" +  record.Name + "</apexPage><enabled>true</enabled></pageAccesses>";
+    }
+    vf = output;
+    deploy();
+  }
+
+  function deploy() {
+    var zip;
+    zip = new JSZip();
+    zip.file("src/package.xml", "<Package xmlns=\"http://soap.sforce.com/2006/04/metadata\"><version>28.0</version><types><members>*</members><name>Profile</name></types></Package>");
+    var value= "";
+    value= value + "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+    value= value + "<Profile xmlns=\"http://soap.sforce.com/2006/04/metadata\">";
+    value= value + apex;
+    value= value + vf;
+    value= value + objectPermissions;
+    value= value + fieldPermissions;
+    value= value + "</Profile>";
+    console.log(value);
+
+    //選択プロファイル毎にプロファイルファイルを作成する。
+    var inputElem = document.getElementsByTagName("input");
+    for(var i=0; i<inputElem.length; i++)
+    {
+      if(!inputElem[i].id.indexOf("checkedone"))
+      {
+        if(inputElem[i].checked){
+          console.log(inputElem[i]);
+          console.log(inputElem[i].name);
+          zip.file("src/profiles/" + inputElem[i].name + ".profile", value);
+        }
+      }
+    }
+
+    var req, result;
+    req = new sforce.DeployRequest();
+    var rollbackOnErrorXML= new sforce.Xml()
+    rollbackOnErrorXML.rollbackOnError= 'ture';
+    req.deployOptions = rollbackOnErrorXML;
+    req.zipFile = zip.generate({base64: true});
+    var content = zip.generate();
+    sforce.metadata.deploy(req, waitForDoneDep(function (result) {
+        console.log(result);
+        CsoScript_loadingStop();
+        alert('{!$Label.msg_00404}');
+    }));
+    return true;
+  }
+
+  function waitForDoneDep(callback) {
+    function getResult(id) {
+      sforce.metadata.checkDeployStatus(id, callback);
+    }
+    function check(results) {
+      var done = results[0].getBoolean("done");
+      if (!done) {
+        setTimeout( function(){ sforce.metadata.checkStatus([results[0].id], check); }, 3000);
+      } else {
+        getResult(results[0].id);
+      }
+    }
+    return function (result) {
+      check([result]);
+    };
+  }
+
+  function queryError(error, source){
+     alert(error);
+  }
+
+</script>
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td id="c_left" bgcolor="#f2f2f3" style="min-height:39px;max-height:39px;">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu" rendered="{!IF(IsEcm==true,true,false)}"/>
+                <apex:include pageName="SOLXYZCSO001__WRSettingMenu" rendered="{!IF(IsEcm==true,false,true)}"/>
+            </td>
+            <td valign="top">
+                <table width="100%">
+                    <tr>
+                        <td id="c_headLeft" height="39px" style="min-height:39px;max-height:39px;">
+                            <h1 id="c_headLeftTitle">{!$Label.label_13158}</h1><br/>
+                            <h2 id="c_headLeftSubTitle">{!$Label.label_13255}</h2>
+                        </td>
+                        <td id="c_headRight" height="39px" style="min-height:39px;max-height:39px;">
+                            <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right" colspan="2">
+                            <apex:form id="profileform">
+                                <apex:pageBlock id="profileblock">
+                                  <apex:pageBlockButtons >
+                                    <input type="button" value="{!$Label.field_common_execute}" onclick="run();" class="btn"/>
+                                  </apex:pageBlockButtons>
+                                  <div id="target">
+                                    <apex:pageBlockTable value="{!sfProfileList}" var="result" id="IchiranTable">
+                                        <apex:column headerValue="{!$Label.solxyzcso001__label_ecm_add_user_10020}" >
+                                            <input type="checkbox" id="checkedone" name="{!result.profileName}"/>
+                                        </apex:column>
+                                        <apex:column headerValue="{!$Label.solxyzcso001__label_00039}" value="{!result.Record.Name}"/>
+                                    </apex:pageBlockTable>
+                                  </div>
+                                </apex:pageBlock>
+                            </apex:form>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div id="copyright" >{!$Label.field_CSO_copyright}</div>
+</apex:page>

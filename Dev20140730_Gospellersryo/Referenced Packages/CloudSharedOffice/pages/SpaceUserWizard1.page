@@ -1,0 +1,385 @@
+<apex:page id="Page" cache="false" controller="SOLXYZCSO001.SpaceUserController" tabStyle="ContentTab__tab">
+
+<script type="text/javascript">
+
+//    var SpaceUser_userIdList = new Array();     //  有効なユーザのユーザID一覧
+
+    $(document).ready(function(){
+        $('input[type!="submit"][type!="button"], select').keypress(function(e){
+          if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+            return false;
+          }else{
+            if(e.type == "select") return false;
+            return true;
+          }
+        });
+    });
+
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+        //  有効なユーザの一覧を生成
+        /*
+        createUserIdList();
+        */
+        //  招待するユーザの追加
+        insertAddUsers();
+        //  ユーザ一覧の取得
+        search_user();
+        //  ロール一覧の取得
+        search_user_role();
+
+        //  ユーザ一覧のonChangeイベントを追加
+        $(document.getElementById("{!$Component.Page.Form.Block.userType}")).change(deleteUsers);
+
+        resizeList();
+    });
+    function deleteUsers() {
+        var type = document.getElementById("{!$Component.Page.Form.Block.userType}").value;
+        $("#addUsers option").remove();
+        $("#userList option").remove();
+        $(document.getElementById("{!$Component.Page.Form.Block.searchWord}")).val("");
+        search_user();
+    }
+    function resizeList(){
+
+        if ({!if(isPublic == true, 'true', 'false')} == 'true'){
+            $("#userList").height(126);
+        }else{
+            $("#userList").height(146);
+        }
+
+    }
+
+    //==============//
+    //  ユーザ取得  //
+    //==============//
+    function search_user(){
+        var callback =  function(data, status){
+
+            if (data == null) return false;
+
+            var type = document.getElementById("{!$Component.Page.Form.Block.userType}").value;
+            var dataName = "user_select";
+            if(type == "group"){
+                dataName = "group_select";
+            }
+            var rows = data[dataName];
+            var count = rows.length;
+
+            //  ユーザ一覧をクリア
+            var userList = $("#userList");
+            userList.empty();
+
+            //  ユーザ一覧に追加
+            for(var i = 0; i < count; i++){
+                if(dataName == "user_select"){
+                    /*
+                    if(jQuery.inArray(rows[i].code, SpaceUser_userIdList) < 0){
+                        continue;
+                    }
+                    */
+                }
+                var option = $(createOptionTagString(rows[i].code, rows[i].name));
+                if(document.getElementById(option.attr("id")) == null){
+                  option.attr("class", "item");
+                  userList.append(option);
+                }
+            }
+            if(count == 0){
+              alert("{!$Label.solxyzcso001__msg_00054}");
+            }
+        };
+
+        var word = document.getElementById("{!$Component.Page.Form.Block.searchWord}").value;
+        var type = document.getElementById("{!$Component.Page.Form.Block.userType}").value;
+        secureGetAsync('/common/UserSelectListGet.json', {"word":word, "userType":type}, callback);
+    }
+    function createOptionTagString(id, name){
+        //  "<option id='ID' value='ID'>{!$Label.solxyzcso001__label_00039}</option>"
+        var str = "<option id='" + id + "' value='" + id + "'>" + name + "</option>";
+
+        return str;
+    }
+
+    //==============//
+    //  ロール取得  //
+    //==============//
+    function search_user_role(){
+        var callback =  function(data, status){
+            if (data == null) return false;
+
+            var rows = data["role_select"];
+            var count = rows.length;
+
+            //  ロール一覧をクリア
+            var roleList = $("#roleList");
+            roleList.empty();
+
+            //  ロール一覧に追加
+            for(var i = 0; i < count; i++){
+                var option = $(createOptionTagString(rows[i].code, rows[i].name));
+                option.attr("class", "item");
+                roleList.append(option);
+            }
+            if(count == 0){
+              alert("{!$Label.solxyzcso001__msg_00054}");
+            }
+        };
+
+        secureGetAsync('/common/RoleSelectListGet.json', null, callback);
+    }
+
+    //================//
+    //  リストに追加  //
+    //================//
+    function add_user(){
+        var userList = $("#userList");
+        var roleList = $("#roleList option:selected");
+        var addList = $("#addUsers");
+
+        if (roleList.length == 0) {
+            return;
+        }
+
+        var roleValue = roleList.val();
+        var roleText = roleList.text();
+
+        addList.attr("selectedIndex", -1);
+
+        var addUsers = new Array();
+        var addUserCount = 0;
+
+        //  追加リストを生成
+        $.each(userList.attr("options"), function(){
+            if(this.selected){
+                var name = convertParamValue(this.text);
+                this.text += " [" + roleText + "]";
+                this.value += ":" + convertParamValue(roleValue) + ":;" + convertParamValue(this.text);
+                addUsers[addUserCount] = this;
+                addUserCount += 1;
+            }
+        });
+
+        //  招待するユーザの一覧に追加
+        $.each(addUsers, function(){
+            $("#" + this.id).remove();
+            addList.append(this);
+        });
+
+        addList.attr("selectedIndex", -1);
+    }
+    function convertParamValue(str){
+//        return str.replaceAll(":","%3a");
+        return str.replaceAll(":","：");
+    }
+    String.prototype.replaceAll = function(s1,s2) {
+        return this.replace(new RegExp(s1,"gm"),s2);
+    }
+
+    //==================//
+    //  リストから削除  //
+    //==================//
+    function remove_user(){
+        $("#addUsers option:selected").each(function() {
+            var val = $(this).val();
+            var values = val.split(':');
+
+            $(this).text(values[2].substring(1, values[2].length - (getRoleName(values[1]).length + 3)));
+            $(this).val(values[0]);
+            $("#userList").append(this)
+        });
+
+        $("#addUsers option:selected").remove();
+    }
+    function getRoleName(id){
+        var text = "";
+        $("#roleList option").each(function() {
+            var val = $(this).val();
+            if(val == id){
+                text = $(this).text();
+            }
+        });
+        return text;
+    }
+
+    //==========//
+    //  [次へ]  //
+    //==========//
+    function nextOnClick(){
+        var addList = $("#addUsers");
+        var addUsersHidden = $(document.getElementById("{!$Component.Page.Form.Block.addUsersHidden}"));
+
+        //  結合文字列を取得
+        var dataJonString = "{!dataJonString}";
+        //  招待者一覧を生成（結合）
+        $.each(addList.attr("options"), function(){
+            if(addUsersHidden.val() != ""){
+                addUsersHidden.val(addUsersHidden.val() + dataJonString);
+            }
+            addUsersHidden.val(addUsersHidden.val() + $(this).val());
+        });
+
+        return true;
+    }
+
+    //========================//
+    //  招待するユーザの追加  //
+    //========================//
+    function insertAddUsers(){
+        var addList = $("#addUsers");
+
+        //  一覧をクリア
+        addList.empty();
+
+        //  一覧に追加
+        var option = '';
+        <apex:repeat value="{!addUserOptions}" var="opp">
+            option = $('{!opp}');
+            option.attr('class','item');
+            addList.append(option);
+        </apex:repeat>
+    }
+
+    //==========================//
+    //  有効なユーザ一覧の生成  //
+    //==========================//
+    /*
+    function createUserIdList(){
+        SpaceUser_userIdList = w.split(',');
+    }
+    */
+</script>
+
+
+<apex:form id="Form">
+
+    <apex:pageBlock tabStyle="ContentTab__tab">
+        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10280}{!spacePath}"  collapsible="false"/>
+    </apex:pageBlock>
+
+    <apex:pageBlock id="Block" tabStyle="ContentTab__tab">
+
+        <!-- エラー／警告メッセージ表示エリア -->
+        <apex:pageMessages />
+
+        <table style="max-width:680px; min-width:680px;" border="0">
+            <tr>
+                <td>
+                    <table width="100%" border="0">
+                        <tr>
+                            <td style="width: 45%; vertical-align: top;">
+                            <!-- ------ -->
+                            <!-- ユーザ -->
+                            <!-- ------ -->
+                            <fieldset style="padding: 10px; width:300px;" ><legend>{!$Label.label_10131}</legend>
+                            <!-- [ユーザ][グループ] -->
+                            <div style="display:{!if(isPublic == true,'block','none')}">
+                                <apex:selectList value="{!wizard1_userType}" id="userType" multiselect="false" size="1">
+                                    <apex:selectOptions value="{!userTypeItems}"/>
+                                </apex:selectList>
+                            </div>
+                            <!-- [検索] -->
+                            <apex:inputtext id="searchWord"/>
+                            <input type="button" class="btn" value="{!$Label.label_00069}" onclick="search_user()" />
+                            <!-- [検索結果] -->
+                            <div style="margin-top: 10px;">
+                                <select id="userList" size="3" style="width: 100%; height: 150px;" multiple="multiple"></select>
+                            </div>
+                            <!-- ------ -->
+                            <!-- ロール -->
+                            <!-- ------ -->
+                            </fieldset>
+                            </td>
+                            <td style="width: 10%; vertical-align: middle;">
+                                <img src="{!URLFOR($Resource.cso, 'image/blueArrow_big_R.png')}"/>
+                            </td>
+                            <td style="width: 45%; vertical-align: middle;">
+                            <fieldset style="padding: 10px; width:270px;"><legend>{!$Label.label_10276}</legend>
+                            <div style="margin-top: 20px;">
+                                <select id="roleList" size="3" style="width: 100%; height: 165px;">
+                                </select>
+                            </div>
+                            </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <img src="{!URLFOR($Resource.cso, 'image/blueArrow_big_D.png')}" style="margin-left : 120px;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="margin-left:10px;">
+                                    <div style="display:{!if(isPublic == true,'block','none')}">
+                                        {!$Label.label_10069}
+                                    </div>
+                                    <div style="display:{!if(isPublic == true,'none','block')}">
+                                        {!$Label.label_10078}
+                                    </div>
+                                </div>
+                            </td>
+                            <td></td>
+                            <td>
+                                <div class="contentsWrapper">
+                                    <button class="btn createBtn" style=""  onclick="add_user();return false;">
+                                        <img style="width: 18px; height: 18px; margin-bottom: -5px; margin-right: 5px;" src="{!URLFOR($Resource.cso, 'image/add.png')}" />
+                                        {!$Label.label_10020}
+                                    </button>
+                                    <button class="btn createBtn" style="margin-left:10px;"  onclick="remove_user();return false;">
+                                        <img src="{!URLFOR($Resource.cso, 'image/remove.png')}" style="width: 18px; height: 18px; margin-bottom: -5px; margin-right: 5px;"/>
+                                        {!$Label.label_00072}
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td>
+                    <div style="padding: 0px 10px 10px 10px; width:97%;">
+                        <select id="addUsers" name="addUsers" multiple="multiple" size="3" style="width: 100%; height: 100px;">
+                        </select>
+                        <apex:inputHidden id="addUsersHidden" value="{!wizard1_addUsers}"/>
+                        <div>
+                            <label>
+                                <apex:inputCheckbox value="{!wizard1_applyChildren}" />
+                                {!$Label.solxyzcso001__label_10076}
+                            </label>
+                        </div>
+                    </div>
+                    <p>{!$Label.solxyzcso001__label_10070}</p>
+                </td>
+            </tr>
+        </table>
+
+
+        <!-- コマンドボタン -->
+        <apex:pageBlockButtons location="bottom">
+
+            <table width="100%">
+                <tr>
+                    <td align="right">
+                        <!-- [次へ] -->
+                        <apex:commandButton styleClass="btn userInvBtn" onclick="return nextOnClick();" action="{!page2}" value="{!$Label.solxyzcso001__label_00067}"/>
+                        <!-- [キャンセル] -->
+                        <input class="btn userInvBtn" type="button" value="{!$Label.label_00058}" onclick="top.window.close();" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </td>
+                </tr>
+            </table>
+
+        </apex:pageBlockButtons>
+
+    </apex:pageBlock>
+
+
+</apex:form>
+
+</apex:page>

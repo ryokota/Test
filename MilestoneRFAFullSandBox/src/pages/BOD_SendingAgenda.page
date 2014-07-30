@@ -1,0 +1,96 @@
+<apex:page standardController="BOD_Meeting__c" extensions="BOD_VFCtrl_SendingAgendaController" sidebar="false" showHeader="false">   
+
+ <apex:form >
+  <apex:messages id="messages"/>
+
+  <apex:pageBlock title="" > <!-- title="{!objBODMeeting.Name}/{!objBODMeeting.Name_JP__c}" -->
+  
+     <apex:facet name="header">
+         <apex:outputText style="font-size:15px;font-weight:bold;color:black" value="  {!objBODMeeting.Name} / {!objBODMeeting.Name_JP__c}"  />
+     </apex:facet>
+   
+    <apex:pageBlockSection title="{!$Label.BOD_VF_Materials_for_Resolution}"  collapsible="false" columns="1" >     
+    <apex:pageBlockTable value="{!listAgendaItems}" var="item" columnsWidth="250px, 250px, 500px, 50px, 50px" >
+    
+         <apex:column value="{!item.name}" />        
+         <!-- <apex:column value="{!item.Agenda_Item_Type__c}"/>
+         <apex:column value="{!item.Document_Language__c}"/>   -->
+         <apex:column value="{!item.Document_Title__c}"/>  
+         
+         <apex:column headerValue="{!$Label.BOD_VF_Japanese_Version}"   > <!-- style="width:200px" -->
+           <apex:pageBlockTable value="{!item.Agenda_Item__r}" var="child"  > <!-- columns="3" columnsWidth="200px, 50px, 50px"   -->
+           
+             <apex:column value="{!child.name}"  />   <!-- style="width:100px" -->
+             <!-- <apex:column value="{!child.Document_Language__c}"/> -->
+             <apex:column value="{!child.Document_Title__c}"/> 
+         
+           </apex:pageBlockTable>
+         </apex:column>
+         
+         <apex:column headerValue="{!$ObjectType.Agenda_Item__c.fields.Order_To_Be_Resolved__c.label}">
+            <apex:inputField value="{!item.Order_To_Be_Resolved__c}"/>
+         </apex:column>            
+         
+         <!-- <apex:column >
+           <apex:facet name="header">Send In Email</apex:facet>
+           <apex:inputText value="{!item.Finished_for_Email__c}" />
+         </apex:column> -->
+ 
+         <apex:column headerValue="{!$ObjectType.Agenda_Item__c.fields.Finished_for_Email__c.label}">
+            <apex:inputCheckbox value="{!item.Finished_for_Email__c}"/>
+         </apex:column>        
+                 
+    </apex:pageBlockTable>     
+    </apex:pageBlockSection>     
+    
+
+    <apex:pageBlockSection title="{!$Label.BOD_VF_Materials_for_Reporting}" collapsible="false" columns="1"  >     
+    <apex:pageBlockTable value="{!listAgendaItemsToBeReported}" var="item" columnsWidth="250px, 250px, 500px, 50px, 50px" >
+    
+         <apex:column value="{!item.name}"/>        
+         <!-- <apex:column value="{!item.Agenda_Item_Type__c}"/>   
+         <apex:column value="{!item.Document_Language__c}"/> -->
+         <apex:column value="{!item.Document_Title__c}"/>  
+         
+         <apex:column headerValue="{!$Label.BOD_VF_Japanese_Version}">
+           <apex:pageBlockTable value="{!item.Agenda_Item__r}" var="child">
+           
+             <apex:column value="{!child.name}"/>
+             <!-- <apex:column value="{!child.Document_Language__c}"/>-->
+             <apex:column value="{!child.Document_Title__c}"/> 
+         
+           </apex:pageBlockTable>
+         </apex:column>
+                           
+         <apex:column headerValue="{!$ObjectType.Agenda_Item__c.fields.Order_To_Be_Reported__c.label}">
+            <apex:inputField value="{!item.Order_To_Be_Reported__c}"/>
+         </apex:column>            
+         
+         <!-- <apex:column >
+           <apex:facet name="header">Send In Email</apex:facet>
+           <apex:inputText value="{!item.Finished_for_Email__c}" />
+         </apex:column> -->
+ 
+         <apex:column headerValue="{!$ObjectType.Agenda_Item__c.fields.Finished_for_Email__c.label}">
+            <apex:inputCheckbox value="{!item.Finished_for_Email__c}"/>
+         </apex:column>        
+                 
+    </apex:pageBlockTable>     
+    </apex:pageBlockSection>        
+    
+    <apex:pageBlockButtons location="Bottom" >
+      <apex:commandButton value="{!$Label.BOD_VF_Button_Save}" action="{!save}" />
+      <apex:commandButton value="{!$Label.BOD_VF_Button_Save_Send_To_Admin}" action="{!sendAgendaByEmail_OnlyToAdmins}" />
+      <apex:commandButton value="{!$Label.BOD_VF_Button_Save_Send}" action="{!sendAgendaByEmail}" />
+      <!--<apex:commandButton value="Cancel" onClick="{self.close();}"/> -->
+      <apex:commandButton value="{!$Label.BOD_VF_Button_Cancel}" immediate="true" action="{!cancel}"/>    
+        
+    </apex:pageBlockButtons>
+  
+    
+  </apex:pageBlock>   
+  
+  
+ </apex:form>
+
+</apex:page>

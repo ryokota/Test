@@ -1,0 +1,307 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.WRInquiryDetailController" action="{!init}" id="inquiryPage" tabStyle="setting__tab">
+<apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+    <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+</apex:outputpanel>
+<apex:outputpanel rendered="{!hasWR && hasPermissionWRAdmin}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__WRCSOBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+
+<!-- warapper -->
+<style type="text/css">
+.infotable {
+    margin : 30px;
+    width : 90%;
+}
+
+.infotable tr th {
+    width : 120px;
+    text-align : right;
+    font-weight : bold;
+    vertical-align : top;
+}
+
+.infotable tr td {
+    vertical-align : top;
+}
+
+</style>
+<script type="text/javascript">
+var reception;
+var previous;
+var next;
+
+jQuery.event.add(window, "load", function() {
+
+    // URLパラメータより受付ID取得
+    var val = getUrlVars()['reception'];
+    var credential = "{!JSENCODE(credential)}";
+    var sortName = $.cookie('wr_ih_sortName') == null ? '' : $.cookie('wr_ih_sortName');
+    var sortOrder = $.cookie('wr_ih_sortOrder') == null ? '' : $.cookie('wr_ih_sortOrder');
+    var title = $.cookie('wr_ih_title') == null ? '' : $.cookie('wr_ih_title');
+    var ticket = $.cookie('wr_ih_ticket') == null ? '' : $.cookie('wr_ih_ticket');
+    var username = $.cookie('wr_ih_username') == null ? '' : $.cookie('wr_ih_username');
+    var from = $.cookie('wr_ih_from') == null ? '' : $.cookie('wr_ih_from');
+    var to = $.cookie('wr_ih_to') == null ? '' : $.cookie('wr_ih_to');
+
+    // URLパラメータなしの場合は無処理
+    if (val == null || val == undefined || val == '') {
+        // 前へ／次へボタンの無効化制御
+        setButtonsDisabled();
+        return false;
+    } else {
+        reception = val;
+        secureGetAsyncSf(
+            '/rest/support/info/' + val + credential + '&sortitem=' + sortName + '&sortorder=' + sortOrder +
+            	'&title=' + title + '&reception=' + ticket + '&username=' + username + '&from=' + from + '&to=' + to,
+            null,
+            function(data, status) {
+                if (status == "success") {
+                    // グローバル変数へ前候補／次候補受付IDを設定
+                    previous=data.previous;
+                    next=data.next;
+                    // 前へ／次へボタンの無効化制御
+                    if (data.isfirst == true) {
+                        $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.previous}')).attr('disabled', 'disabled');
+                        $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.previous}')).attr('class', 'btnDisabled');
+                    } else {
+                        $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.previous}')).removeAttr('disabled');
+                        $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.previous}')).attr('class', 'btn');
+                    }
+                    if (data.islast == true) {
+                        $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.next}')).attr('disabled', 'disabled');
+                        $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.next}')).attr('class', 'btnDisabled');
+                    } else {
+                        $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.next}')).removeAttr('disabled');
+                        $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.next}')).attr('class', 'btn');
+                    }
+                    //------------------------------------------------
+                    // 基本情報設定
+                    //------------------------------------------------
+                    // 受付ID
+                    $('#reception').text(reception);
+                    // 問い合わせユーザ
+                    $('#userName').text(data.info.userName);
+                    // 問い合わせ日
+                    $('#inquiryDate').text(data.info.date.split(' ')[0]);
+                    // クローズ日
+                    var d = data.info.closeDate;
+                    if ( d == null || d == undefined ) {
+                        d = '-';
+                    } else {
+                        d= d.split(' ')[0]
+                    }
+                    $('#closeDate').text(d);
+
+                    //------------------------------------------------
+                    // 問い合わせ内容
+                    //------------------------------------------------
+                    // 機能
+                    $('#function').text(data['function']);
+                    // 種別
+                    $('#kind').text(data.kind);
+                    // 優先度
+                    $('#priority').text(data.priority);
+                    // 件名
+                    $('#title').text(data.info.title);
+                    // 内容
+                    $('#content').val(data.info.content);
+
+                    // 添付ファイルリンク生成
+                    var files = 0;
+
+					var escaper = $('<div/>');
+
+                    for(var i=0; i<data.info.attachedFiles.length; i++){
+
+                        var appendVal = '<a href="javascript:void(0);" onclick="downloadContents(\'' + data.spaceid + '\', \'' + data.info.attachedFiles[i].docid + '\', \'' + escaper.text(data.info.attachedFiles[i].docName).html() + '\');">' + escaper.text(data.info.attachedFiles[i].docName).html() + '</a>'
+
+                        $('#attachedFilesList').append(appendVal);
+                        files += 1;
+                    }
+
+                    // 添付ファイルなしなら添付ファイル要素を削除
+                    if (files == 0) {
+                        $('#attachedFilesListMain').remove();
+                    }
+                } else {
+                    // 前へ／次へボタンの無効化制御
+                    setButtonsDisabled();
+                }
+            }
+        );
+    }
+});
+
+function downloadContents(spaceId, fileId, fileName){
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            //alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        //alert(errMsg);
+    };
+
+    //CsoScript_loadingStart();
+    var url = _apiUrlSf + '/rest/support/down/'+fileId+'/'+encodeURIComponent(fileName) + "{!JSENCODE(credential)}";
+    downloadExec(url);
+}
+
+function downloadExec(url){
+    location.href = url;
+}
+
+//----------------------------------------------------------
+// URLパラメータ取得
+//----------------------------------------------------------
+function getUrlVars() {
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
+//----------------------------------------------------------
+// 前へ／次へボタンの無効化制御
+//----------------------------------------------------------
+function setButtonsDisabled() {
+    // 前へ／次へボタンの無効化制御
+    $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.previous}')).attr('disabled', 'disabled');
+    $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.previous}')).attr('class', 'btnDisabled');
+    $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.next}')).attr('disabled', 'disabled');
+    $(getId('{!$Component.inquiryPage.inquiryForm.inquiryBlock.inquiryButtons.next}')).attr('class', 'btnDisabled');
+    // 添付ファイル要素を削除
+    $('#attachedFilesListMain').remove();
+}
+</script>
+
+<apex:form id="inquiryForm">
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__WRSettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/voice-support.png')}" alt="{!$Label.solxyzcso001__label_10129}" title="{!$Label.solxyzcso001__label_10129}"/>
+                <h1 id="c_headLeftTitle"></h1>{!$Label.label_10181}<br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_10284}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__WROptionsLink"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:pageBlock id="inquiryBlock">
+                    <apex:pageBlockButtons style="text-align:right" id="inquiryButtons" location="top">
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00066}" disabled="true" id="previous" onclick="location.href = 'WRInquiryDetail?reception=' + previous; return false;"/>
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00067}" disabled="true" id="next" onclick="location.href = 'WRInquiryDetail?reception=' + next; return false;"/>
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00068}" action="{!back}"/>
+                    </apex:pageBlockButtons>
+<div id="inquiryDetailMain" style="overflow:auto;">
+<apex:pageBlockSection title="{!$Label.solxyzcso001__label_10128}" collapsible="false"/>
+<div>
+    <table class="infotable" cellspacing="5">
+        <tr>
+            <th>{!$Label.label_10107}</th>
+            <td id="reception"></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10110}</th>
+            <td id="userName"></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10108}</th>
+            <td id ="inquiryDate"></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10136}</th>
+            <td id="closeDate"></td>
+        </tr>
+    </table>
+</div>
+<apex:pageBlockSection title="{!$Label.solxyzcso001__label_10111}" collapsible="false"/>
+<div>
+    <table class="infotable"  cellspacing="5">
+        <tr>
+            <th>{!$Label.label_10115}</th>
+            <td id="function"></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10119}</th>
+            <td id="kind"></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10109}</th>
+            <td id="priority"></td>
+        </tr>
+
+        <tr>
+            <th>{!$Label.label_10106}</th>
+            <td id="title"></td>
+        </tr>
+        <tr>
+            <th>{!$Label.label_10126}</th>
+            <td><textarea rows="10" style="width : 500px;" readonly="readonly" id="content"></textarea></td>
+        </tr>
+
+        <tr id="attachedFilesListMain">
+            <th>{!$Label.label_10137}</th>
+            <td id="attachedFilesList">
+            </td>
+        </tr>
+    </table>
+</div>
+</div>
+                </apex:pageBlock>
+            </td>
+        </tr>
+
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+<iframe id="fileDownFrame" height="0" width="0" style="display:none;"></iframe>
+</div>
+</apex:form>
+<apex:include pageName="SOLXYZCSO001__WRCSOSilverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(wr_userInfo.uid == null && wr_userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

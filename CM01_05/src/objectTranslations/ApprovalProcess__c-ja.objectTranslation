@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>承認プロセス</value>
+    </caseValues>
+    <fields>
+        <label><!-- RFA --></label>
+        <name>RFA__c</name>
+        <relationshipLabel>承認プロセス</relationshipLabel>
+    </fields>
+    <fields>
+        <label>ステータス</label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>Completed</masterLabel>
+            <translation>完了</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>In Progress</masterLabel>
+            <translation>回覧中</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Not Completed</masterLabel>
+            <translation>未完了</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Not Started</masterLabel>
+            <translation>回覧前</translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Approval Process Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>承認プロセス番号</nameFieldLabel>
+</CustomObjectTranslation>

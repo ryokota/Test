@@ -1,0 +1,130 @@
+<apex:component id="relatedContentsFileViewerComp" access="global" allowDML="true" controller="SOLXYZCSO001.RelatedContentsFileViewerCompController">
+<apex:outputText escape="false" value="</span>"/>
+<c:CsoBridgeComp id="csoBridgeComp"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.csopreview.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+<c:CsoScriptComp id="csoScriptComp"/>
+<c:CSOPreviewPluginComp id="csoPreviewPluginComp"/>
+<script type="text/javascript" src="{!$Label.field_CSO_DVURL}/js/document-viewer.js?v100"></script>
+<!--[if lte IE 8]>
+<script type="text/javascript" src="{!$Label.field_CSO_URL}/js/jquery.backgroundSize.js"></script>
+<![endif]-->
+<script>
+$(document).ready(function(){
+     //show file preview with navigator
+    var options = {
+        showNavigator : true,
+        resource : {
+            zoomWidthFit        : '{!$Label.label_fileviewer_zoomWidthFit}',
+            zoomHeightFit       : '{!$Label.label_fileviewer_zoomHeightFit}',
+            downloadMsg         : '{!$Label.label_fileviewer_downloadMsg}',
+            download            : '{!$Label.label_fileviewer_download}',
+            search_s            : '{!$Label.label_fileviewer_searchS}',
+            search_e            : '{!$Label.label_fileviewer_searchE}',
+            no_hit              : '{!$Label.label_fileviewer_noHit}',
+            password_1          : '{!$Label.label_fileviewer_password1}',
+            password_2          : '{!$Label.label_fileviewer_password2}',
+            dialog_info         : "INFO",
+        },
+    };
+    $("#preview-area").csopreview(options);
+    $("#csopreview-close").unbind("click").click(function(){
+        CsoScript_loadingStart();
+        top.location.href = '{!returnUrl}';
+    });
+    $("#csopreview-details").text("{!$Label.label_13164}");
+    $("#csopreview-details").click(function(){
+        showDetails();
+    });
+    var objid = '&objid={!JSENCODE(URLENCODE(Sf_ID))}';
+    if({!contentFlow}){
+        objid = 'thumb=1&objid={!Sf_ID}&imagable=1';
+    }
+
+    $("#preview-area").loadPreview('{!fileId}','{!spaceId}', "", "name", "asc", "", "", objid);
+});
+
+function showDetails(){
+    CsoScript_loadingStart();
+    var previewFileId = $("#preview-area").getPreviewFileId();
+    var previewSpaceId = $("#preview-area").getPreviewSpaceId();
+    var sitePrefix = '';
+    if('{!$Site.prefix}'!=null || '{!$Site.prefix}' != ''){
+        sitePrefix = '{!$Site.prefix}';
+    }
+
+    if('{!pagePrefix}' != 'false'){
+        top.location.href = '{!JSENCODE(salesforceBaseUrl)}{!$Page.RelatedContentsDetail}{!JSENCODE(Sf_type)}?spaceid=' +previewSpaceId + '&fileId=' + previewFileId + '&type=alive&security=&pageType=detail_edit&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+    }else{
+        if(sitePrefix==''){
+            top.location.href = '{!JSENCODE(baseURL)}/apex/RelatedContentsDetail'+'{!JSENCODE(Sf_type)}?spaceid=' +previewSpaceId + '&fileId=' + previewFileId + '&type=alive&security=&pageType=detail_edit&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+        }else{
+            top.location.href = '{!JSENCODE(salesforceBaseUrl)}'+sitePrefix+'/RelatedContentsDetail'+'{!JSENCODE(Sf_type)}?spaceid=' +previewSpaceId + '&fileId=' + previewFileId + '&type=alive&security=&pageType=detail_edit&Sf_ID={!JSENCODE(URLENCODE(Sf_ID))}&Sf_name={!JSENCODE(URLENCODE(Sf_name))}&Sf_type={!JSENCODE(URLENCODE(Sf_type))}&pagePrefix={!JSENCODE(URLENCODE(pagePrefix))}&retURL={!JSENCODE(URLENCODE(retURL))}';
+        }
+    }
+}
+
+function contents_info_download(param){
+    var space_id;
+    var doc_id;
+    if(param == null){
+        space_id = "{!JSENCODE(spaceId)}";
+        doc_id   = "{!JSENCODE(fileId)}";
+    }else{
+        space_id = param.refSpaceId;
+        doc_id = param.fileId;
+    }
+
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '{!$Page.DownloadPopupWindow}';
+        url = url + '?downloadType=standard';
+        url = url + '&spaceId=' + space_id;
+        url = url + '&fileId='  + doc_id;
+        url = url + '&type='    + "alive";
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync('/contentsmanagement/SingleContentsDownloadApi.json', {"spaceId" : space_id, "fileId" : doc_id, "type" : "alive"}, callback, callerror);
+}
+
+function downloadExec(url){
+    top.location.href = url;
+}
+</script>
+<div id="preview-area" style="display: none;"></div>
+<c:CSOSilverlightComp id="csoSilverlightComp"/>
+<apex:outputText escape="false" value="<span>"/>
+</apex:component>

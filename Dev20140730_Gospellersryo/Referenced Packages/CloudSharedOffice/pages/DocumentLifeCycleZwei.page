@@ -1,0 +1,280 @@
+<apex:page controller="SOLXYZCSO001.SettingLifeCycleController" >
+    <!-- ライフサイクル -->
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.csoBalloon.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+    <!-- JS -->
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.csoBalloon.js')}" />
+    <!--apex:include pageName="CsoScript"/-->
+    <!-- <apex:stylesheet value="{!URLFOR($Resource.cso, 'css/common.css')}" /> -->
+    <!-- <link type="text/css" rel="stylesheet" href="{!$Label.field_CSO_URL}/css/tooltip.css" /> -->
+    <!-- <script type="text/javascript" src="{!$Label.field_CSO_URL}/js/tooltip.js" /> -->
+
+    <!-- warapper -->
+    <div id="c_wrapper">
+        <!-- content container -->
+        <table id="c_container" cellspacing="0" border="0">
+            <tr>
+                <!-- right content container -->
+                <td id="c_right" colspan="2">
+                        <div id ="editMain" style="width:100%;height: 100%;">
+                            <!-- 詳細 -->
+                            <div id="tab_basic" class="onviewdiv">
+                                <div >
+                                    <table>
+                                        <tr>
+                                            <td style="vertical-align: top;">
+                                                <table cellspacing="5" style="margin: 5px 0px 5px 20px;">
+                                                    <tr>
+                                                        <th>{!$Label.label_10450}</th>
+                                                        <td colspan="2">
+                                                            <input type="checkbox" name="LC_enabled" id="LC_enabled" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th></th>
+                                                        <td>
+                                                            <label>
+                                                                <input type="checkbox" name="settablePerContents" id="settablePerContents" class="lcparts" />{!$Label.label_13006}
+                                                            </label>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>{!$Label.label_13017}</th>
+                                                        <td>
+                                                            <button class="btn icon-btn lcparts" id="deleteuser" onclick="removeButton();return false;" style="width:65px;">{!$Label.field_common_remove}</button>
+                                                            <button class="btn icon-btn lcparts" id="openFilterEdit"  onclick="editButton();return false;" style="width:65px;" >{!$Label.label_00073}</button>
+                                                            <button class="btn icon-btn lcparts" id="addconditon" onclick="addSpaceCondition();return false;" style="width:65px;" >{!$Label.label_10020}</button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th></th>
+                                                        <td>
+                                                            <label>
+                                                                <select multiple="multiple" size="12" id="filters" style="width:250px;" class="lcparts" />
+                                                            </label>
+                                                        </td>
+
+                                                        <td >
+                                                            <div style="position: relative;left:0px;">
+                                                                <button  onclick="changePriority(true);return false;" class="lcparts"><img src="{!URLFOR($Resource.cso, 'image/up-arrow.png')}"  /></button>
+                                                                <br/>
+                                                                <button  onclick="changePriority(false);return false;" class="lcparts"><img src="{!URLFOR($Resource.cso, 'image/down-arrow.png')}"/></button>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div style="position: relative;left:-10px;">
+                                                                <div class="box">
+                                                                    <div></div>
+                                                                </div>
+                                                                <div style="position: relative;">
+                                                                    <div id="filterStatus" style="position: absolute; top: -200px; left:30px; width: 320px;">
+                                                                        <div id="filterDetail" style="padding-top: 10px;"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- 通知先 -->
+                            <div id="tab_mail" class="onviewdiv" style="display: none;">
+                                <div id="AddUser" style="padding: 20px 20px 0 20px;">
+                                    <div id="mailUserReminder">
+                                        <table>
+                                            <tr>
+                                                <th>{!$Label.label_10689}</th>
+                                                <td>
+                                                    <label>
+                                                        <input type="checkbox" id="reminder_enabled" name="reminder_enabled"  class="lcparts" />
+                                                        {!$Label.label_13010}
+                                                    </label>
+                                                    <input type="text" id="reminder_time" name="reminder_time"  value="" maxlength="4" disabled="disabled"/>
+                                                    {!$Label.label_13011}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="c_command_l" id="mailUserPart">
+                                    	<div align="left" style="float: right;">
+                                            <ul class="c_command_pipe">
+                                                <li class="item">
+                                                    <input type="button" class="btn lcparts" id="removeuser" onclick="removeUserInfo();" value="{!$Label.label_00072}"/>
+                                                </li>
+                                                <li class="last">
+                                                    <input type="button" class="btn lcparts" id="adduser" onclick="openAddUserModal();" value="{!$Label.label_10020}"/>
+                                                </li>
+                                            </ul>
+                                    	</div>
+                                    </div>
+                                    <div id="lcUserList" style="clear: right; padding: 10px 0 10px 10px;">
+                                        <div id="mailUserList-container">
+                                            <table id="mailUserList"></table>
+                                            <div id="mailUserPager"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <!-- ユーザ追加画面 -->
+                        <div id="addUserModal" style="display: none;">
+                            <form onsubmit="onSearchClicked(); return false;">
+                                <div style="margin-bottom: 5px;">{!$Label.label_10511}</div>
+                                <select id="user-search-option-1">
+                                    <option value="0">{!$Label.label_10131}</option>
+                                    <option value="1">{!$Label.label_10022}</option>
+                                    <option value="2">{!$Label.label_10317}</option>
+                                </select>
+                                <select id="user-search-option-2" style="display: none; width: 140px;"></select>
+                                <input type="text" id="user-search-txt" class="search-txt" placeholder="{!$Label.label_10448}" />
+                                <input type="submit" class="btn" value="{!$Label.label_00069}" onclick="onSearchClicked(); return false;" />
+                                <input type="button" class="btn" value="{!$Label.label_00070}" onclick="onClearClicked();" />
+                            </form>
+                            <div id="tabUser" class="tab-inner">
+                                <div style="padding-top: 10px;">
+                                    <table id="managerUserTable"></table>
+                                    <div id="managerUserTablePager"></div>
+                                </div>
+                            </div>
+                            <div class="buttons" style="text-align:right;">
+                                <button class="btn" onclick="closeAddUserModal();">
+                                    {!$Label.field_common_cancel}
+                                </button>
+                                <button class="btn" onclick="addUserInfo();">
+                                    {!$Label.field_common_ok}
+                                </button>
+                            </div>
+                        </div>
+                        <!-- フィルタ編集-->
+                        <div id="filterDialog"  title="{!$Label.label_13020}" style="display: none;">
+        <div id="DialogError" style="background-color: white; padding-top:5px;padding-bottom:5px;display: none;color:red;"></div>
+        <table id ="filterTable" cellspacing="5" border="0">
+            <tr>
+                <td colspan="3" style="font-weight: bold; padding-top: 10px;">
+                <!--フィルタ名 -->
+                {!$Label.label_13059}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="padding-left: 20px;">
+                    <div class="c_require" style="height:20px;">
+                        <input type="text" name="LC_filterName" id="LC_filterName"  maxlength="100" style="width:400px;"/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th colspan="3" style="font-weight: bold; padding-top: 10px;">
+                    {!$Label.label_13017}
+                </th>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <div id="lifecycleview2"></div>
+                    <div id="lifecycleviewSelector2" style="display: none;">
+                        <table id="lifecycleviewSelectorTable">
+                            <tr>
+                                <td class="selectArch" style="text-align: center;">
+                                    <div onclick="$(this).lcSelectAct(1);" lctype="1">
+                                        <img src="{!URLFOR($Resource.cso, 'image/lc-archNew.png')}" class="lc-icon"/>
+                                        <div style="padding-top: 5px;">{!$Label.label_00055}</div>
+                                    </div>
+                                </td>
+                                <td style="text-align: center;">
+                                    <div onclick="$(this).lcSelectAct(2);" lctype="2">
+                                        <img src="{!URLFOR($Resource.cso, 'image/lc-trashNew.png')}" class="lc-icon"/>
+                                        <div style="padding-top: 5px;">{!$Label.label_00056}</div>
+                                    </div>
+                                </td>
+                                <td style="text-align: center;">
+                                    <div onclick="$(this).lcSelectAct(3);" lctype="3">
+                                        <img src="{!URLFOR($Resource.cso, 'image/lc-delNew.png')}" class="lc-icon"/>
+                                        <div style="padding-top: 5px;">{!$Label.label_13012}</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            <th>{!$Label.label_13007}</th>
+            <tr>
+                <td style="padding-left: 20px;">
+                    <div>
+                        <label><input type="checkbox" checked="checked" style="vertical-align: -2px;" id="conditionCheck"/>{!$Label.label_11066}</label>
+                    </div>
+                    <div style="display: none; margin-left: 10px;" id="conditionDetail">
+                        <div>
+                            <label><input type="radio" checked="checked" name="terms" id="contents"/>{!$Label.label_10081}</label>
+                            <label><input type="radio" name="terms" id="tag"/>{!$Label.label_10763}</label>
+                        </div>
+                        <div class="c_require" style="height:20px;">
+                            <input type="text" name="LC_Condition" id="LC_Condition"  maxlength="100" style="width:400px;"/>
+                        </div>
+                        <div style="padding-top: 3px;">
+                            {!$Label.label_13016}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div style="text-align: right; padding-top: 10px; padding-bottom: 10px;">
+            <button class="btn" onclick="cancelFilterEdit();">
+                {!$Label.field_common_cancel}
+            </button>
+            <button class="btn" onclick="clickFilterOkButton();">
+               {!$Label.field_common_ok}
+            </button>
+        </div>
+
+                        </div>
+                        <!-- タブ -->
+                        <div style="background-color: #53A0EC; height:50px; width:100%;">
+                            <ul id="evidence_tab">
+                                <li id="evidence_tab_basic" class="evidence_tab evidence_tab_active">
+                                    <a href="javascript:switchTab('basicinfo');">{!$Label.label_13008}</a>
+                                </li>
+                                <li id="evidence_tab_mail" class="evidence_tab evidence_tab_deactive">
+                                    <a href="javascript:switchTab('mail');">{!$Label.label_13058}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- [下位スペースにも適用する]確認メッセージ -->
+    <div id="lifecycleApplyModal" title="{!$Label.label_10009}" style="display: none;">
+        <div style="padding-top:10px;">
+            {!$Label.label_13254}
+        </div>
+
+        <div style="text-align:right; padding-top:20px;">
+            <input type="button" class="btn" value="{!$Label.label_00061}" onclick="saveSpaceLifecycle(false);" />
+            <input type="button" class="btn" value="{!$Label.label_00060}" onclick="saveSpaceLifecycle(true);" />
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        ECM.lifeCycleZwei = ECM.lifeCycleZwei || { loaded: $.Deferred() };
+        (function() {
+            $.extend(ECM.lifeCycleZwei, {
+                // intentionally empty
+            });
+            ECM.lifeCycleZwei.loaded.resolve();
+        })();
+    </script>
+
+</apex:page>

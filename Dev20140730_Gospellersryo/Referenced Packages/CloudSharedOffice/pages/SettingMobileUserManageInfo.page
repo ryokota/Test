@@ -1,0 +1,412 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingMobileUserManageController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(csoUserInfo.proAuth_mobile_users == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!csoUserInfo.code}&massage={!csoUserInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(csoUserInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(csoUserInfo.proAuth_mobile_users == 'true' && csoUserInfo.showErrPage == false, true, false)}">
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<script type="text/javascript">
+
+$(function(){
+    loadAvailableUserList();
+    setPermitType();
+    $(window).bind('resize', function () {
+        resizeGrid();
+    }).trigger('resize');
+
+    initModal();
+
+});
+
+function initModal(){
+    $("#managerModal").dialog({
+        autoOpen: false,
+        modal: true,
+        caption: '{!$Label.label_mobilesettings_00027}',
+        bgiframe: true,
+        closeText: "{!$Label.label_00071}",
+        buttons: {
+            '{!$Label.field_common_ok}': function(){
+                $(this).dialog("close");
+            }
+        },
+        width:600,
+        height:430
+    });
+    $("#rowMemberlist").jqGrid({
+        url:_apiUrl + "/setup.nevada.user/memberList.json",
+        datatype:"jsonp",
+        jsonReader:{
+        repeatitems : false,
+            id : "id"
+        },
+        colNames : [ '',
+                    '',
+                    '{!$Label.label_10131}',
+                    '{!$Label.label_10097}'],
+        colModel:[
+                {name:'id',index:'id', hidden:true},
+                {name:'name',index:'name', hidden:true},
+                {name:'info',index:'userid', width:390},
+                {name:'partner',index:'partner', width:150, align:"center"},
+        ],
+        rowNum : 50,
+        height: 250,
+        width: 550,
+        rowList:[10,50,100],
+        sortname:"name",
+        viewrecords : true,
+        forceFit:true,
+        multiselect:false,
+        pager:"#rowMemberlistPager",
+        shrinkToFit:true,
+        loadComplete:function(data){
+        }
+    });
+    $("#rowMemberlist").jqGrid("navGrid", "#rowMemberlistPager", {edit:false, add:false,del:false, refresh:false, search:false});
+    $('#rowMemberlist').setGridWidth(550);
+
+}
+
+
+function resizeGrid(){
+    $('#availableUserTable').setGridWidth(getBrowserWidth() - 350).setGridHeight(getBrowserHeight() - 330);
+}
+
+function setPermitType(){
+    var permitType = "";
+    if ('{!permitType}' == '1'){
+        permitType = "{!$Label.label_mobilesettings_00023}"
+    }else if('{!permitType}' == '2'){
+        permitType = "{!$Label.label_mobilesettings_00025}"
+    }else if('{!permitType}' == '3'){
+        permitType = "{!$Label.label_mobilesettings_00024}"
+    }
+
+    $('#permitType').text(permitType);
+
+}
+
+function loadAvailableUserList(){
+    $("#availableUserTable").jqGrid({
+        url:_apiUrl + "/setup/nevada/user/list.json",
+        postData:{
+            type          : "all",
+        },
+        datatype:"jsonp",
+        jsonReader:{
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames:[
+                '{!$Label.label_00039}',
+                '',
+                '{!$Label.label_mobilesettings_00019}',
+                '',
+                ''
+        ],
+        colModel:[
+                {name:'info', index:'info', width:400},
+                {name:'id', index:'id', hidden:true},
+                {name:'ecmcharged', index:'ecmcharged', width:100, align:"center"},
+                {name:'members', index:'members', hidden:true},
+                {name:'name', index:'name', hidden:true},
+        ],
+        onSelectRow : function(id, b_check){
+        },
+        rowNum: 30,
+        height: 220,
+        width: 750,
+        autowidth: false,
+        rowList: [10,30,50],
+        sortname: 'name',
+        sortorder: 'asc',
+        pager: $('#availableUserTablePager'),
+        viewrecords: true,
+        multiselect: false,
+//        onPaging : function(b) {
+//            $(this).setGridParam({
+//                postData : {
+//                    useCache : "true"
+//                }
+//            });
+//        },
+        loadComplete: function(data){
+        }
+    });
+    $("#availableUserTable").jqGrid('navGrid','#managerTablePager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function changeActive(id, active, optionNum, active){
+/*
+    var callback = function(data){
+        refChanged();
+    };
+    securePostAsync('/setup/nevada/user/mobileChargedFunctionRegister.json', {"id": id, "type": $("#reftype").val(), "num": optionNum, "toactive": active }, callback);
+*/
+}
+
+function searchSelected(){
+
+    $("#availableUserTable").setGridParam({
+        datatype : "jsonp",
+        postData:{
+            type : $("#reftype").val(),
+            //ids : JSON.stringify(selectedIdMap[$("#reftype").val()]),
+            name : $("#searchName").val()
+        }
+    }).trigger('reloadGrid');
+
+}
+
+function refChanged(){
+
+    $('#availableUserTable').setGridParam({
+        datatype : "jsonp",
+        postData : {
+            type : $("#reftype").val()
+        }
+    });
+    $('#availableUserTable').trigger('reloadGrid');
+
+}
+
+function outputCSV(){
+
+    if (!confirm('{!$Label.msg_mobile_00004}')) {
+        return;
+    }
+
+    var callback = function(data){
+            CsoScript_loadingStop();
+            if(data.result == false){
+                alert(data.message);
+                return;
+            }
+            var strParam = "?fileid=" + data.fileid + "&filename=" + encodeURI(data.filename);
+            $('#MobileUserManage_downframe').attr('src', _apiUrl + '/setup/nevada/user/availableUserCsvDownload.json' + strParam);
+    };
+
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert(data);
+        return;
+    };
+    CsoScript_loadingStart();
+    secureGetAsync('/setup/nevada/user/availableUserOutput.json', '', callback, callerror);
+
+}
+
+function showMember(id){
+//alert(type+" / "+id);
+    $("#managerModal").dialog("open");
+
+    var type = $("#reftype").val();
+
+    $("#rowMemberlist").setGridParam({
+        postData:{
+            type : type,
+            id : id
+        }
+    }).trigger("reloadGrid");
+}
+
+function submitStop(e){
+    if (!e) var e = window.event;
+
+    if(e.keyCode == 13){
+        searchSelected();
+        e.preventDefault();
+        return false;
+    }
+}
+
+function settingMobileEdit(){
+    location.href = '{!$Page.SettingMobileUserManageEdit}';
+}
+
+</script>
+<style type="text/css">
+#editMain {
+    width:100%;
+    height: 100%;
+}
+
+.checkbox{
+    width: 20px;
+    height: 20px;
+}
+.updateDateTbl td{
+    padding-right: 30px;
+    padding-left: 10px;
+}
+._modal{
+    width:650px;
+}
+.chargedLicense-statusTable {
+    border: solid 1px silver !important;
+    border-collapse: collapse;
+    width: 550px;
+}
+.chargedLicense-statusTable th {
+    border: solid 1px silver !important;
+    text-align: center !important;
+    background-color: #ccffff;
+    vertical-align: middle !important;
+    width: 150px;
+    height: 16px;
+}
+.chargedLicense-statusTable td {
+    border: solid 1px silver !important;
+    vertical-align: middle !important;
+    text-align: right;
+    height: 16px;
+}
+</style>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/menu_mobile_users.png')}" alt="{!$Label.solxyzcso001__label_10622}" title="{!$Label.solxyzcso001__label_10622}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_mobilesettings_00001}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_mobilesettings_00020}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <apex:pageBlockButtons location="top">
+                           <!-- <apex:commandButton id="btnEdit" value="{!$Label.label_00073}" action="{!edit}"/> -->
+                           <input type="button" class="btn" onclick="settingMobileEdit();" value="{!$Label.label_00073}"/>
+                        </apex:pageBlockButtons>
+                        <div id ="editMain">
+                            <apex:pageblockSection columns="1" >
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_10450}</apex:outputLabel>
+                                    <apex:inputCheckbox disabled="true" selected="{!isActive}"/>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_mobilesettings_00022}</apex:outputLabel>
+                                    <apex:outputLabel ><span id="permitType"></span></apex:outputLabel>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >{!$Label.solxyzcso001__label_mobilesettings_00033}</apex:outputLabel>
+                                    <apex:outputLabel >
+                                        <table class="chargedLicense-statusTable">
+                                            <tr>
+                                                <th>{!$Label.solxyzcso001__label_13033}</th>
+                                                <th>{!$Label.solxyzcso001__label_13034}</th>
+                                                <th>{!$Label.solxyzcso001__label_13035}</th>
+                                            </tr>
+                                            <tr>
+                                                <td class="number">{!IF(mobileChargedTotal == -1, $Label.solxyzcso001__label_10008, mobileChargedTotal)}</td>
+                                                <td class="number">{!mobileChargedUsed}</td>
+                                                <td class="number">{!IF(mobileChargedTotal == -1, '-', mobileChargedUnUsed)}</td>
+                                            </tr>
+                                        </table>
+                                    </apex:outputLabel>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel ></apex:outputLabel>
+                                    <table class="updateDateTbl">
+                                        <tbody>
+                                            <tr>
+                                                <th>{!$Label.solxyzcso001__field_010064}</th>
+                                                <td>{!registUserName}</td>
+                                                <th>{!$Label.solxyzcso001__field_010065}</th>
+                                                <td>{!registDate}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>{!$Label.solxyzcso001__label_10024}</th>
+                                                <td>{!updateUserName}</td>
+                                                <th>{!$Label.solxyzcso001__label_10018}</th>
+                                                <td>{!updateDate}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <div class="c_command_l">
+                                        <ul class="c_command_pipe">
+                                            <li class="item">
+                                                <select id="reftype" onchange="refChanged();">
+                                                    <option value="all">{!$Label.label_mobilesettings_00026}</option>
+                                                    <option value="user">{!$Label.label_10131}</option>
+                                                    <option value="group">{!$Label.label_10576}</option>
+                                                    <option value="position">{!$Label.label_10652}</option>
+                                                    <option value="partner">{!$Label.label_10097}</option>
+                                                </select>
+                                            </li>
+                                                <li class="item">
+                                                    <input type="text" class="longWidth" id="searchName" name="searchName" maxlength="255" onKeyPress="submitStop(event);" />
+                                                </li>
+                                                <li class="item">
+                                                    <input class="btn" type="button" id="searchButton" value="{!$Label.label_00069}" onclick="searchSelected(); return false;" />
+                                                </li>
+                                            <li class="last">
+                                                <input class="btn" type="button" value="{!$Label.label_10451}" onclick="outputCSV(); return false;" />
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageblockSection>
+                            <div>
+                                <table id="availableUserTable" ></table>
+                                <div id="availableUserTablePager" ></div>
+                            </div>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="managerModal" class="_modal" title="{!$Label.label_mobilesettings_00027}">
+    <div style="margin-left: 1em; margin-top: 1em; width:660px;">
+        <table id="rowMemberlist"></table>
+        <div id="rowMemberlistPager"></div>
+    </div>
+</div>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+<iframe id="MobileUserManage_downframe" height="0" width="0" style="display:none"/>
+
+</apex:outputPanel>
+</apex:page>

@@ -1,0 +1,266 @@
+<apex:component id="relatedContentsEditComp" access="global" allowDML="true" controller="SOLXYZCSO001.RelatedContentsDetailCompController">
+<apex:outputText escape="false" value="</span>"/>
+<apex:attribute name="csoUserInfo" access="global" description="required" assignTo="{!userInfo}" type="SOLXYZCSO001.CSOUserInfo" required="false"/>
+
+<apex:outputPanel rendered="{!IF(processResult == false, true, false)}">
+    <!-- エラー表示用 -->
+    <apex:pageMessages />
+</apex:outputPanel>
+<apex:iframe src="{!$Page.SOLXYZCSO001__CSO_Error}?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(processResult != false && userInfo.showErrPage == false, true, false)}">
+<!-- CSO認証共通モジュール -->
+<c:CsoBridgeComp id="csoBridgeComp"/>
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css?20120828')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.tagit.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.customfields.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/tag-it.js')}" />
+<c:CustomFieldsPluginComp id="customFieldsPluginComp"/>
+<c:CsoScriptComp id="csoScriptComp"/>
+<style>
+.tag-container ul {
+    width: 320px;
+}
+.tag-container li > span {
+    font-size: 80%;
+}
+</style>
+<script type="text/javascript">
+String.prototype.replaceAll  = function(s1,s2){
+    return this.replace(new RegExp(s1, 'gm'),s2);
+}
+
+jQuery.event.add(window, "load", function(){
+	//  カスタム項目
+	$("#customfieldsTbl").customfields({
+		obj_id	: "{!JSENCODE(fileId)}",
+		attach	: "contents",
+		edit	: true,
+	});
+	
+	$("input[id$=tagNames]").tagit({allowSpaces: true});
+	
+    $('#c_headSubTitle').html('{!JSENCODE(docName)}');
+    $('#c_headSubTitle').attr('title', $('#c_headSubTitle').html());
+
+    $("textarea[id$=explanation]").keyup(function(){
+        viewCommentLength("explanation", "explanationRemainder", 512);
+    });
+    viewCommentLength("explanation", "explanationRemainder", 512);
+    
+    if ({!reportAutoImageDto.hasWR && showReportImageNumber}) {
+    	if (!{!reportAutoImageDto.hasPermissionWRAdmin}) {
+    		$("input[id$=reportImageNumber]").attr("disabled","disabled");
+    	}
+		$("#reportImageRow").show();
+	} else {
+		$("#reportImageRow").hide();
+	}
+});
+
+function saveContentsInfo(){
+	var err = new Array();
+	var documentName = $("input[id$=documentName]").val();
+	var explanation = $("textarea[id$=explanation]").val();
+	var tagNames = $("input[id$=tagNames]").val();
+	
+	if (documentName.length == 0) {
+		err.push(getMsg(new Array("{!$Label.label_10762}"), "{!$Label.msg_01084}"));
+	}
+	
+	if (explanation.length > 512) {
+		err.push('{!$Label.msg_00007}');
+	} else {
+		explanation = $.trim(explanation);
+	}
+	
+    tagNames = $.trim(tagNames);
+    tagNameArray = new Array();
+    if(tagNames != null){
+        var blacklistCharacterValidationPattern = new RegExp("[\\\\|/|*|:|\"|\?|\||<|>]+");
+        $.each(tagNames.replaceAll('，', ',').split(','), function(n, tagName){
+            tagName = $.trim(tagName);
+            if(tagName.length > 24) {
+                err.push('{!$Label.msg_00073}');
+               } else if(tagName.length == 0){
+               return;
+			}
+            if (blacklistCharacterValidationPattern.test(tagName)) {
+                err.push('{!$Label.msg_01079}');
+            }
+            if ($.inArray(tagName, tagNameArray) != -1) {
+                err.push('{!$Label.msg_01080}'.replace('{0}', tagName));
+            }
+            tagNameArray.push(tagName);
+        });
+    }
+    
+    //  カスタム項目
+	$("#customfieldsTbl").cfValidator({
+		"err"		: err,
+		"errClass"	: "",
+		"success"	: editContentSuccess,
+		"fail"		: editContentFail
+	});
+}
+
+var editContentSuccess = function(args) {
+	document.getElementById('{!$Component.contentsForm.relatedContentsPageBlock.customfields}').value = $("#customfieldsTbl").cfValues();
+	contentsUpdate();
+	return true;
+}
+
+var editContentFail = function(args) {
+	return false;
+}
+
+function viewCommentLength(t, v, maxSize){
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    var str = $("textarea[id$=" + t + "]").val().replace(regexp, "\r\n");
+    var size = maxSize - str.length;
+
+    if(size <= 0){
+        $("#" + v).css("color","#FF0000");
+    }else{
+        $("#" + v).css("color","#000000");
+    }
+
+    $("#" + v).text(getMsg(new Array(size + ""), '{!$Label.label_10227}'));
+
+}
+
+function showTips(o, msgCodes) {
+    var obj = $(o);
+    var offset = obj.offset();
+
+    $(".tooltip").css("left", offset.left)
+    			 .css('top', offset.top - 150)
+    			 .css('position','absolute')
+    			 .css('height','auto')
+    			 .css('width','auto');
+
+    $('.tooltip').html('');
+    var massage = '';
+    for(var i=0; i<msgCodes.length; i++){
+        massage += msgCodes[i];
+    }
+    $('.tooltip').html(massage);
+
+    $(".tooltip").show();
+}
+</script>
+<c:CSOSilverlightComp id="csoSilverlightComp"/>
+
+<apex:form id="contentsForm">
+  <apex:variable var="Sf_ID" value="{!Sf_ID}" />
+  <apex:variable var="Sf_name" value="{!Sf_name}" />
+  <apex:variable var="pageType" value="{!pageType}" />
+
+    <!-- ヘッダー -->
+    <apex:sectionHeader title="{!$Label.solxyzcso001__field_010200}" subtitle="{!titleDocName}"/>
+
+    <!-- エラー表示用 -->
+    <apex:pageMessages />
+<apex:pageBlock title="" id="relatedContentsPageBlock">
+
+    <apex:pageBlockButtons >
+      <input class="btn" type="button" value="{!$Label.field_common_save}" onclick="saveContentsInfo();"/>
+      <apex:commandButton value="{!$Label.solxyzcso001__field_common_cancel}" action="{!cancelEdit}"/>
+    </apex:pageBlockButtons>
+
+    <!-- ページボディー -->
+    <apex:inputHidden id="hidden_version" value="{!version}"/>
+    <table id="customfieldsTbl" class="customfields" style="margin-left:25%;">
+        <!-- コンテンツ名 -->
+        <tr cfname="name">
+            <th>{!$Label.label_10011}</th>
+            <td class="c_require">
+                <apex:inputText id="documentName" style="width: 320px;" value="{!docName}" maxlength="255"/>
+            </td>
+        </tr>
+        <!-- バージョン -->
+        <tr cfname="version">
+            <th>{!$Label.label_10038}</th>
+            <td>
+            	<div id="version">{!releaseVersionString}</div>
+           	</td>
+        </tr>
+        <!-- 説明 -->
+        <tr cfname="explanation">
+            <th>{!$Label.label_10012}</th>
+            <td>
+                <table>
+                <tr>
+                    <td align="right">
+                        <div id="explanationRemainder"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <apex:inputtextarea id="explanation" styleClass="c_textarea_m" style="resize:none;" value="{!explanation}"/>
+                    </td>
+                </tr>
+                </table>
+			</td>
+        </tr>
+        <!-- タグ -->
+        <tr cfname="tag">
+            <th>{!$Label.label_00057}</th>
+            <td>
+            	<div class="tag-container" style="margin-top:-10px; margin-bottom:-10px;">
+            		<apex:inputText id="tagNames" style="height:1.2em; width:320px;" value="{!tagNames}"/>
+           		</div>
+           	</td>
+        </tr>
+        <!-- 帳票画像番号 -->
+        <tr id="reportImageRow">
+        	<th>{!$Label.label_wf_29037}</th>
+        	<td>
+        		<apex:inputText id="reportImageNumber" style="height:1.2em; width:50px;" value="{!reportAutoImageDto.reportImageNumberStr}"/>
+        	</td>
+        </tr>
+	</table>
+	<apex:pageBlockSection columns="2">
+        <!-- 作成者 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="creator" value="{!$Label.solxyzcso001__label_10015}"/>
+            <apex:variable rendered="true" var="" value="">
+            	<div id="regUserName" >{!regUserName}</div>
+            </apex:variable>
+        </apex:pageBlockSectionItem>
+        <!-- 作成日時 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="created_date" value="{!$Label.solxyzcso001__label_10014}"/>
+            <div id="regDate" >{!regDate}</div>
+        </apex:pageBlockSectionItem>
+        <!-- 更新者 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_person" value="{!$Label.solxyzcso001__label_10024}"/>
+            <apex:variable rendered="true" var="" value="">
+            	<div id="upUserName" >{!upUserName}</div>
+            </apex:variable>
+        </apex:pageBlockSectionItem>
+        <!-- 更新日時 -->
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel for="updated_date" value="{!$Label.solxyzcso001__label_10018}"/>
+            <div id="upDate" >{!upDateString}</div>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+    <apex:inputhidden value="{!customfields}" id="customfields" />
+</apex:pageBlock>
+<apex:actionFunction name="contentsUpdate" action="{!contentsUpdate}"/>
+</apex:form>
+<div id="tooltip" class="tooltip"></div>
+</apex:outputPanel>
+<apex:outputText escape="false" value="<span>"/>
+</apex:component>

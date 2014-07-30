@@ -1,0 +1,13 @@
+<apex:component controller="POU_FormDownloadCtrl">
+    <apex:attribute name="program" description="Id of the program" type="Id" required="required" assignTo="{!programId}"/>
+    <p>{!$Label.AttachmentsHelpText}</p>
+    <apex:pageBlock title="{!$Label.Attachments}">
+        <ul>
+            <apex:repeat value="{!attachments}" var="a">
+                <li>
+                    <a download="{!a.Name}" href="{!URLFOR($Action.Attachment.Download, a.Id)}" ><apex:outputText value="{!a.Name}" /> </a>
+                </li>
+           </apex:repeat>
+       </ul>
+    </apex:pageBlock>
+</apex:component>

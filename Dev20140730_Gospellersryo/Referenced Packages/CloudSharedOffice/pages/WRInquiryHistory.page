@@ -1,0 +1,288 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.WRInquiryHistoryController" action="{!init}" tabStyle="setting__tab">
+    <apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+        <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+    </apex:outputpanel>
+    <apex:outputpanel rendered="{!hasWR && hasPermissionWRAdmin}">
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__WRCSOBridge" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/setting.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /></apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__WRCSOScript" />
+        <script type="text/javascript">
+            /*
+             * 画面読込処理
+             */
+            jQuery.event.add(window, "load", function () {
+                var rowNum = $.cookie('wr_ih_rowNum') == null ? 50 : $.cookie('wr_ih_rowNum');
+
+                var page = 1;
+                var sortName = 'receptionID';
+                var sortOrder = 'asc';
+
+                $('#inquiryHistoryTable').jqGrid({
+                    beforeRequest: function () {
+                        rowNum = $(this).getGridParam("rowNum");
+                        page = $(this).getGridParam("page");
+                        sortName = $(this).getGridParam("sortname");
+                        sortOrder = $(this).getGridParam("sortorder");
+                        title = encodeURIComponent($('#title').val());
+                        reception = encodeURIComponent($('#reception').val());
+                        username = encodeURIComponent($('#username').val());
+                        from = $('#from').val();
+                        to = $('#to').val();
+
+                        var newUrl = _apiUrlSf + '/rest/support/list/' + rowNum + '/' + page + '/' + sortName + '/' + sortOrder + "{!JSENCODE(credential)}" +
+                            '&title=' + title + '&reception=' + reception + '&username=' + username + '&from=' + from + '&to=' + to;
+
+                        $(this).setGridParam({
+                            url: newUrl
+                        });
+                    },
+                    datatype: 'json',
+                    crossdomain: true,
+                    jsonReader: {
+                        repeatitems: false,
+                        id: 'id'
+                    },
+                    colNames: ['',
+                        '{!$Label.label_10106}',
+                        '{!$Label.label_10107}',
+                        '{!$Label.label_10108}',
+                        '{!$Label.label_10109}',
+                        '{!$Label.label_10110}',
+                        '{!$Label.label_10136}', ],
+                    colModel: [{
+                        name: 'id',
+                        index: 'id',
+                        hidden: true
+                    }, {
+                        name: 'title',
+                        index: 'title',
+                        width: 260
+                    }, {
+                        name: 'receptionID',
+                        index: 'receptionID',
+                        width: 85,
+                        align: 'center'
+                    }, {
+                        name: 'date',
+                        index: 'date',
+                        width: 90,
+                        align: 'center'
+                    }, {
+                        name: 'priority',
+                        index: 'priority',
+                        width: 50,
+                        align: 'center'
+                    }, {
+                        name: 'username',
+                        index: 'username',
+                        width: 130,
+                        align: 'center'
+                    }, {
+                        name: 'closedate',
+                        index: 'closedate',
+                        width: 90,
+                        align: 'center'
+                    }, ],
+                    rowNum: rowNum,
+                    sortname: sortName,
+                    sortorder: sortOrder,
+                    width: getBrowserWidth() - 340,
+                    height: getBrowserHeight() - 270,
+                    rowList: [10, 50, 100],
+                    pager: '#pager',
+                    viewrecords: true,
+                    multiselect: false,
+                    loadComplete: function (data) {
+                        var ret = $(this).jqGrid('getRowData');
+                        var rec = new Array();
+                        for (var d in ret) {
+                            rec.push(ret[d].receptionID);
+                        }
+                        $.cookie('wr_ih_rowNum', rowNum);
+                        $.cookie('wr_ih_sortName', sortName);
+                        $.cookie('wr_ih_sortOrder', sortOrder);
+                        $.cookie('wr_ih_title', title);
+                        $.cookie('wr_ih_ticket', reception);
+                        $.cookie('wr_ih_username', username);
+                        $.cookie('wr_ih_from', from);
+                        $.cookie('wr_ih_to', to);
+                    }
+                });
+
+                // カレンダーUI設定
+                $('#from,#to').datepicker({dateFormat : "yy/mm/dd"});
+
+                $('#from').change(function (event) {
+                    if (isDateFormat($('#from').val())) {
+                        $('#to').datepicker('option', {
+                            minDate: $('#from').val()
+                        });
+                    }
+                });
+
+                $(window).resize(resizeGrid);
+                resizeGrid();
+            });
+
+            /*
+             * ウィンドウリサイズ時グリッドサイズ変更処理
+             */
+            function resizeGrid() {
+                $("#inquiryHistoryTable").setGridWidth(getBrowserWidth() - 340);
+                $("#inquiryHistoryTable").setGridHeight(getBrowserHeight() - 270);
+            }
+
+            /*
+             * 検索条件をクリアして検索する
+             */
+            function clearCondition() {
+                // 条件クリア
+                $('#title,#reception,#username,#from,#to').val('');
+                // 再検索
+                $('#inquiryHistoryTable').trigger('reloadGrid');
+            }
+
+            /*
+             * 検索処理
+             */
+            function execSearch() {
+
+                var from = $('#from').val();
+                var to = $('#to').val();
+
+                if (from.length != 0 && !isDateFormat(from)) {
+                    alert("{!$Label.msg_00062}");
+                    return false;
+                } else if (to.length != 0 && !isDateFormat(to)) {
+                    alert("{!$Label.msg_00062}");
+                    return false;
+                } else if (!isRightDate(from, to)) {
+                    alert("{!$Label.msg_00063}");
+                    return false;
+                }
+
+                // 指定した条件を基に検索を実行
+                $('#inquiryHistoryTable').trigger('reloadGrid');
+            }
+
+            /*
+             * 検索ダイアログ表示
+             */
+            function search() {
+                $('#searchDiv').dialog({
+                    width: 420,
+                    height: 220
+                });
+            }
+        </script>
+        <!-- warapper -->
+        <div id="c_wrapper">
+            <!-- content container -->
+            <table id="c_container" cellspacing="0" border="0">
+                <tr>
+                    <!-- left menu container -->
+                    <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                        <apex:include pageName="SOLXYZCSO001__WRSettingMenu" />
+                    </td>
+                    <!-- right header container -->
+                    <td id="c_headLeft" nowrap="nowrap">
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/voice-support.png')}" alt="{!$Label.solxyzcso001__label_10129}" title="{!$Label.solxyzcso001__label_10129}" />
+                         <h1 id="c_headLeftTitle">{!$Label.label_10181}</h1>
+                        <br/>
+                         <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10129}</h2>
+
+                    </td>
+                    <!-- 操作ボックス -->
+                    <td id="c_headRight" height="39px" style="min-height:39px;max-height:39px;">
+                        <apex:include pageName="SOLXYZCSO001__WROptionsLink" />
+                    </td>
+                </tr>
+                <tr>
+                    <!-- right content container -->
+                    <td id="c_right" colspan="2">
+                        <apex:form >
+                            <apex:pageBlock >
+                                <!-- コマンドボタン表示 -->
+                                <div class="c_command_l">
+                                    <ul class="c_command_pipe">
+                                        <li class="item">
+                                            <!-- 検索ボタン -->
+                                            <apex:commandButton value="{!$Label.solxyzcso001__label_00069}" onclick="search(); return false;" styleClass="c_commandButton" />
+                                        </li>
+                                        <apex:outputPanel rendered="{!IF(wr_userInfo.support=='true', 'true', 'false')}">
+                                            <li class="last">
+                                                <!-- 新規問い合わせボタン -->
+                                                <apex:commandButton value="{!$Label.solxyzcso001__label_10104}" action="{!Inquiry}" styleClass="c_commandButton" />
+                                            </li>
+                                        </apex:outputPanel>
+                                    </ul>
+                                </div>
+                                <!-- 社名表示 --> <span>
+                            {!$Organization.name}{!$Label.label_10105}
+                        </span>
+
+                                <!-- グリッド -->
+                                <div style="margin-left : 10px; width : 95%;">
+                                    <table id="inquiryHistoryTable" style="width : 100%;"></table>
+                                    <div id="pager"></div>
+                                </div>
+                                <!-- 検索ダイアログ -->
+                                <div id="searchDiv" style="display:none;" title="{!$Label.solxyzcso001__label_00069}">
+                                    <table class="searchtable" cellspacing="5">
+                                        <tr>
+                                            <th>{!$Label.label_10106}</th>
+                                            <td>
+                                                <input id="title" type="text" class="c_text_l" maxlength="100" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_10107}</th>
+                                            <td>
+                                                <input id="reception" type="text" class="c_text_m" maxlength="255" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_10110}</th>
+                                            <td>
+                                                <input id="username" type="text" class="c_text_m" maxlength="255" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>{!$Label.label_10108}</th>
+                                            <td>
+                                                <input id="from" type="text" class="c_text_s" />&nbsp;{!$Label.label_10316}&nbsp;<input id="to" type="text" class="c_text_s" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <div style="text-align: center; margin-top: 5px;">
+                                        <input type="button" class="btn" value='{!$Label.solxyzcso001__label_00069}' onclick="execSearch();return false;" />
+                                        <input type="button" class="btn" value='{!$Label.label_00070}' onclick="clearCondition();return false;" />
+                                    </div>
+                                </div>
+                            </apex:pageBlock>
+                        </apex:form>
+                    </td>
+                </tr>
+            </table>
+            <div id="copyright">{!$Label.solxyzcso001__label_00001}</div>
+        </div>
+        <apex:include pageName="SOLXYZCSO001__WRCSOSilverlight" /></apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(wr_userInfo.uid == null && wr_userInfo.showErrPage == false, true, false)}">{!$Label.solxyzcso001__msg_00142}</apex:outputPanel>
+</apex:page>

@@ -1,0 +1,537 @@
+<apex:page showHeader="false" sidebar="false">
+<script type="text/javascript">
+function showModalDialog(result, height, width, okFunc) {
+    var dom = "";
+    if (result["code"] || result["code"] != undefined) {
+        dom += "Code : " + result["code"] + "<br>";
+        dom += "Message : " + result["message"];
+    } else {
+        dom += result["message"];
+    }
+    $("body").append("<div id='dialog_div' style='display:none;' title='" + '{!$Label.label_cm_00002}' + "'></div>")
+    $("#dialog_div").html(dom);
+    $("#dialog_div").dialog({modal : true,
+                             resizable : false,
+                             height : height,
+                             width : width,
+                             show : "fold",
+                             buttons : {"OK" : function() {
+                                        $(this).dialog("close");
+                                        $("#dialog_div").remove();
+                                       }
+                             },
+                             close : okFunc
+    });
+}
+
+$(function() {
+    $.cloneObject = function(source,isDeep) {
+        if(isDeep){
+            return $.extend(true,{},source);
+        }
+        return $.extend({},source);
+    }
+
+
+    // IEがリクエストをキャッシュしてしまう問題の回避
+    $.ajaxSetup({cache:false});
+
+    // jqGridの共通オプション
+    if ($.jgrid && $.jgrid.defaults) {
+        $.extend($.jgrid.defaults,{
+            datatype: "jsonp",
+            jsonReader :{
+                repeatitems: false,
+                id         : "id"
+            },
+            rowNum : 10,
+            rowList:[10, 50, 100],
+            viewrecords: true,
+            autowidth: true,
+            shrinkToFit : false
+        });
+    }
+});
+
+$(function() {
+    // IE コンソールを開かないときはconsoleが未定義になる
+    if (!('console' in window)) {
+        window.console = {};
+        window.console.log = function(str){
+            return str;
+        };
+        window.console.info = function (str) {
+            return str;
+        };
+    }
+});
+
+/**
+ * tの文字列長を判定し、残りの文字数をvの要素の中に格納します。
+ * 本関数は、入力エリアのonKeyUpイベントにバインドして下さい。
+ * @param t 判定を行う入力エリアのid
+ * @param v 残りの文字数を表示する要素id
+ * @param maxSize 最大文字数
+ * @return 無し
+ */
+function viewCommentLength(t, v, maxSize){
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    var str = $("#" + t).val().replace(regexp, "\r\n");
+    var size = maxSize - str.length;
+
+    if(size <= 0){
+        $("#" + v).css("color","#FF0000");
+    }else{
+        $("#" + v).css("color","#000000");
+    }
+
+    $("#" + v).text(getMsg(new Array(size + ""), '{!$Label.label_wf_00025}'));
+
+}
+
+function coloradoEncode(str){
+    return str.replaceAll("#","%23").replaceAll("&","%26");
+}
+
+/**
+ * 引数nameに格納された文字文字の字数が引数maxSizeを超えるとmaxSizeで指定した文字数-2文字に「...」をつけて返す
+ *
+ * @param name 処理を実行する文字列
+ * @param maxSize 文字列の最大長(この値を超えると超えた部分の文字列を「...」に変換する。)
+ * @return 変換後の文字列
+ */
+function replaceLongName(name,maxSize){
+    var nameLength;
+    var moji,moji2;
+    nameLength=name.length;
+
+    if(nameLength>maxSize){
+        moji2=name.substring(0,maxSize-2) +"...";
+        name = name.replace(name,moji2);
+    }
+    return name;
+}
+
+
+/**
+ * ブラウザの表示エリアの高さを取得する
+ *
+ * @return ブラウザの表示エリアの高さ
+ */
+function getBrowserHeight() {
+    if ( window.innerHeight ) {
+        return window.innerHeight;
+    } else if ( document.documentElement && document.documentElement.clientHeight != 0 ) {
+        return document.documentElement.clientHeight;
+    } else if ( document.body ) {
+        return document.body.clientHeight;
+    }
+    return 0;
+}
+
+/**
+ * ブラウザの表示エリアの幅を取得する
+ *
+ * @return 無し
+ */
+function getBrowserWidth() {
+    if ( window.innerWidth ) {
+        return window.innerWidth;
+    } else if ( document.documentElement && document.documentElement.clientWidth != 0 ) {
+        return document.documentElement.clientWidth;
+    } else if ( document.body ) {
+        return document.body.clientWidth;
+    }
+    return 0;
+}
+
+/**
+ * ブラウザの種類を取得する
+ *
+ * @return ブラウザ名の文字列
+ */
+function getBrowserType(){
+
+    var userAgent = window.navigator.userAgent.toLowerCase();
+    var appVersion = window.navigator.appVersion.toLowerCase();
+
+    if (userAgent.indexOf("msie") > -1) {
+        if (appVersion.indexOf("msie 6.0") > -1) {
+            userAgent="IE6";
+        } else if (appVersion.indexOf("msie 7.0") > -1) {
+            userAgent="IE7";
+        } else if (appVersion.indexOf("msie 8.0") > -1) {
+            userAgent="IE8";
+        } else if (appVersion.indexOf("msie 9.0") > -1) {
+            userAgent="IE9";
+        } else if (appVersion.indexOf("msie 10.0") > -1) {
+            userAgent="IE10";
+        } else {
+            userAgent="IE";
+        }
+    } else if (userAgent.match(/trident.+rv:11/i)) {
+    	userAgent="IE11";
+    } else if (userAgent.indexOf("firefox") > -1) {
+        userAgent="Firefox";
+    } else if (userAgent.indexOf("opera") > -1) {
+        userAgent="Opera";
+    } else if (userAgent.indexOf("chrome") > -1) {
+        userAgent="Chrome";
+    } else if (userAgent.indexOf("safari") > -1) {
+        userAgent="Safari";
+    } else {
+        userAgent="Unknown";
+    }
+
+  return userAgent;
+}
+
+$(function () {
+  var supportsInputAttribute = function (attr) {
+    var input = document.createElement('input');
+    return attr in input;
+  };
+  if (!supportsInputAttribute('placeholder')) {
+    $('[placeholder]').each(function () {
+      var
+        input = $(this),
+        placeholderText = input.attr('placeholder'),
+        placeholderColor = 'GrayText',
+        defaultColor = input.css('color');
+      input.
+        focus(function () {
+          if (input.val() === placeholderText) {
+            input.val('').css('color', defaultColor);
+          }
+        }).
+        blur(function () {
+          if (input.val() === '') {
+            input.val(placeholderText).css('color', placeholderColor);
+          } else if (input.val() === placeholderText) {
+            input.css('color', placeholderColor);
+          }
+        }).
+        blur().
+        parents('form').
+          submit(function () {
+            if (input.val() === placeholderText) {
+              input.val('');
+            }
+          });
+    });
+  }
+});
+
+/**
+ * クリッカブルパス表示エリアを可変にする
+ *
+ * @param pathArea クリッカブルパス表示エリア
+ * @param tempPathArea パス表示エリアの長さを調べる仮エリア
+ * @return なし
+ */
+function setClickablePathListText(pathArea,tempPathArea){
+
+    var pathSpaceWidth,tmpPathAreaWidth;
+    var work,lastChild,parents;
+    var pathCut = false;
+    var index=0;
+    var textLength = 0;
+    var path;
+    var cnt = 0;
+
+    pathSpaceWidth =  $(pathArea).width() - 50;
+    work = $(tempPathArea).text();
+    path =  $(tempPathArea).html();
+    tmpPathAreaWidth = $(tempPathArea).width() - 0;
+
+    //do untill the path is fit in.
+    while (pathSpaceWidth < tmpPathAreaWidth) {
+        //remove the first path.
+        index = work.indexOf(' > ');
+        index+=3;
+
+        if (index == -1){
+            return false;
+        }
+
+        textLength =work.length;
+        work = work.substring(index,textLength);
+
+        $(tempPathArea).html(work);
+
+        tmpPathAreaWidth = $(tempPathArea).width();
+        pathCut = true;
+        cnt +=1;
+
+        if(cnt >= 100){
+            break;
+        }
+    }
+//  work = work.replace(/^\s+|\s+$/g, "");
+
+    if(pathCut == true){
+        work = '> ' + work;
+    }else{
+        $(pathArea).html(path);
+        return;
+    }
+
+    index = work.lastIndexOf(' > ');
+    index +=3;
+
+    parents = work.substring(0,index -1);
+    lastChild = work.substring(index,textLength);
+
+
+    work = parents + "<span class='path-bold'> " + lastChild + "</span>";
+    $(pathArea).html(work);
+//  $(tempPathArea).html(work);
+}
+
+/**
+ * パス表示エリアを可変にする
+ *
+ * @param pathArea パス表示エリア
+ * @param tempPathArea パス表示エリアの長さを調べる仮エリア
+ * @return なし
+ */
+function setPathListText(pathArea,tempPathArea){
+
+    var pathSpaceWidth,tmpPathAreaWidth;
+    var work,lastChild,parents;
+    var pathCut = false;
+    var index=0;
+    var textLength = 0;
+    var path;
+    var cnt = 0;
+
+    pathSpaceWidth =  $(pathArea).width() - 50;
+    work = $(tempPathArea).text();
+    path =  $(tempPathArea).html();
+    tmpPathAreaWidth = $(tempPathArea).width() - 0;
+
+    //do untill the path is fit in.
+    while (pathSpaceWidth < tmpPathAreaWidth) {
+        //remove the first path.
+        index = work.indexOf(' > ');
+        index+=3;
+
+        if (index == -1){
+            return false;
+        }
+
+        textLength =work.length;
+        work = work.substring(index,textLength);
+
+        $(tempPathArea).html(work);
+
+        tmpPathAreaWidth = $(tempPathArea).width();
+        pathCut = true;
+        if(cnt >= 100){
+            break;
+        }
+        cnt += 1
+    }
+//  work = work.replace(/^\s+|\s+$/g, "");
+
+    if(pathCut == true){
+        work = '> ' + work;
+    }else{
+        $(pathArea).html(path);
+        return;
+    }
+
+    index = work.lastIndexOf(' > ');
+    index +=3;
+
+    parents = work.substring(0,index -1);
+    lastChild = work.substring(index,textLength);
+
+
+    work = parents + "<span class='path-bold'> " + lastChild + "</span>";
+    $(pathArea).html(work);
+//  $(tempPathArea).html(work);
+}
+
+/**
+ * テキスト表示エリアを可変にする
+ *
+ * @param textArea パス表示エリア
+ * @param tempTextArea パス表示エリアの長さを調べる仮エリア
+ * @return なし
+ */
+function setFlexibleText(textArea,tempTextArea){
+
+    var textSpaceWidth,tmpTextAreaWidth;
+    var work;
+    var pathCut = false;
+    var textLength = 0;
+    var text;
+    var cnt = 0;
+
+    textSpaceWidth =  $(textArea).width();
+    work = $(tempTextArea).text();
+    text =  $(tempTextArea).text();
+    tmpTextAreaWidth = $(tempTextArea).width() - 0;
+
+    if(text.length <= 0){
+        $(textArea).text(text);
+        return;
+    }
+
+    //do untill the text is fit in.
+    while (textSpaceWidth < tmpTextAreaWidth) {
+        //remove the last letter.
+        textLength =work.length;
+        work = work.substring(0,textLength -1);
+
+        $(tempTextArea).text(work);
+
+        tmpTextAreaWidth = $(tempTextArea).width();
+        pathCut = true;
+        if(cnt > 500){
+            break;
+        }
+        cnt += 1
+    }
+
+    if(pathCut == true){
+        work=work.substring(0,work.length - 2) +"...";
+        $(textArea).html(work);
+    }else{
+        $(textArea).text(text);
+    }
+    return;
+}
+
+/*
+ * プレースホルダーリプレース処理後のメッセージを返却する
+ */
+function getMsg(array, jsMsg){
+    for(var i = 0; i < array.length; i++){
+        var oldStr = "{" + i + "}";
+        var newStr = array[i];
+        jsMsg = jsMsg.replace(oldStr, newStr);
+    }
+    return jsMsg;
+}
+
+/*
+ * jQuery向けIDセレクター生成
+ */
+function getId(id) {
+    return '#' + id.replace(/(:|\.)/g,'\\\\$1');
+}
+
+/*
+ * jQuery向けIDNAMEセレクター生成
+ */
+function getIdName(id) {
+    return id.replace(/(:|\.)/g,'\\\\$1');
+}
+
+/*
+ * jQuery向けNAMEセレクター生成
+ */
+function getName(name){
+    return 'input[name="' + (name.replace(/(:|\.)/g,'\\\\$1') + '"]');
+}
+
+/*
+ * jquery ui dialog resize option override
+ */
+if($.ui != null){
+    $.extend($.ui.dialog.prototype.options, {
+            resizable: false
+    });
+}
+
+/*
+ * Labelクリック
+ */
+function CsoScript_clickLabel(label){
+    var userAgent = window.navigator.userAgent.toLowerCase();
+    var appVersion = window.navigator.appVersion.toLowerCase();
+    if (userAgent.indexOf("msie") == -1) {
+        return;
+    }
+    if (appVersion.indexOf("msie 8") == -1) {
+        return;
+    }
+
+    var obj = null;
+    try {
+        obj = document.getElementById(label.htmlFor);
+    }
+    catch (exception){}
+    if (obj == null) {
+        return;
+    }
+
+    if(obj.tagName != "INPUT"){
+        return;
+    }
+
+    if(obj.type == "radio"){
+        obj.checked = true;
+        obj.click();
+    }
+}
+
+
+/*
+ * Loadingダイアログ生成
+ */
+$(function() {
+    if($("#CsoScriptLoadingArea").dialog != null){
+        $("#CsoScriptLoadingArea").dialog({
+            autoOpen: false,
+            closeOnEscape: false,
+            draggable: false,
+            width: 120,
+            minHeight: 30,
+            modal: true,
+            resizable: false
+        });
+
+        $("div[aria-labelledby='ui-dialog-title-CsoScriptLoadingArea'] > :first").hide();
+    }
+});
+/*
+ * Loadingダイアログ表示
+ */
+function CsoScript_loadingStart(){
+    $("#CsoScriptLoadingArea").dialog("open");
+}
+/*
+ * Loadingダイアログ非表示
+ */
+function CsoScript_loadingStop(){
+    $("#CsoScriptLoadingArea").dialog("close");
+}
+
+/**
+ * 使用機種がipadか判定する
+ *
+ * @return boolean
+ */
+function isIpad(){
+
+    var userAgent = window.navigator.userAgent.toLowerCase();
+
+    if (userAgent.indexOf("ipad") > -1) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
+</script>
+
+<div id="CsoScriptLoadingArea" style="display:none">
+    <img src="{!URLFOR($Resource.WRCSO, '/image/loading.gif')}" style="width:12px;" />
+    &nbsp;
+    Please wait...
+</div>
+</apex:page>

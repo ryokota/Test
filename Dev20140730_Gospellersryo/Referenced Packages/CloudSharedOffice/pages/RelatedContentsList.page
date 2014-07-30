@@ -1,0 +1,320 @@
+<apex:page >
+<!-- <apex:page sidebar="false" showHeader="false" Controller="RelatedContentsListController">
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}&noBorder=true" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_workflow_standard == 'true' && userInfo.showErrPage == false, true, false)}">
+
+<!-- CSO認証共通モジュール
+<apex:include pageName="CsoBridge"/>
+<apex:includeScript value="{!$Resource.jquery}"/>
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery-1.5.2.min.js')}" />
+<apex:stylesheet value="{!URLFOR($Resource.cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.cso, 'css/common.child.css?20120828')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/grid.locale-ja.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/plupload.full.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery.plupload.queue.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/autoheight.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/callActiveX.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.cso, 'js/commonDownload.js')}" />
+
+<apex:include pageName="CsoScript"/>
+
+
+<script type="text/javascript">
+var fileIdList='';     //選択したコンテンツのリスト
+var DATA_DELIM=',';
+
+
+jQuery.event.add(window, "load", function(){
+    //----------------------------------//
+    //  関連付けされたコンテンツの一覧  //
+    //----------------------------------//
+    $("#relatedContentsListTable").jqGrid({
+        url : _apiUrl + "/contentsmanagement/contentsRelationListGet.json?objid={!Sf_ID}",
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            loadonce   : true,
+            id         : "id"
+        },
+        colNames : ['id',
+                    'byte_size',
+                    'spaceid',
+                    '{!$Label.label_10174}', //アクション
+                    '{!$Label.label_10081}', //コンテンツ名
+                    'name',
+                    '{!$Label.label_10476}', //パス
+                    'version',
+                    'size',
+                    ],
+        colModel : [{name : "id", index : "id", hidden : true},
+                    {name : "byte_size", index : "byte_size", hidden : true},
+                    {name : "spaceid", index : "spaceid",  hidden : true},
+                    {name : "action", index : "action", width : 170, align : "center", sortable : false},
+                    {name : "linked_name", index : "name", width : 230, align : "left"},
+                    {name : "name", index : "name", hidden : true},
+                    {name : "path", index : "path", width : 300, align : "left", sortable : false },
+                    {name : "version", index : "version", hidden : true},
+                    {name : "size", index : "size", hidden : true},
+                    ],
+        width: 700,
+        height:100,
+        rowNum:10000,
+        sortname:'name',
+        sortorder:'asc',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly:false,
+        shrinkToFit : false,
+        loadonce : true,
+        loadComplete : function(data) {
+            try{
+                changeCurrentTreeColor(data.spaceId);
+            }catch(e){
+            }
+        }
+
+    });
+
+    $(window).resize(resizeBodySize);
+    resizeBodySize();
+
+});
+
+function resizeBodySize() {
+    var browserWidth = getBrowserWidth();
+
+    if((browserWidth - 40) < 493){
+        $("#relatedContentsListTable").setGridWidth(493);
+    } else {
+        $("#relatedContentsListTable").setGridWidth(browserWidth - 50);
+    }
+
+}
+
+//======================================//
+//  関連コンテンツ詳細画面に遷移        //
+//======================================//
+function onNameClicked(doc_id){
+    top.location.href = '{!$Page.RelatedContentsDetail}{!Sf_type}?spaceid=&fileId=' + doc_id + '&type=alive&security=&pageType=list_detail&Sf_ID={!Sf_ID}&Sf_name={!Sf_name}&Sf_type={!Sf_type}';
+}
+
+//======================================//
+//  action:編集                         //
+//======================================//
+function onModifyClicked(doc_id, spaceid){
+    top.location.href = '{!$Page.RelatedContentsEdit}{!Sf_type}?spaceId=' + spaceid + '&fileId=' + doc_id + '&type=alive&security=&pageType=list_edit&Sf_ID={!Sf_ID}&Sf_name={!Sf_name}&Sf_type={!Sf_type}&Sf_typeName={!Sf_typeName}';
+}
+
+
+//======================================//
+//  action:ジャンプ                     //
+//======================================//
+function onJumpClicked(doc_id, space_id, space_type){
+    var space_type_name=changeSpaceType(space_type);
+    if(space_type_name==''){
+        //error
+        alart("{!$Label.msg_01054}"); //ジャンプ先のスペース情報が取得できませんでした。
+        return null;
+    }
+    top.location.href='/apex/SpacePortal#'+space_id+':'+space_type_name+':doc_id='+doc_id;
+}
+
+//======================================//
+//  スペースタイプの変換                //
+//======================================//
+function changeSpaceType(space_type){
+    var space_type_name='';
+    var mSpaceIdentifier=0;
+
+    switch (space_type){
+        case '11':  //MY_ROOT - 11:マイスペースのルートスペース
+        case '12':  //MY_CHILD - 12:マイスペースのチャイルドスペース
+        case '13':  //MY_COOP_ROOT - 13:「招待」スペース
+            space_type_name='my';
+            mSpaceIdentifier = 1;
+            break;
+        case '06':  //COLLABORATION - 06:コラボスペース
+        case '07':  //COLLABORATION_CHILD - 07:コラボスペースの子スペース
+            space_type_name='collaboration';
+            mSpaceIdentifier = 5;
+            break;
+        case '02':  //PUBLIC - 02:カンパニースペース
+        case '04':  //PUBLIC_CHILD - 04:カンパニースペースの子スペース
+            space_type_name='company';
+            mSpaceIdentifier = 2;
+            break;
+        case '08':  //ARCHIVE - 08:アーカイブルート
+        case '09':  //ARCHIVE_CHILD - 09:アーカイブスペースの子スペース
+            space_type_name='archive';
+            mSpaceIdentifier = 4;
+            break;
+        default:
+            //通常のスペース以外
+            break;
+    }
+    return space_type_name;
+}
+//======================================//
+//  action:ダウンロード                 //
+//======================================//
+function onDownloadClicked(doc_id, space_id, version){
+
+    var paramVersion = "[" + version.replace(/\./g, ",") + "]";
+
+    // iPad,iPhone対応
+    if(isIpad() || isIphone()){
+        var url = '{!$Page.DownloadPopupWindow}';
+        url = url + '?downloadType=standard';
+        url = url + '&spaceId=' + space_id;
+        url = url + '&fileId='  + doc_id;
+        url = url + '&version=' + encodeURIComponent(paramVersion);
+        url = url + '&type='    + "alive";
+        window.open(url, '');
+        return;
+    }
+
+    var callback = function(data){
+        if(data == null){
+            CsoScript_loadingStop();
+            alert('{!$Label.msg_00323}');
+            return;
+        }
+        if(eval(data.result) == true){
+            setTimeout( function(){ commonDownloadCheck(data.id, 1000, _apiUrl, '{!$Label.msg_00323}'); }, 1000);
+        }else{
+            CsoScript_loadingStop();
+            var errMsg = '{!$Label.msg_00323}';
+            if((data.message != null) && (data.message != "")){
+                errMsg = data.message;
+            }
+            alert(errMsg);
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        var errMsg = '{!$Label.msg_00323}';
+        if((data instanceof Array) == false){
+            errMsg = data;
+        }
+        alert(errMsg);
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync('/contentsmanagement/SingleContentsDownloadApi.json', {"spaceId" : space_id, "fileId" : doc_id, "ver" : paramVersion, "type" : "alive"}, callback, callerror);
+}
+function downloadExec(url){
+    top.location.href = url;
+//  window.open(url, 'contentsinfo', 'width=400, height=350, menubar=no, toolbar=no, scrollbars=yes');
+}
+
+//==================//
+//  関連削除ボタン  //
+//==================//
+function relatedDelete(){
+    var ids = $("#relatedContentsListTable").jqGrid("getGridParam","selarrrow");
+        console.info(ids);
+    var idList = [];
+
+    var emptyError='{!$Label.msg_00037}';
+    if(ids.length <= 0){
+        alert(emptyError);
+        return;
+    }
+
+    if(window.confirm('{!$Label.msg_01056}')){
+
+        for(var i=0; i<ids.length; i++){
+            idList[idList.length] = $("#relatedContentsListTable").getRowData(ids[i]).id;
+        }
+
+        fileIdList = idList.join(DATA_DELIM);
+            console.info(fileIdList);
+
+        //  削除処理
+        deleteContentsList(fileIdList);
+    } else {
+        return;
+    }
+}
+//==========================//
+//  コンテンツの関連解除    //
+//==========================//
+function deleteContentsList(deleteFileIdList){
+    var params={
+        "objid"      : "{!Sf_ID}",
+        "objname"    : "{!Sf_name}",
+        "obj_catname": "{!Sf_typeName}",
+        "docids"     : deleteFileIdList,
+    };
+
+    var callback = function(data){
+        CsoScript_loadingStop();
+
+        var err_msg='{!$Label.msg_01055}';
+        var errorNames='';
+        for(var idx in data["failed"]){
+            errorNames+= '\n ' + data["failed"][idx];
+        }
+        err_msg += errorNames;
+
+        if(data["result"] == false){
+            alert('CallBackData = ' + data["message"]);
+
+            //画面遷移
+            top.location.href = '/{!Sf_Id}';
+            return;
+        }
+
+        var succeeded_msg='{!$Label.msg_01053}';
+        var succeededNames='';
+        for(var idx in data["succeeded"]){
+            succeededNames += '\n ' + data["succeeded"][idx];
+        }
+        succeeded_msg += succeededNames;
+
+        if(errorNames.length>0){
+            succeeded_msg += '\n' + err_msg;
+        }
+
+        // 活動履歴登録
+         Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.RelatedContentsListController.insTask}',
+            '{!Sf_ID}', succeeded_msg,
+            function(data, event){
+//               cancelOnClick();
+               //画面遷移
+               top.location.href = '/{!Sf_Id}';
+            },
+            {escape: true}
+        );
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert('CallErrorData = ' + data);
+        return;
+    };
+
+    CsoScript_loadingStart();
+    secureGetAsync("/contentsmanagement/contentsRelationDelete.json", params, callback, callerror);
+}
+</script>
+
+<apex:variable var="Sf_ID"   id="Sf_ID"   value="{!Sf_ID}"/>
+<apex:variable var="Sf_name" id="Sf_name" value="{!Sf_name}"/>
+<apex:variable var="Sf_typeName" id="Sf_typeName" value="{!Sf_typeName}"/>
+<apex:variable var="pageType" id="pageType" value="{!pageType}"/>
+
+  <apex:pageBlock mode="" title="{!$Label.field_010196}">
+  <input type="button" class="btn" id="contentsSelectModal_upload" value="{!$Label.field_010199}" onclick="relatedDelete();return false;"/>
+
+  <!-- 関連付けされたコンテンツ一覧（ページ操作なし）
+    <table id="relatedContentsListTable"></table>
+
+  </apex:pageBlock>
+</apex:outputPanel>
+</apex:page>-->
+</apex:page>

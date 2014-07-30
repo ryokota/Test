@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>false</available>
+    <description>Notify Requestor and Primary point of contact when the RFA has been closed in &quot;Draft&quot;.</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>XXRFAVFT12 Close Memo in Draft</name>
+    <style>none</style>
+    <subject>申請取り下げ通知（RFA is closed）:</subject>
+    <type>visualforce</type>
+</EmailTemplate>

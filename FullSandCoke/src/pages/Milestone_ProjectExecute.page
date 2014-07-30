@@ -1,0 +1,651 @@
+<apex:page controller="Milestone_ProjectExecuteCtrl">
+<style>
+.borderTable {
+
+    border: solid 1px black;
+    border-color:#ECECEC;
+    border-collapse:collapse;
+    padding: 5px;
+}
+.borderTable th{
+    font-weight: bold;
+    height:20px;
+    white-space: normal;
+    border: 1px solid black;
+    background-color: #d60016;
+    color: #FFFFFF;
+}
+.borderTable td{
+    white-space: normal;
+    height:20px;
+}
+
+.tdBorder {
+    border: 1px solid black;
+}
+.tdLeftNotBorder {
+    border: 1px solid black;
+    border-left-style:none;
+}
+.tdRightNotBorder {
+    border: 1px solid black;
+    border-right-style:none;
+}
+
+</style>
+<script>
+var $j = jQuery.noConflict();
+function PDFViewAction(proId){
+    var pdfFlg = $j("input[id$=pdfFlg]").is(":checked");
+    window.open('../apex/Milestone_ProjectExecutePDF?projectId=' + proId + '&pdf_flag=' + pdfFlg);
+}
+
+function doChangeAttr(id){
+    $j("table[data-parent="+ id + "]").toggle();
+    var v = $j("#span_" + id+ " img");
+    if(v.attr("src") == "{!URLFOR($Resource.treeicon,'expand.png')}"){
+        v.attr("src", "{!URLFOR($Resource.treeicon,'collapse.png')}");
+    } else {
+        v.attr("src", "{!URLFOR($Resource.treeicon,'expand.png')}");
+    }
+}
+</script>
+<apex:form >
+<table>
+    <tr>
+        <td width="140px"><apex:image url="{!URLFOR($Resource.CCEJReportLogo, 'cokeone-logo.png')}" width="120" height="100"/></td>
+        <td>
+            <table>
+            <tr><td>&nbsp;</td></tr>
+            <tr><td>&nbsp;</td></tr>
+            <tr><td style="font-size:xx-large;font-weight: bold;" colspan="3">{!$Label.RM_Project_Update}</td></tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<apex:pageMessages id="error"/>
+<apex:pageblock mode="edit" >
+    <apex:pageblockbuttons >
+        <apex:commandbutton value="{!$Label.RM_Back}" action="{!Back}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <apex:commandbutton value="{!$Label.RM_Save}" action="{!Save}"/>
+        <apex:commandbutton value="{!$Label.RM_Save_PDF}" action="{!PDFHistory}"/>
+        <input type="button" class="btn" value="{!$Label.RM_PDF_View}" onclick="PDFViewAction('{!projectId}')"/>
+    </apex:pageblockbuttons>
+    <apex:outputpanel >
+        <!-- Project Info Zone -->
+        <apex:pageblocksection title="{!$Label.RM_Project_Info}" showheader="true" columns="2">
+            <apex:inputfield value="{!projectObj.Project_No__c}" required="false"/>
+            <apex:inputText value="{!projectObj.RM_Approval_Status__c}" disabled="true" required="false"/>
+        </apex:pageblocksection>
+        <apex:pageblocksection columns="1">
+            <apex:inputField value="{!projectObj.Name}" style="width:700px" required="true"/>
+        </apex:pageblocksection>
+        <apex:pageblocksection columns="2">
+            <apex:inputfield value="{!projectObj.Kickoff__c}" required="false"/>
+            <apex:inputfield value="{!projectObj.Deadline__c}" required="false"/>
+            <apex:inputfield value="{!projectObj.Function__c}" required="false"/>
+            <apex:inputfield value="{!projectObj.Project_Sponsor__c}" required="false"/>
+            <apex:inputfield value="{!projectObj.Project_Leader__c}" required="false"/>
+        </apex:pageblocksection>        
+        <!-- Project Status Zone -->
+        <apex:pageblocksection title="{!$Label.RM_Project_Status}" showheader="true" columns="1">
+            <apex:inputfield value="{!projectObj.Status__c}" required="false"/>
+            <apex:outputfield value="{!projectObj.Project_Status_View__c}"/>
+            <apex:inputfield value="{!projectObj.Project_Status__c}" required="false"/>
+            
+        </apex:pageblocksection>
+        <apex:pageblocksection columns="1">
+            <apex:inputTextarea rows="10" cols="120" value="{!projectObj.RM_Key_Events_From_This_Week__c}" />
+            <apex:inputTextarea rows="10" cols="120" value="{!projectObj.RM_Key_Events_For_Next_Week__c}" />
+            <apex:inputTextarea rows="10" cols="120" value="{!projectObj.RM_Issues_For_Escalation_Recovery_plan__c}" />
+        
+        </apex:pageblocksection>
+        
+        <!-- L2Function　L3Function Zone -->
+        <apex:pageBlockSection title="{!$Label.RM_Support_Function_L2_Sub_Function_L3}" columns="2" collapsible="false">
+            <apex:inputField value="{!projectObj.RM_Commercial_Check__c}" />
+            <apex:inputField value="{!projectObj.RM_Commercial_Select__c}" />
+            <apex:inputField value="{!projectObj.RM_SCM_Check__c}" />
+            <apex:inputField value="{!projectObj.RM_SCM_Select__c}" />
+            <apex:inputField value="{!projectObj.RM_Procurement_Check__c}" />
+            <apex:inputField value="{!projectObj.RM_Procurement_Select__c}" />
+            <apex:inputField value="{!projectObj.RM_HR_Check__c}" />
+            <apex:inputField value="{!projectObj.RM_HR_Select__c}" />
+            <apex:inputField value="{!projectObj.RM_Finance_Check__c}" />
+            <apex:inputField value="{!projectObj.RM_Finance_Select__c}" />
+            <apex:inputField value="{!projectObj.RM_IS_Check__c}" />
+            <apex:inputField value="{!projectObj.RM_IS_Select__c}" />
+            <apex:inputField value="{!projectObj.RM_Legal_Check__c}" />
+            <apex:inputField value="{!projectObj.RM_Legal_Select__c}" />
+            <apex:inputField value="{!projectObj.RM_PAC_Check__c}" />
+            <apex:inputField value="{!projectObj.RM_PAC_Select__c}" />
+            <apex:inputField value="{!projectObj.RM_BI_Check__c}" />
+            <apex:inputField value="{!projectObj.RM_BI_Select__c}" />
+        </apex:pageBlockSection>
+        
+        <!-- Milestone Status Zone -->
+        <apex:pageblocksection title="{!$Label.RM_Section_Milestone_Status}" showheader="true" columns="1">
+        <apex:includeScript value="{!URLFOR($Resource.Milestone1_Charts, 'date.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.jQueryGanttProjectExecute, 'moment.min.js')}"/>
+
+
+        <apex:includeScript value="{!URLFOR($Resource.jQueryGanttProjectExecute, 'jquery.min.js')}"   />
+
+    
+        <apex:includeScript value="{!URLFOR($Resource.jQueryGanttProjectExecute, 'jquery.fn.gantt.js')}"/>
+        <apex:stylesheet value="{!URLFOR($Resource.jQueryGanttProjectExecute, 'style.css')}"/>
+    
+        <script src="/soap/ajax/30.0/connection.js" type="text/javascript"></script>
+        
+    <div class="gantt" id="ganttChart"></div>
+    
+    <script type="text/javascript">
+
+    var g = jQuery.noConflict();
+    
+    g(function() {
+    
+            "use strict";
+            var __sfdcSessionId = '{!GETSESSIONID()}';
+            
+
+            
+            function parseDate(input) {
+                var parts = input.split('-');
+                return new Date(parts[0], parts[1]-1, parts[2]); // Note: months are 0-based
+            }
+            
+            function formatDate(input) {
+                var parts = input.split('-');
+                return parts[0] + "/" + parts[1] + "/" + parts[2]; // Note: months are 0-based                
+            }
+            
+            function dateToMillis(input) {
+                var d = parseDate(input);
+                return d.getTime();
+            }
+            
+            function toSFDate(input) {
+                var parts = input.split('/');
+                return parts[0] + "-" + parts[1] + "-" + parts[2];
+            }
+            
+            var now = moment(new Date());
+            g("#updateDate").val(now.format("YYYY/MM/DD"));
+            
+            function updateStatusImage(val) {
+                g("#milestoneStatusSelect option:selected").each(function() {
+
+                    if (val == "Green") {
+                        g("#statusImage").show();
+                        g("#statusImage").attr("src", "/img/samples/light_green.gif");
+                    } else if (val == "Yellow") {
+                        g("#statusImage").show();
+                        g("#statusImage").attr("src", "/img/samples/light_yellow.gif");
+                    } else if (val == "Red") {
+                        g("#statusImage").show();
+                        g("#statusImage").attr("src", "/img/samples/light_red.gif");
+                    } else {
+                        g("#statusImage").hide();
+                    }
+                });            
+            }
+            
+            function layoutResults(queryResult, source) {
+                console.log("Layout results");              
+                if (queryResult.size > 0) {
+                var output = "";
+
+                //get the records array
+                var records = queryResult.getArray('records');
+
+                    for (var i = 0; i < records.length; i++) {
+                        var ms = records[i];
+                        g("#milestoneName").val(ms.Name);
+                        g("#progressRatio").val(ms.Progress__c);
+                        g("#milestoneNo").val(ms.RM_Milestone_No__c);
+                     
+                        if (ms.Kickoff__c) {
+                            g("#startDate").val(formatDate(ms.Kickoff__c));
+                        } else {
+                            g("#startDate").val("");
+                        }
+
+                        if (ms.RM_Actual_Date__c) {
+                            g("#actualDate").val(formatDate(ms.RM_Actual_Date__c));
+                        } else {
+                            g("#actualDate").val("");
+                        }
+                        
+                        if (ms.Deadline__c) {
+                            g("#endDate").val(formatDate(ms.Deadline__c));
+                        } else {
+                            g("#endDate").val("");
+                        }
+
+                        if (ms.RM_Adjustment_Date__c) {
+                            g("#adjustmentDate").val(formatDate(ms.RM_Adjustment_Date__c));
+                        } else {
+                            g("#adjustmentDate").val("");
+                        }
+
+                            
+                        g("#completed").prop("checked", false);
+                        g("#milestoneStatusSelect option").eq(0).prop("selected", true);
+                        
+                        if (ms.Complete__c != null)
+                            g("#completed").prop('checked', (ms.Complete__c == "true"));
+
+                        var selectQuery = "#statusSelect option:contains(" + ms.Status__c + ")";
+                        if (ms.Status__c) {
+                            g(selectQuery).prop('selected', true);
+                        } else {
+                            g("#statusSelect option").eq(0).prop('selected', true);
+                        }
+                            
+                        var selectMilestoneQuery = "#milestoneStatusSelect option:contains(" + ms.Milestone_Status__c + ")";
+                        if (ms.Milestone_Status__c) {
+                            g(selectMilestoneQuery).prop('selected', true);
+                        } else {
+                            g("#milestoneStatusSelect option").eq(0).prop('selected', true);
+                        }
+                        
+                        updateStatusImage(ms.Milestone_Status__c);
+                    }
+                    g("#milestoneId").val(ms.Id);
+                    g("#milestoneForm").show();
+                }
+            }
+            
+            function pushMilestone(milestone) {
+                var func = (milestone.RM_Function__c) ? milestone.RM_Function__c : "";
+
+                        console.log(milestone);
+
+                        var statusColor;
+                        if (milestone.Milestone_Status__c == "Red") {
+                            statusColor = "#FF0000";
+                        } else if (milestone.Milestone_Status__c == "Yellow") {
+                            statusColor = "yellow";
+                        } else if (milestone.Milestone_Status__c == "Green") {
+                            statusColor = "#00C800";
+                        }
+                
+                        return {
+                            "level": (milestone.Parent_Milestone__c == null) ? "1" : "2",
+                            "id": milestone.Id,
+                            "isMS": true,
+                            "desc": milestone.Name + " [" + func + "] ",
+                            "values": [{ "completed": false,
+                                "parent": milestone.Parent_Milestone__c,
+                                "from": milestone.Kickoff__c ? "/Date(" + dateToMillis(milestone.Kickoff__c) + ")/" : new Date().getTime(),
+                                "to": milestone.Deadline__c ? "/Date(" + dateToMillis(milestone.Deadline__c) + ")/" : new Date().getTime(),
+                                "dataObj": {
+                                    "id": milestone.Id,
+                                    "progress": milestone.Progress__c ? milestone.Progress__c : 0,
+                                    "expectedProgress": 0,
+                                },
+                                "status" : statusColor,
+                            "customClass": "ganttDarkGray",
+                            "label": milestone.Name
+                            }]
+                        };
+            }
+            
+            function drawGanttChart(queryResult, source) {
+
+            var json = [];
+            
+            if (queryResult.size == 0)
+                return;
+                
+            var output = "";
+
+            var records = queryResult.getArray('records');
+                
+                for (var i = 0; i < records.length; i++) {
+                        var milestone = records[i];
+                        if (milestone.Parent_Milestone__c == null) {
+                            json.push(pushMilestone(milestone));
+                            for (var k = 0; k < records.length; k++) {
+                                if (records[k].Parent_Milestone__c == milestone.Id)
+                                {
+                                    json.push(pushMilestone(records[k]));
+                                }
+                            }
+                        }
+                }
+            
+                        
+            g("#ganttChart").gantt({
+                ganttId : "targetId",
+                source: json,
+                navigate: "scroll",
+                maxScale: "months",
+                scale: "weeks",
+                itemsPerPage: 20,
+                onItemClick: function(data) {
+                    console.log("Display form");
+                    console.log(data);
+                
+                   if(data && data.id) {
+                       getMilestone(data.id);
+                   }
+                },
+                onRender: function() {
+                    if (window.console && typeof console.log === "function") {
+                        console.log("draw milestones chart rendered");
+                    }
+                }
+            });            
+            }
+            
+            function queryFailed(err) {
+                console.log("Query failed: ");
+                console.log(err);
+            }
+
+            function getMilestone(milestoneId) {
+                var query = "SELECT Id, Name, Progress__c, RM_Milestone_No__c, RM_Actual_Date__c, RM_Adjustment_Date__c, Kickoff__c, Deadline__c, Milestone_Status__c, Status__c, RM_Function__c, Complete__c FROM Milestone1_Milestone__c WHERE Id = '" + milestoneId + "' ORDER BY Name";
+
+                var callback = {
+                  onSuccess: layoutResults,
+                  onFailure: queryFailed
+                };
+                
+                sforce.connection.sessionId = __sfdcSessionId;
+                sforce.connection.query(query,callback);
+            }
+            
+            function drawMilestones() {
+
+                var projectId = "'{!projectId}'";
+            
+                var query = "SELECT Id, Name, Parent_Milestone__c, Progress__c, RM_Milestone_No__c, RM_Actual_Date__c, RM_Adjustment_Date__c, Kickoff__c, Deadline__c, Milestone_Status__c, Status__c, RM_Function__c, Complete__c FROM Milestone1_Milestone__c WHERE Project__c = " + projectId + " ORDER BY Parent_Milestone__c, Name";
+                
+                var callback = {
+                  onSuccess: drawGanttChart,
+                  onFailure: queryFailed
+                };
+                
+                sforce.connection.sessionId = __sfdcSessionId;
+                sforce.connection.query(query,callback);
+            }
+
+        drawMilestones();
+        g("#milestoneSave").click(function () {
+
+                var milestoneId = g("#milestoneId").val();
+                
+                var result = sforce.connection.retrieve("Name, Progress__c, RM_Actual_Date__c, RM_Adjustment_Date__c, Kickoff__c, Deadline__c, Milestone_Status__c, Status__c, RM_Function__c, Complete__c", "Milestone1_Milestone__c", [milestoneId]);
+                if (result[0] == null) throw "retrive failed";
+                console.log("milestone retrieved: " + result[0]);
+
+                console.log(g("#actualDate").val());
+                console.log((g("#actualDate").val() || ""));
+
+                if (g("#actualDate").val() != "") {
+                    result[0].RM_Actual_Date__c = toSFDate(g("#actualDate").val());
+                } else {
+                    result[0].RM_Actual_Date__c = null;
+                }
+                
+                if (g("#adjustmentDate").val() != "") {
+                    result[0].RM_Adjustment_Date__c = toSFDate(g("#adjustmentDate").val());
+                } else {
+                    result[0].RM_Adjustment_Date__c = null;
+                }
+                
+                if (g("#startDate").val() != "") {
+                    result[0].Kickoff__c = toSFDate(g("#startDate").val());
+                } else {
+                    result[0].Kickoff__c = null;
+                }
+                
+                if (g("#endDate").val() != "") {
+                    result[0].Deadline__c = toSFDate(g("#endDate").val());
+                } else {
+                    result[0].Deadline__c = null;
+                }
+
+                result[0].Complete__c = g("#completed").prop('checked');
+                result[0].Milestone_Status__c = g("#milestoneStatusSelect").val();
+                result[0].Status__c = g("#statusSelect").val();
+                result[0].Name = g("#milestoneName").val();
+                result[0].Progress__c = g("#progressRatio").val();
+                result = sforce.connection.update(result);
+                
+                if (result[0].success != "true") {
+                    console.log(result);
+                } else {
+                    // Hide form and redraw milestones
+                    g("#milestoneForm").hide();
+                    drawMilestones();
+                }
+            
+                console.log("Saved milestone " + milestoneId);
+
+                return false;               
+        });
+
+    });
+    
+    </script>
+        
+        <div id="milestoneForm" style="display: none; margin-top: 20px;">
+            <form>
+            <h1>{!$Label.RM_Edit_Milestone}</h1>
+            <table>
+                <tr>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Milestone_No}</label></th><td class="dataCol  first  last "><input id="milestoneNo" maxlength="80" name="" size="40" type="text" disabled="yes"/></td>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Update_Date}</label></th><td class="dataCol  first  last " colspan="3"><input id="updateDate" maxlength="80" name="" size="20" type="text" disabled="yes"/></td>
+                </tr>
+                <tr>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Milestone_Name}</label></th><td class="dataCol  first  last " colspan="5"><input id="milestoneName" maxlength="60" name="" size="60" type="text"/></td>
+                </tr>
+                <tr>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Start_Date}</label></th><td class="dataCol  first  last "><input id="startDate" class="dateInput dateOnlyInput" maxlength="80" name="" size="20" type="text" onfocus="DatePicker.pickDate(false, this , false);" /></td>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_End_Date}</label></th><td class="dataCol  first  last " colspan="3"><input id="endDate" class="dateInput dateOnlyInput" maxlength="80" name="" size="20" type="text" onfocus="DatePicker.pickDate(false, this , false);" /></td>
+                </tr>
+                <tr>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Adjustment_br_Date}</label></th><td class="dataCol  first  last "><input id="adjustmentDate" maxlength="80" name="" size="20" type="text" onfocus="DatePicker.pickDate(false, this , false);"/></td>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Actual_br_Date}</label></th><td class="dataCol  first  last "><input id="actualDate" maxlength="80" name="" size="20" type="text" onfocus="DatePicker.pickDate(false, this , false);"/></td>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Completed}</label></th><td class="dataCol  first  last "><input id="completed" maxlength="80" name="" size="20" type="checkbox"/></td>
+                </tr>
+                <tr>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Status}</label></th><td class="dataCol  first  last ">
+                        <select id="statusSelect">
+                            <option value="">{!$Label.RM_None_PickList}</option>
+                            <option value="Inactive">{!$Label.RM_Inactive}</option>
+                            <option value="Planning">{!$Label.RM_Planning}</option>
+                            <option value="Active">{!$Label.RM_Active}</option>
+                            <option value="On Hold">{!$Label.RM_On_Hold}</option>
+                            <option value="Completed">{!$Label.RM_Completed}</option>
+                            <option value="TBD">{!$Label.RM_TBD}</option>
+                            <option value="Cancel">{!$Label.RM_Cancel}</option>
+                        </select>
+                    </td>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Progress_Ratio}</label></th><td class="dataCol  first  last "><input id="progressRatio" maxlength="10" name="" size="10" type="text"/>%</td>
+                </tr>
+                <tr>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Milestone_Status}</label></th><td class="dataCol  first  last ">
+                        <select id="milestoneStatusSelect">
+                            <option value="Gray">{!$Label.RM_None_PickList}</option>
+                            <option value="Green">{!$Label.RM_Green}</option>
+                            <option value="Yellow">{!$Label.RM_Yellow}</option>
+                            <option value="Red">{!$Label.RM_Red}</option>
+                        </select>
+                    </td>
+                    <th class="labelCol vfLabelColTextWrap  first  last " scope="row"><label for="">{!$Label.RM_Milestone_Status}</label></th>
+                    <td class="dataCol  first  last ">
+                        <img id="statusImage" src="/img/samples/light_green.gif"/>
+                    </td>
+                </tr>
+            </table>
+            
+            <input type="hidden" id="milestoneId" value="" />
+            <a id="milestoneSave" class="btn">{!$Label.RM_Save_Milestone}</a>
+            </form>
+        </div>
+        
+        </apex:pageblocksection>
+        <!-- 予算管理 Zone -->
+        <div class="pbSubheader brandTertiaryBgr first tertiaryPalette">
+            <span class="pbSubExtra">
+                <span class="requiredLegend">
+                    <span class="requiredText" id="aeaoofnhgocdbnbeljkmbjdmhbcokfdb-mousedown"> <b>Not PDF Print</b> 
+                    <apex:inputCheckbox value="{!pdf_flag}" id="pdfFlg"/></span></span></span>
+                <h3>{!$Label.RM_Budget_Management}</h3>
+        </div>
+            <h1><span id="span_procurement"><apex:image url="{!URLFOR($Resource.treeicon,'expand.png')}" onclick="doChangeAttr('procurement')" onmouseover="this.style.cursor='pointer'"/>Only Procurement Synergy</span></h1>
+            <table class="borderTable" data-parent="procurement" style="display: none;">
+                <tr>
+                    <th rowspan="2" style="text-align:center" width="40px">{!$Label.RM_Month}</th>
+                    <th colspan="5" style="text-align:center" width="450px">{!$Label.RM_Opex}</th>
+                    <th colspan="5" style="text-align:center" width="450px">{!$Label.RM_Capex}</th>
+                </tr>
+                <tr>
+                    <th width="90px" style="text-align:center">{!$Label.RM_ABP}</th>
+                    <th width="90px" style="text-align:center">{!$Label.RM_RE}</th>
+                    <th width="90px" style="text-align:center">{!$Label.RM_RE_Upper}</th>
+                    <th width="90px" style="text-align:center">{!$Label.RM_RE_lower}</th>
+                    <th width="90px" style="text-align:center">{!$Label.RM_Actual}</th>
+                    <th width="90px" style="text-align:center">{!$Label.RM_ABP}</th>
+                    <th width="90px" style="text-align:center">{!$Label.RM_RE}</th>
+                    <th width="90px" style="text-align:center">{!$Label.RM_RE_Upper}</th>
+                    <th width="90px" style="text-align:center">{!$Label.RM_RE_lower}</th>
+                    <th width="90px" style="text-align:center">{!$Label.RM_Actual}</th>
+                </tr>
+                <apex:repeat value="{!procurementObjs}" var="procurement">
+                <tr>
+                    <td align="center"><apex:outputText value="{!RIGHT(procurement.Name, 2)}"/></td>
+                    <td><apex:inputField value="{!procurement.POV_Plan_ABP_Opex__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!procurement.POV_RE_Opex__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!procurement.RM_RE_upper_Pr_Opex__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!procurement.RM_RE_lower_Pr_Opex__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!procurement.POV_Actual_Opex__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!procurement.POV_Plan_ABP_Capex__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!procurement.POV_RE_Capex__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!procurement.RM_RE_upper_Pr_Capex__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!procurement.RM_RE_lower_Pr_Capex__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!procurement.POV_Actual_Capex__c}" style="text-align:right;width:90px"/></td>
+                </tr>
+                </apex:repeat>
+                <tr>
+                    <td align="center">{!$Label.RM_Total}</td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_POV_Plan_ABP_Opex}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_POV_RE_Opex}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_RE_upper_Pr_Opex}" />
+                        </apex:outputText>
+                    </td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_RE_lower_Pr_Opex}" />
+                        </apex:outputText>
+                    </td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_POV_Actual_Opex}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_POV_Plan_ABP_Capex}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_POV_RE_Capex}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_RE_upper_Pr_Capex}" />
+                        </apex:outputText>
+                    </td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_RE_lower_Pr_Capex}" />
+                        </apex:outputText>
+                    </td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_POV_Actual_Capex}" />
+                        </apex:outputText></td>
+                </tr>
+            </table>
+            <br/>
+            <h1><span id="span_synergy"><apex:image url="{!URLFOR($Resource.treeicon,'expand.png')}" onclick="doChangeAttr('synergy')" onmouseover="this.style.cursor='pointer'"/>Synergy Management</span></h1>
+            <table class="borderTable" data-parent="synergy" style="display: none;">
+                <tr>
+                    <th style="text-align:center" width="40px">{!$Label.RM_Month}</th>
+                    <th style="text-align:center" width="90px" >{!$Label.RM_NEW_Day1_Plan}</th>
+                    <th style="text-align:center" width="90px" >{!$Label.RM_New_Plan}</th>
+                    <th style="text-align:center" width="90px" >{!$Label.RM_ABP}</th>
+                    <th style="text-align:center" width="90px" >{!$Label.RM_RE}</th>
+                    <th style="text-align:center" width="90px" >{!$Label.RM_Actual}</th>
+                </tr>
+                <apex:repeat value="{!synergyObjs}" var="synergy">
+                <tr>
+                    <td align="center"><apex:outputText value="{!RIGHT(synergy.Name, 2)}"/></td>
+                    <td><apex:inputField value="{!synergy.Day1_Plan__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!synergy.New_Plan__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!synergy.ABP__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!synergy.RE__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!synergy.Actual__c}" style="text-align:right;width:90px"/></td>
+                </tr>
+                </apex:repeat>
+                <tr>
+                    <td align="center">{!$Label.RM_Total}</td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_Day1_Plan}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_New_Plan}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_ABP}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_RE}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_Actual}" />
+                        </apex:outputText></td>
+                </tr>
+            </table>
+            <br/>
+            <h1><span id="span_budget"><apex:image url="{!URLFOR($Resource.treeicon,'expand.png')}" onclick="doChangeAttr('budget')" onmouseover="this.style.cursor='pointer'"/>Investment/Budget</span></h1>
+            <table class="borderTable" data-parent="budget" style="display: none;">
+                <tr>
+                    <th style="text-align:center" width="40px">Month</th>
+                    <th style="text-align:center" width="90px" >Capex</th>
+                    <th style="text-align:center" width="90px" >Depreciation</th>
+                    <th style="text-align:center" width="90px" >Other OPEX</th>
+                </tr>
+                <apex:repeat value="{!budgetObjs}" var="budget">
+                <tr>
+                    <td align="center"><apex:outputText value="{!RIGHT(budget.Name, 2)}"/></td>
+                    <td><apex:inputField value="{!budget.Capex__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!budget.Depreciation__c}" style="text-align:right;width:90px"/></td>
+                    <td><apex:inputField value="{!budget.Other_OPEX__c}" style="text-align:right;width:90px"/></td>
+                </tr>
+                </apex:repeat>
+                <tr>
+                    <td align="center">{!$Label.RM_Total}</td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_Capex}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_Depreciation}" />
+                        </apex:outputText></td>
+                    <td align="right"><apex:outputText value="{0, number, ###,###}" >
+                          <apex:param value="{!Total_Other_OPEX}" />
+                        </apex:outputText></td>
+                </tr>
+            </table>
+        <!-- Discussion Zone --> 
+        <apex:pageblocksection title="{!$Label.RM_Project_discussion}" showheader="true" columns="1">
+            <apex:inputTextarea rows="3" cols="120" value="{!projectObj.RM_Sponsor_discussion__c}" />
+            <apex:inputTextarea rows="3" cols="120" value="{!projectObj.RM_Leader_discussion__c}" />
+            <apex:inputTextarea rows="3" cols="120" value="{!projectObj.RM_Team_Member_discussion__c}" />
+        </apex:pageblocksection>
+    </apex:outputpanel>
+</apex:pageblock>
+</apex:form>
+</apex:page>

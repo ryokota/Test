@@ -1,0 +1,785 @@
+<apex:page >
+<script type="text/javascript">
+var _userLang = "";
+var targetTbl = "";
+
+var _TYPE_STANDARD_FIELD	= "STANDARD_FIELD";
+var _TYPE_TEXT				= "TEXT";
+var _TYPE_TEXTAREA			= "TEXTAREA";
+var _TYPE_LONG_TEXTAREA		= "LONG_TEXTAREA";
+var _TYPE_NUMBER			= "NUMBER";
+var _TYPE_CHECKBOX			= "CHECKBOX";
+var _TYPE_DROPDOWNLIST		= "DROPDOWNLIST";
+var _TYPE_LISTBOX			= "LISTBOX";
+var _TYPE_DATE				= "DATE";
+var _TYPE_DATETIME			= "DATETIME";
+var _TYPE_NUMBERING			= "NUMBERING";
+var _TYPE_URL				= "URL";
+
+//0 : 標準項目
+//1 : テキスト
+//2 : テキストエリア
+//3 : ロングテキストエリア
+//4 : 数値
+//5 : チェックボックス
+//6 : 選択リスト
+//7 : 選択リスト（複数）
+//8 : 日付
+//9 : 日付 時間
+//10: 自動採番
+//11: URL
+var disp = {
+	"itemInitialValue"				: [0,1,1,0,1,0,0,0,0,0,0,1], // 初期値
+	"itemRequired"					: [0,1,1,1,1,0,0,1,1,1,0,1], // 必須
+	"itemUnique"					: [0,1,0,0,1,0,0,0,0,0,0,1], // 重複不可
+	"itemLengthMax"					: [0,1,1,1,0,0,0,0,0,0,0,0], // 最大文字数
+	"itemNumMin"					: [0,0,0,0,1,0,0,0,0,0,0,0], // 最大値
+	"itemNumMax"					: [0,0,0,0,1,0,0,0,0,0,0,0], // 最小値
+	"itemNumberingRule"				: [0,0,0,0,0,0,0,0,0,0,1,0], // 表示形式
+	"itemNumberingStartCount"		: [0,0,0,0,0,0,0,0,0,0,1,0], // 開始番号
+	"itemNumberingApplyExisting"	: [0,0,0,0,0,0,0,0,0,0,1,0], // 既存オブジェクトを採番
+	"itemOptionList"				: [0,0,0,0,0,0,1,1,0,0,0,0], // リスト項目
+	"itemHelpText"					: [0,1,1,1,1,1,1,1,1,1,0,1], // ヘルプテキスト
+	"itemComment"					: [0,1,1,1,1,1,1,1,1,1,1,1], // 備考
+};
+
+var labelNameMap = {
+	"contents.name"					: '{!$Label.label_10011}',
+	"contents.explanation"			: '{!$Label.label_10012}',
+	"contents.tag"					: '{!$Label.label_10763}',
+	"contents.version"				: '{!$Label.label_11032}',
+	"space.name"					: '{!$Label.label_11061}',
+	"space.explanation"				: '{!$Label.label_10012}',
+	"space.chatter"					: '{!$Label.label_13224}',
+};
+
+var langMap = {
+	"ja"	: "Ja",
+	"en"	: "En",
+	"zh"	: "Zh",
+};
+
+var LongObj = function(value){
+	this.a = 0;
+	this.b = 0;
+	this.value = value;
+	var mark;
+	if (value.substring(0, 1) == "-") {
+		mark = -1;
+		value = value.substring(1, value.length);
+	} else {
+		mark = 1;
+	}
+	if (value.length > 9) {
+		this.a = parseInt(value.substring(0, value.length -9), 10) * mark;
+		this.b = parseInt(value.substring(value.length -9, value.length), 10) * mark;
+	} else {
+		this.b = parseInt(value, 10) * mark;
+	}
+	this.getA = function(){return this.a}
+	this.getB = function(){return this.b}
+	this.getValue = function(){return this.value}
+	this.compareTo = function(o){
+		if(this.a > o.getA()){return 1}
+		if(this.a < o.getA()){return -1}
+		if(this.b > o.getB()){return 1}
+		if(this.b < o.getB()){return -1}
+		return 0;
+	}
+};
+
+/** 登録・編集の初期処理 */
+function CF_initial() {
+	$("#name-info").hover(
+		function(){ showTips(this, "{!$Label.custom_field_message_00022}"); },
+		function(){ hideTips();	}
+	);
+	$("#helpText-info").hover(
+		function(){ showTips(this, "{!$Label.custom_field_message_00023}"); },
+		function(){ hideTips(); }
+	);
+	$("#numberingRule-info").hover(
+		function(){ showTips(this, "{!$Label.custom_field_message_00024}"
+				+ "<br />" + "{!$Label.custom_field_message_00025}"
+				+ "<br />" + "{!$Label.custom_field_message_00026}"
+				+ "<br />" + "{!$Label.custom_field_message_00027}"
+				+ "<br />" + "{!$Label.custom_field_message_00028}"
+				+ "<br /><br />" + "{!$Label.custom_field_message_00029}"
+				+ "<br /><br />" + "{!$Label.custom_field_message_00030}");
+			    $("#tooltip").width(350);
+			    $("#tooltip").height(200); },
+		function(){ hideTips();
+			    $("#tooltip").width(250);
+			    $("#tooltip").height(40); }
+	);
+	$("#optionList-info").hover(
+		function(){ showTips(this, "{!$Label.custom_field_message_00031}"); },
+		function(){ hideTips();	}
+	);
+	$("#initialValue-info").hover(
+		function(){ showTips(this,"{!$Label.custom_field_message_00032}"); },
+		function(){ hideTips(); }
+	);
+	
+	$("#referenceableAll").click(function(){
+		linkedCheckbox("referenceable", $(this).attr("checked"));
+		if (!$(this).attr("checked")) {
+			$("#modifiableAll").attr("checked", false);
+			linkedCheckbox("modifiable", false);
+		}
+	});
+	$("#modifiableAll").click(function(){
+		linkedCheckbox("modifiable", $(this).attr("checked"));
+		if($(this).attr("checked")){
+			$("#referenceableAll").attr("checked", "checked");
+			linkedCheckbox("referenceable", true);
+		}
+	});
+
+	$("#label").change(function (){
+		if("" == $("#label").val()){
+			$("#label" + langMap[_userLang]).val(""); 
+			selectMasterLang();
+		} else {
+			$("#label" + langMap[_userLang]).val($("#label").val()); 
+		}
+	});
+
+	$("input[name=masterLang]:radio").change(function() {
+		selectMasterLang();
+		resetHonyakuRequired();
+	});
+
+	$("#labelJa").blur(selectMasterLang);
+	$("#labelEn").blur(selectMasterLang);
+	$("#labelZh").blur(selectMasterLang);
+
+	$("input[name=referenceable]").click(function(){
+		if (!$(this).attr("checked")) {
+			$("input[name=modifiable][value=" + $(this).val() + "]").attr("checked", "");
+		}
+	});
+	$("input[name=modifiable]").click(function(){
+		if ($(this).attr("checked")) {
+			$("input[name=referenceable][value=" + $(this).val() + "]").attr("checked", "checked");
+		}
+	});
+
+	resizeGrid();
+	$(window).resize(resizeGrid);
+}
+
+function positionRearrange(cfList) {
+	var beforeId = { "0" : null, "1" : null };
+	for (var i = 0; i < cfList.length; i++) {
+		var col = cfList[i].positionColumn;
+		if (beforeId[col] == null
+				&& $("#customTbl" + col).find("tr:first").attr("id") != cfList[i].id) {
+			$("#customTbl" + col).find("tr:first").before($("#" + cfList[i].id));
+		} else {
+			$("#" + beforeId[col]).after($("#" + cfList[i].id));
+		}
+		beforeId[col] = cfList[i].id;
+	}
+}
+
+function setTarget(){
+	$("#" + targetId + " th").removeClass("target");
+	$("#" + targetId + " td").removeClass("target");
+	targetId = this.id;
+	$("#" + targetId + " th").addClass("target");
+	$("#" + targetId + " td").addClass("target");
+	targetTbl = $("#" + targetId).closest("table").attr("id");
+}
+
+function showHonyaku(){
+	if($("#selectLang").dialog("isOpen")) {
+		$("#selectLang").dialog("close");
+	} else {
+		$("#selectLang").dialog("open");
+	}
+}
+
+function selectMasterLang() {
+	if($("#label" + langMap[_userLang]).val() == ""){
+		var masterLang = $("input[name=masterLang]:checked").val();
+		$("#label").val($("#label" + langMap[masterLang]).val()); 
+	} else {
+		$("#label").val($("#label" + langMap[_userLang]).val());
+	}
+}
+
+function resetHonyakuRequired() {
+	$("#labelJa").removeClass("error");
+	$("#labelEn").removeClass("error");
+	$("#labelZh").removeClass("error");
+	$("#labelJaTd").removeClass("c_require");
+	$("#labelEnTd").removeClass("c_require");
+	$("#labelZhTd").removeClass("c_require");
+	var masterLang = $("input[name=masterLang]:checked").val();
+	$("#label" + langMap[masterLang] + "Td").addClass("c_require");
+}
+
+/** 上に移動 */
+function up(){
+	var customTbl = $("#" + targetTbl + " tr");
+	var index = customTbl.index($("#" + targetId));
+	if (index == 0) {
+		return;
+	}
+
+	var target = customTbl.get(index - 1);
+	$(target).before($("#" + targetId));
+}
+
+/** 下に移動 */
+function down(){
+	var customTbl = $("#" + targetTbl + " tr");
+	var index = customTbl.index($("#" + targetId));
+	if (index == customTbl.size() - 1) {
+		return;
+	}
+
+	var target = customTbl.get(index + 1);
+	$(target).after($("#" + targetId));
+}
+
+function getLabelName(){
+	var name = $("#label" + langMap[_userLang]).val();
+	if ("" == defaultString(name)) {
+		var lang = $("input[name=masterLang]:checked").val();
+		name = $("#label" + langMap[lang]).val();
+	}
+	return defaultString(name);
+}
+
+function setFieldLabel(){
+	var labelName = getLabelName();
+	$("#targetChildTh").text(convSpace(labelName));
+	if ("" != labelName) {
+		labelName = '{!$Label.custom_field_label_00008}' + labelName;
+	}
+	$("#targetChildTd").text(labelName);
+}
+
+function itemDisplay(type) {
+	index = changeTypeToIndex(type);
+	for (var key in disp) {
+		if (disp[key][index] == 1) {
+			$("#" + key).show();
+		} else {
+			$("#" + key).hide();
+		}
+	}
+}
+
+function defaultString(value){
+	if (this.undefined == value) {
+		return "";
+	}
+	return value;
+}
+
+function createInitialValue(){
+	var type = getType();
+	if (type == _TYPE_TEXT || type == _TYPE_TEXTAREA || type == _TYPE_NUMBER || type == _TYPE_URL) {
+		var elm;
+		if (type == _TYPE_TEXT || type == _TYPE_URL) {
+			elm = $("<input>").attr({
+				"type"		: "text",
+				"maxLength"	: "255",
+				"class"		: "longWidth",
+			});
+		} else if (type == _TYPE_TEXTAREA) {
+			elm = $("<textarea>").css({
+				"width"		: "500px",
+				"height"	: "80px",
+			});
+		} else if (type == _TYPE_NUMBER) {
+			elm = $("<input>").attr({
+				"type"		: "text",
+				"maxLength"	: "19",
+				"class"		: "longWidth",
+			});
+		}
+		if (type == _TYPE_URL) {
+			$("#initialValue-info").css("display", "inline");
+		} else {
+			$("#initialValue-info").css("display", "none");
+		}
+		elm.attr({
+			"id"		: "initialValue",
+			"name"		: "initialValue",
+		});
+		$("#initialValue").replaceWith(elm);
+	}
+}
+
+function linkedCheckbox(name, checked){
+	var targetName = "input[name=" + name + "]";
+	if(checked){
+		$(targetName).attr("disabled", "disabled");
+	} else {
+		$(targetName).removeAttr("disabled");
+	}
+}
+
+function createQuery() {
+	var referenceableIds = new Array();
+	$("input[name=referenceable]:checked").each(function(){
+		referenceableIds.push($(this).val());
+	});
+
+	var modifiableIds = new Array();
+	$("input[name=modifiable]:checked").each(function(){
+		modifiableIds.push($(this).val());
+	});
+
+	var options = $("#optionList").val()
+					.replace(/\r\n|\r|\n/g, "\r\n")
+					.replace(/^([\s　]*\r\n)*|\n[\s　]*\r|\r\n[\s　]*$/g, "");
+
+	var positionList = [];
+	var index = 0;
+	var id = "";
+	$("#customTbl0 tr").each(function() {
+		id = $(this).attr("id");
+		if (id == "dummyId") {
+			id = "";
+		}
+		positionList.push({
+			id		: id,
+			l		: index++,
+			column	: 0
+		});
+	});
+	index = 0;
+	$("#customTbl1 tr").each(function() {
+		id = $(this).attr("id");
+		if (id == "dummyId") {
+			id = "";
+		}
+		positionList.push({
+			id		: id,
+			l		: index++,
+			column	: 1
+		});
+	});
+
+	var type = getType();
+	var index = changeTypeToIndex(type);
+	var query = {};
+	query.id = customFieldId;
+	query.attach = attach;
+	query.customType = type;
+	query.customName = $.trim($("#customName").val());
+	query.labelJa = $("#labelJa").val();
+	query.labelEn = $("#labelEn").val();
+	query.labelZh = $("#labelZh").val();
+	query.masterLang = $("input[name=masterLang]:checked").val();
+	query.positionList = JSON.stringify(positionList);
+	query.referenceableAll = $("#referenceableAll").attr("checked");
+	query.referenceable = referenceableIds.join(",");
+	query.modifiableAll = $("#modifiableAll").attr("checked");
+	query.modifiable = modifiableIds.join(",");
+	if (disp["itemInitialValue"][index] == 1) {
+		query.initialValue = $("#initialValue").val();
+	}
+	if (disp["itemRequired"][index] == 1) {
+		query.required = $("#required").attr("checked");
+	}
+	if (disp["itemUnique"][index] == 1) {
+		query.unique = $("#unique").attr("checked");
+	}
+	if (disp["itemLengthMax"][index] == 1) {
+		query.lengthMax = $("#lengthMax").val();
+	}
+	if (disp["itemNumMin"][index] == 1) {
+		query.numMin = $("#numMin").val();
+	}
+	if (disp["itemNumMax"][index] == 1) {
+		query.numMax = $("#numMax").val();
+	}
+	if (disp["itemNumberingRule"][index] == 1) {
+		query.numberingRule = $("#numberingRule").val();
+	}
+	if (disp["itemNumberingStartCount"][index] == 1) {
+		query.numberingStartCount = $("#numberingStartCount").val();
+	}
+	if (disp["itemNumberingApplyExisting"][index] == 1) {
+		query.numberingApplyExisting = $("#numberingApplyExisting").attr("checked");
+	}
+	if (disp["itemOptionList"][index] == 1) {
+		query.optionList = options;
+	}
+	if (disp["itemHelpText"][index] == 1) {
+		query.helpText = $("#helpText").val();
+	}
+	if (disp["itemComment"][index] == 1) {
+		query.comment = $("#comment").val();
+	}
+	return query;
+}
+
+function changeTypeToIndex(type) {
+	switch (type) {
+	case _TYPE_TEXT:
+		return 1;
+	case _TYPE_TEXTAREA:
+		return 2;
+	case _TYPE_LONG_TEXTAREA:
+		return 3;
+	case _TYPE_NUMBER:
+		return 4;
+	case _TYPE_CHECKBOX:
+		return 5;
+	case _TYPE_DROPDOWNLIST:
+		return 6;
+	case _TYPE_LISTBOX:
+		return 7;
+	case _TYPE_DATE:
+		return 8;
+	case _TYPE_DATETIME:
+		return 9;
+	case _TYPE_NUMBERING:
+		return 10;
+	case _TYPE_URL:
+		return 11;
+	default:
+		return 0;
+	}
+}
+
+function textCheck(CF_err, checkId, checkName, required, maxLength, mask){
+	var styleClass = "error";
+	var checkValue = $.trim($(checkId).val());
+	if (required && checkValue == "") {
+		CF_err.push(getMsg(new Array(checkName), "{!$Label.custom_field_message_00033}"));
+		$(checkId).addClass(styleClass);
+		return false;
+	}
+	if (checkValue.length > maxLength) {
+		CF_err.push(getMsg(new Array(checkName, maxLength), "{!$Label.custom_field_message_00034}"));
+		$(checkId).addClass(styleClass);
+		return false;
+	}
+	if (checkValue.match(/^.*[\\\"].*$/)) {
+		CF_err.push(getMsg(new Array(checkName, "\\ \""), "{!$Label.custom_field_message_00049}"));
+		$(checkId).addClass(styleClass);
+		return false;
+	}
+	if (mask != this.undefined && !checkValue.match(/^[a-zA-Z0-9]+$/)) {
+		CF_err.push(getMsg(new Array(checkName), "{!$Label.custom_field_message_00035}"));
+		$(checkId).addClass(styleClass);
+		return false;
+	} 
+	return true;
+}
+
+function longCheck(CF_err, checkId, checkName, min, max){
+	var checkMin = new LongObj(min);
+	var checkMax = new LongObj(max);
+
+	var styleClass = "error";
+	var checkValue = $.trim($(checkId).val());
+	if (checkValue == "") {
+		return true;
+	}
+	if (checkValue.match(/[^-0-9]/g)) {
+		$(checkId).addClass(styleClass);
+		CF_err.push(getMsg(new Array(checkName, min, max), '{!$Label.msg_validation_number_must_be_between_v1}'));
+		return false;
+	}
+
+	var value = new LongObj(checkValue);
+	if (checkMin.compareTo(value) == 1
+			|| checkMax.compareTo(value) == -1 ){
+		$(checkId).addClass(styleClass);
+		CF_err.push(getMsg(new Array(checkName, min, max), '{!$Label.msg_validation_number_must_be_between_v1}'));
+		return false;
+	}
+	return true;
+}
+
+function numericCheck(CF_err, val, label, min, max){
+	var checkValue = $.trim(val);
+	if (checkValue == "") {
+		return true;
+	}
+	if (checkValue.match(/[^0-9]/g)) {
+		CF_err.push(getMsg(new Array(label, min, max), '{!$Label.msg_validation_number_must_be_between_v1}'));
+		return false;
+	}
+	var value = parseInt(checkValue, 10);
+	if(value > max || value < min) {
+		CF_err.push(getMsg(new Array(label, min, max), '{!$Label.msg_validation_number_must_be_between_v1}'));
+		return false;
+	}
+	return true;
+}
+
+function listCheck(CF_err, checkId, checkName, required, kazu){
+	var styleClass = "error";
+	var checkValue = $(checkId).val();
+	if (required && checkValue.match(/^[\s　\r\n]*$/g)) {
+		$(checkId).addClass(styleClass);
+		CF_err.push(getMsg(new Array(checkName), "{!$Label.custom_field_message_00033}"));
+		return false;
+	}
+	var regexp = RegExp(/\r\n|\r|\n/g);
+	var checkList = checkValue.replace(regexp, "\r\n").split("\r\n");
+	if (checkList.length > kazu) {
+		$(checkId).addClass(styleClass);
+		CF_err.push(getMsg(new Array(checkName, kazu), "{!$Label.custom_field_message_00036}"));
+		return false;
+	}
+	checkValue = checkValue.replace(regexp, "");
+	if (checkValue.match(/^.*[(\\|/|\*|:|?|\"|\'|<|>|\|)].*$/)) {
+		$(checkId).addClass(styleClass);
+		CF_err.push(getMsg(new Array(checkName , '\\"\\ / * < > : \\" ? |\\"'), '{!$Label.msg_validation_text_prohibited_characters_v1}'));
+		return false;
+	}
+	return true;
+}
+
+function checkSameName(CF_err, name) {
+	return $.ajax({
+		url			: _apiUrl + "/setup/customfields/checkSameName.json",
+		data		: {
+			attach	: attach,
+			name	: $("#customName").val(),
+			id		: customFieldId.length > 0 ? customFieldId : ""
+		},
+		dataType	: "jsonp"
+    });
+}
+
+function checkItem(options){
+	var options = $.extend({
+		success		: new Function(),
+		fail		: new Function()
+	}, options);
+	var styleClass = "error";
+	var success = options.success;
+	var fail = options.fail;
+	CF_err = [];
+	dummy_err = [];
+	
+	$("." + styleClass).each(function(){
+		$(this).removeClass(styleClass);
+	});
+
+	var type = getType();
+	var index = changeTypeToIndex(type);
+	textCheck(CF_err, "#customName", "{!$Label.custom_field_label_00024}", true, 100, "alphanumeric");
+	checkSameName(CF_err, $("#customName").val()).done(function(data){
+		if (data.exists) {
+			var arg = "";
+			switch (attach) {
+				case "contents":
+					arg = "{!$Label.custom_field_label_00010}";
+					break;
+				case "space":
+					arg = "{!$Label.custom_field_label_00011}";
+					break;
+			}
+			CF_err.push(getMsg(new Array(arg), "{!$Label.custom_field_message_00037}"));
+		}
+		textCheck(CF_err, "#label", "{!$Label.custom_field_label_00025}", true, 100);
+		var masterLang = $("input[name=masterLang]:checked").val();
+		var value = $("#label" + langMap[_userLang]).val();
+		if (_userLang != "ja" && (masterLang != "ja" || (masterLang == "ja" && value != ""))) {
+			textCheck(CF_err, "#labelJa", "{!$Label.custom_field_label_00025}" + " " + "{!$Label.custom_field_label_00044}", masterLang == "ja", 100);
+		}
+		if (_userLang != "en" && (masterLang != "en" || (masterLang == "en" && value != ""))) {
+			textCheck(CF_err, "#labelEn", "{!$Label.custom_field_label_00025}" + " " + "{!$Label.custom_field_label_00045}", masterLang == "en", 100);
+		}
+		if (_userLang != "zh" && (masterLang != "zh" || (masterLang == "zh" && value != ""))) {
+			textCheck(CF_err, "#labelZh", "{!$Label.custom_field_label_00025}" + " " + "{!$Label.custom_field_label_00046}", masterLang == "zh", 100);
+		}
+		if (disp["itemLengthMax"][index] == 1) {
+			var max;
+			if (type == _TYPE_TEXT || type == _TYPE_TEXTAREA) {
+				max = 255;
+			} else if (type == _TYPE_LONG_TEXTAREA) {
+				max = 32768;
+			}
+			if (!numericCheck(CF_err, $("#lengthMax").val(), "{!$Label.custom_field_label_00027}", 1, max)) {
+				$("#lengthMax").addClass("error");
+			}
+		}
+		var numMax;
+		if (disp["itemNumMax"][index] == 1) {
+			longCheck(CF_err, "#numMax", "{!$Label.custom_field_label_00028}", "-999999999999999999", "999999999999999999");
+		}
+		if (disp["itemNumMin"][index] == 1) {
+			if ($("#numMax").hasClass("error") || "" == $("#numMax").val()) {
+				numMax = "999999999999999999";
+			} else {
+				numMax = $("#numMax").val();
+			}
+			longCheck(CF_err, "#numMin", "{!$Label.custom_field_label_00029}", "-999999999999999999" , numMax);
+		}
+		if (disp["itemOptionList"][index] == 1) {
+			listCheck(CF_err, "#optionList", "{!$Label.custom_field_label_00030}", true, 100);
+		}
+		if (disp["itemInitialValue"][index] == 1) {
+			if (type == _TYPE_TEXT || type == _TYPE_TEXTAREA || type == _TYPE_URL) {
+				if(!$("#lengthMax").hasClass(styleClass)){
+					var lengthMax;
+					if ($("#lengthMax").val() == "") {
+						lengthMax = 255;
+					} else {
+						lengthMax = parseInt($("#lengthMax").val(), 10);
+					}
+					textCheck(CF_err, "#initialValue", "{!$Label.custom_field_label_00031}", false, lengthMax)
+				}
+			} else if (type == _TYPE_NUMBER) {
+				var numMin;
+				if ($("#numMin").hasClass("error") || $("#numMin").val() == "") {
+					numMin = "-999999999999999999";
+				} else {
+					numMin = $("#numMin").val();
+				}
+				if (!$("#numMax").hasClass(styleClass)
+						&& !$("#numMin").hasClass(styleClass)) {
+					longCheck(CF_err, "#initialValue", "{!$Label.custom_field_label_00031}", numMin, numMax);
+				}
+			}
+			if (type == _TYPE_URL) {
+				if (!checkUrl($("#initialValue").val())) {
+					CF_err.push(getMsg(new Array("{!$Label.custom_field_label_00031}"), "{!$Label.custom_field_message_00038}"));
+					$("#initialValue").addClass(styleClass);
+				}
+			}
+		}
+		if (disp["itemNumberingRule"][index] == 1 && $("#numberingRule").get(0).tagName == "INPUT") {
+			textCheck(CF_err, "#numberingRule", "{!$Label.custom_field_label_00032}", true, 100);
+			if (!checkFormatNumberingRule(CF_err, $("#numberingRule").val())) {
+				$("#numberingRule").addClass("error");
+			}
+		}
+		if (disp["itemNumberingStartCount"][index] == 1 && $("#numberingStartCount").get(0).tagName == "INPUT") {
+			if (!numericCheck(CF_err, $("#numberingStartCount").val(), "{!$Label.custom_field_label_00033}", 0, 999999999)) {
+				$("#numberingStartCount").addClass("error");
+			}
+		}
+		if (disp["itemHelpText"][index] == 1) {
+			textCheck(CF_err, "#helpText", "{!$Label.custom_field_label_00036}", false, 255);
+		}
+		if (disp["itemComment"][index] == 1) {
+			textCheck(CF_err, "#comment", "{!$Label.custom_field_label_00037}", false, 255);
+		}
+		
+		if (CF_err.length > 0) {
+			for(var i = 0; i < CF_err.length; i++){
+				alert(CF_err[i]);
+			}
+			fail();
+		} else {
+			success();
+		}
+	});
+}
+
+function checkUrl(str) {
+	var val = $.trim(str);
+	if (val == "") {
+		return true;
+	}
+	if (!val.match(/^https?:\/\/.+/)) {
+		return false;
+	}
+	return true;
+}
+
+function checkFormatNumberingRule(CF_err, str) {
+	var bInBracket = false;
+	var c;
+	var bYear = false;
+	var bMonth = false;
+	var bDay = false;
+	var bCount = false;
+	var nYear = 0;
+	var nMonth = 0;
+	var nDay = 0;
+	var nCount = 0;
+	for (var i = 0; i < str.length; i++) {
+		c = str.charAt(i);
+		if (bInBracket) {
+			if (c == "y" || c == "Y") {
+				if (bMonth || bDay || bCount) {
+					CF_err.push("{!$Label.custom_field_message_00039}");
+					return false;
+				}
+				bYear = true;
+				nYear++;
+			} else if (c == "m" || c == "M") {
+				if (bYear || bDay || bCount) {
+					CF_err.push("{!$Label.custom_field_message_00039}");
+					return false;
+				}
+				bMonth = true;
+				nMonth++;
+			} else if (c == "d" || c == "D") {
+				if (bYear || bMonth || bCount) {
+					CF_err.push("{!$Label.custom_field_message_00039}");
+					return false;
+				}
+				bDay = true;
+				nDay++;
+			} else if (c == "0") {
+				if (bYear || bMonth || bDay) {
+					CF_err.push("{!$Label.custom_field_message_00039}");
+					return false;
+				}
+				if (nCount >= 10) {
+					CF_err.push("{!$Label.custom_field_message_00047}");
+					return false;
+				}
+				bCount = true;
+				nCount++;
+			} else if (c == "}") {
+				if ((bYear && nYear != 4) || (bMonth && nMonth != 2) || (bDay && nDay != 2)) {
+					CF_err.push(getMsg(new Array("{!$Label.custom_field_label_00032}"), "{!$Label.msg_00186}"));
+					return false;
+				}
+				bInBracket = false;
+				bYear = false;
+				bMonth = false;
+				bDay = false;
+				bCount = false;
+				nYear = 0;
+				nMonth = 0;
+				nDay = 0;
+				nCount = 0;
+				continue;
+			} else {
+				CF_err.push("{!$Label.custom_field_message_00040}");
+				return false;
+			}
+		}
+		if (c == "{") {
+			bInBracket = true;
+			continue;
+		}
+	}
+	if (bInBracket) {
+		CF_err.push("{!$Label.custom_field_message_00041}");
+		return false;
+	}
+	return true;
+}
+
+function getCheckImgUrl(checked){
+	return isTrue(checked) ? "{!URLFOR($Resource.cso, 'image/check_on.png')}" : "{!URLFOR($Resource.cso, 'image/check_off.png')}";
+}
+
+function isTrue(val) {
+	if (val === true || val == "true") {
+		return true;
+	}
+	return false;
+}
+</script>
+</apex:page>

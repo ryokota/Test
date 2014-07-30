@@ -1,0 +1,14 @@
+<!--  Label: RFA_CL048 = VFT07_Completion_Memo; called by Label -->
+<messaging:emailTemplate subject="申請取り下げ通知（RFA is Closed） - {!relatedTo.Name}: {!relatedTo.RequestTitle__c}" recipientType="User" relatedToType="RFA__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = " font-size:14px;">
+                 
+                    <c:RFAVFT_CloseMemoBody rfaObj="{!relatedTo}"/>
+                    
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

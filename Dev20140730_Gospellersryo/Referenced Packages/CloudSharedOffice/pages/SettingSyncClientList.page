@@ -1,0 +1,444 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingSyncClientController" tabStyle="setting__tab" action="{!init}">
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_sync_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_sync_manage == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/fg.menu.js')}" />
+
+<script type="text/javascript">
+$(function(){
+    $(window).resize(resizeGrid);
+    $("#syncClientList-container").width(getBrowserWidth() - 340);
+    $("#syncClientList").jqGrid({
+        url                : _apiUrl + '/setup/sync/SyncClientList.json',
+        datatype           : "jsonp",
+        jsonReader         : {
+            repeatitems    : false,
+            id             : "id"
+        },
+        colNames:[
+            '',
+            '{!$Label.label_00039}',
+            '{!$Label.label_10131}',
+            '{!$Label.label_13177}',
+            '{!$Label.label_10038}',
+            '{!$Label.label_10006}',
+            '{!$Label.label_10587}',
+            '',
+        ],
+        colModel:[
+            {name:'id',index:'id', width:350, hidden:true},
+            {name:'name',index:'name', width:150, formatter:imgFormatter, unformat:imgUnformatter},
+            {name:'user',index:'user', width:350, formatter:imgFormatter, unformat:imgUnformatter},
+            {name:'lastSyncDate',index:'lastSyncDate', width:120,align:"center"},
+            {name:'version',index:'version', width:50,align:"center"},
+            {name:'update',index:'update', width:120,align:"center"},
+            {name:'enable',index:'enable', width:70,align:"center"},
+            {name:'enableFlg',index:'enableFlg', hidden:true},
+        ],
+        rowNum             : 50,
+        width              : $("#syncClientList-container").innerWidth(),
+        height             : getBrowserHeight() - 360,
+        rowList            : [10,50,100],
+        sortname           : 'name',
+        pager              : '#syncClientListPager',
+        shrinkToFit        : true,
+        viewrecords        : true,
+        multiselect        : true,
+        multiboxonly       : true,
+        loadComplete       :
+            function(data){
+            }
+    });
+    $("#syncClientList").jqGrid('navGrid','#syncClientListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+    resizeGrid();
+
+    $("#searchDiv").dialog({
+        width        : 360,
+        height        : 140,
+        autoOpen    : false,
+        resizable    : false,
+    });
+
+    $("#installSettingDiv").dialog({
+        modal       : true,
+        autoOpen    : false,
+        resizable   : false,
+    });
+
+    $("#searchForm").submit(function(e){
+        execSearch();
+        e.preventDefault();
+    });
+
+    $("#lumpActionBtn").menu({
+        content        : $("#lumpActionMenu").html(),
+        showSpeed    : 100,
+        width        : 120,
+    });
+
+    var param = {
+    }
+
+    var callback =  function(result){
+        $("input:radio[name='installSetting']").val([result.info.option.syncInstallType]);
+    };
+
+    var callerror =  function(data){
+    };
+
+    secureGetAsync('/setup/BasicOrganizeGet.json', param, callback, callerror);
+});
+
+function imgFormatter(cellvalue, options, rowObject){
+    cellvalue = cellvalue.replace("/image/pc.png", "{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/pc_32.png')}");
+    cellvalue = cellvalue.replace("/dispUserImage", _apiUrl + "/dispUserImage");
+    return cellvalue;
+}
+
+function imgUnformatter(cellvalue, options, cell){
+    return cellvalue;
+}
+
+function resizeGrid(){
+    var height = getBrowserHeight() - 360;
+    $("#syncClientList-container").width(getBrowserWidth() - 340);
+    $("#syncClientList").setGridWidth($("#syncClientList-container").innerWidth(), true);
+
+    if (height >= 270) {
+        $("#syncClientList").setGridHeight(height);
+    }
+}
+
+function showDetail(id){
+//    location.href = "#/SyncClientDetail?id=" + id;
+    location.href = "{!JSENCODE(URLFOR($Page.SettingSyncClientDetail))}?id=" + id;
+}
+
+function disableClient(){
+    changeStatus("{!$Label.label_13173}", 1);
+}
+
+function enableClient(){
+    changeStatus("{!$Label.label_13174}", 0);
+}
+
+function changeStatus(msg, status){
+    var selrows = $("#syncClientList").jqGrid('getGridParam','selarrrow');
+
+    var arr = new Array();
+    for(var i in selrows){
+        if($("#syncClientList").jqGrid('getRowData',selrows[i]).enableFlg != status){
+            arr.push(selrows[i]);
+        }
+    }
+    if(arr.length == 0){
+        return;
+    }
+    if(confirm(msg)){
+        var param = {
+            id        : arr.join(","),
+            enable    : status,
+        }
+
+        var callback =  function(result){
+            $("#syncClientList").trigger("reloadGrid");
+        };
+
+        var callerror =  function(data){
+        };
+
+        secureGetAsync('/setup/sync/SyncClientShiftChange.json', param, callback, callerror);
+    }
+}
+
+function changeStatusAll(status){
+    if(confirm(status == 0 ? "{!$Label.label_13178}" : "{!$Label.label_13179}")){
+        var param = {
+            id        : "ALL",
+            enable    : status,
+        }
+
+        var callback =  function(result){
+            $("#syncClientList").trigger("reloadGrid");
+        };
+
+        var callerror =  function(data){
+        };
+
+        secureGetAsync('/setup/sync/SyncClientShiftChange.json', param, callback, callerror);
+    }
+}
+
+function showSearchDialog(){
+    $("#searchDiv").dialog("open");
+}
+
+function clearCondition(){
+    $("#searchText").val("");
+    execSearch();
+}
+
+function execSearch(){
+    var text = $.trim($("#searchText").val());
+    $("#syncClientList").setGridParam({
+        page        : 1,
+        postData    : {"search" : text}
+    });
+    $("#syncClientList").trigger("reloadGrid");
+}
+
+function onSearchButtonClicked(obj){
+    setPullMenuPosition(obj);
+}
+
+function setPullMenuPosition(obj){
+    var menuPosX    = 0;
+    var menuPosY    = 0;
+    menuPosX    = obj.offset().left;
+    menuPosY    = obj.offset().top;
+/*
+    $(".positionHelper").css({
+        top        : menuPosY,
+        left    : menuPosX,
+    });
+*/
+    $(".positionHelper").css("left", menuPosX).css('top', menuPosY);
+    return true;
+}
+
+function deleteClient(){
+    var selrows = $("#syncClientList").jqGrid('getGridParam','selarrrow');
+    var arr = new Array();
+    for(var i in selrows){
+        if($("#syncClientList").jqGrid('getRowData',selrows[i]).enableFlg != status){
+            arr.push(selrows[i]);
+        }
+    }
+    if(arr.length == 0){
+        return;
+    }
+    if(confirm("{!$Label.label_13180}")){
+        var param = {
+            id        : arr.join(","),
+        }
+
+        var callback =  function(result){
+            $("#syncClientList").trigger("reloadGrid");
+        };
+
+        var callerror =  function(data){
+        };
+
+        secureGetAsync('/setup/sync/SyncClientDelete.json', param, callback, callerror);
+    }
+}
+
+function showInstallSetting(){
+    $("#installSettingDiv").dialog("open");
+}
+
+function saveInstallSetting(){
+    var param = {
+        installType : $("input:radio[name='installSetting']:checked").val()
+    }
+
+    var callback =  function(data){
+        if(!data.result){
+            alert(data.message);
+        }
+        $("#installSettingDiv").dialog("close");
+    };
+
+    var callerror =  function(data){
+    };
+
+    secureGetAsync('/setup/sync/SyncClientInstallSetting.json', param, callback, callerror);
+}
+</script>
+<style type="text/css">
+.name-top{
+}
+.name-bottom{
+    color: gray;
+    font-size: 95%;
+}
+.date-top{
+}
+.date-bottom{
+    padding: 2px 0px 5px 0px;
+}
+
+.status-enable{
+    background-color: green;
+    color: white;
+    padding: 3px 0px;
+    margin: 0px 3px;
+    font-size: 150%;
+}
+
+.status-disable{
+    background-color: silver;
+    padding: 3px 0px;
+    margin: 0px 3px;
+    font-size: 150%;
+}
+
+.jqGridIcon{
+    margin: 2px 2px 2px 0px;
+}
+
+.chevron div{
+    background: url('/image/s-arrow.gif') no-repeat right center;
+    font-weight: bold;
+    padding-right: 20px;
+    outline: none;
+}
+
+.chevron {
+    background: url("{!URLFOR($Resource.cso, 'image/s-arrow.gif')}") no-repeat right center;
+    font-weight: bold;
+    padding-right: 20px;
+}
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/pc_32.png')}" alt="{!$Label.solxyzcso001__label_10621}" title="{!$Label.solxyzcso001__label_10621}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_13170}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_13171}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <!-- コマンドボタン表示 -->
+                        <div class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="item">
+                                    <!-- 削除ボタン -->
+                                    <apex:commandButton styleClass="btn c_commandButton" value="{!$Label.solxyzcso001__label_00072}" onclick="deleteClient(); return false;"/>
+                                </li>
+                                <li class="item">
+                                    <!-- 有効ボタン -->
+                                    <apex:commandButton styleClass="btn c_commandButton" value="{!$Label.solxyzcso001__label_00083}" onclick="enableClient(); return false;"/>
+                                </li>
+                                <li class="item">
+                                    <!-- 無効ボタン -->
+                                    <apex:commandButton styleClass="btn c_commandButton" value="{!$Label.solxyzcso001__label_00084}" onclick="disableClient(); return false;"/>
+                                </li>
+                                <li class="item">
+                                    <!-- 一括ボタン -->
+                                    <button class="btn c_commandButton" onclick="onSearchButtonClicked($(this)); return false;" style="padding-right: 3px;" id="lumpActionBtn">
+                                        <div class="chevron">
+                                            {!$Label.label_13181}
+                                        </div>
+                                    </button>
+                                </li>
+                                <li class="item">
+                                    <!-- 検索ボタン -->
+                                    <apex:commandButton styleClass="btn c_commandButton" value="{!$Label.solxyzcso001__label_00069}" onclick="showSearchDialog(); return false;"/>
+                                </li>
+                                <li class="last">
+                                    <!-- 無効ボタン -->
+                                    <apex:commandButton styleClass="btn c_commandButton" value="{!$Label.solxyzcso001__label_13263}" onclick="showInstallSetting(); return false;"/>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- 一括メニュー-->
+                        <div id="lumpActionMenu" style="display:none;">
+                            <ul class="viewlist  approve">
+                                <li class="viewitem" ><a href="javascript:void(0);" onclick="changeStatusAll(0);">{!$Label.solxyzcso001__label_00083}</a></li>
+                                <li class="viewitem" ><a href="javascript:void(0);" onclick="changeStatusAll(1);">{!$Label.solxyzcso001__label_00084}</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- グリッド -->
+                        <div id="syncClientList-container">
+                            <table id="syncClientList"></table>
+                            <div id="syncClientListPager"></div>
+                        </div>
+
+                        <!-- 隠しフィールド -->
+                        <input type="hidden" id="deleteIds" name="deleteIds" />
+
+
+                        <!-- 検索ダイアログ -->
+                        <div id="searchDiv" class="searchDiv" style="display: none;" title="{!$Label.solxyzcso001__label_00069}">
+                            <form action="#" method="get" id="searchForm" style="padding-top: 10px;">
+                                <input type="text" placeholder="{!$Label.label_13182}" style="width: 315px; padding: 5px;" id="searchText" />
+                                <p style="width: 100%; text-align: right;">
+                                    <input type="button" class="btn" value="{!$Label.label_00070}" onclick="clearCondition();" />
+                                    <input type="button" class="btn" value="{!$Label.solxyzcso001__label_00069}" onclick="execSearch(); e.preventDefault();" />
+                                </p>
+                            </form>
+                        </div>
+
+                        <!-- インストール設定 -->
+                        <div id="installSettingDiv" style="display: none;" title="{!$Label.solxyzcso001__label_13263}">
+                            <p>{!$Label.label_13264}</p>
+                            <div><label><input type="radio" name="installSetting" value="0"/>{!$Label.label_13265}</label></div>
+                            <div><label><input type="radio" name="installSetting" value="1"/>{!$Label.label_13266}</label></div>
+                            <div style="text-align: right;">
+                                <input type="button" class="btn" value="{!$Label.field_common_cancel}" onclick="$('#installSettingDiv').dialog('close');"/>
+                                <input type="button" class="btn" value="{!$Label.field_common_ok}" onclick="saveInstallSetting();"/>
+                            </div>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

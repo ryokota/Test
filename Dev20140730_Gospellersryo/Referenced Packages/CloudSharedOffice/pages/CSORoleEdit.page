@@ -1,0 +1,712 @@
+<apex:page id="CSORoleEditPage" tabStyle="setting__tab" controller="SOLXYZCSO001.CSORoleController" sidebar="false" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_user_role_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_user_role_manage == 'true', true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+
+var preId = "CSORoleEditPage\\:theForm\\:theBlock";
+
+//alert($(getId('{!$Component.CSORoleEditPage.theForm.theBlock.hidden_roleId}')).val());
+
+$(function(){
+    connectView();
+});
+
+/* 画面と連動する */
+function connectView(){
+    /* コメント文字数をチェックする */
+    $("#" + preId + "\\:theBlockSectionInfo\\:theBlockSectionItemComment\\:theBlockSectionItemCommentItem\\:COMMENT").keyup(function(e){
+        viewCommentLength(preId + "\\:theBlockSectionInfo\\:theBlockSectionItemComment\\:theBlockSectionItemCommentItem\\:COMMENT",
+            preId + "\\:theBlockSectionInfo\\:theBlockSectionItemComment\\:theBlockSectionItemCommentItem\\:ViewCommentLength" ,
+            512);
+        });
+
+    /* 初期状態を反映する */
+    $("#" + preId + "\\:theBlockSectionInfo\\:theBlockSectionItemComment\\:theBlockSectionItemCommentItem\\:COMMENT").keyup();
+
+    /* チェックボックスと連動する */
+    $(".inv").each(function(){
+        $(this).click(function(){
+            if($(this).attr("checked")){
+                $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+            };
+        });
+    });
+
+    $(".subInv").each(function(){
+        $(this).click(function(){
+            if($(this).attr("checked")){
+                $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_SUB_SP\\:VIEW_SUB_SP").attr("checked","checked");
+            };
+        });
+    });
+
+    // 「招待スペースの閲覧」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").click(function(){
+        if(!$(this).attr("checked")){
+/*
+            $.each($(":checkbox"),function(n,ck){
+                $(ck).attr("checked","");
+            });
+*/
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+        }
+    });
+
+    // 「招待スペースの編集」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemCNG_INV_SP\\:CNG_INV_SP").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+        }
+    });
+
+    // 「サブスペースの閲覧」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_SUB_SP\\:VIEW_SUB_SP").click(function(){
+        if(!$(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemOUT_COL_SP\\:OUT_COL_SP").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemOUT_COM_SP\\:OUT_COM_SP").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemCNG_SUB_SP\\:CNG_SUB_SP").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemDEL_SUB_SP\\:DEL_SUB_SP").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemMK_SUB_SP\\:MK_SUB_SP").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemMOV_OTHER_SP\\:MOV_OTHER_SP").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemMOV_SP\\:MOV_SP").removeAttr("checked");
+        }
+    });
+
+    // 「サブスペースの編集」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemCNG_SUB_SP\\:CNG_SUB_SP").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_SUB_SP\\:VIEW_SUB_SP").attr("checked","checked");
+        }
+    });
+
+    // 「サブスペースの編集」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemDEL_SUB_SP\\:DEL_SUB_SP").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_SUB_SP\\:VIEW_SUB_SP").attr("checked","checked");
+        }
+    });
+
+    // 「スペースへの招待」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemADD_INV_SP\\:ADD_INV_SP").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemVIEW_INV_USER\\:VIEW_INV_USER").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCNG_INV_USER\\:CNG_INV_USER").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemDEL_INV_USER\\:DEL_INV_USER").attr("checked","checked");
+        }else{
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCNG_INV_USER\\:CNG_INV_USER").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemDEL_INV_USER\\:DEL_INV_USER").removeAttr("checked");
+        }
+    });
+
+    // 「プロパティ参照」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemVIEW_DOC_PROP\\:VIEW_DOC_PROP").click(function(){
+        if(!$(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCNG_DOC_PROP\\:CNG_DOC_PROP").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemVIEW_DOC_PROP_OTHER_USER\\:VIEW_DOC_PROP_OTHER_USER").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCNG_DOC_PROP_OTHER_USER\\:CNG_DOC_PROP_OTHER_USER").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKOUT\\:CHECKOUT").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKIN\\:CHECKIN").removeAttr("checked");
+        }
+    });
+
+    // 「プロパティ変更」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCNG_DOC_PROP\\:CNG_DOC_PROP").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemVIEW_DOC_PROP\\:VIEW_DOC_PROP").attr("checked","checked");
+        }else{
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCNG_DOC_PROP_OTHER_USER\\:CNG_DOC_PROP_OTHER_USER").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKOUT\\:CHECKOUT").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKIN\\:CHECKIN").removeAttr("checked");
+        }
+    });
+
+    // 「他ユーザコンテンツの更新」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemUP_DOC_OTHER_USER\\:UP_DOC_OTHER_USER").click(function(){
+        if(!$(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKOUT\\:CHECKOUT").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKIN\\:CHECKIN").removeAttr("checked");
+        }
+    });
+
+    // 「他ユーザのコンテンツのプロパティ参照」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemVIEW_DOC_PROP_OTHER_USER\\:VIEW_DOC_PROP_OTHER_USER").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemVIEW_DOC_PROP\\:VIEW_DOC_PROP").attr("checked","checked");
+        }else{
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCNG_DOC_PROP_OTHER_USER\\:CNG_DOC_PROP_OTHER_USER").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKOUT\\:CHECKOUT").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKIN\\:CHECKIN").removeAttr("checked");
+        }
+    });
+
+    // 「他ユーザのコンテンツのプロパティ変更」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCNG_DOC_PROP_OTHER_USER\\:CNG_DOC_PROP_OTHER_USER").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemVIEW_DOC_PROP\\:VIEW_DOC_PROP").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCNG_DOC_PROP\\:CNG_DOC_PROP").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemVIEW_DOC_PROP_OTHER_USER\\:VIEW_DOC_PROP_OTHER_USER").attr("checked","checked");
+        }else{
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKOUT\\:CHECKOUT").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKIN\\:CHECKIN").removeAttr("checked");
+        }
+    });
+
+    // 「コンテンツの参照」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemDL_DOC\\:DL_DOC").click(function(){
+        if(!$(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKOUT\\:CHECKOUT").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKIN\\:CHECKIN").removeAttr("checked");
+        }
+    });
+
+    // 「チェックイン」連動項目
+    $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKIN\\:CHECKIN").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKOUT\\:CHECKOUT").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemUP_DOC_OTHER_USER\\:UP_DOC_OTHER_USER").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemDL_DOC\\:DL_DOC").attr("checked","checked");
+        }else{
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKOUT\\:CHECKOUT").removeAttr("checked");
+        }
+    });
+
+    // 「チェックアウト」連動項目
+    $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKOUT\\:CHECKOUT").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKIN\\:CHECKIN").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemUP_DOC_OTHER_USER\\:UP_DOC_OTHER_USER").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemDL_DOC\\:DL_DOC").attr("checked","checked");
+        }else{
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCHECKIN\\:CHECKIN").removeAttr("checked");
+        }
+    });
+
+    // 「招待ユーザの編集」連動項目
+    $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCNG_INV_USER\\:CNG_INV_USER").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemADD_INV_SP\\:ADD_INV_SP").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemVIEW_INV_USER\\:VIEW_INV_USER").attr("checked", "checked");
+        }
+    });
+
+    // 「招待ユーザの削除」連動項目
+    $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemDEL_INV_USER\\:DEL_INV_USER").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemADD_INV_SP\\:ADD_INV_SP").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemVIEW_INV_USER\\:VIEW_INV_USER").attr("checked", "checked");
+        }
+    });
+
+    // 「スペースの移動」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemMOV_SP\\:MOV_SP").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemMV_DOC\\:MV_DOC").attr("checked","checked");
+        } else {
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemMOV_OTHER_SP\\:MOV_OTHER_SP").removeAttr("checked");
+        }
+    });
+
+    // 「スペースのコピー」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemCOPY_SP\\:COPY_SP").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCOPY_DOC\\:COPY_DOC").attr("checked","checked");
+            if($("#" + preId + "\\:hidden_roleId").val() == null || $("#" + preId + "\\:hidden_roleId").val() == ""){
+                $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+            }
+        }else{
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemCOPY_SP_OTHER_USER\\:COPY_SP_OTHER_USER").removeAttr("checked");
+        }
+    });
+
+    // 「コンテンツのコピー」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCOPY_DOC\\:COPY_DOC").click(function(){
+        if($(this).attr("checked")){
+            if($("#" + preId + "\\:hidden_roleId").val() == null || $("#" + preId + "\\:hidden_roleId").val() == ""){
+                $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+            }
+        } else {
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemCOPY_SP\\:COPY_SP").removeAttr("checked");
+        }
+    });
+
+    // 「他ユーザスペースのコピー」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemCOPY_SP_OTHER_USER\\:COPY_SP_OTHER_USER").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCOPY_DOC\\:COPY_DOC").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCOPY_DOC_OTHER_USER\\:COPY_DOC_OTHER_USER").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemCOPY_SP\\:COPY_SP").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemPLAY_MOVIE\\:PLAY_MOVIE").attr("checked","checked");
+            if($("#" + preId + "\\:hidden_roleId").val() == null || $("#" + preId + "\\:hidden_roleId").val() == ""){
+                $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+            }
+        }
+    });
+
+    // 「他ユーザコンテンツのコピー」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCOPY_DOC_OTHER_USER\\:COPY_DOC_OTHER_USER").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemCOPY_DOC\\:COPY_DOC").attr("checked", "checked");
+            if($("#" + preId + "\\:hidden_roleId").val() == null || $("#" + preId + "\\:hidden_roleId").val() == ""){
+                $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+            }
+        } else {
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemCOPY_SP_OTHER_USER\\:COPY_SP_OTHER_USER").removeAttr("checked");
+        }
+    });
+
+    // 「コンテンツの移動」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemMV_DOC\\:MV_DOC").click(function(){
+        if(!$(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemMV_DOC_OTHER_USER\\:MV_DOC_OTHER_USER").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemMOV_SP\\:MOV_SP").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemMOV_OTHER_SP\\:MOV_OTHER_SP").removeAttr("checked");
+        }
+    });
+
+    // 「他ユーザスペースを移動」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemMOV_OTHER_SP\\:MOV_OTHER_SP").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemMV_DOC\\:MV_DOC").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemMOV_SP\\:MOV_SP").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemMV_DOC_OTHER_USER\\:MV_DOC_OTHER_USER").attr("checked","checked");
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_SUB_SP\\:VIEW_SUB_SP").attr("checked","checked");
+        }
+    });
+
+    // 「他ユーザコンテンツの移動」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemMV_DOC_OTHER_USER\\:MV_DOC_OTHER_USER").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemMV_DOC\\:MV_DOC").attr("checked", "checked");
+        }else{
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemMOV_OTHER_SP\\:MOV_OTHER_SP").removeAttr("checked");
+        }
+    });
+
+    // 「動画・音声の再生」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemPLAY_MOVIE\\:PLAY_MOVIE").click(function(){
+        if($(this).attr("checked")){
+            if($("#" + preId + "\\:hidden_roleId").val() == null || $("#" + preId + "\\:hidden_roleId").val() == ""){
+                $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+            }
+        } else {
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemCOPY_SP_OTHER_USER\\:COPY_SP_OTHER_USER").removeAttr("checked");
+        }
+    });
+
+    // 「バージョン管理設定」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVERSION_SETTING\\:VERSION_SETTING").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+        }
+    });
+
+    // 「PDF透かし設定」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemWATERMARK\\:WATERMARK").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+        }
+    });
+
+    // 「PDFセキュリティ設定」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemPDF_SECURITY\\:PDF_SECURITY").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+        }
+    });
+
+    // 「ライフサイクル」連動項目
+    $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemLIFECYCLE\\:LIFECYCLE").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemVIEW_INV_SP\\:VIEW_INV_SP").attr("checked","checked");
+        }
+    });
+
+    // 「招待ユーザの閲覧」連動項目
+    $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemVIEW_INV_USER\\:VIEW_INV_USER").click(function(){
+        if(!$(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionSp\\:theBlockSectionItemADD_INV_SP\\:ADD_INV_SP").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemCNG_INV_USER\\:CNG_INV_USER").removeAttr("checked");
+            $("#" + preId + "\\:theBlockSectionOther\\:theBlockSectionItemDEL_INV_USER\\:DEL_INV_USER").removeAttr("checked");
+        }
+    });
+
+    // 「Webテキスト」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemMK_DOC\\:MK_DOC").click(function(){
+        if(!$(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemONLINE_EDIT\\:ONLINE_EDIT").removeAttr("checked");
+        }
+    });
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemONLINE_EDIT\\:ONLINE_EDIT").click(function(){
+        if($(this).attr("checked")){
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemMK_DOC\\:MK_DOC").attr("checked", "checked");
+        }
+    });
+
+    // 「削除」連動項目
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemDEL_DOC\\:DEL_DOC").click(function(){
+        if(!$(this).attr("checked")) {
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemDEL_DOC_OTHER_USER\\:DEL_DOC_OTHER_USER").removeAttr("checked");
+    }
+    });
+    $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemDEL_DOC_OTHER_USER\\:DEL_DOC_OTHER_USER").click(function(){
+        if($(this).attr("checked")) {
+            $("#" + preId + "\\:theBlockSectionDoc\\:theBlockSectionItemDEL_DOC\\:DEL_DOC").attr("checked", "checked");
+        }
+    });
+}
+
+/* 指定のチェックボックスを変更する */
+function linkedCheckbox(id, isOn){
+    if(isOn){
+        $(id).attr("checked", "checked");
+        $(id).attr("disabled", "disabled");
+    }else{
+        $(id).removeAttr("disabled");
+    }
+    $(id).change();
+}
+
+/* #5947 - ボタンの２度押し防止 */
+function showLoadingOnSave() {
+	CsoScript_loadingStart();
+}
+
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/h004.png')}" alt="{!$Label.solxyzcso001__label_10191}" title="{!$Label.solxyzcso001__label_10191}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10260}</h1><br/>
+                <apex:outputLabel rendered="{!isRegist}"><h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10313}</h2></apex:outputLabel>
+                <apex:outputLabel rendered="{!isEdit}">  <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10243}</h2></apex:outputLabel>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form id="theForm">
+                    <apex:pageMessages />
+                    <apex:pageBlock title="{!$Label.solxyzcso001__label_10196}" id="theBlock" >
+                        <apex:pageBlockButtons >
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00075}" onclick="return showLoadingOnSave()" action="{!save}"/>
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00077}" onclick="return showLoadingOnSave()" action="{!saveNew}"/>
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!cancel}"/>
+                        </apex:pageBlockButtons>
+                        <apex:inputHidden id="hidden_roleId" value="{!roleId}" />
+                        <apex:pageblockSection columns="1" id="theBlockSectionInfo">
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10198}</apex:outputLabel>
+                               <apex:outputPanel styleClass="requiredInput" layout="block">
+                                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+                                    <apex:inputText value="{!name}"  style="width:420px;" required="false" id="theName" maxlength="255" />
+                               </apex:outputPanel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemComment">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10012}</apex:outputLabel>
+                               <apex:pageBlockSectionItem id="theBlockSectionItemCommentItem">
+                                  <apex:outputPanel layout="block">
+                                      <table>
+                                          <tr>
+                                              <td align="right">
+                                                  <apex:outputLabel id="ViewCommentLength" value="___" />
+                                              </td>
+                                          </tr>
+                                          <tr>
+                                              <td>
+                                                  <apex:inputtextarea rows="8" cols="80" value="{!comment}" id="COMMENT" style="resize: none;"/>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                  </apex:outputPanel>
+                               </apex:pageBlockSectionItem>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSctionItemBaseRoleId">
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_10358}</apex:outputLabel>
+                                <apex:pageBlockSectionItem id="theBlockSectionItemBaseRoleIdList">
+                                    <apex:selectList value="{!baseRoleId}" size="1" id="BaseRoleId" style="width:420px;" >
+                                        <apex:selectOptions value="{!LISTBASE}"/>
+                                        <apex:actionSupport event="onchange" action="{!redraw}" rerender="theBlock"  status="changeStatus" oncomplete="connectView();" />
+                                    </apex:selectList>
+                                    <apex:actionStatus id="changeStatus" startText="{!$Label.solxyzcso001__label_10359}" stopText="" />
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSectionItem>
+
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" id="theRegDate" rendered="{!isEdit}">
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10015}</apex:outputLabel>
+                               <apex:outputPanel layout="none">
+                                	<apex:outputLabel escape="false" value="{!JSENCODE(regUser)}" />&nbsp;<apex:outputLabel escape="false" value="{!JSENCODE(regDate)}" />
+                                </apex:outputPanel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theUpDate" >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10238}</apex:outputLabel>
+                               <apex:outputPanel layout="none">
+                                	<apex:outputLabel escape="false" value="{!JSENCODE(lastUpUser)}" />&nbsp;<apex:outputLabel escape="false" value="{!JSENCODE(lastUpDate)}" />
+								</apex:outputPanel>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10219}" id="theBlockSectionSp">
+                            <apex:pageBlockSectionItem id="theBlockSectionItemADD_INV_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10206}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!ADD_INV_SP}" styleClass="inv" id="ADD_INV_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemMK_SUB_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10202}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!MK_SUB_SP}" styleClass="inv subInv" id="MK_SUB_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemVIEW_INV_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10200}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!VIEW_INV_SP}" styleClass="" id="VIEW_INV_SP" />
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemVIEW_SUB_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10203}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!VIEW_SUB_SP}" styleClass="inv" id="VIEW_SUB_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCNG_INV_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10201}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!CNG_INV_SP}" styleClass="inv" id="CNG_INV_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCNG_SUB_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10204}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!CNG_SUB_SP}" styleClass="inv" id="CNG_SUB_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemDEL_INV_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10199}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!DEL_INV_SP}" styleClass="inv" id="DEL_INV_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemDEL_SUB_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10205}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!DEL_SUB_SP}" styleClass="inv" id="DEL_SUB_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemRECV_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10207}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!RECV_SP}" styleClass="inv" id="RECV_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCOPY_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10302}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!COPY_SP}" styleClass="" id="COPY_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemMOV_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10032}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!MOV_SP}" styleClass="inv subInv" id="MOV_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCOPY_SP_OTHER_USER">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10303}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!COPY_SP_OTHER_USER}" styleClass="" id="COPY_SP_OTHER_USER"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemMOV_OTHER_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10221}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!MOV_OTHER_SP}" styleClass="inv" id="MOV_OTHER_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemSP_RULE">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10453}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!SP_RULE}" styleClass="inv" id="SP_RULE"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemVERSION_SETTING">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_11031}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!VERSION_SETTING}" id="VERSION_SETTING"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemVIEW_SPACE_HISTORY">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10558}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!VIEW_SPACE_HISTORY}" styleClass="inv" id="VIEW_SPACE_HISTORY"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemWATERMARK" rendered="{!IF(cso_userInfo.proAuth_watermark == 'true', true, false)}">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10607}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!WATERMARK}" id="WATERMARK"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemPDF_SECURITY" rendered="{!IF(cso_userInfo.proAuth_pdf_security == 'true', true, false)}">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10648}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!PDF_SECURITY}" id="PDF_SECURITY"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemLIFECYCLE" rendered="{!IF(cso_userInfo.proAuth_life_cycle == 'true', true, false)}">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_13017}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!LIFECYCLE}" id="LIFECYCLE"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemDISCLOSE" >
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_13134}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!DISCLOSE}" id="DISCLOSE"/>
+                           </apex:pageBlockSectionItem>
+
+
+
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10121}" id="theBlockSectionDoc">
+                            <apex:pageBlockSectionItem id="theBlockSectionItemADD_DOC">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10036}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!ADD_DOC}" styleClass="inv" id="ADD_DOC"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemUP_DOC_OTHER_USER">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10212}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!UP_DOC_OTHER_USER}" styleClass="inv" id="UP_DOC_OTHER_USER"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemMK_DOC">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10307}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!MK_DOC}" styleClass="inv" id="MK_DOC"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemVIEW_DOC_PROP_OTHER_USER">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10213}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!VIEW_DOC_PROP_OTHER_USER}" styleClass="inv" id="VIEW_DOC_PROP_OTHER_USER"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemDEL_DOC">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10305}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!DEL_DOC}" styleClass="inv" id="DEL_DOC"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCNG_DOC_PROP_OTHER_USER">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10214}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!CNG_DOC_PROP_OTHER_USER}" styleClass="inv" id="CNG_DOC_PROP_OTHER_USER"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemRCV_DOC">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10208}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!RCV_DOC}" styleClass="inv" id="RCV_DOC"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemDEL_DOC_OTHER_USER">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10215}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!DEL_DOC_OTHER_USER}" styleClass="inv" id="DEL_DOC_OTHER_USER"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemMV_DOC">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10080}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!MV_DOC}" styleClass="inv" id="MV_DOC"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemMV_DOC_OTHER_USER">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10216}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!MV_DOC_OTHER_USER}" styleClass="inv" id="MV_DOC_OTHER_USER"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemVIEW_DOC">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10308}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!VIEW_DOC}" styleClass="inv" id="VIEW_DOC"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemVIEW_DOC_PROP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10209}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!VIEW_DOC_PROP}" styleClass="inv" id="VIEW_DOC_PROP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemONLINE_EDIT">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10309}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!ONLINE_EDIT}" styleClass="inv" id="ONLINE_EDIT"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCNG_DOC_PROP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10210}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!CNG_DOC_PROP}" styleClass="inv" id="CNG_DOC_PROP"/>
+                           </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem id="theBlockSectionItemCOPY_DOC">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10304}</apex:outputLabel>
+                               <apex:inputCheckbox disabled="false" selected="{!COPY_DOC}" styleClass="" id="COPY_DOC"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemDL_DOC">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10211}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!DL_DOC}" styleClass="inv" id="DL_DOC"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCOPY_DOC_OTHER_USER">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10306}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!COPY_DOC_OTHER_USER}" styleClass="" id="COPY_DOC_OTHER_USER"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemPLAY_MOVIE">
+                              <apex:outputLabel >{!$Label.solxyzcso001__msg_01004}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!PLAY_MOVIE}" styleClass="" id="PLAY_MOVIE"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemADD_SYMBOLIC_LINK">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_symbolic_00001}</apex:outputLabel>
+                               <apex:inputCheckbox disabled="false" selected="{!ADD_SYMBOLIC_LINK}" styleClass="inv" id="ADD_SYMBOLIC_LINK"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItem_BLANK">
+                              <apex:outputLabel ></apex:outputLabel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemDEL_SYMBOLIC_LINK">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_symbolic_00002}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!DEL_SYMBOLIC_LINK}" styleClass="inv" id="DEL_SYMBOLIC_LINK"/>
+                           </apex:pageBlockSectionItem>
+                           <!--
+                           <apex:pageBlockSectionItem id="theBlockSectionItemONLINE_VIEW">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10308}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!ONLINE_VIEW}" styleClass="inv" id="ONLINE_VIEW"/>
+                           </apex:pageBlockSectionItem>
+                           -->
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10220}" id="theBlockSectionOther">
+                            <apex:pageBlockSectionItem id="theBlockSectionItemVIEW_INV_USER">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_11101}</apex:outputLabel>
+                               <apex:inputCheckbox disabled="false" selected="{!VIEW_INV_USER}" styleClass="inv" id="VIEW_INV_USER"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCHECKIN">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10027}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!CHECKIN}" styleClass="inv" id="CHECKIN"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCNG_INV_USER">
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10217}</apex:outputLabel>
+                               <apex:inputCheckbox disabled="false" selected="{!CNG_INV_USER}" styleClass="inv" id="CNG_INV_USER"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCHECKOUT">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10178}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!CHECKOUT}" styleClass="inv" id="CHECKOUT"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemDEL_INV_USER">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10218}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!DEL_INV_USER}" styleClass="inv" id="DEL_INV_USER"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemCANCEL_CHECKOUT">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10040}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!CANCEL_CHECKOUT}" styleClass="inv" id="CANCEL_CHECKOUT"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemOUT_COM_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10222}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!OUT_COM_SP}" styleClass="inv" id="OUT_COM_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemDELIVERY">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10311}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!DELIVERY}" styleClass="inv" id="DELIVERY"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemOUT_COL_SP">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10310}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!OUT_COL_SP}" styleClass="inv" id="OUT_COL_SP"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemUSE_WORKFLOW">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10312}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!USE_WORKFLOW}" styleClass="inv" id="USE_WORKFLOW"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem id="theBlockSectionItemARCHIVE">
+                              <apex:outputLabel >{!$Label.solxyzcso001__label_10051}</apex:outputLabel>
+                              <apex:inputCheckbox disabled="false" selected="{!ARCHIVE}" styleClass="inv" id="ARCHIVE"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+</apex:page>

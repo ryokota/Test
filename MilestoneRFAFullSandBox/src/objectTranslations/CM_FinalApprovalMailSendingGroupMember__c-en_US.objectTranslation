@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Final Approval mail sending group member</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Final Approval mail sending group members</value>
+    </caseValues>
+    <fields>
+        <label><!-- Final approval mail sending group --></label>
+        <name>CM_FinalApprovalMailSendingGroup__c</name>
+        <relationshipLabel><!-- Final Approval mail sending group members --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- User --></label>
+        <name>CM_User__c</name>
+        <relationshipLabel><!-- 最終承認メール送信グループメンバー --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- mail --></label>
+        <name>CM_mail__c</name>
+    </fields>
+    <layouts>
+        <layout>Group Member Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>No.</nameFieldLabel>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

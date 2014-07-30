@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cloud_Shared_Office_Face_oauth</fullName>
+    <apiAccessLevel>Unrestricted</apiAccessLevel>
+    <modules>
+        <module>
+            <label>Cloud_Shared_Office_Face_oauth</label>
+            <moduleType>connected</moduleType>
+            <name>Cloud_Shared_Office_Face_oauth</name>
+            <types>
+                <members>Cloud_Shared_Office_Face_oauth_devConfig</members>
+                <name>ConnectivityDevConfigMetadata</name>
+            </types>
+            <types>
+                <members>SOLXYZCSO001__Cloud_Shared_Office_Face_oauth</members>
+                <name>Module</name>
+            </types>
+            <version>21.0</version>
+        </module>
+    </modules>
+    <namespacePrefix>SOLXYZCSO001</namespacePrefix>
+    <version>28.0</version>
+</Package>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectSharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <criteriaBasedRules>
+        <fullName>CCEJP_Auditor</fullName>
+        <sharedTo>
+            <group>CCEJP_Auditor</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>Legal_Entity__c</field>
+            <operation>equals</operation>
+            <value>【CCEJP】コカ・コーラ イースト ジャパン プロダクツ株式会社</value>
+        </criteriaItems>
+        <accessLevel>Read</accessLevel>
+        <name>【CCEJP】Auditor</name>
+    </criteriaBasedRules>
+    <criteriaBasedRules>
+        <fullName>RFA_View_CapitalOnly</fullName>
+        <sharedTo>
+            <group>View_Capital_Only</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>RecordTypeId</field>
+            <operation>equals</operation>
+            <value>c. 中規模プロジェクト申請,b. 資本プロジェクト申請,d. 小規模プロジェクト申請</value>
+        </criteriaItems>
+        <accessLevel>Read</accessLevel>
+        <name>RFA View Capital Only</name>
+    </criteriaBasedRules>
+    <ownerRules>
+        <fullName>RFA_View_All</fullName>
+        <sharedTo>
+            <group>View_All</group>
+        </sharedTo>
+        <sharedFrom>
+            <allInternalUsers></allInternalUsers>
+        </sharedFrom>
+        <accessLevel>Read</accessLevel>
+        <name>RFA View All</name>
+    </ownerRules>
+</CustomObjectSharingRules>

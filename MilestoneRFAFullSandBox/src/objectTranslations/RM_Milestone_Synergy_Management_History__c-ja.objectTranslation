@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Milestone Synergy Management History</value>
+    </caseValues>
+    <fields>
+        <label>取得方法（購入/リース）</label>
+        <name>RM_Acquisition_Method__c</name>
+        <picklistValues>
+            <masterLabel>1.Purchase</masterLabel>
+            <translation>1.購入</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2.Lease</masterLabel>
+            <translation>2.リース</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>資産分類詳細</label>
+        <name>RM_Asset_Category_Detail__c</name>
+        <picklistValues>
+            <masterLabel>01.Land</masterLabel>
+            <translation>01.土地 - 土地</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>02.Buildings - Office</masterLabel>
+            <translation>02.建物 - 営業拠点</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>02.Buildings - Plant/Distribution Center</masterLabel>
+            <translation>02.建物 - 工場・物流センター</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>03.B&amp;A - Air Conditioning Facilities</masterLabel>
+            <translation>03.建物付属設備 - 冷暖房空調設備</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>03.B&amp;A - Partition/Other</masterLabel>
+            <translation>03.建物付属設備 - 間仕切り、防鳥ネット</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>03.B&amp;A - Water Supply/Electrical Facilities</masterLabel>
+            <translation>03.建物付属設備 - 給排水設備、電気設備</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>04.Structures - Drain Ditch/Concrete Pavement</masterLabel>
+            <translation>04.構築物 - 排水溝、コンクリート舗装</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>04.Structures - Signboard/Asphalt Pavement</masterLabel>
+            <translation>04.構築物 - 広告看板、アスファルト舗装</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>05.Machinery - Beverage Facilities</masterLabel>
+            <translation>05.機械設備 - 飲料製造設備</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>05.Machinery - Distribution Center</masterLabel>
+            <translation>05.機械設備 - 物流倉庫設備</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>06.Sales Equipment - Can/Cup VM</masterLabel>
+            <translation>06.販売機材/自販機 - 缶、カップ</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>07.Sales Equipment - Coolers</masterLabel>
+            <translation>07.販売機材/クーラー</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>08.Sales Equipment - Dispensers</masterLabel>
+            <translation>08.販売機材/ディスペンサー</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>09.Sales Equipment - Other</masterLabel>
+            <translation>09.販売機材/その他 - 給茶器、紙パック、その他</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>10.IT Hardware - Server/PC</masterLabel>
+            <translation>10.工具器具備品/IT - サーバー、パソコン</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>11.Furniture - Coin Counting Machine/Inspection Equipment</masterLabel>
+            <translation>11.工具器具備品/その他 - 硬貨計算機、検査・測定機器</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>11.Furniture - Desk/Chair</masterLabel>
+            <translation>11.工具器具備品/その他 - 事務机、椅子、キャビネット</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>11.Furniture - Locker/Storage</masterLabel>
+            <translation>11.工具器具備品/その他 - 釣銭ロッカー、物置</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>11.Furniture - Refrigerator/Air Conditioner</masterLabel>
+            <translation>11.工具器具備品/その他 - 監視カメラ、冷蔵庫、エアコン</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>12.Fleet - Automobiles</masterLabel>
+            <translation>12.車両/自動車 - 自動車</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>13.Fleet - Trucks</masterLabel>
+            <translation>13.車両/トラック</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>14.Fleet - Other</masterLabel>
+            <translation>14.車両/その他 - フォークリフト</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>15.IT Software</masterLabel>
+            <translation>15.IT/ソフトウェア</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>16.Other (Not Fixed Assets)</masterLabel>
+            <translation>16.その他</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>資産分類</label>
+        <name>RM_Asset_Category__c</name>
+        <picklistValues>
+            <masterLabel>01.Land</masterLabel>
+            <translation>01.土地</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>02.Buildings</masterLabel>
+            <translation>02.建物</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>03.Buildings &amp; Accessories</masterLabel>
+            <translation>03.建物付属設備</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>04.Structures</masterLabel>
+            <translation>04.構築物</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>05.Machinery &amp; Equipment</masterLabel>
+            <translation>05.機械設備</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>06.Sales Equipment - Vendors</masterLabel>
+            <translation>06.販売機材/自販機</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>07.Sales Equipment - Coolers</masterLabel>
+            <translation>07.販売機材/クーラー</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>08.Sales Equipment - Dispensers</masterLabel>
+            <translation>08.販売機材/ディスペンサー</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>09.Sales Equipment - Other</masterLabel>
+            <translation>09.販売機材/その他</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>10.IT Hardware</masterLabel>
+            <translation>10.工具器具備品/IT</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>11.Furniture &amp; Fixtures</masterLabel>
+            <translation>11.工具器具備品/その他</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>12.Fleet - Automobiles</masterLabel>
+            <translation>12.車両/自動車</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>13.Fleet - Trucks</masterLabel>
+            <translation>13.車両/トラック</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>14.Fleet - Other</masterLabel>
+            <translation>14.車両/その他</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>15.IT Software</masterLabel>
+            <translation>15.IT/ソフトウェア</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>16.Other (Not Fixed Assets)</masterLabel>
+            <translation>16.その他</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>資産名称</label>
+        <name>RM_Asset_Name__c</name>
+    </fields>
+    <fields>
+        <label>償却方法</label>
+        <name>RM_Depreciation_Rule__c</name>
+        <picklistValues>
+            <masterLabel>-</masterLabel>
+            <translation>対象外</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>New straight-line</masterLabel>
+            <translation>定額法</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>straight-line(5 years)</masterLabel>
+            <translation>定額（5年均等）</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>組織分類</label>
+        <name>RM_Detail__c</name>
+        <picklistValues>
+            <masterLabel>test1</masterLabel>
+            <translation><!-- test1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>test2</masterLabel>
+            <translation><!-- test2 --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>会社名</label>
+        <name>RM_Entity__c</name>
+        <picklistValues>
+            <masterLabel>test1</masterLabel>
+            <translation><!-- test1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>test2</masterLabel>
+            <translation><!-- test2 --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>4年後</label>
+        <name>RM_Four_Years_Later__c</name>
+    </fields>
+    <fields>
+        <label>ファンクション</label>
+        <name>RM_Function__c</name>
+        <picklistValues>
+            <masterLabel>BI</masterLabel>
+            <translation><!-- BI --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Commercial</masterLabel>
+            <translation><!-- Commercial --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Finance</masterLabel>
+            <translation><!-- Finance --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>HR</masterLabel>
+            <translation><!-- HR --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>IT</masterLabel>
+            <translation><!-- IT --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Legal</masterLabel>
+            <translation><!-- Legal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>PAC</masterLabel>
+            <translation><!-- PAC --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Procurement</masterLabel>
+            <translation><!-- Procurement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>SCM</masterLabel>
+            <translation><!-- SCM --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>投資金額合計</label>
+        <name>RM_Invest_Total__c</name>
+    </fields>
+    <fields>
+        <label><!-- Milestone Synergy Management No --></label>
+        <name>RM_Milestone_Synergy_Management_No__c</name>
+    </fields>
+    <fields>
+        <label>名前</label>
+        <name>RM_Name__c</name>
+    </fields>
+    <fields>
+        <label>来年（計算）</label>
+        <name>RM_Next_Year_Formula__c</name>
+    </fields>
+    <fields>
+        <label><!-- Next Year Q1 --></label>
+        <name>RM_Next_Year_Q1__c</name>
+    </fields>
+    <fields>
+        <label><!-- Next Year Q2 --></label>
+        <name>RM_Next_Year_Q2__c</name>
+    </fields>
+    <fields>
+        <label><!-- Next Year Q3 --></label>
+        <name>RM_Next_Year_Q3__c</name>
+    </fields>
+    <fields>
+        <label><!-- Next Year Q4 --></label>
+        <name>RM_Next_Year_Q4__c</name>
+    </fields>
+    <fields>
+        <label><!-- Next Year --></label>
+        <name>RM_Next_Year_Text__c</name>
+    </fields>
+    <fields>
+        <label>来年</label>
+        <name>RM_Next_Year__c</name>
+    </fields>
+    <fields>
+        <label><!-- RFA No. --></label>
+        <name>RM_RFA__c</name>
+        <relationshipLabel><!-- Milestone Synergy Management History --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>備考</label>
+        <name>RM_Remarks__c</name>
+    </fields>
+    <fields>
+        <label><!-- Saving or Spending --></label>
+        <name>RM_Saving_or_Spending__c</name>
+        <picklistValues>
+            <masterLabel>Saving</masterLabel>
+            <translation><!-- Saving --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Spending</masterLabel>
+            <translation><!-- Spending --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- he Year After Next --></label>
+        <name>RM_The_Year_After_Next_Text__c</name>
+    </fields>
+    <fields>
+        <label>再来年</label>
+        <name>RM_The_Year_After_Next__c</name>
+    </fields>
+    <fields>
+        <label>今年（計算）</label>
+        <name>RM_This_Year_Formula__c</name>
+    </fields>
+    <fields>
+        <label><!-- This Year --></label>
+        <name>RM_This_Year_Q1_Text__c</name>
+    </fields>
+    <fields>
+        <label><!-- This Year Q1 --></label>
+        <name>RM_This_Year_Q1__c</name>
+    </fields>
+    <fields>
+        <label><!-- This Year --></label>
+        <name>RM_This_Year_Q2_Text__c</name>
+    </fields>
+    <fields>
+        <label><!-- This Year Q2 --></label>
+        <name>RM_This_Year_Q2__c</name>
+    </fields>
+    <fields>
+        <label><!-- This Year --></label>
+        <name>RM_This_Year_Q3_Text__c</name>
+    </fields>
+    <fields>
+        <label><!-- This Year Q3 --></label>
+        <name>RM_This_Year_Q3__c</name>
+    </fields>
+    <fields>
+        <label><!-- This Year --></label>
+        <name>RM_This_Year_Q4_Text__c</name>
+    </fields>
+    <fields>
+        <label><!-- This Year Q4 --></label>
+        <name>RM_This_Year_Q4__c</name>
+    </fields>
+    <fields>
+        <label><!-- This Year --></label>
+        <name>RM_This_Year_Text__c</name>
+    </fields>
+    <fields>
+        <label>今年</label>
+        <name>RM_This_Year__c</name>
+    </fields>
+    <fields>
+        <label>3年後</label>
+        <name>RM_Three_Years_Later__c</name>
+    </fields>
+    <fields>
+        <label>合計</label>
+        <name>RM_Total__c</name>
+    </fields>
+    <fields>
+        <label><!-- Useful Life --></label>
+        <name>RM_Useful_Life_Text__c</name>
+    </fields>
+    <fields>
+        <label>耐用年数</label>
+        <name>RM_Useful_Life__c</name>
+    </fields>
+    <fields>
+        <label>年度</label>
+        <name>RM_Year__c</name>
+    </fields>
+    <fields>
+        <label><!-- Seq No --></label>
+        <name>Seq_No__c</name>
+    </fields>
+    <layouts>
+        <layout>Milestone Synergy Management History Layout</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+</CustomObjectTranslation>

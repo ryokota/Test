@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>原価センタ名称</value>
+    </caseValues>
+    <fields>
+        <label>有効/無効</label>
+        <name>ActiveInactive__c</name>
+        <picklistValues>
+            <masterLabel>Active</masterLabel>
+            <translation>有効</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Inactive</masterLabel>
+            <translation>無効</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>原価センタ名称（英）</label>
+        <name>Cost_Center_Name_En__c</name>
+    </fields>
+    <fields>
+        <label>原価センタ名称（日）</label>
+        <name>Cost_Center_Name__c</name>
+    </fields>
+    <fields>
+        <label>ファンクション（英）</label>
+        <name>Function_En__c</name>
+    </fields>
+    <fields>
+        <label>ファンクション（日）</label>
+        <name>Function__c</name>
+    </fields>
+    <layouts>
+        <layout>Cost Center Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>原価センタ番号</nameFieldLabel>
+    <namedFilters>
+        <informationalMessage>&quot;C&quot;のみ、もしくは&quot;C+所属するファンクション（L3）の原価センタ番号(一部可)&quot;を 検索ボックスに入力しGO!ボタンをクリックしてください。</informationalMessage>
+        <name>nf_01I10000000tF0NEAU_00N10000003Lva4EAC</name>
+    </namedFilters>
+</CustomObjectTranslation>

@@ -1,0 +1,45 @@
+<div style = " font-size:14px;">
+
+<p>
+To : &nbsp; {!RFAUserRole__c.UserName__c}
+</p>
+<p>
+CC : &nbsp; {!RFAUserRole__c.Agent1__c}
+, {!RFAUserRole__c.Agent2__c} 
+, {!RFAUserRole__c.Agent3__c}
+<BR/><BR/>
+</p>
+
+<p>
+下記リンクより申請内容を確認の上、承認をお願い致します。<BR/>
+Your approval is requested for the following RFA.<BR/><BR/>
+</p>
+
+<p>
+**********************************************************************************************************************************<BR/>
+<ul>
+<li><U>案件名 (Request Title)</U> : <BR/> 
+<B>{!RFA__c.RequestTitle__c}</B></li><BR/>
+
+<li><U>コストセンター (Cost Center)</U> : <BR/> 
+<B>{!RFA__c.Cost_Center_Number__c}</B><BR/>
+<B>{!RFA__c.CostCenterName__c}</B></li><BR/>
+
+<li><U>申請金額 (Request Amount)</U> : <BR/> 
+<B>¥ {!RFA__c.RequestAmountFunctionalCurrency__c}</B></li><BR/>
+</ul>
+**********************************************************************************************************************************<BR/>
+</p>
+
+<p><BR/>
+内容を確認する場合には下記リンクをクリックし、承認申請の文書を開いてください:<BR/>
+Click this link to open the RFA Request Document: <B><a href="{!RFA__c.Link}">{!RFA__c.Name}</a><BR/></B>
+</p>
+
+<p><BR/>
+ご質問がございましたら、<B><a href="mailto:{!RFA__c.Requester_Email__c}?subject=RE : 起案通知（Information Only）: {!RFA__c.Name} - {!RFA__c.RequestTitle__c}">{!RFA__c.CreatedBy}</a></B> へご連絡ください。<BR/>
+If you have any inquiries kindly contact <B><a href="mailto:{!RFA__c.Requester_Email__c}?subject=RE : 起案通知（Information Only）: {!RFA__c.Name} - {!RFA__c.RequestTitle__c}">{!RFA__c.CreatedBy}</a></B>.<BR/>
+<BR/>RFA04
+</p>
+
+</div>

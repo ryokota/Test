@@ -1,0 +1,1085 @@
+<apex:page cache="false" controller="SOLXYZCSO001.WorkflowApplyController" sidebar="false" showHeader="false" tabStyle="workflow__tab" action="{!init}">
+
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_workflow_standard == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_workflow_standard == 'true' && userInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/chosen.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/chosen.jquery.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+
+<style type="text/css">
+
+.jqGridIcon{
+    margin: 3px;
+}
+
+#loadingImg {
+    position: absolute;
+    top: 195px;
+    left: 90px;
+    width: 24px;
+    height: 24px;
+}
+
+#spacePath2{
+    color: white;
+    padding: 3px 3px 3px 5px;
+    overflow:hidden;
+    white-space:nowrap;
+    height:14px;
+    font-weight: bold;
+    width:860px;
+}
+
+.path-bold{
+    font-weight: bold;
+    color: #FFA07A;
+}
+
+.text{
+    padding: 3px;
+}
+
+#comment {
+    width: 600px;
+    max-width: 600px;
+    min-width: 600px;
+    height: 130px;
+    max-height: 130px;
+    min-height: 130px;
+}
+
+#remainder {
+    height: 1em;
+    padding-right: 3px;
+    padding-bottom: 3px;
+    width: 600px;
+    white-space: nowrap;
+    text-align:right;
+}
+
+#innerTable {
+    width : 95%;
+}
+
+#innerTable th {
+    text-align: right;
+    font-weight: bold;
+}
+
+#innerTable td {
+}
+
+#innerTable th,td {
+    vertical-align: middle;
+}
+
+.tab-div{
+    height: 350px;
+    padding: 0px 0px 10px 0px;
+}
+
+div#tab_0 {
+    display : block;
+}
+
+div#tab_1 {
+    display: none;
+}
+
+#info_tab{
+    margin-top: 0px;
+}
+
+#info_tab li{
+    list-style: none;
+    line-height: 10px;
+    float: left;
+    margin-right: 20px;
+    border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+}
+
+#info_tab a{
+    display: block;
+    text-decoration: none;
+    padding: 8px 15px;
+    font-weight: bold;
+}
+
+.info_tab_active{
+    background-color: #F8F8F8;
+}
+
+.info_tab_active a{
+    color: #456;
+}
+
+.info_tab_deactive{
+    background-color: #0033ff;
+    filter:alpha(opacity=50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+}
+
+.info_tab_deactive a{
+    color: white;
+}
+
+#control {
+    height: 20px;
+    text-align: right;
+    width: 210px;
+}
+
+#addContentsDialog > table {
+    margin:0px;
+}
+
+#addContentsDialog table tr td {
+/*  padding:0px;*/
+}
+
+div.spaceTreeDiv {
+    margin:0px;
+    height:355px;
+    width:200px;
+    overflow:auto;
+    border:solid 1px gray;
+}
+
+ul#spaceTree {
+}
+
+.selectNode{
+    color: red !important;
+}
+
+.selectedContentsSpace{
+    font-weight: bold !important;
+}
+
+.folder {
+    position: relative ;
+}
+
+.checkMarkImg {
+    position: absolute !important;
+    width:16px !important;
+    top: -2px !important;
+    left: 0px !important;
+}
+/*
+img.checked {
+    width:16px;
+    position: relative;
+    top: 0px;
+    left: -16px;
+}
+*/
+
+#multipleContentsMsg {
+    color : red;
+    padding-top : 10px;
+    padding-left: 10px;
+    float: left;
+}
+
+.c_command_l{
+    width : 100%;
+    height : 30px;
+}
+.c_command_pipe{
+    list-style: none;
+    margin-top : 0px;
+    padding-left: 0px;
+}
+.c_command_pipe .item{
+    float: left;
+    border-right: 1px solid #CFCECE;
+    padding-left: 0px;
+    padding-right: 3px;
+    margin-left: 3px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.pbSubheader{
+    margin-top: 2px !important;
+}
+.definition-notice {
+    display: none;
+}
+.definition-notice th, .definition-notice td {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.definition-notice td {
+    color: #FF0000;
+}
+</style>
+
+<apex:include pageName="SOLXYZCSO001__WorkflowDefinitionDialog"/>
+
+
+<script type="text/javascript">
+
+var WF_workflowId = '';             //  ワークフローID
+var WF_callType = '{!callType}';    //  タイプ（''：画面遷移、'popup'：ポップアップ）
+
+Array.prototype.contain = function(value){
+    for(var i = 0; i < this.length; i++){
+        if(this[i] === value){
+            return true;
+        }
+    }
+    return false;
+};
+
+var spaceId;
+var contentsData = new Object();
+var preSelectNode;
+var nowId;
+var selectedSpaceMap = new Object();
+var selectedSpaceTempMap = new Object();
+
+var WorkflowApply = {
+    gridLoaded: $.Deferred()
+};
+
+//==========//
+//  onload  //
+//==========//
+jQuery.event.add(window, "load", function(){
+    top.window.focus();
+
+    $(".tab-div h3").each(function(i, obj) {
+        $(this).html("&nbsp;&nbsp;");
+    });
+
+    initDefinitionDialog();
+    loadCategory();
+
+    $(window).unload(function(e) {
+        if(top.window.opener == null){
+            return;
+        }
+        if (top.window.opener != null && top.window.opener.reloadNow) {
+            top.window.opener.reloadNow();
+        }
+    });
+
+    if (top.window.opener) {
+        top.window.resizeTo(900, 700);
+    }
+
+    $("#comment").keyup(function(){
+        viewCommentLength("comment", "remainder", 512);
+    });
+    $("#comment").keyup();
+
+    var docs = [];
+    var rows = localStorage.getItem("contentsRows");
+    if (!rows) {
+        rows = 50;
+    }
+
+    $("#contentsList").jqGrid({
+        data : docs,
+        datatype: "local",
+        jsonReader :{
+            repeatitems: false,
+            id       : "id"
+        },
+        colNames : [
+            '',
+            '',
+            '{!$Label.label_10011}',
+            '{!$Label.label_10476}',
+            ''
+        ],
+        colModel : [
+            {name : "id", index : "id", hidden : true},
+            {name : "name", index : "name", hidden : true},
+            {name : "title", index : "title", width : 350},
+            {name : "path", index : "path", width : 452},
+            {name : "spaceId", index : "spaceId", hidden : true}
+        ],
+        rowNum : rows,
+        autowidth : false,
+        height : 220,
+        width : 860,
+        rowList:[10, 50, 100],
+        sortname: 'name',
+        pager: '#contentsListPager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        loadComplete : function(data) {
+            WorkflowApply.gridLoaded.resolve();
+            var r = $(this).getGridParam("rowNum");
+            localStorage.setItem("contentsRows", $(this).getGridParam("rowNum"));
+        },
+        onRightClickRow: function() {return false;}
+    });
+
+    resizeGrid();
+
+    $("#addContentsDialog").dialog({
+        title : '{!$Label.label_10693}',
+        modal : true,
+        autoOpen : false,
+        width : 810,
+        height : 460,
+        resizable : false,
+        open : function(event, ui) {
+            $("#spaceTree li").remove();
+            getSpaceTree();
+        }
+    });
+
+    $("#addContentsList").jqGrid({
+        url : _apiUrl + "/workflowmanagement/contentsList.json",
+        postData : {
+        },
+        dataType : "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id       : "id"
+        },
+        colNames : [
+            '',
+            '',
+            '{!$Label.label_10011}',
+            '',
+            '{!$Label.label_10804}',    //作成
+            '{!$Label.label_10805}',    //更新
+            '{!$Label.label_10014}',    //作成日時
+            '{!$Label.label_10018}',    //更新日時
+            ''
+        ],
+        colModel : [
+            {name : "id", index : "id", hidden : true},
+            {name : "name", index : "name", hidden : true},
+            {name : "title", index : "title", width : 400},
+            {name : "path", index : "path", hidden : true},
+            {name : "rinfo", index : "rdate", align: "center", width: 100, hidden:true},
+            {name : "uinfo", index : "udate", align: "center", width: 100, hidden:true},
+            {name : "rdate", index : "rdate", align: "center", width: 100, hidden:true},
+            {name : "udate", index : "udate", align: "center", width: 100},
+            {name : "spaceId", index : "spaceId", hidden : true}
+        ],
+        rowNum : rows,
+        autowidth : false,
+        width : 560,
+        height: 310,
+        rowList:[10, 50, 100],
+        sortname: 'title',
+        pager: '#addContentsListPager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        loadComplete : function(e) {
+            WorkflowApply.gridLoaded.resolve();
+            var r = $(this).getGridParam("rowNum");
+            localStorage.setItem("contentsRows", $(this).getGridParam("rowNum"));
+
+            for (var i in contentsData) {
+                var id = contentsData[i].id;
+                $(this).setSelection(id, false);
+            }
+        },
+        onPaging : function(e){
+            saveTmpContents();
+        },
+        onSortCol : function(index, iCol, sortorder){
+            saveTmpContents();
+        },
+        onSelectRow : function(aRowids, status){
+            saveTmpContents();
+        },
+        onSelectAll : function(rowid, status, e){
+            saveTmpContents();
+        },
+        onRightClickRow: function() {return false;}
+    });
+    createAndAssignColumnModelNameMap($("#addContentsList"));
+
+    getWorkflowApplyInfo();
+
+//  $(".pbSubheader").each(function() {
+//      $(this).css("margin-top", "0px;");
+//      alert("test");
+//  });
+});
+
+function createAndAssignColumnModelNameMap(jqgridObj) {
+    var colModel = jqgridObj.getGridParam('colModel');
+    var colModelNameMap = [];
+    for (var i=0; i<colModel.length; ++i) {
+        colModelNameMap[colModel[i].name] = i;
+    }
+    jqgridObj.data('colModelNameMap', colModelNameMap);
+}
+
+function getColumnModelNameMap(jqgridObj) {
+    return jqgridObj.data('colModelNameMap');
+}
+
+function constructObjectFromRowData(cellArray, columnModelNameMap, format) {
+    var obj = {};
+    if (format === 'text') {
+        for (var name in columnModelNameMap) {
+            obj[name] = $(cellArray[columnModelNameMap[name]]).text();
+        }
+    } else {
+        for (var name in columnModelNameMap) {
+            obj[name] = $(cellArray[columnModelNameMap[name]]).html();
+        }
+    }
+    return obj;
+}
+
+function getWorkflowApplyInfo(){
+
+    //-------------------------------------------------------------------------
+    //  Memo:コンテンツ管理画面からの申請の場合、getSelectDocIds()で選択コンテンツIDを取得。
+    //       申請、コピー申請            の場合、getWorkflowId()でコピー元のワークフローIDを取得。
+    //       コンテンツ情報画面からの申請の場合、ControllerからコンテンツIDを取得。
+    //-------------------------------------------------------------------------
+
+    WF_workflowId = "{!workflowId}";
+    var docIds = "{!fileId}";
+    var copyFlg = eval({!copyFlg});
+
+    if(top.window.opener == null){
+        return;
+    }
+
+    //  コンテンツIDを取得
+    if(docIds == ""){
+        if(typeof top.window.opener.getSelectDocIds != "undefined"){
+            docIds = top.window.opener.getSelectDocIds();
+        }
+    }
+    //  コピー元のワークフローIDを取得
+    if(typeof top.window.opener.getWorkflowId != "undefined"){
+        WF_workflowId = top.window.opener.getWorkflowId();
+    }
+
+    var param = [];
+    if((WF_workflowId != "")&&(WF_workflowId != "undefined")){
+        param = {
+            workflowId : WF_workflowId,
+            copy       : copyFlg
+        };
+    }
+    else{
+        param = {
+            file_id    : docIds
+        };
+    }
+
+
+    var callback =  function(data, status){
+        CsoScript_loadingStop();
+        if(!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+
+        setWorkflowApplyInfo(data);
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("getWorkflowApplyInfo:" + data);
+    };
+
+    CsoScript_loadingStart();
+    WorkflowApply.gridLoaded.then(function() {
+        callSecurePostAsync('/workflowmanagement/WorkflowApplyInfo.json', param, callback, callerror);
+    });
+}
+
+function setWorkflowApplyInfo(data){
+    //  件名
+    if(data.title != null) {
+        $("#title").val(data.title);
+    }
+    //  コメント
+    if(data.comment != null) {
+        $("#comment").val(data.comment);
+    }
+    //  定義ID
+    if(data.definition != null) {
+        $("#definition").val(data.definition);
+    }
+    //  定義名
+    if(data.definitionName != null) {
+        $("#definitionName").val(data.definitionName);
+    }
+    //  コンテンツ情報
+    if(data.docs != null) {
+        for (var i = 0; i < data.docs.length;i++) {
+            var info = data.docs[i];
+            var id = info.id;
+            $("#contentsList").addRowData(id, info);
+        }
+
+        _branched = data.branched;
+        if (isBranched() && data.docs.length > 1) {
+            $("#multipleContentsMsg, #definitionNotice").show();
+        } else {
+            $("#multipleContentsMsg, #definitionNotice").hide();
+        }
+    }
+
+    var spacePath = $(data.spacePath).text();
+    $(".tab-div h3").each(function(i, obj) {
+        $(this).text(spacePath);
+    });
+
+    //  エラーメッセージ
+    if(data.msg != null) {
+        alert(msg);
+    }
+    viewCommentLength("comment", "remainder", 512);
+
+}
+
+function getSpaceTree(){
+    var callback =  function(data, status){
+        CsoScript_loadingStop();
+        if(!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+        var branches = $("#spaceTree").html(data.tree);
+        $("#spaceTree").treeview({
+            add: branches,
+            animated: "fast",
+            url: "/workflowmanagement/SpaceTreeChildrenApi.json",
+            callback: function(elements){
+                setTimeout(function(){
+                    var $ul = elements;
+                    var $li = $ul.children("li");
+                    for(var o in b4d_selectedSpaceMap){
+                        var lookup = false;
+                        $li.each(function() {
+                            if ($(this).attr("id") == o) {
+                                lookup = true;
+                                return false;
+                            }
+                        });
+                        if (lookup) {
+                            if(!$("#a_" + o).hasClass("selectedContentsSpace")){
+                                $("#a_" + o).addClass("selectedContentsSpace");
+                                $("#a_" + o).append("<img src='" + "{!URLFOR($Resource.cso, 'image/apply.png')}" + "' class = 'checkMarkImg' id='x_"+ o +"'>");
+                            }
+                        }
+                    }
+                },100);
+            },
+        });
+
+        //ツリーの選択状態を更新
+        $("#spaceTree img").remove();
+        $(".selectedContentsSpace").removeClass("selectedContentsSpace");
+        for(var spaceId in selectedSpaceMap){
+            if (spaceId === "") {continue;}
+                $("#a_" + spaceId).addClass("selectedContentsSpace");
+                $("#a_" + spaceId).append("<img src='" + "{!URLFOR($Resource.cso, 'image/apply.png')}" + "' class= 'checkMarkImg' id='x_"+ spaceId +"'>");
+        }
+        changeCurrentTreeColor(nowId);
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("WatermarkDetailApi:" + data);
+    };
+    CsoScript_loadingStart();
+    callSecureGetAsync('/workflowmanagement/SpaceTreeRootApi.json', '', callback, callerror);
+}
+
+function resizeGrid(){
+}
+
+function addContents() {
+
+    saveTmpContents();
+
+    var selectedContentsIDs = $("#contentsList").getDataIDs();
+    var contentsDataIDs = new Array();
+
+    for (var i in contentsData) {
+        contentsDataIDs.push(i);
+        if(!selectedContentsIDs.contain(i)){
+            $("#contentsList").addRowData(contentsData[i].id, contentsData[i]);
+        }
+    }
+
+    for(var i = 0; i < selectedContentsIDs.length; i++){
+        if(!contentsDataIDs.contain(selectedContentsIDs[i])){
+            $("#contentsList").delRowData(selectedContentsIDs[i]);
+        }
+    }
+
+    selectContentsText();
+    selectedSpaceMap = $.cloneObject(selectedSpaceTempMap, true);
+
+    if (isBranched() && $("#contentsList").getRowData().length > 1) {
+        $("#multipleContentsMsg, #definitionNotice").show();
+    } else {
+        $("#multipleContentsMsg, #definitionNotice").hide();
+    }
+
+    $("#addContentsDialog").dialog("close");
+    return true;
+}
+
+function validate(draft) {
+    var errFlag = false;
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    var title = $("#title").val();
+    comment = $("#comment").val().replace(regexp, "\r\n");
+
+    if (title.length == 0) {
+        alert(getMsg(['{!$Label.label_10106}'], '{!$Label.msg_00226}'));
+        errFlag = true;
+    } else if (title.length > 100) {
+        alert(getMsg(['{!$Label.label_10106}', "100"], '{!$Label.msg_00059}'));
+        errFlag = true;
+    }
+
+    if (comment.length > 512) {
+        alert(getMsg(['{!$Label.label_10023}', "512"], '{!$Label.msg_00059}'));
+        errFlag = true;
+    } else {
+        comment = $.trim(comment);
+    }
+
+    if (!draft) {
+        if ($("#definition").val().length == 0) {
+            alert(getMsg(['{!$Label.label_10123}'], '{!$Label.msg_00311}'));
+            errFlag = true;
+        }
+
+        var docs = $("#contentsList").getGridParam("data");
+        if (docs.length == 0) {
+            alert(getMsg(['{!$Label.label_10011}'], '{!$Label.msg_00311}'));
+            errFlag = true;
+        }
+    }
+
+    if (errFlag == true) {
+        return false;
+    }
+
+    return true;
+}
+
+function showContents(obj, id) {
+//  saveTmpContents();
+    changeCurrentTreeColor(id);
+    spaceId = id;
+    if(preSelectNode){
+        $(preSelectNode).removeClass("selectNode");
+    }
+    $(obj).addClass("selectNode");
+    preSelectNode = obj;
+    $("#addContentsList").setGridParam({page : 1, postData : {spaceId : id}}).trigger("reloadGrid");
+    nowId = id;
+}
+
+//==========================//
+// 選択スペースの文字色変更 //
+//==========================//
+function changeCurrentTreeColor(id){
+    if(!id){
+        return;
+    }
+
+    $(".folder a, .folderShare a").each(function(){
+        if(id == $(this).attr("id")){
+            $(this).css({color:"red"});
+        }else{
+            $(this).css({color:"black"});
+        }
+    });
+}
+
+function tab(num) {
+    $(".tab-div").each(function(i, obj) {
+        if (num == i) {
+            $("#tab_" + i.toString()).show();
+            $("#info_tab_" + i.toString()).removeClass("info_tab_deactive").addClass("info_tab_active");
+        } else {
+            $("#tab_" + i.toString()).hide();
+            $("#info_tab_" + i.toString()).addClass("info_tab_deactive").removeClass("info_tab_active");
+        }
+    });
+}
+
+function saveTmpContents(){
+    var ctx = $("#addContentsList");
+    var selRows = ctx.getGridParam("selarrrow");
+    var rows = ctx.jqGrid("getRowData");
+
+    for(var i = 0; i < rows.length; i++){
+        if(selRows.contain(rows[i].id)){
+            var rawObj = constructObjectFromRowData(ctx.find("#" + rows[i].id + " td"), getColumnModelNameMap(ctx));
+
+            contentsData[rows[i].id] = rows[i];
+            contentsData[rows[i].id].title = rawObj.title;
+            contentsData[rows[i].id].path = rawObj.path;
+
+        }else if (contentsData[rows[i].id]){
+            delete contentsData[rows[i].id];
+        }
+    }
+    if(nowId != ""){
+        if(selRows.length > 0){
+            if(!$("#a" + nowId).hasClass("selectedContentsSpace")){
+                $("#a" + nowId).addClass("selectedContentsSpace");
+                $("#a" + nowId).append("<img src='" + "{!URLFOR($Resource.cso, 'image/apply.png')}" + "' class = 'checkMarkImg' id='x_"+ nowId +"'>");
+                selectedSpaceMap[nowId] = true;
+            }
+        }else{
+            $("#a" + nowId).removeClass("selectedContentsSpace");
+            $("#x_" + nowId).remove();
+            delete selectedSpaceMap[nowId];
+        }
+    }
+}
+
+function selectContentsText(){
+
+}
+
+function draftOnClick(){
+    if (validate(true) == false) {
+        return false;
+    }
+    if (!confirm('{!$Label.msg_00310}')) {
+        return false;
+    }
+
+    var serverUrl = window.location.protocol + "//" + window.location.host
+    var docs = $("#contentsList").getGridParam("data");
+    var param = {
+        title : $("#title").val(),
+        comment : comment,
+        definitionId : $("#definition").val(),
+        draft : true,
+        docs : JSON.stringify(docs),
+        url : serverUrl
+    };
+
+    var url = "/workflowmanagement/applyWorkflow.json";
+    if((WF_workflowId != "") && (eval({!copyFlg}) == false)){
+        url = "/workflowmanagement/startWorkflow.json";
+        param.wfid = "[" + WF_workflowId + "]";
+    }
+
+    var callbackDraft =  function(data, status){
+        CsoScript_loadingStop();
+        if(!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+
+        cancelOnClick();
+    };
+    var callerrorDraft =  function(data){
+        CsoScript_loadingStop();
+        alert("applyWorkflow(draft):" + data);
+    };
+    CsoScript_loadingStart();
+    callSecurePostAsync(url, param, callbackDraft, callerrorDraft);
+}
+
+function applyOnClick(){
+    if (validate(false) == false) {
+        return false;
+    }
+    if (!confirm('{!$Label.msg_00309}')) {
+        return false;
+    }
+    var serverUrl = window.location.protocol + "//" + window.location.host
+    var docs = $("#contentsList").getGridParam("data");
+    var param = {
+        title : $("#title").val(),
+        comment : comment,
+        definitionId : $("#definition").val(),
+        draft : false,
+        docs : JSON.stringify(docs),
+        url : serverUrl
+    };
+
+    var url = "/workflowmanagement/applyWorkflow.json";
+    if((WF_workflowId != "") && (eval({!copyFlg}) == false)){
+        url = "/workflowmanagement/startWorkflow.json";
+        param.wfid = "[" + WF_workflowId + "]";
+    }
+
+    var callbackApply =  function(data, status){
+        CsoScript_loadingStop();
+        if(!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+
+        cancelOnClick();
+    };
+    var callerrorApply =  function(data){
+        CsoScript_loadingStop();
+        alert(url + "(apply):" + data);
+    };
+    CsoScript_loadingStart();
+    callSecurePostAsync(url, param, callbackApply, callerrorApply);
+}
+
+function cancelOnClick(){
+    if(WF_callType == "popup"){
+        top.window.close();
+    }
+    else
+    if(WF_callType == ""){
+        history.back();
+    }
+    else{
+        top.window.close();
+    }
+}
+
+function removeContentsOnClick(){
+    var selected = $("#contentsList").getGridParam("selarrrow");
+
+    $(selected).each(function(index, s) {
+        $("#contentsList").delRowData(s);
+        delete contentsData[s];
+    });
+    if (isBranched() && $("#contentsList").getRowData().length > 1) {
+        $("#multipleContentsMsg, #definitionNotice").show();
+    } else {
+        $("#multipleContentsMsg, #definitionNotice").hide();
+    }
+
+    $("#addContentsList").trigger("reloadGrid");
+}
+
+function addContentsOnClick(){
+    contentsData = new Object();
+
+    selectedSpaceTempMap = $.cloneObject(selectedSpaceMap, true);
+    var selectedRowData = $("#contentsList").getRowData();
+    selectedSpaceMap = {};
+    for(var i = 0; i < selectedRowData.length; i++){
+        contentsData[selectedRowData[i].id] = selectedRowData[i];
+        selectedSpaceMap[selectedRowData[i].spaceId] = true;
+    }
+
+    $("#addContentsDialog").dialog("open");
+}
+
+function callSecureGetAsync(url, param, callback, callerror){
+    secureGetAsync(url, param, callback, callerror);
+}
+
+function callSecurePostAsync(url, param, callback, callerror){
+   if(getBrowserType() == 'Chrome' || getBrowserType() == 'Safari'){
+       if(typeof(param) == 'string'){
+           param = JSON.parse(param);
+       }
+       xhr2Access(url, param, true, false, callback, callerror);
+       return;
+   }
+   if(top.window.opener == null){
+       securePostAsync(url, param, callback, callerror);
+   }
+   else{
+       try{
+           top.window.opener.securePostAsync(url, JSON.stringify(param), callback, callerror);
+       }catch(e){
+           securePostAsync(url, JSON.stringify(param), callback, callerror);
+       }
+   }
+}
+
+</script>
+
+
+
+
+
+<!-- ヘッダー -->
+<div id="c_head">
+    <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/Application.png')}"/>
+    <div id="c_headTitle">
+        {!$Label.solxyzcso001__label_00002}
+    </div>
+    <div id="c_headSubTitle">
+        {!$Label.solxyzcso001__label_10694}
+    </div>
+</div>
+
+<apex:form >
+    <apex:pageBlock tabStyle="ContentTab__tab">
+        <!-- ボタン -->
+        <apex:pageBlockButtons >
+            <input type="button" class="btn draftBtn"  value="{!$Label.label_10695}" onclick="draftOnClick();"/>
+            <input type="button" class="btn applyBtn"  value="{!$Label.label_10696}" onclick="applyOnClick();"/>
+            <input type="button" class="btn cancelBtn" value="{!$Label.label_00058}" onclick="cancelOnClick();"/>
+        </apex:pageBlockButtons>
+
+        <!-- 詳細 -->
+        <div id="tab_0" class="tab-div">
+            <apex:pageBlockSection title="" collapsible="false">
+            </apex:pageBlockSection>
+            <table id="innerTable">
+                <tr>
+                    <th>
+                        {!$Label.label_10106}
+                    </th>
+                    <td class="c_require">
+                        <input type="text" id="title" style="width:400px" maxlength="255" value="" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10023}
+                    </th>
+                    <td>
+                        <div class="c_text_ll">
+                            <div id="remainder"></div>
+                            <textarea class="c_text_ll" id="comment"></textarea>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {!$Label.label_10123}
+                    </th>
+                    <td class="c_require">
+                        <input type="hidden" id="definition" value="" />
+                        <input type="text" id="definitionName" value="" class="c_text_ll" readonly="readonly" />
+                        <input type="button" id="selectDefinition" class="btn" onclick="return openDefinitionDialog();" value="{!$Label.label_00076}" />
+                    </td>
+                </tr>
+                <tr id="definitionNotice" class="definition-notice">
+                    <th></th>
+                    <td>{!$Label.msg_00324}</td>
+                </tr>
+            </table>
+        </div>
+
+
+        <!-- コンテンツ -->
+        <div id="tab_1" class="tab-div stdDiv">
+            <apex:pageBlockSection title="" collapsible="false">
+            </apex:pageBlockSection>
+            <div id="multipleContentsMsg" style="display:none">
+                {!$Label.msg_00324}
+            </div>
+            <table width="95%">
+                <tr>
+                    <td>
+                        <div class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="item">
+                                    <input type="button" class="removeContents btn" value="{!$Label.label_00072}" onclick="removeContentsOnClick();"/>
+                                </li>
+                                <li class="item">
+                                    <input type="button" class="addContents btn"    value="{!$Label.label_10020}" onclick="addContentsOnClick();"/>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">
+                        <div id="contentsListData" style="border:solid 1px transparent;">
+                            <table id="contentsList"></table>
+                            <div id="contentsListPager"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+<div style="width: 100%; height: 50px; text-align: center; border-top: solid #F8F8F8 1px; position: relative; background-color: #7593D7;">
+        <ul id="info_tab">
+            <li id="info_tab_0" class="info_tab info_tab_active"><a href="javascript:tab(0);">{!$Label.label_wf_00079}</a></li>
+            <li id="info_tab_1" class="info_tab info_tab_deactive"><a href="javascript:tab(1);">{!$Label.label_10693}</a></li>
+        </ul>
+</div>
+
+    </apex:pageBlock>
+</apex:form>
+
+<div id="addContentsDialog" style="display:none">
+    <table>
+        <tr>
+            <td style="padding:0px; margin:0px;">
+                <div class="spaceTreeDiv">
+                    <ul id="spaceTree" class="selectTree filetree"></ul>
+                </div>
+            </td>
+            <td>
+                <table id="addContentsList"></table>
+                <div id="addContentsListPager"></div>
+            </td>
+        </tr>
+    </table>
+    <div class="buttons" style="width : 770px; min-width:770px;text-align:center;margin-top:10px;">
+        <input type="button" class="btn" onclick="return addContents();" value="{!$Label.label_00076}" />
+        <input type="button" class="btn" onclick="$('#addContentsDialog').dialog('close');" value="{!$Label.label_00058}" />
+    </div>
+</div>
+
+</apex:outputPanel>
+</apex:page>

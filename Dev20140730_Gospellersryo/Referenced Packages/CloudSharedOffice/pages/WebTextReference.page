@@ -1,0 +1,331 @@
+<apex:page showHeader="false" cache="false" sidebar="false" controller="SOLXYZCSO001.SpacePortalController">
+    <script type="text/javascript" charset="">
+    var g_webtext;
+
+    /*
+     * Webテキスト変数空間初期化
+     */
+    function g_init_webtextView(url){
+        g_webtext = {};
+        g_webtext.isSubmiting = false;
+        if(url.length != 0){
+            // 不要部分削除
+            var url = url.replace('/ContentsOnlineReference','').replace('?','');
+            if(url.length != 0){
+                var paramArray = url.split('&');
+                for(var i=0; i < paramArray.length; i++){
+                    var param = paramArray[i].split('=');
+                    eval('g_webtext.' + param[0] + '="' + param[1] + '";');
+                }
+            }
+        }
+    }
+
+    /*
+     *  テキスト読込処理
+     */
+    function onlineView_load(param){
+
+        // 上部の設定アイコン非表示
+        $('.c_setting_icon').hide();
+
+        // ローディング表示
+        displayContentsLoading();
+
+        // ワーク初期化
+        webtext_wp = $('<p/>');
+
+        // 引数分割取得
+        g_init_webtextView(param);
+
+        var callback = function(data){
+            if(data.result == false){
+                alert(data.message);
+                // コンテンツローディング表示
+                $('#contentsloading').hide();
+                closeviewer();
+                return;
+            }
+            if(data.editable == false){
+                $('#wtRefEditButton').hide();
+            }
+            // 取得したテキスト情報を設定する
+            $('#fileId').val(data.fileId);
+            $('#spaceId').val(data.spaceId);
+            $('#latest').val(data.latest);
+            g_webtext.spaceId = data.spaceId;
+            $('#timestamp').val(data.timestamp);
+            g_webtext.time = data.time;
+            $('#viewer').val(data.text);
+            $('#viewer').attr('readonly', 'readonly');
+            $('#viewer').click(function() {$('#viewouter').focus();});
+            setHeaderFileName(data.filename_main);
+            $('#fileNameMan').val(data.filename_main);
+            $('#filename').val(data.filename);
+            $('#explain').val(data.explanation);
+            // セレクトボックスの値が空の場合にはデフォルトを選択する
+            if(data.encode == undefined || data.encode == ''){
+                $('#encodeview').val('UTF-8');
+                g_webtext.encode = 'UTF-8';
+            } else {
+                $('#encodeview').val(data.encode);
+                g_webtext.encode = data.encode;
+            }
+            if(data.filename_extention == undefined || data.filename_extention == ''){
+                $('#fileNameExt').val('.txt');
+            } else {
+                $('#fileNameExt').val('.' + data.filename_extention);
+            }
+
+            // 現在バージョンセット
+            $("#hVerMajor").val(data.version[0]);
+            $("#hVerMinor").val(data.version[1]);
+            $("#hVerRevision").val(data.version[2]);
+            $("#hVerBuild").val(data.version[3]);
+            $("#verUpMajor").val(data.version[0]);
+            $("#verUpMinor").val(data.version[1]);
+            $("#verUpRevision").val(data.version[2]);
+            $("#verUpBuild").val(data.version[3]);
+
+            //テキスト表示
+            g_webtext.loadTempName = data.temp_name;
+            if(data.fileId == null){
+                //
+                displaytext();
+            } else {
+                viewText(0);
+            }
+            // 2012/12/20 4343 add end
+        }
+        // データ取得
+        securePostAsync('/contentsmanagement/OnlineContentsReferenceApi.json', {'spaceId' : g_webtext.spaceId, 'fileId' :g_webtext.fileId, 'encode' :g_webtext.encode }, callback);
+    }
+
+    /*
+     *  テキスト表示
+     */
+    var webtext_wp;
+    function viewText(position) {
+
+        if (position == 0) {
+            $("#viewer").val("");
+        }
+        var verCurtMajor = $("#hVerMajor").val();
+        var verCurtMinor = $("#hVerMinor").val();
+        var verCurtRevision = $("#hVerRevision").val();
+        var verCurtBuild = $("#hVerBuild").val();
+        var hash = window.location.hash;
+
+        var param = {
+                     id : $('#fileId').val(),
+                     spaceId : $('#spaceId').val(),
+                     version : verCurtMajor + '.' + verCurtMinor + '.' + verCurtRevision + '.' + verCurtBuild,
+                     encoding : $("#encodeview").val(),
+                     position : position,
+                     temp_name : g_webtext.loadTempName,
+                     reference : "true"
+                     };
+
+        var callback = function(data) {
+                            if(data.result == false){
+                                TEXT_LOADING = true;
+                              //$.unblockUI();
+                                alert(data.message);
+                                return;
+                            }
+
+                           if (position == 0) {
+                               $("#viewer").empty();
+                           }
+                           //var text = data.text;
+                    //       $("#viewer").val(text);
+                           webtext_wp = $('<p/>');
+                           // TODO API修正後、.textと.appendのどちらが妥当かを検証する(7842)
+                           if((getBrowserType() == "IE6")||(getBrowserType() == "IE7")||(getBrowserType() == "IE8")){
+                               var tmptxt = $(webtext_wp).text();
+                               $(webtext_wp).text(tmptxt + rvsLtGt(data.text));
+                           }else{
+                               $(webtext_wp).append(data.text);
+                           }
+                           $("#viewer").val($(webtext_wp).text());
+
+                           if (data.last) {
+                                $("#viewer").scrollTop(SCROLL_TOP);
+                               // $("#viewer").val(data.text);
+                                TEXT_LOADING = false;
+                                if(hash.indexOf("#/ContentsOnlineEdit") == 0){
+                                    displayEditor();
+                                }else if(hash.indexOf("#/ContentsOnlineReference") == 0){
+                                    displaytext();
+                                }
+                               latestCheck($("#fileId").val(), $("#latest").val(), CHECK_SPAN);
+                           } else {
+                               viewText(data.position);
+                           }
+                       }
+
+        secureGetAsync('/contentsmanagement/webTextLoad.json', param, callback);
+    }
+    // 2012/12/20 add 4343 end
+
+    /*
+     * エンコード変更処理
+     */
+    function changeViewEncode(){
+        if ('' != $('#fileId').val()) {
+            // 再読み込み
+            //onlineView_load('/ContentsOnlineReference?spaceId=' + g_webtext.spaceId + '&fileId=' + $('#fileId').val() + '&encode=' + $('#encodeview').val());
+            viewText(0);
+        }
+    }
+
+    function rvsLtGt(s){
+        s = s.replace(/\&\lt;/g,"<");  // 正規表現で &\lt; を置換
+        s = s.replace(/\&\gt;/g,">");  // 正規表現で &\gt; を置換
+        s = s.replace(/\&\amp;/g,"&"); // 正規表現で \&\amp; を置換
+        s = s.replace(/\&\quot;/g,'"');    // 正規表現で &\quot; を置換
+        s = s.replace(/\&\apos;/g,"'");    // 正規表現で &\apos; を置換
+        s = s.replace(/\&#039;/g,"'");    // 正規表現で &#039; を置換
+        return s;
+    }
+
+    /*
+     * ファイル名表示
+     */
+    function setHeaderFileName(name){
+        $('#c_headLeftSubTitle').attr('title', name);
+    //    name = replaceLongName(name, 10);
+        $('#c_headLeftSubTitle').text(name);
+        $('#c_headLeftSubTitle').css('color', '#000');
+    }
+
+
+    /*
+     * エディターを閉じる
+     */
+    function closeviewer() {
+
+        $("#expire").val();
+        $("#priodEndless").click();
+
+        changeHashToCurrentSpace();
+        $("#listView1").trigger("reloadGrid");
+        // リスト表示に切り替え
+        displayList();
+    }
+
+
+    /*
+    **コンテンツ定期更新
+    */
+
+    var TEXT_LOADING = false;   //読み込み中フラグ
+    var CHECK_SPAN = 10000;     //チェック間隔
+    var SCROLL_TOP = 0;         //テキストエリアのスクロールバーの縦位置
+
+    function latestCheck(id, latest, checkSpan){
+
+        // FileIDを取得できない場合（Webテキスト参照画面を閉じた場合）
+        if(!$("#fileId").val()){
+            return;
+        }
+
+        //IDが異なる場合（別のWebテキストを参照している場合）
+        if(id != $("#fileId").val()){
+           return;
+        }
+
+        var callback=function(data){
+                if(data.result != true){
+                    setTimeout(function(){
+                        latestCheck($("#fileId").val(), $("#latest").val(), CHECK_SPAN);
+                    }, checkSpan);
+                    return;
+                }
+
+                if(data.update == true){
+                    //読み込み中だった場合
+                    if(TEXT_LOADING == true){
+                        return;
+                    }
+
+                    //最新情報を読み込む
+                    TEXT_LOADING = true;
+                    SCROLL_TOP = $("#viewer").scrollTop();
+                    $("#hVerMajor").val(data.version[0]);
+                    $("#hVerMinor").val(data.version[1]);
+                    $("#hVerRevision").val(data.version[2]);
+                    $("#hVerBuild").val(data.version[3]);
+                    $("#tempName").val(data.tempName);
+                    $("#latest").val(data.latest);
+                    $("#fileId").val(data.id);
+                    displayContentsLoading();
+                    viewText(0);
+
+                }
+                else{
+                    setTimeout(function(){
+                        latestCheck(data.id, $("#latest").val(), CHECK_SPAN);
+                    }, checkSpan);
+                }
+            }
+
+        // データ取得
+        secureGetAsync('/contentsmanagement/WebTextLatestCheckApi.json', {'id' : id, 'latest' :latest}, callback);
+
+
+    }
+
+
+    /*
+    ** 編集処理
+    */
+    function editOnClick(){
+
+        var callback=function(data){
+                if(data.editable == true){
+                    onlineEditById($("#spaceId").val(),$("#fileId").val());
+                }
+                else{
+                    alert(data.message);
+                }
+            }
+
+        secureGetAsync('/contentsmanagement/CheckOnlineEditAuthorityApi.json', {'id' : $("#fileId").val(), 'spaceId' : $("#spaceId").val()}, callback);
+
+    }
+
+    </script>
+
+    <!-- 値保持 -->
+    <input type="hidden" id="encode" value="" />
+    <input type="hidden" id="spaceId" value="" />
+    <input type="hidden" id="latest" value="" />
+    <input type="hidden" id="fileId" value="" />
+    <input type="hidden" id="timestamp" value="" />
+    <input type="hidden" id="filename" value="" />
+    <input type="hidden" id="fileNameExt" value=".txt"/>
+    <input type="hidden" id="hVerMajor" value="" />
+    <input type="hidden" id="hVerMinor" value="" />
+    <input type="hidden" id="hVerRevision" value="" />
+    <input type="hidden" id="hVerBuild" value="" />
+    <input type="hidden" id="hCheckNewVersion" value="" />
+    <!-- テキスト表示エリア -->
+    <div id="viewouter">
+        <textarea id="viewer" name="viewer"></textarea>
+    </div>
+
+
+	<script type="text/javascript">
+
+ECM.webTextReference = ECM.webTextReference || { loaded: $.Deferred() };
+(function() {
+	$.extend(ECM.webTextReference, {
+		// intentionally empty
+	});
+	ECM.webTextReference.loaded.resolve();
+})();
+
+	</script>
+
+</apex:page>

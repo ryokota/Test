@@ -1,0 +1,284 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.CSOOrganizationController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_corp_standard == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_corp_standard == 'true' && cso_userInfo.showErrPage == false, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+
+// グローバル変数宣言
+
+// 初期処理
+jQuery.event.add(window, "load", function(){
+    // 情報漏洩防止
+    if(!{!securityEnable}){
+        $("#securityColumn").hide();
+    } else {
+        $("#securityColumn").show();
+    }
+
+    // PDF透かし
+    if(!{!pdfWartermarkEnable}){
+        $("#pdfWartermarkColumn").hide();
+    } else {
+        $("#pdfWartermarkColumn").show();
+    }
+
+    // PDFセキュリティ
+    if(!{!pdfSecuritEnable}){
+        $("#pdfSecurityColumn").hide();
+    } else {
+        $("#pdfSecurityColumn").show();
+    }
+
+    // Creator'sオプション
+    if(!{!creatorsEnable}){
+        $("#creatorsOptionColumn").hide();
+    } else {
+        $("#creatorsOptionColumn").show();
+    }
+
+    // Creator'sオプション
+    if(!{!mobileChargedEnable}){
+        $("#mobileOptionColumn").hide();
+    } else {
+        $("#mobileOptionColumn").show();
+    }
+
+	// Syncライセンスオプション
+	if({!syncLicenseEnable}){
+		getSyncLicenseOption();
+	}
+});
+
+function getSyncLicenseOption() {
+	$.each({!syncLicenseOption}, function(index, value) {
+		if (index == "royalty") {
+			$.each(value, function(index, value) { createRow(value); });
+		} else if (index == "trial" || index == "free" || index == "externalStorage") {
+			if (value.max > 0) createRow(value);
+		}
+	});
+}
+
+function createRow(obj) {
+	var tr = $("<tr id=\"" + obj.id + "\">");
+	var unused = obj.max - obj.used;
+	tr.append($("<td>Sync " + obj.id + "</td>"));
+	tr.append($("<td class=\"number\">" + obj.max + "</td>"));
+	tr.append($("<td class=\"number\">" + obj.used + "</td>"));
+	tr.append($("<td class=\"number\">" + unused + "</td>"));
+	$("#mobileOptionColumn").before(tr);
+}
+</script>
+<style type="text/css">
+.editionTable {
+    border: solid 1px silver;
+    border-collapse:collapse;
+    width: 650px;
+}
+
+.editionTable th {
+    padding: 2px 5px 2px 5px;
+    background-color: #ccffff;
+    text-align: center !important;
+    width : 150px;
+    border: solid 1px silver !important;
+}
+
+.editionTable td {
+    padding: 2px 5px 2px 5px;
+    background-color: white;
+    border: solid 1px silver !important;
+}
+
+.editionTable td.number {
+    text-align: right;
+}
+
+.innerTable {
+    margin-top: 0px;
+}
+
+.innerTable th{
+    font-weight: bold;
+    text-align: right;
+    padding: 5px;
+    vertical-align: top;
+}
+
+.innerTable td {
+    border: none;
+    padding: 5px !important;
+}
+
+.separatorDiv{
+    width: 100%;
+}
+
+.separatorDiv div{
+    color: white;
+    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+.wrapped-cells td {
+    word-break: break-all;
+}
+
+.half-table {
+    table-layout: fixed;
+    width: 50%;
+    vertical-align: top;
+}
+
+.headers-nowrap th {
+    white-space: nowrap;
+}
+</style>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/company.png')}" alt="{!$Label.solxyzcso001__label_10235}" title="{!$Label.solxyzcso001__label_10235}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10345}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_10293}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageMessages />
+                    <apex:pageBlock >
+                        <apex:pageBlockButtons >
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00073}" action="{!edit}"/>
+                        </apex:pageBlockButtons>
+                        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10139}">
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_00052}</apex:outputLabel>
+
+                               <apex:outputLabel >{!collaborationView}</apex:outputLabel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_00053}</apex:outputLabel>
+                               <apex:outputLabel >{!companyView}</apex:outputLabel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_00055}</apex:outputLabel>
+                               <apex:outputLabel >{!archiveView}</apex:outputLabel>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        <!-- メール送信元 -->
+                        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_13218}" rendered="{!mailFromEditable}">
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13219}</apex:outputLabel>
+                               <apex:outputLabel >{!mailFromName}</apex:outputLabel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13220}</apex:outputLabel>
+                               <apex:outputLabel >{!mailFromAddress}</apex:outputLabel>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+<!-- エディション情報 -->
+<apex:pageblockSection title="{!$Label.solxyzcso001__label_13068}">
+<div style="padding-left: 30px; padding-top:20px;">
+    <table class="innerTable">
+        <tr>
+            <th>{!$Label.solxyzcso001__label_13069}</th>
+            <td>{!editionName}</td>
+        </tr>
+        <tr>
+            <th>{!$Label.solxyzcso001__label_13070}</th>
+            <td id="courseInformation">
+                {!courseInformationValue}
+            </td>
+        </tr>
+        <tr>
+            <th>{!$Label.solxyzcso001__label_13071}</th>
+            <td>
+                <table class="editionTable">
+                    <tr>
+                        <th>{!$Label.solxyzcso001__label_13071}</th>
+                        <th>{!$Label.solxyzcso001__label_13033}</th>
+                        <th>{!$Label.solxyzcso001__label_13072}</th>
+                        <th>{!$Label.solxyzcso001__label_13035}</th>
+                    </tr>
+                    <tr>
+                        <td>{!supportName}</td>
+                        <td class="number">{!supportTotal}</td>
+                        <td class="number">{!supportUsed}</td>
+                        <td class="number">{!supportUnUsed}</td>
+                    </tr>
+                    <tr id="securityColumn" style="display: none;">
+                        <td>Security</td>
+                        <td class="number">{!securityTotal}</td>
+                        <td class="number">{!securityUsed}</td>
+                        <td class="number">{!securityUnUsed}</td>
+                    </tr>
+                    <tr id="pdfWartermarkColumn" style="display: none;">
+                        <td>{!$Label.solxyzcso001__label_10588}</td>
+                        <td class="number"> - </td>
+                        <td class="number"> - </td>
+                        <td class="number"> - </td>
+                    </tr>
+                    <tr id="pdfSecurityColumn" style="display: none;">
+                        <td>{!$Label.solxyzcso001__label_10620}</td>
+                        <td class="number"> - </td>
+                        <td class="number"> - </td>
+                        <td class="number"> - </td>
+                    </tr>
+                    <tr id="creatorsOptionColumn" style="display: none;">
+                        <td>{!$Label.solxyzcso001__label_13029}</td>
+                        <td class="number">{!creatorsTotal}</td>
+                        <td class="number">{!creatorsUsed}</td>
+                        <td class="number">{!creatorsUnUsed}</td>
+                    </tr>
+                    <tr id="mobileOptionColumn" style="display: none;">
+                        <td>{!$Label.solxyzcso001__label_mobilesettings_00032}</td>
+                        <td class="number">{!IF(mobileChargedTotal == -1, $Label.solxyzcso001__label_10008, mobileChargedTotal)}</td>
+                        <td class="number">{!mobileChargedUsed}</td>
+                        <td class="number">{!IF(mobileChargedTotal == -1, '-', mobileChargedUnUsed)}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+                    </apex:pageblockSection>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

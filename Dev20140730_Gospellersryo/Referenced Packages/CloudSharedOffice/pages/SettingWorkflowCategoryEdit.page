@@ -1,0 +1,1314 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingWorkflowController" tabStyle="setting__tab" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_workflow_category == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_workflow_category == 'true' && userInfo.showErrPage == false, true, false)}">
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.undertab.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<!--apex:includeScript value="{!URLFOR($Resource.cso, 'js/jquery.resizeJqGrid.js')}" /-->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.undertab.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+
+
+<style type="text/css">
+.subLabelHeight{
+    height: 21px;
+}
+.list-name-top a {
+    font-size: 16px;
+}
+.list-name-bottom {
+    color: #666;
+}
+#searchTable {
+    padding : 5px;
+}
+#searchTable th {
+    padding-right : 5px;
+    text-align: right;
+}
+.upper-area {
+    height: 160px;
+    overflow: auto;
+}
+.selected {
+    color: #F00 !important;
+}
+.treeview a {
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+.edit {
+    color: #808080;
+}
+.modal {
+    display: none;
+}
+.input-area {
+}
+.add_category_name_label {
+    margin: 0 10px 0 0;
+    font-weight: bold;
+}
+.add_category_name {
+    width: 210px;
+}
+.users-area {
+    float: left;
+    margin: 0 0 0 50px;
+}
+.button-box {
+    float: right;
+    margin: 10px 10px 0 0;
+}
+.search-txt {
+    width: 300px;
+    margin: 0 0 10px 0;
+}
+.manager-button-box {
+    float: right;
+    margin: 15px 5px 20px 0;
+}
+
+.ui-tabs {
+    background : none;
+    border:none;
+}
+.ui-tabs .ui-tabs-nav {
+    background: none;
+    border: none;
+}
+.ui-tabs .ui-tabs-panel {
+    background : none;
+    border:2px solid #11579c;
+    hight:100%
+}
+.ui-widget-header .ui-state-default {
+    background : none;
+    border: 2px solid #DFEFFC;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+    background: #11579c;
+}
+.ui-tabs .ui-tabs-nav a {
+    font-weight: bold;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a{
+    color: #FFFFFF;
+}
+
+.under-area {
+    display: none;
+}
+.under-area .ui-tabs {
+    padding: 0;
+}
+.under-area .ui-tabs .ui-tabs-panel {
+    border:none;
+    padding: 0;
+}
+
+.tab-inner {
+    overflow: auto;
+    height: 395px;
+}
+.tab-inner .checkbox {
+    margin-top: 0px;
+}
+
+.categoryNameModalTable th {
+    padding: 10px;
+    text-align: right;
+    font-weight: bold;
+    width:100px;
+    min-width: 100px;
+}
+.categoryNameModalTable td {
+    overflow: hidden;
+    width : 430px;
+    min-width: 430px;
+}
+#remainder {
+    padding-bottom: 0.3em;
+    text-align:right;
+    width:95%
+    white-space: nowrap;
+}
+#tabManager, #tabUsers {
+    padding: 10px 0 10px 10px;
+}
+.btn-disable {
+    color: silver !important;
+}
+.error {
+    border: 2px solid #CC0000;
+}
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/category.png')}" alt="{!$Label.solxyzcso001__label_10678}" title="{!$Label.solxyzcso001__label_10678}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10673}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_10798}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <input type="hidden" id="tmp_id" name="tmp_id" value="" />
+
+                        <apex:pageBlockButtons >
+                            <input id="btnOk" class="btn" type="button" value="{!$Label.label_00075}" onclick="okOnClick();" disabled="disabled" />
+                            <input id="btnCancel" class="btn" type="button" value="{!$Label.label_00058}" onclick="cancelOnClick();" />
+                        </apex:pageBlockButtons>
+
+                        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10679}"  collapsible="false"/>
+                        <div class="upper-area">
+                            <ul id="wfCategoryList">
+                            </ul>
+                        </div>
+
+                        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}"  collapsible="false"/>
+                        <div class="under-area">
+                            <div id="tabUnderDiv">
+                                <div id="tabManager">
+                                    <table id="managerTable"></table>
+                                    <div id="managerTablePager"></div>
+                                </div>
+                                <div id="tabUsers">
+                                    <table id="usersTable"></table>
+                                    <div id="usersTablePager"></div>
+                                </div>
+                                <ul>
+                                    <li><a id="linkTabManager" href="#tabManager">{!$Label.label_10779}</a></li>
+                                    <li><a id="linkTabusers"   href="#tabUsers">{!$Label.label_10780}</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div id="categoryNameModal" class="modal" title="{!$Label.label_10680}">
+                            <div class="input-area">
+                                <table class="categoryNameModalTable">
+                                    <tr>
+                                        <th class="add_category_name_label" nowrap="nowrap">
+                                            {!$Label.label_10681}
+                                        </th>
+                                        <td class="c_require">
+                                            <input id="add_category_name" name="add_category_name" type="text" class="required add_category_name" maxLength="30" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="add_category_name_label" nowrap="nowrap">
+                                            {!$Label.label_10012}
+                                        </th>
+                                        <td>
+                                            <div id="remainder"></div>
+                                            <div><textarea name="add_category_comment" id="add_category_comment" style="height: 130px; width:98%; resize: none;"></textarea></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div id="users_area" class="users-area">
+                                                <div>
+                                                    <label>
+                                                        <input type="checkbox" id="inherit_manager" />
+                                                        <span>{!$Label.label_10817}</span>
+                                                    </label>
+                                                </div>
+                                                <div>
+                                                    <label>
+                                                        <input type="checkbox" id="inherit_users" />
+                                                        <span>{!$Label.label_10816}</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="button-box">
+                                                <input type="button" id="okButton" class="btn" value="{!$Label.label_00059}" size="30" onclick="nameOkClicked();" />
+                                                <input type="button" id="cancelButton" class="btn" value="{!$Label.label_00058}" size="30" onclick="nameCancelClicked();" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="addUserModal" class="modal" title="{!$Label.label_10682}">
+                            <div id="tabDiv">
+                                <ul>
+                                    <li><a href="#tabUser">{!$Label.label_10131}</a></li>
+                                    <li><a href="#tabPost">{!$Label.label_10317}</a></li>
+                                    <li><a href="#tabGroup">{!$Label.label_10576}</a></li>
+                                </ul>
+
+                                <div id="tabUser" class="tab-inner">
+                                    <input type="text" id="user-search-txt" class="search-txt" placeholder="{!$Label.label_10448}" maxlength="255" />
+                                    <input type="button" class="btn" value="{!$Label.label_00069}" onclick="onSearchClicked('user');" />
+                                    <input type="button" class="btn" value="{!$Label.label_00070}" onclick="onClearClicked('user');" />
+
+                                    <table id="managerUserTable"></table>
+                                    <div id="managerUserTablePager"></div>
+                                </div>
+                                <div id="tabPost" class="tab-inner">
+                                    <div id="postList">
+                                    </div>
+                                </div>
+                                <div id="tabGroup" class="tab-inner">
+                                    <input type="text" id="group-search-txt" class="search-txt" placeholder="{!$Label.label_10548}" maxlength="255" />
+                                    <input type="button" class="btn" value="{!$Label.label_00069}" onclick="onSearchClicked('group');" />
+                                    <input type="button" class="btn" value="{!$Label.label_00070}" onclick="onClearClicked('group');" />
+
+                                    <table id="managerGroupTable"></table>
+                                    <div id="managerGroupTablePager"></div>
+                                </div>
+                            </div>
+                            <div class="manager-button-box">
+                                <input type="button" id="okButtonUser" class="btn" value="{!$Label.label_00059}" size="30" onclick="managerOkClicked();" />
+                                <input type="button" id="cancelButtonUser" class="btn" value="{!$Label.label_00058}" size="30" onclick="managerCancelClicked();" />
+                            </div>
+                        </div>
+
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<script type="text/javascript">
+var _checksum   = "";
+
+var _b_managerGridLoaded    = false;
+var _b_usersGridLoaded      = false;
+var _b_userGridLoaded       = false;
+var _b_groupGridLoaded      = false;
+
+// 管理者を選択中か、利用者を選択中か
+var _b_isManagerEditing     = true;
+
+// モーダルポップアップのユーザ一覧を更新中か
+var _b_userLoading  = false;
+// モーダルポップアップのグループ一覧を更新中か
+var _b_groupLoading = false;
+
+// 選択したユーザ
+var _userSelected       = new Array();
+// 選択を外したのユーザ
+var _userUnselected     = new Array();
+// 選択したグループ
+var _groupSelected      = new Array();
+// 選択を外したグループ
+var _groupUnselected    = new Array();
+
+// 選択中のカテゴリ
+var _categoryId = "";
+
+// 名前変更か、直下に追加か
+var _isAdd  = false;
+
+jQuery.event.add(window, "load", function(){
+
+    initCategory();
+
+    // モーダルの準備
+    $("#categoryNameModal").dialog({
+        autoOpen    : false,
+        bgiframe    : true,
+        modal       : true,
+        draggable   : false,
+        resizable   : false,
+        closeText   : "Close",
+        height      : 300,
+        width       : 600,
+        buttons     : {}
+    });
+    $("#add_category_comment").keyup(function(e){
+        viewCommentLength("add_category_comment", "remainder", 512);
+    });
+
+    $("#remainder").text(getMsg(new Array("512"), "{!$Label.label_10227}"));
+
+
+    // 検索ボックスでのエンター押下イベント（ユーザ）
+    $("#user-search-txt").keydown(function(e){
+        if(e.keyCode == 13){
+            onSearchClicked("user");
+        }
+    });
+
+    // 検索ボックスでのエンター押下イベント（グループ）
+    $("#group-search-txt").keydown(function(e){
+        if(e.keyCode == 13){
+            onSearchClicked("group");
+        }
+    });
+
+    // アドレス帳を初期化
+    $("#addUserModal").dialog({
+        autoOpen    : false,
+        bgiframe    : true,
+        modal       : true,
+        resizable   : false,
+        closeText   : "Close",
+        width       : 770,
+        height      : 555,
+        buttons     : {}
+    });
+
+    $("#tabDiv").tabs();
+
+    $("#tabDiv > ul").removeClass("ui-widget-header");
+
+    onCategoryClicked(0);
+
+    setResize();
+
+    $(".under-area").css("display", "block");
+});
+
+function setResize(){
+    // 以下、リサイズするもの。
+    // 1.ユーザタブ 管理者のリサイズ設定
+    $("#managerTable").resizeJqGrid_SF({
+        "margin-bottom" : 50,
+        "margin-right"  : 10,
+    });
+    // 2.ユーザタブ ユーザのリサイズ設定
+    $("#usersTable").resizeJqGrid_SF({
+        "margin-bottom" : 50,
+        "margin-right"  : 10,
+    });
+
+    // 以下、リサイズするタイミング。
+    $("#tabTopDiv > ul").removeClass("ui-widget-header");
+
+    // 下部タブ選択時にをリサイズする
+    $("#tabUnderDiv").undertab({
+        resizeFunc  : resizeJqGrid_SF,
+    });
+
+    // ウィンドウリサイズ時にをリサイズする
+    $(window).resize(function(){
+        resizeJqGrid_SF();
+    });
+
+    // 画面表示直後にをリサイズする
+    resizeJqGrid_SF();
+
+    // 画面表示直後にリサイズしているが、たまに失敗するのでもう一度リサイズする
+    setTimeout(function(){
+        resizeJqGrid_SF();
+    }, 50);
+}
+
+function initCategory(){
+    var callback =  function(data){
+        if(data.result){
+            $("#tmp_id").val(data["tmp_id"]);
+            loadCategory();
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowCategoryRegistInit.json', {}, callback);
+}
+
+function loadCategory(){
+    var param = {
+        edit            : "1",
+        tmp_id          : $("#tmp_id").val(),
+    }
+    var callback = function(data){
+        if(data.result){
+            $("#wfCategoryList").html(data["tree"]);
+            $("#wfCategoryList").treeview({
+                animated        : "fast",
+                collapsed       : false,
+            });
+            $("[id=btnOk]").attr("disabled", "");
+        } else {
+            alert(data.name);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowCategoryInfo.json', param, callback);
+}
+
+function loadPost(parentId){
+    var param = {
+        tmp_id          : $("#tmp_id").val(),
+        cat_id          : parentId,
+        is_get_manager  : _b_isManagerEditing,
+    }
+    var callback = function(data){
+        if(data.result){
+            var branches = $("#postList").html(data["tree"]);
+            $("#postList").treeview({
+                animated        : "fast",
+                collapsed       : false,
+            });
+
+            var expandable              = $("#postList").find(".expandable");
+            expandable.removeClass("expandable");
+            expandable.addClass("collapsable");
+            var expandable_hitarea      = $("#postList").find(".expandable-hitarea");
+            expandable_hitarea.removeClass("expandable-hitarea");
+            expandable_hitarea.addClass("collapsable-hitarea");
+            var lastExpandable          = $("#postList").find(".lastExpandable");
+            lastExpandable.removeClass("lastExpandable");
+            lastExpandable.addClass("lastCollapsable");
+            var lastExpandable_hitarea  = $("#postList").find(".lastExpandable-hitarea");
+            lastExpandable_hitarea.removeClass("lastExpandable-hitarea");
+            lastExpandable_hitarea.addClass("lastCollapsable-hitarea");
+
+            if(data["added"]){
+                for(var i=0; i<data["added"].length; i++){
+                    $("input[value=" + data["added"][i] + "]").attr("checked", "checked");
+                }
+            }
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowCategoryPostList.json', param, callback);
+}
+
+function toUp(parentId){
+    var param = {
+        tmp_id          : $("#tmp_id").val(),
+        mode            : "up",
+        parent_id       : parentId,
+    }
+    var callback = function(data){
+        if(data.result){
+            loadCategory();
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowCategoryTmp.json', param, callback);
+}
+
+function toDown(parentId){
+    var param = {
+        tmp_id          : $("#tmp_id").val(),
+        mode            : "down",
+        parent_id       : parentId,
+    }
+    var callback = function(data){
+        if(data.result){
+            loadCategory();
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowCategoryTmp.json', param, callback);
+}
+
+function modName(parentId, name){
+    _categoryId = parentId;
+    _isAdd = false;
+    $("#ui-dialog-title-categoryNameModal").html("{!$Label.label_10798}");
+    $("#add_category_name").removeClass("error");
+    $("#add_category_comment").removeClass("error");
+    $("#users_area").hide();
+
+    $("#add_category_name").val(name);
+
+    secureGetAsync(
+        '/workflowmanagement.setting/WorkflowCategoryCommentGet.json',
+        {
+            tmp_id      : $("#tmp_id").val(),
+            cat_id      : parentId
+        },
+        function(data){
+            if(data.result){
+                $("#add_category_comment").val(data["comment"]);
+                $("#add_category_comment").trigger("keyup");
+                $("#categoryNameModal").dialog("open");
+            } else {
+                alert(data.name);
+            }
+        }
+    );
+}
+
+function deleteChild(parentId){
+    if(!window.confirm('{!$Label.msg_00328}')){
+        return;
+    }
+
+    var param = {
+        tmp_id          : $("#tmp_id").val(),
+        mode            : "del",
+        parent_id       : parentId,
+    }
+    var callback =  function(data){
+        if(data.result){
+            loadCategory();
+        } else {
+            alert(data.name);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowCategoryTmp.json', param, callback);
+}
+
+function nameCancelClicked(){
+    $("#categoryNameModal").dialog("close");
+}
+
+function addChild(parentId){
+    _categoryId = parentId;
+    _isAdd = true;
+    $("#ui-dialog-title-categoryNameModal").html("{!$Label.label_10680}");
+    $("#add_category_name").removeClass("error");
+    $("#add_category_comment").removeClass("error");
+    $("#users_area").show();
+
+    $("#add_category_name").val("");
+    $("#add_category_comment").val("");
+
+    $("#add_category_comment").trigger("keyup");
+    $("#inherit_manager").attr("checked", "checked");
+    $("#inherit_users").attr("checked", "checked");
+
+    $("#categoryNameModal").dialog("open");
+}
+
+function nameOkClicked(){
+    var styleClass = "error";
+    $("#add_category_name").removeClass(styleClass);
+    $("#add_category_comment").removeClass(styleClass);
+
+    var err = new Array();
+
+    var name = $("#add_category_name").val();
+    var limit = 30;
+    if(name.length < 1){
+        $("#add_category_name").addClass(styleClass);
+        err.push("{!$Label.msg_00317}");
+    }else if(name.length > limit){
+        $("#add_category_name").addClass(styleClass);
+        err.push(getMsg(new Array("{!$Label.label_10681}", limit), "{!$Label.msg_00059}"));
+    }
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    var comment = $("#add_category_comment").val().replace(regexp, "\r\n");
+    if(comment.length > 512){
+        $("#add_category_comment").addClass(styleClass);
+        err.push("{!$Label.message_wf_00007}");
+    } else {
+    	comment = $.trim(comment);
+    }
+    if(err.length > 0){
+        alert(err.join("\n"));
+        return;
+    }
+    
+    CsoScript_loadingStart();
+
+    var param = new Object();
+    param["tmp_id"]         = $("#tmp_id").val();
+    param["parent_id"]      = _categoryId;
+    param["comment"]        = comment;
+    if(_isAdd){
+        param["mode"]            = "add";
+        param["add_name"]        = name;
+        param["inherit_manager"] = $("#inherit_manager").attr("checked");
+        param["inherit_users"]   = $("#inherit_users").attr("checked");
+    }else{
+        param["mode"]            = "mod";
+        param["mod_name"]        = name;
+    }
+    secureGetAsync(
+        '/workflowmanagement.setting/WorkflowCategoryTmp.json',
+        param,
+        function(data){
+            if(data.result){
+                loadCategory();
+            } else {
+                alert(data.name);
+            }
+            $("#categoryNameModal").dialog("close");
+            CsoScript_loadingStop();
+        }
+    );
+}
+
+function addManager(parentId, name){
+    _b_isManagerEditing = true;
+    openChooseUserDialog(parentId, name);
+}
+
+function addUser(parentId, name){
+    _b_isManagerEditing = false;
+    openChooseUserDialog(parentId, name);
+}
+
+function openChooseUserDialog(parentId, name){
+    // キャッシュによる誤作動防止の為、チェックサムを設定しておく
+    _checksum = Math.floor( Math.random() * 100000 );
+    $("#addUserModal").attr("checksum", _checksum);
+
+    _userSelected       = new Array();
+    _userUnselected     = new Array();
+    _groupSelected      = new Array();
+    _groupUnselected    = new Array();
+    _categoryId         = parentId;
+
+    // ポップアップのタイトル
+    if(_b_isManagerEditing){
+        $("#ui-dialog-title-addUserModal").text("{!$Label.label_10781}" + " - [ " + name + " ]");
+    }else{
+        $("#ui-dialog-title-addUserModal").text("{!$Label.label_10782}" + " - [ " + name + " ]");
+    }
+
+    // 検索文字列を初期化
+    $("#user-search-txt").val("");
+    $("#group-search-txt").val("");
+
+    $("#tabDiv").tabs("select", "tabUser");
+
+    // jqGridのキャッシュ？をクリアする
+    $("#managerUserTable").jqGrid("clearGridData");
+    $("#managerGroupTable").jqGrid("clearGridData");
+
+    $("#addUserModal").dialog("open");
+
+    // ユーザ一覧を読み込む
+    if(!_b_userGridLoaded && !$("#managerUserTable").getGridParam()){
+        _b_userGridLoaded = true;
+        loadUser(parentId);
+    }else{
+        $("#managerUserTable").setGridParam({
+            postData:{
+                tmp_id          : $("#tmp_id").val(),
+                cat_id          : parentId,
+                is_get_manager  : _b_isManagerEditing,
+                row_num         : this.rowNum,
+                search          : "",
+            }
+        }).trigger("reloadGrid");
+    }
+
+    // グループ一覧を読み込む
+    if(!_b_groupGridLoaded && !$("#managerGroupTable").getGridParam()){
+        _b_groupGridLoaded = true;
+        loadGroup(parentId);
+    }else{
+        $("#managerGroupTable").setGridParam({
+            postData:{
+                tmp_id          : $("#tmp_id").val(),
+                cat_id          : parentId,
+                is_get_manager  : _b_isManagerEditing,
+                row_num         : this.rowNum,
+                search          : "",
+            }
+        }).trigger("reloadGrid");
+    }
+
+    // 部署・役職一覧を読み込む
+    loadPost(parentId);
+}
+
+function managerCancelClicked(){
+    $("#addUserModal").dialog('close');
+}
+
+function managerOkClicked(){
+    submitManager();
+    $("#addUserModal").dialog('close');
+
+    if(_b_isManagerEditing == true){
+        $("#linkTabManager").trigger("click");
+    }
+    else{
+        $("#linkTabusers").trigger("click");
+    }
+}
+
+function submitManager(){
+    // 追加するユーザ
+    var addUsers = "";
+    for(var id in _userSelected){
+        if(addUsers == ""){
+            addUsers = id;
+        }else{
+            addUsers += "," + id;
+        }
+    }
+
+    // 削除するユーザ
+    var delUsers = "";
+    for(var id in _userUnselected){
+        if(delUsers == ""){
+            delUsers = id;
+        }else{
+            delUsers += "," + id;
+        }
+    }
+
+    // 追加するグループ
+    var addGroups = "";
+    for(var id in _groupSelected){
+        if(addGroups == ""){
+            addGroups = id;
+        }else{
+            addGroups += "," + id;
+        }
+    }
+
+    // 削除するグループ
+    var delGroups = "";
+    for(var id in _groupUnselected){
+        if(delGroups == ""){
+            delGroups = id;
+        }else{
+            delGroups += "," + id;
+        }
+    }
+
+    // 部署・役職
+    var posts = "";
+    var selectedPost = $("#addUserModal[checksum=" + _checksum + "]").find("input:checkbox[value^=CORP_POSITION]:checked");
+    for(var i=0; i<selectedPost.length; i++){
+        if(posts == ""){
+            posts = selectedPost[i].value;
+        }else{
+            posts += "," + selectedPost[i].value;
+        }
+    }
+
+    var param = {
+        tmp_id              : $("#tmp_id").val(),
+        cat_id              : _categoryId,
+        is_change_manager   : _b_isManagerEditing,
+        addusers            : addUsers,
+        delusers            : delUsers,
+        addgroups           : addGroups,
+        delgroups           : delGroups,
+        posts               : posts,
+    }
+    var callback =  function(data){
+        if(data.result){
+            onCategoryClicked(_categoryId);
+        } else {
+            alert(data.message);
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowCategoryManager.json', param, callback);
+
+    return true;
+}
+
+function loadManager(parentId){
+    $("#managerTable").jqGrid({
+        url         : _apiUrl + "/workflowmanagement.setting/WorkflowCategoryManagerList.json",
+        postData    : {
+            tmp_id          : $("#tmp_id").val(),
+            cat_id          : parentId,
+            is_get_manager  : true,
+        },
+        datatype    : "jsonp",
+        jsonReader  : {
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames    : [
+                '',
+                '{!$Label.label_10131}',
+                '{!$Label.label_10650}',
+        ],
+        colModel    : [
+                {name:'id',     index:'id',     hidden:true},
+                {name:'name',   index:'name',   sortable:false, width:475},
+                {name:'org',    index:'org',    sortable:false, width:245},
+        ],
+        onSelectRow : function(id, b_check){
+        },
+        rowNum      : 30,
+        height      : 220,
+        width       : 750,
+        autowidth   : false,
+        rowList     : [10,30,50],
+        sortname    : 'name',
+        sortorder   : 'asc',
+        pager       : $('#managerTablePager'),
+        viewrecords : true,
+        multiselect : false,
+        onPaging    : function(b) {
+            $(this).setGridParam({
+                postData : {
+                    useCache : "true"
+                }
+            });
+        },
+        loadComplete: function(data){
+            var rows = $("td[aria-describedby=managerTable_name]");
+            for(var i=0; i<rows.length; i++){
+                $(rows[i]).attr("title", $(rows[i]).find("#name").html());
+            }
+        }
+    });
+    $("#managerTable").jqGrid('navGrid','#managerTablePager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function loadUsers(parentId){
+    $("#usersTable").jqGrid({
+        url         : _apiUrl + "/workflowmanagement.setting/WorkflowCategoryManagerList.json",
+        postData    : {
+            tmp_id          : $("#tmp_id").val(),
+            cat_id          : parentId,
+            is_get_manager  : false,
+        },
+        datatype    : "jsonp",
+        jsonReader  : {
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames    : [
+                '',
+                '{!$Label.label_10131}',
+                '{!$Label.label_10650}',
+        ],
+        colModel    : [
+                {name:'id',     index:'id',     hidden:true},
+                {name:'name',   index:'name',   sortable:false, width:475},
+                {name:'org',    index:'org',    sortable:false, width:245},
+        ],
+        onSelectRow : function(id, b_check){
+        },
+        rowNum      : 30,
+        height      : 220,
+        width       : 750,
+        autowidth   : false,
+        rowList     : [10,30,50],
+        sortname    : 'name',
+        sortorder   : 'asc',
+        pager       : $('#usersTablePager'),
+        viewrecords : true,
+        multiselect : false,
+        onPaging    : function(b) {
+            $(this).setGridParam({
+                postData : {
+                    useCache : "true"
+                }
+            });
+        },
+        loadComplete: function(data){
+            var rows = $("td[aria-describedby=usersTable_name]");
+            for(var i=0; i<rows.length; i++){
+                $(rows[i]).attr("title", $(rows[i]).find("#name").html());
+            }
+        }
+    });
+    $("#usersTable").jqGrid('navGrid','#usersTablePager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function loadUser(parentId){
+    $("#managerUserTable").jqGrid({
+        url         : _apiUrl + "/workflowmanagement.setting/WorkflowCategoryUserList.json",
+        postData    : {
+            tmp_id          : $("#tmp_id").val(),
+            cat_id          : parentId,
+            is_get_manager  : _b_isManagerEditing,
+            row_num         : this.rowNum,
+            search          : "",
+        },
+        datatype    : "jsonp",
+        jsonReader  : {
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames    : [
+                '',
+                '{!$Label.label_10131}',
+                '{!$Label.label_10650}',
+        ],
+        colModel    : [
+                {name:'id',     index:'id',     hidden:true},
+                {name:'name',   index:'name',   width:455},
+                {name:'org',    index:'org',    width:185},
+        ],
+        rowNum      : 10,
+        height      : 300,
+        width       : 700,
+        autowidth   : false,
+        rowList     : [10,30,50],
+        sortname    : 'name',
+        sortorder   : 'asc',
+        pager       : $('#managerUserTablePager'),
+        viewrecords : true,
+        multiselect : true,
+        multiboxonly: true,
+        loadComplete: function(data){
+            if(data["added"]){
+                for(var i=0; i<data["added"].length; i++){
+                    _userSelected[data["added"][i]] = data["added"][i];
+                }
+            }
+            _b_userLoading = true;
+            for(var id in _userSelected){
+                $(this).setSelection(id);
+            }
+            _b_userLoading = false;
+        },
+        onSelectRow : function(id, b_check){
+            if(!_b_userLoading){
+                onSelectUserRow();
+            }
+        },
+        onSelectAll : function(ids){
+            if(!_b_userLoading){
+                onSelectUserRow();
+            }
+        },
+    });
+    $("#managerUserTable").jqGrid('navGrid','#managerUserTablePager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function onSelectUserRow(){
+    var gridUserIDs = $("#managerUserTable").getDataIDs();
+    for(var i=0; i<gridUserIDs.length; i++){
+        var row = $("#managerUserTable").getRowData(gridUserIDs[i]);
+        if($("#managerUserTable").find("input[type=checkbox][id=jqg_" + row.id + "]").attr("checked")){
+            _userSelected[row.id] = row.id;
+            delete _userUnselected[row.id];
+        }else{
+            delete _userSelected[row.id];
+            _userUnselected[row.id] = row.id;
+        }
+    }
+}
+
+function loadGroup(parentId){
+    $("#managerGroupTable").jqGrid({
+        url         : _apiUrl + "/workflowmanagement.setting/WorkflowCategoryGroupList.json",
+        postData    : {
+            tmp_id          : $("#tmp_id").val(),
+            cat_id          : parentId,
+            is_get_manager  : _b_isManagerEditing,
+            row_num         : this.rowNum,
+            search          : "",
+        },
+        datatype    : "jsonp",
+        jsonReader  : {
+            id          : "id",
+            repeatitems : false,
+        },
+        colNames    : [
+                '',
+                '{!$Label.label_10131}',
+                '{!$Label.label_10012}',
+        ],
+        colModel    : [
+                {name:'id', index:'id', hidden:true},
+                {name:'group',index:'group', width:320},
+                {name:'explanation',index:'explanation', width:320},
+        ],
+        rowNum      : 10,
+        height      : 300,
+        width       : 700,
+        autowidth   : false,
+        rowList     : [10,30,50],
+        sortname    : 'group',
+        sortorder   : 'asc',
+        pager       : $('#managerGroupTablePager'),
+        viewrecords : true,
+        multiselect : true,
+        multiboxonly: true,
+        loadComplete: function(data){
+            if(data["added"]){
+                for(var i=0; i<data["added"].length; i++){
+                    _groupSelected[data["added"][i]] = data["added"][i];
+                }
+            }
+            _b_groupLoading = true;
+            for(var id in _groupSelected){
+                $(this).setSelection(id);
+            }
+            _b_groupLoading = false;
+        },
+        onSelectRow : function(id, b_check){
+            if(!_b_groupLoading){
+                onSelectGroupRow();
+            }
+        },
+        onSelectAll : function(ids){
+            if(!_b_groupLoading){
+                onSelectGroupRow();
+            }
+        },
+    });
+    $("#managerGroupTable").jqGrid('navGrid','#managerGroupTablePager',{edit:false,add:false,del:false,search:false,refresh:false});
+}
+
+function onSelectGroupRow(){
+    var gridGroupIDs = $("#managerGroupTable").getDataIDs();
+    for(var i=0; i<gridGroupIDs.length; i++){
+        var row = $("#managerGroupTable").getRowData(gridGroupIDs[i]);
+        if($("#managerGroupTable").find("input[type=checkbox][id=jqg_" + row.id + "]").attr("checked")){
+            _groupSelected[row.id] = row.id;
+            delete _groupUnselected[row.id];
+        }else{
+            delete _groupSelected[row.id];
+            _groupUnselected[row.id] = row.id;
+        }
+    }
+}
+
+function onCategoryClicked(parentId){
+    _categoryId = parentId;
+
+    $(".selected").removeClass("selected");
+    $("#" + parentId).addClass("selected");
+
+    if(!_b_managerGridLoaded && !$("#managerTable").getGridParam()){
+        _b_managerGridLoaded = true;
+        loadManager(parentId);
+    }else{
+        $("#managerTable").setGridParam({
+            postData:{
+                tmp_id  : $("#tmp_id").val(),
+                cat_id  : parentId,
+                row_num : this.rowNum,
+            }
+        }).trigger("reloadGrid");
+    }
+
+    if(!_b_usersGridLoaded && !$("#usersTable").getGridParam()){
+        _b_usersGridLoaded = true;
+        loadUsers(parentId);
+    }else{
+        $("#usersTable").setGridParam({
+            postData:{
+                tmp_id  : $("#tmp_id").val(),
+                cat_id  : parentId,
+                row_num : this.rowNum,
+            }
+        }).trigger("reloadGrid");
+    }
+}
+
+function onSearchClicked(type){
+    if(type == "user"){
+        // jqGridのキャッシュ？をクリアする
+        $("#managerUserTable").jqGrid("clearGridData");
+
+        // ユーザ一覧を読み込む
+        $("#managerUserTable").setGridParam({
+            postData:{
+                tmp_id  : $("#tmp_id").val(),
+                cat_id  : _categoryId,
+                row_num : this.rowNum,
+                search  : $("#user-search-txt").val(),
+            }
+        }).trigger("reloadGrid");
+    }else if(type == "group"){
+        // jqGridのキャッシュ？をクリアする
+        $("#managerGroupTable").jqGrid("clearGridData");
+
+        // グループ一覧を読み込む
+        $("#managerGroupTable").setGridParam({
+            postData:{
+                tmp_id  : $("#tmp_id").val(),
+                cat_id  : _categoryId,
+                row_num : this.rowNum,
+                search  : $("#group-search-txt").val(),
+            }
+        }).trigger("reloadGrid");
+    }
+}
+
+function onClearClicked(type){
+    if(type == "user"){
+        // テキストボックスを空にする
+        $("#user-search-txt").val("");
+
+        // jqGridのキャッシュ？をクリアする
+        $("#managerUserTable").jqGrid("clearGridData");
+
+        // ユーザ一覧を読み込む
+        $("#managerUserTable").setGridParam({
+            postData:{
+                tmp_id  : $("#tmp_id").val(),
+                cat_id  : _categoryId,
+                row_num : this.rowNum,
+                search  : "",
+            }
+        }).trigger("reloadGrid");
+    }else if(type == "group"){
+        // テキストボックスを空にする
+        $("#group-search-txt").val("");
+
+        // jqGridのキャッシュ？をクリアする
+        $("#managerGroupTable").jqGrid("clearGridData");
+
+        // グループ一覧を読み込む
+        $("#managerGroupTable").setGridParam({
+            postData:{
+                tmp_id  : $("#tmp_id").val(),
+                cat_id  : _categoryId,
+                row_num : this.rowNum,
+                search  : "",
+            }
+        }).trigger("reloadGrid");
+    }
+}
+
+function cancelOnClick(){
+    location.href = "SettingWorkflowCategoryInfo";
+}
+
+function okOnClick() {
+    disableButtons();
+    var param = {
+        tmp_id  : $("#tmp_id").val(),
+    }
+    var callback =  function(data){
+        if(data.result){
+            location.href = "SettingWorkflowCategoryInfo";
+        } else {
+            alert(data.name);
+            enableButtons();
+        }
+    }
+    secureGetAsync('/workflowmanagement.setting/WorkflowCategoryRegist.json', param, callback);
+}
+
+function enableButtons(){
+    $("[id=btnOk]").attr("disabled", "");
+    $("[id=btnCancel]").attr("disabled", "");
+    $("[id=btnOk]").removeClass("btn-disable");
+    $("[id=btnCancel]").removeClass("btn-disable");
+}
+
+function disableButtons(){
+    $("[id=btnOk]").attr("disabled", "disabled");
+    $("[id=btnCancel]").attr("disabled", "disabled");
+    $("[id=btnOk]").addClass("btn-disable");
+    $("[id=btnCancel]").addClass("btn-disable");
+}
+
+function onCommentClearClicked(){
+    $("#comment").val("");
+}
+
+function onCommentCancelClicked(){
+    loadComment(_categoryId);
+}
+
+function convertHtmlValue(str){
+    return str.replaceAll("%27","'").replaceAll("%22","\"").replaceAll("%25","%");
+}
+
+
+function resizeJqGrid_SF(){
+    $("[resize-jqgrid=1]").each(function(){
+        if($(this).offset().top == 0){
+            return;
+        }
+        if($(this).attr("isjqgrid") == 1){
+            var width = getBrowserWidth() - $(this).offset().left - 50 - $(this).attr("right");
+            if (width > 600) {
+                $(this).setGridWidth(width);
+            }
+
+            var height = 0;
+            if($(".err").length){
+                height = getBrowserHeight() - $(this).offset().top - $(".err").height() - 66 - $(this).closest(".ui-jqgrid-bdiv").scrollTop() - $(this).attr("bottom");
+            }else{
+                height = getBrowserHeight() - $(this).offset().top - 43 - $(this).closest(".ui-jqgrid-bdiv").scrollTop() - $(this).attr("bottom");
+            }
+            if (height > 200) {
+                $(this).setGridHeight(height);
+            }
+        }else{
+            var width = getBrowserWidth() - $(this).offset().left - 1 - $(this).attr("right");
+            if(width < 0){
+                width = 0;
+            }
+            $(this).width(width);
+            width = null;
+
+            var height = 0;
+            if($(".err").length){
+                height = getBrowserHeight() - $(this).offset().top - $(".err").height() - 66 - $(this).attr("bottom");
+            }else{
+                height = getBrowserHeight() - $(this).offset().top - 43 - $(this).attr("bottom");
+            }
+            if(height < 0){
+                height = 0;
+            }
+            $(this).height(height);
+            height = null;
+        }
+    });
+}
+
+(function($){
+    $.fn.resizeJqGrid_SF=function(options){
+        var options = $.extend({
+            "margin-bottom" : 0,
+            "margin-right"  : 0,
+            "isJqGrid"      : 1,
+        }, options);
+
+        if($(this).attr("resize-jqgrid") != 1){
+            $(this).attr({
+                "resize-jqgrid" : "1",
+                "bottom"        : options["margin-bottom"],
+                "right"         : options["margin-right"],
+                "isjqgrid"      : options["isJqGrid"],
+            });
+        }
+
+        return $(this);
+    }
+})($);
+
+</script>
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

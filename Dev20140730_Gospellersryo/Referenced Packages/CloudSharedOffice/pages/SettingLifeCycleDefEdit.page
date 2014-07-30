@@ -1,0 +1,2796 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingLifeCycleController" tabStyle="setting__tab" action="{!init}">
+    <apex:outputPanel id="err" rendered="{!IF(commoninfo.proAuth_life_cycle == 'false', true, false)}">{!$Label.solxyzcso001__msg_00137} </apex:outputPanel>
+    <apex:iframe src="/apex/CSO_Error?code={!commoninfo.code}&massage={!commoninfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(commoninfo.showErrPage == true,true,false)}"/>
+    <apex:outputPanel rendered="{!IF(commoninfo.proAuth_life_cycle == 'true' && commoninfo.showErrPage == false, true, false)}">
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+        <!-- CSS -->
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+        <!-- JS -->
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+        <apex:outputPanel rendered="{!IF(commoninfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(commoninfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(commoninfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+        </apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__CsoScript"/>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+        <link type="text/css" rel="stylesheet" href="{!$Label.field_CSO_URL}/css/tooltip.css" />
+        <script type="text/javascript" src="{!$Label.field_CSO_URL}/js/tooltip.js" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.csoBalloon.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.cso-async.js')}" />
+
+        <style type="text/css">
+        #evidence_tab {
+            margin-top: 0px;
+        }
+        #evidence_tab li {
+            list-style: none;
+            line-height: 10px;
+            float: left;
+            margin-right: 5px;
+            border-radius: 0px 0px 3px 3px;
+            -webkit-border-radius: 0px 0px 3px 3px;
+            -moz-border-radius: 0px 0px 3px 3px;
+        }
+        #evidence_tab a {
+            display: block;
+            text-decoration: none;
+            padding: 9px 17px;
+            font-weight: bold;
+        }
+        .evidence_tab_active {
+            background-color: #F8F8F8;
+        }
+        .evidence_tab_active a {
+            color: #456;
+        }
+        .evidence_tab_active a:hover {
+            color: #456 !important;
+        }
+        .evidence_tab_deactive {
+            background-color: #103A32;
+            filter:alpha(opacity=50);
+            -moz-opacity: 0.5;
+            opacity: 0.5;
+        }
+        .evidence_tab_deactive a {
+            color: white;
+        }
+        .evidence_tab_deactive a:hover {
+            color: white;
+        }
+
+        #editMain {
+            width:100%;
+            height: 100%;
+        }
+
+        .separatorDiv{
+            position:relative;
+            width: 100%;
+            vertical-align: bottom;
+        }
+
+        #separatorDiv div{
+            color: white;
+            padding: 3px 0px 3px 5px;
+            font-weight: bold;
+        }
+
+        #detailDiv{
+            padding: 5px 0px 5px 30px;
+        }
+
+        #detailDiv table th{
+            text-align: right;
+            padding-right: 10px;
+            font-weight: bold;
+            white-space:nowrap;
+        }
+
+        #detailDiv table td {
+            white-space:nowrap;
+        }
+
+        .historyTbl {
+            margin-top: 15px;
+            margin-bottom: 15px;
+            margin-left: 15px;
+        }
+
+        .historyTbl th{
+            font-weight: bold;
+            width: 100px;
+        }
+
+        .historyTbl *{
+        }
+
+        div.border {
+            border-style:solid;
+            border-width:1px;
+            border-color : #999999;
+            border-collapse:collapse;
+            width:500px;
+            height:400px;
+            overflow:auto;
+        }
+
+        .tabDiv{
+            min-height: 350px;
+        }
+
+        table#basicInfoTable th {
+            text-align: right;
+            font-weight: bold;
+            min-width: 140px;
+            width : 140px;
+            padding : 5px;
+        }
+
+        table#basicInfoTable td {
+            padding : 5px;
+        }
+
+        .box {
+            position: relative;
+
+            height: 200px;
+            width: 100px;
+        }
+
+        .box:after {
+            content: '';
+            position: absolute;
+            border-right: 15px solid #f8f8f8;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            top: 70px;
+            left: 5px;
+        }
+
+        .box:before {
+            content: '';
+            position: absolute;
+            border-right: 15px solid #999;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            top: 70px;
+            left: 4px;
+        }
+
+        .box div {
+            border-left: 1px solid #999; position : absolute;
+            left: 19px;
+            top: 0px;
+            height: 200px;
+            position: absolute;
+        }
+
+        .SettingNum{
+            width: 30px;
+        }
+
+        .lc-act{
+            text-align: center;
+        }
+
+        .up-down{
+            position: absolute;
+            top: -1px;
+        }
+
+        .lc-act-link{
+            padding: 15px;
+        }
+        .lc-act-link:hover{
+            background-color: #b2ffe5;
+            filter:alpha(opacity=80);
+            -moz-opacity: 0.8;
+            opacity: 0.8;
+            border-radius: 10px;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+
+        }
+
+        #ActionPic0img:hover, #ActionPic1img:hover, #ActionPic2img:hover{
+            background-color: #b2ffe5;
+            filter:alpha(opacity=80);
+            -moz-opacity: 0.8;
+            opacity: 0.8;
+            border-radius: 10px;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+        }
+
+        /*
+        .btn {
+            /* background-image: url("/image/btn.png"); */
+            background-color: #FFFFFF;
+            font-weight: bold;
+            font-size: 12px;
+            color: #223344;
+            padding: 5px 10px 5px 10px;
+            border: solid 1px silver;
+            border-radius: 3px;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            height: 28px;
+
+        }*/
+
+        .icon-btn {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .icon-btn img {
+            width: 16px;
+            height: 16px;
+            border: none;
+            position: absolute;
+            left: 0px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        .lc-hover-icon{
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .lc-hover-icon:hover{
+            background-color: #b2ffe5;
+            filter:alpha(opacity=80);
+            -moz-opacity: 0.8;
+            opacity: 0.8;
+            border-radius: 10px;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+        }
+
+        .lc-icon{
+            width: 48px;
+            height: 48px;
+            border: none;
+        }
+
+        .lc-icon-disabled{
+            padding: 10px;
+            background-color: #a9a9a9;
+            filter:alpha(opacity=80);
+            -moz-opacity: 0.8;
+            opacity: 0.8;
+            border-radius: 10px;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            cursor: default;
+        }
+
+        #lifecycleviewSelector{
+
+             z-index: 999;
+
+        /* ユーザ追加ダイアログ用 */
+        .selectList{
+            width: 180px;
+            height: 150px;
+            max-width: 180px;
+            max-height: 150px;
+        }
+        </style>
+
+        <!-- warapper -->
+        <div id="c_wrapper">
+            <!-- content container -->
+            <table id="c_container" cellspacing="0" border="0">
+                <tr>
+                    <!-- left menu container -->
+                    <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                        <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+                    </td>
+                    <!-- right header container -->
+                    <td id="c_headLeft" nowrap="nowrap">
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/LifeCycle.png')}" alt="{!$Label.solxyzcso001__label_13057}" title="{!$Label.solxyzcso001__label_13057}"/>
+                        <h1 id="c_headLeftTitle">{!$Label.label_11009}</h1>
+                        <br/>
+                        <h2 id="c_headLeftSubTitle">{!$Label.label_13009}</h2>
+                    </td>
+                    <!-- 操作ボックス -->
+                    <td id="c_headRight">
+                        <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+                    </td>
+                </tr>
+                <tr>
+                    <!-- right content container -->
+                    <td id="c_right" colspan="2">
+                            <apex:pageBlock >
+                                <apex:pageBlockButtons >
+                                    <input class="btn" type="button" value="{!$Label.label_00075}" onclick="dosave();" />
+                                    <input class="btn" type="button" value="{!$Label.label_00058}" onclick="cancelOnClick();" />
+                                </apex:pageBlockButtons>
+                                <div id ="editMain">
+                                    <!-- 詳細 -->
+                                    <div id="tab_basic" class="tabDiv">
+                                        <div id="detailDiv">
+                                            <table>
+                                                <tr>
+                                                    <td style="vertical-align: top;width:350px;">
+                                                        <table cellspacing="5" style="margin: 5px 0px 5px 20px;">
+                                                            <tr>
+                                                                <th>{!$Label.label_10450}</th>
+                                                                <td colspan="2">
+                                                                    <input type="checkbox" name="LC_enabled" id="LC_enabled" />
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>{!$Label.label_11043}</th>
+                                                                <td colspan="2">
+                                                                    <div class="c_require" style="height:20px;">
+                                                                        <input type="text" name="LC_name" id="LC_name"  style="width: 400px;"/>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>{!$Label.label_11059}</th>
+                                                                <td>
+                                                                    <label>
+                                                                    <input type="radio" name="LC_priority" id="LC_priorityOrganization" value="CORPORATION" />{!$Label.label_10172}
+                                                                    </label>
+                                                                    <label>
+                                                                    <input type="radio" name="LC_priority" id="LC_prioritySpace" value="SPACE"/>{!$Label.label_10155}
+                                                                    </label>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th> </th>
+                                                                <td>
+                                                                    <label>
+                                                                    <input type="checkbox" class="lcparts" name="settablePerContents" id="settablePerContents" />{!$Label.label_13006}
+                                                                    </label>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>{!$Label.label_13017}</th>
+                                                                <td>
+                                                                    <button class="btn icon-btn lcparts" onclick="removeButton();return false;" style="width:65px;">{!$Label.label_00072}</button>
+                                                                    <button class="btn icon-btn lcparts" id="openFilterEdit"  onclick="editButton();return false;" style="width:65px;" >{!$Label.label_00073}</button>
+                                                                    <button class="btn icon-btn lcparts" onclick="addcondition();return false;" style="width:65px;" >{!$Label.label_10020}</button>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th></th>
+                                                                <td>
+                                                                    <label>
+                                                                        <!-- <select multiple="multiple" size="12" id="filters" style="width:250px;" class="lcparts" onclick="singleSelect();" /> -->
+                                                                        <select multiple="multiple" size="12" id="filters" style="width:220px;" class="lcparts" />
+                                                                    </label>
+                                                                </td>
+
+                                                                <td >
+                                                                    <div style="position: relative;left:-130px;">
+                                                                    <button class="lcparts" onclick="changePriority(true);return false;" ><img src="{!URLFOR($Resource.cso, 'image/up-arrow.png')}"  /></button>
+                                                                    <br/>
+                                                                    <button class="lcparts" onclick="changePriority(false);return false;"><img src="{!URLFOR($Resource.cso, 'image/down-arrow.png')}"/></button>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+
+                                                                    <div style="position: relative;left:-160px;">
+                                                                        <div class="box"><div></div></div>
+                                                                        <div style="position: relative;">
+                                                                        <div id="filterStatus" style="position: absolute; top: -200px; left:27px; width: 320px;">
+                                                                            <div id="filterDetail" style="padding-top: 10px;"></div>
+                                                                        </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <!-- 適用スペース -->
+                                    <div id="tab_space" class="tabDiv" style="display: none;">
+                                        <div id="applySpaceDiv" style="padding: 30px 20px 0 20px;">
+                                            <div class="c_command_l">
+                                                <ul class="c_command_pipe">
+                                                    <li class="item">
+                                                        <input type="button" class="btn lcparts" onclick="removeSpace();" value="{!$Label.label_00072}"/>
+                                                    </li>
+                                                    <li class="last">
+                                                        <input type="button" class="btn lcparts" onclick="openAddSpace();" value="{!$Label.label_10020}"/>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <!-- jqGrid -->
+
+                                            <div id="outerspacelist" style="clear: right; padding: 10px 0 10px 10px;">
+                                                <div id="spaceList-container">
+                                                    <table id="spaceList" ></table>
+                                                    <div id="spaceListPager" ></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- スペース追加ダイアログ -->
+                                    <div id="addSpaceDialog" style="display: none;" >
+                                        <div>{!$Label.msg_00275}
+                                            <div class="border" id="addSpaceDialogMain">
+                                                <ul id="spaceTree" class="selectTree filetree"></ul>
+                                                <img alt="loading" src="{!URLFOR($Resource.cso, 'image/loading.gif')}" style="position: absolute; top: 50%;left: 47%; " id="spaceTreeLoading"/>
+                                            </div>
+                                            <div style="text-align:center;margin:5px;">
+                                                <!--<input type="button" class="btn" onclick="return addSpace();" value="{!$Label.label_00075}" />
+                                                <input type="button" class="btn" onclick="return closeAddSpace();" value="{!$Label.label_00058}" />-->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab_mail" class="tabDiv" style="display: none;">
+                                        <div id="AddUser" style="padding: 0px 20px 0 20px;">
+                                        <div id="mailUserReminder">
+                                            <table>
+                                                <tr>
+                                                    <th>{!$Label.label_10689}</th>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" id="reminder_enabled" name="reminder_enabled"  class="lcparts" />
+                                                            {!$Label.label_13010}
+                                                        </label>
+                                                        <input type="text" id="reminder_time" name="reminder_time"  value="" maxlength="4" disabled="disabled"/>
+                                                        {!$Label.label_13011}
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="c_command_l" id="mailUserPart">
+                                            <ul class="c_command_pipe">
+                                                <div align="left" style="float: right;">
+                                                    <li class="item">
+                                                        <input type="button" class="btn lcparts" onclick="removeUserInfo();" value="{!$Label.label_00072}"/>
+                                                    </li>
+                                                    <li class="last">
+                                                        <input type="button" class="btn lcparts" onclick="openAddUserModal();" value="{!$Label.label_10020}"/>
+                                                    </li>
+                                                </div>
+                                            </ul>
+                                        </div>
+                                        <div id="userList" style="clear: right; padding: 10px 0 10px 10px;">
+                                            <div id="mailUserList-container">
+                                                <table id="mailUserList"></table>
+                                                <div id="mailUserPager"></div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <!-- ユーザ追加画面 -->
+                                    <div id="addUserModal" style="display: none;">
+                                        <form onsubmit="onSearchClicked(); return false;">
+                                            <div style="margin-bottom: 5px;">{!$Label.label_10511}</div>
+                                            <select id="op1">
+                                                <option value="0">{!$Label.label_10131}</option>
+                                                <option value="1">{!$Label.label_10022}</option>
+                                                <option value="2">{!$Label.label_10317}</option>
+                                            </select>
+                                            <select id="op2" style="display: none; width: 140px;"></select>
+                                            <input type="text" id="user-search-txt" class="search-txt" placeholder="{!$Label.label_10448}" />
+                                            <input type="submit" class="btn" value="{!$Label.label_00069}" onclick="onSearchClicked(); return false;" />
+                                            <input type="button" class="btn" value="{!$Label.label_00070}" onclick="onClearClicked();" />
+                                        <div id="tabUser" class="tab-inner">
+                                            <div style="padding-top: 10px;">
+                                                <table id="managerUserTable"></table>
+                                                <div id="managerUserTablePager"></div>
+                                            </div>
+                                        </div>
+                                        <div class="buttons" style="text-align:right;">
+                                            <button class="btn" onclick="closeAddUserModal();">
+                                                {!$Label.field_common_cancel}
+                                            </button>
+                                            <button class="btn" onclick="addUserInfo();">
+                                                {!$Label.field_common_ok}
+                                            </button>
+                                        </div>
+                                        </form>
+                                    </div>
+
+                                    <!-- フィルタ編集-->
+                                    <div id="filterdialog"   title="{!$Label.label_13020}"  style="display: none;">
+            <div id="DialogError" style="background-color: white; padding-top:0px;padding-bottom:0px;display:none;color:red;">
+            </div>
+
+            <table id ="filterTable" cellspacing="5" border="0">
+                <tr>
+                    <td colspan="3" style="font-weight: bold; padding-top: 0px;">
+                    <!--フィルタ名 -->
+                    {!$Label.label_13059}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="padding-left: 20px;">
+                        <div class="c_require" style="height:20px;">
+                            <input type="text" name="LC_filterName" id="LC_filterName"  maxlength="100" style="width:400px;"/>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th colspan="3" style="font-weight: bold; padding-top: 10px;">
+                        {!$Label.label_13017}
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div id="lifecycleview"></div>
+                        <div id="lifecycleviewSelector" style="display: none;">
+                            <table id="lifecycleviewSelectorTable">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <div onclick="$(this).lcSelectAct(1);" lctype="1">
+                                            <img src="{!URLFOR($Resource.cso, 'image/lc-archNew.png')}" class="lc-icon"/>
+                                            <div style="padding-top: 5px;">{!$Label.label_00055}</div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div onclick="$(this).lcSelectAct(2);" lctype="2">
+                                            <img src="{!URLFOR($Resource.cso, 'image/lc-trashNew.png')}" class="lc-icon"/>
+                                            <div style="padding-top: 5px;">{!$Label.label_00056}</div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div onclick="$(this).lcSelectAct(3);" lctype="3">
+                                            <img src="{!URLFOR($Resource.cso, 'image/lc-delNew.png')}" class="lc-icon"/>
+                                            <div style="padding-top: 5px;">{!$Label.label_13012}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+                <th>{!$Label.label_13007}</th>
+                <tr>
+                    <td style="padding-left: 20px;">
+                        <div>
+                            <label><input type="checkbox" checked="checked" style="vertical-align: -2px;" id="conditionCheck"/>{!$Label.label_11066}</label>
+                        </div>
+                        <div style="display: none; margin-left: 10px;" id="conditionDetail">
+
+                        <div>
+                            <label><input type="radio" checked="checked" name="terms" id="contents"/>{!$Label.label_10081}</label>
+                            <label><input type="radio" name="terms" id="tag"/>{!$Label.label_10763}</label>
+                        </div>
+                        <div class="c_require" style="height:20px;">
+                            <input type="text" name="LC_Condition" id="LC_Condition"  maxlength="100" style="width:400px;"/>
+
+                        </div>
+                        <div style="padding-top: 3px;">
+                            {!$Label.label_13016}
+                        </div>
+
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="text-align: right; padding-top: 10px; padding-bottom: 10px;">
+                <button class="btn" onclick="cancelEditFilter();">
+                    {!$Label.field_common_cancel}
+                </button>
+                <button class="btn" onclick="clickFilterOkButton();">
+                    {!$Label.label_00059}
+                </button>
+            </div>
+
+                                    </div>
+                                </div>
+                                <!-- タブ -->
+                                <div style="background-color: #13B396; height:50px; width:100%;">
+                                    <ul id="evidence_tab">
+                                        <li id="evidence_tab_basic" class="evidence_tab evidence_tab_active">
+                                            <a href="javascript:switchTab('basicinfo');">{!$Label.label_13008}</a>
+                                        </li>
+                                        <li id="evidence_tab_space" class="evidence_tab evidence_tab_deactive">
+                                            <a href="javascript:switchTab('space');">{!$Label.label_10586}</a>
+                                        </li>
+                                        <li id="evidence_tab_mail" class="evidence_tab evidence_tab_deactive">
+                                            <a href="javascript:switchTab('mail');">{!$Label.label_13058}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </apex:pageBlock>
+                    </td>
+                </tr>
+            </table>
+            <div id="copyright" >{!$Label.label_00001}</div>
+        </div>
+
+
+        <script type="text/javascript">
+
+        (function($) {
+
+        $.extend($.fn.fmatter, {
+            htmlEscapeFormatter: function(cellvalue, options, rowdata) {
+                if (cellvalue !== null) {
+                    return $.jgrid.htmlEncode(cellvalue);
+                }
+
+                return "";
+            }
+        });
+
+        })(jQuery);
+
+        var LC_definitionId = "";
+        var LC_spaces = [];
+        var filters= [];
+        var LC_filters=[];
+        var mailUsers = [];
+        var resizeFlg = true;
+        var mailUsers = [];
+        var selectedTabIndex = 0;
+        var selected = {};
+        var _spaceTreeList = null;
+        var opened = false;
+
+        //ラジオボタンテスト用
+        var testradio;
+
+        jQuery.event.add(window, "load", function(){
+
+            $("#filterdialog").dialog({
+                autoOpen: false,
+                bgiframe: true,
+                modal: true,
+                resizable: false,
+                width: 550,
+                minWidth: 460,
+                height: 550,
+                close: function(){ $(this).csoBalloonHide(); }
+            });
+
+            LC_definitionId = '{!definitionId}';
+            if(LC_definitionId == ""){
+                hideRegisterInfo();
+            }
+
+            /*
+             * 編集時の値セット
+             */
+            var callback =  function(data){
+                if(data.result){
+
+                    var detail = data.info;
+
+
+                    for(var i=0; i<data.spaces.length; i++){
+                        var spaceInfo = {
+                            id        :    data.spaces[i].id,
+                            space_name:    data.spaces[i].name,
+                            space_info:    data.spaces[i].info
+                        };
+
+                        LC_spaces.push(spaceInfo);
+                    }
+                    initLiftCycleSpaceList();
+
+                    for(var i=0; i<data.mail_users.length; i++){
+                        var mailUserInfo = {
+                            id        :    data.mail_users[i].id,
+                            name:    data.mail_users[i].name,
+                            info:    data.mail_users[i].info
+                        };
+
+                        mailUsers.push(mailUserInfo);
+                    }
+                    // 選択状態用
+                    for (var i=0; i<mailUsers.length ; i++) {
+                        var obj = mailUsers[i];
+                        selected[obj.id] = obj;
+                    }
+
+                    initLiftCycleMailUserList();
+/*
+                    // ユーザ検索絞り込み用プルダウン(組織)
+                    for(var i=0; i<data.corpOptions.length; i++){
+                        var opt = $("<option>").val(data.corpOptions[i].value).text(data.corpOptions[i].text);
+                        $("#user-search-corp").append(opt);
+                    }
+
+                    // ユーザ検索絞り込み用プルダウン(部署・役職)
+                    for(var i=0; i<data.postOptions.length; i++){
+                        var opt = $("<option>").val(data.postOptions[i].value).html(data.postOptions[i].text);
+                        $("#user-search-post").append(opt);
+                    }
+*/
+                    $('#LC_enabled').attr('checked', eval(detail.enabled));
+              //      $('#LC_enabled').attr('checked', eval(detail.enabled));
+                    $('#LC_name').val(detail.name);
+
+                    var filtersHolder=data.filters;
+
+                    for (var i = 0; i < filtersHolder.length; i++) {
+                        var actions = [];
+                        for(var ii=0; ii  <filtersHolder[i].actions.length; ii++){
+                            var action = {
+                                action : filtersHolder[i].actions[ii].action,
+                                date_unit :  filtersHolder[i].actions[ii].date_unit,
+                                time :  filtersHolder[i].actions[ii].time
+                            };
+                            actions.push(action);
+                        }
+
+                        var obj = {
+                            name : filtersHolder[i].name,
+                            condition : filtersHolder[i].condition,
+                            type : filtersHolder[i].type,
+                            value : filtersHolder[i].value,
+                            actions: actions
+                        };
+                        LC_filters.push(obj);
+                    }
+
+                    LC_filters = convertFiltersSvToCl(LC_filters);
+
+
+
+
+                    $("#filters option").remove();
+                    $(LC_filters).each(function(i, filter) {
+                        var name = filter.name;
+                        var opt = $("<option>").val(i).text(filter.name);
+                        $("#filters").append(opt);
+
+
+                    });
+
+                    if(detail.priority==0){
+                        $("#LC_priorityOrganization").attr("checked", "checked");
+                    }else{
+                        $("#LC_prioritySpace").attr("checked", "checked");
+                    }
+
+                    $('#settablePerContents').attr('checked', eval(detail.settablePerContents));
+
+                    if(eval(detail.reminderEnabled)){
+                        $('#reminder_enabled').attr('checked', eval(detail.reminderEnabled));
+                        $("#reminder_time").removeAttr("disabled").addClass("c_require");
+                    }
+
+                    var remindtime=data.reminder_time;
+                    if(remindtime==0){
+                        $('#reminder_time').val("");
+                    }else{
+                        $('#reminder_time').val(remindtime);
+                    }
+
+                    spaces = data.spaces;
+                    //$("#spaceList").clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+
+// 9714 無効時も設定できるよう修正
+//                    disableradio();
+
+                } else {
+                    alert(data.message);
+                }
+            }
+            secureGetAsync('/setup/LifeCycleDetail.json?id=' + LC_definitionId ,"", callback);
+
+            /*--  適用スペースの初期化  --*/
+            if((LC_definitionId == "")||(LC_definitionId == null)){
+                initLiftCycleSpaceList();
+                initLiftCycleMailUserList();
+            }
+            checkUncheck();
+            resizeGrid();
+            $(window).resize(resizeGrid);
+/*
+            $("#user-search-corp").change(function(e){
+                var v = $("#user-search-corp").val();
+                if(v == "" || v.indexOf("PARTNER_") != 0){
+                    $("#user-search-post").show();
+                }else{
+                    $("#user-search-post").hide();
+                    $("#user-search-post").val("");
+                }
+            });
+*/
+            /* グループ検索対応 */
+            $("#op1").change(function(e){
+                if($(this).val() != 0){
+                    secureGetAsync("/setup/CategoryListGet.json",
+                        {
+                            company : "0",
+                            category : $(this).val(),
+                            returnType : "html"
+                        },
+                        function(data){
+                            $("#op2").html(data["category_select"]);
+                            $("#op2").show();
+                        }
+                    );
+                }else{
+                    $("#op2").hide();
+                }
+            });
+        });
+
+        function checkUncheck() {
+            $("#conditionCheck").change(function(){
+                if($(this).attr("checked")){
+                    $("#conditionDetail").hide();
+                }else{
+                    $("#conditionDetail").show();
+                }
+            });
+        }
+
+        function resizeGrid(){
+            $("#spaceList").setGridWidth(1);
+            $("#spaceList").setGridWidth($("#spaceList-container").innerWidth());
+
+            $("#mailUserPart").css("width", getBrowserWidth() - 390);
+            $("#outerspacelist").setGridHeight(getBrowserHeight() - 500);
+            $("#userList").setGridHeight(getBrowserHeight() - 450);
+
+            $("#mailUserList").setGridWidth(1);
+            $("#mailUserList").setGridWidth($("#mailUserList-container").innerWidth());
+
+            $(".tabDiv").height(getBrowserHeight() - 550);
+        }
+
+        function hideRegisterInfo(){
+            $("#PS_HeaderCreator").text("");
+            $("#PS_HeaderCreateDate").text("");
+            $("#PS_HeaderUpdator").text("");
+            $("#PS_HeaderUpdateDate").text("");
+        }
+
+        /*
+         * 適用スペース用初期設定
+         */
+        function initLiftCycleSpaceList(){
+        var rows = 50;
+        var spaceTreeListCallback =  function(data, status){
+            if (data.result) {
+                _spaceTreeList = data["tree"];
+            }
+        };
+        secureGetAsync('/setup/spaceTreeListGetApi.json', ' ', spaceTreeListCallback);
+
+
+        $("#spaceList").jqGrid({
+            data : LC_spaces,
+            datatype: "local",
+            jsonReader :{
+                repeatitems: false,
+                id : "id"
+            },
+            colNames:['',
+                      '{!$Label.label_10155}',
+                      ''],
+            colModel:[
+                        {name:'id',index:'id', hidden:true},
+                        {name:'space_info',index:'space_name', width:850},
+                        {name:'space_name',index:'space_name', hidden:true, formatter: 'htmlEscapeFormatter'}
+                    ],
+            rowNum:50,
+            height: 225,
+            rowList:[10,50,100],
+            sortname: 'space_name',
+            pager: '#spaceListPager',
+            viewrecords: true,
+            multiselect: true,
+            multiboxonly: true,
+            loadComplete: function(data){
+                //var r = $(this).getGridParam("rowNum");
+                //$.cookie("PdfSecuritySpaceRows", $(this).getGridParam("rowNum"));
+            }
+        });
+        $("#spaceList").clearGridData().setGridParam({data : LC_spaces}).trigger("reloadGrid");
+
+            $("#addSpaceDialog").dialog({
+                autoOpen : false,
+                modal : true,
+                title : "{!$Label.label_10155}",
+                width : 530,
+                height : 500,
+                buttons: [
+                    {
+                        text: "{!$Label.label_00058}",
+                        click: function() { closeAddSpace(); }
+                    },
+                    {
+                        text: "{!$Label.label_00059}",
+                        click: function() { addSpace(); }
+                    }
+                ],
+                open: function() {
+                    var buttons = $(this).closest(".ui-dialog").find(".ui-button");
+                    buttons.removeClass();
+                    buttons.addClass("btn");
+                    if (!opened) {
+                        initSpaceTree();
+                    }
+                }
+            });
+
+            var alsoResizeClass = "alsoResizeOverride" + new Date().getTime();
+            $("#addSpaceDialogTreeContainer").addClass(alsoResizeClass);
+            $("#addSpaceDialog").addClass(alsoResizeClass);
+            $("#addSpaceDialog").dialog("widget").resizable("option", {alsoResize: "." + alsoResizeClass});
+        }
+
+        function initSpaceTree() {
+            var spaceTreeCallback =  function(data, status){
+                if (!data.result){
+                    var errMsg = data.message;
+                    if((errMsg != null) && (errMsg != "")){
+                        alert(errMsg);
+                    }
+                    return;
+                }
+
+                $("#spaceTree").children().remove();
+                var branches = $(data["tree"]).appendTo("#spaceTree");
+                $("#spaceTree").treeview({
+                    //collapsed: true,
+                    //add: branches
+                    add: branches,
+                    url: "/setup/SpaceTreeChildrenApi.json",
+                    animated: "fast",
+                    persist: "fixed-open",
+                    callback: function(elements){
+                        initSpaceTreeCheckboxes(elements);
+                    },
+                });
+                initSpaceTreeCheckboxes($("#spaceTree").find("ul"));
+                $("#spaceTreeLoading").hide();
+            };
+            var spaceTreeCallerror =  function(data){
+                alert("LifecycleSpaceTreeGet:" + data);
+            };
+
+            //secureGetAsync('/setup/LifecycleSpaceTreeGet.json', ' ', spaceTreeCallback, spaceTreeCallerror);
+            secureGetAsync('/setup/SpaceTreeRootApi.json', ' ', spaceTreeCallback, spaceTreeCallerror);
+            opened = true;
+        }
+
+        function initSpaceTreeCheckboxes(elements) {
+            setTimeout(function(){
+               var $ul = elements;
+               var $li = $ul.children("li");
+
+               var existInterLock = false;     //-- 下位連動フラグの有無（false:下位連動なし、true:下位連動あり） --%>
+               var interlock = "";             //-- 下位連動フラグの値（"checked":チェックする、"":チェックしない） --%>
+
+               //-- 下位連動フラグがあった場合 --%>
+               var objChk = $("#spaceTree").find("input[id=" + elements.prevObject[0].id + "]");
+               if(objChk.attr("interlock") != null){
+                   existInterLock = true;
+                   if(objChk.attr("interlock") == "true"){
+                       interlock = objChk.attr("interlock");
+                   }
+               }
+
+               //-- [下位連動]する場合 --%>
+               if(existInterLock == true) {
+                   $li.each(function() {
+                       var obj = $("#spaceTree").find("input[id=" + $(this).attr("id") + "]");
+                       //-- 下位にも[下位連動]フラグ(interlock)を付加する --%>
+                       obj.attr("interlock", interlock);
+                       //-- 連動する --%>
+                       obj.attr("checked", interlock);
+                   });
+                   return false;
+               }
+
+               var ids = $("#spaceList").getGridParam("data");
+               $("input[type=checkbox]", $("#spaceTree")).each(function() {
+                   var id = $(this).attr("id");
+                   for (var i in ids) {
+                       if (ids[i].id == id) {
+                           var lookup = false;
+                           $li.each(function() {
+                               if ($(this).attr("id") == id) {
+                                   lookup = true;
+                                   return false;
+                               }
+                           });
+                           if (lookup) {
+                               $(this).attr("checked", true);
+                           }
+                           break;
+                       }
+                   }
+               });
+           },100);
+        }
+
+        /*
+         * 通知先ユーザ編集用初期設定
+         */
+        function initLiftCycleMailUserList(){
+            var mailUserRows = 50;
+
+            $("#mailUserList").jqGrid({
+                data : mailUsers,
+                datatype: "local",
+                jsonReader :{
+                    repeatitems: false,
+                    id : "id"
+                },
+                colNames:['',
+                          '{!$Label.label_13058}',
+                          ''],
+                colModel:[
+                            {name:'id',index:'id', hidden:true},
+                            {name:'info',index:'info', width:850},
+                            {name:'name',index:'name', hidden:true, formatter: 'htmlEscapeFormatter'}
+                        ],
+                rowNum : mailUserRows,
+                height: 225,
+                rowList:[10,50,100],
+                sortname: 'name',
+                pager: '#mailUserPager',
+                viewrecords: true,
+                multiselect: true,
+                multiboxonly: true,
+                loadComplete: function(data){
+                    var r = $(this).getGridParam("rowNum");
+                    localStorage.setItem("mailUserRows", r);
+                },
+            });
+            $("#mailUserList").clearGridData().setGridParam({data : mailUsers}).trigger("reloadGrid");
+
+
+            $("#addUserModal").dialog({
+                autoOpen: false,
+                bgiframe: true,
+                modal: true,
+                resizable: false,
+                title : '{!$Label.label_10682}',
+                width: 770,
+                height: 530
+            });
+
+            $('#user-search-post').show();
+
+            var postData = {};
+
+            $("#managerUserTable").jqGrid({
+                url : _apiUrl + "/setup/LifecycleUserList.json",
+                postData : postData,
+                colNames:[
+                    '',
+                    '',
+                    '{!$Label.label_00039}',
+                    '{!$Label.label_10097}',
+                ],
+                colModel:[
+                    {name:'id',index:'id', width:60, hidden:true},
+                    {name:'name',index:'name', hidden:true},
+                    {name:'info',index:'userid', width:450},
+                    {name:'corporation',index:'corporation', width:180},
+                ],
+                rowNum:10,
+                rowList:[10,50,100],
+                sortname: 'userid',
+                pager: '#managerUserTablePager',
+                viewrecords: true,
+                shrinkToFit : false,
+                multiselect: true,
+                multiboxonly: true,
+                onSelectRow : function(rowid, status, ev){
+                    selRow();
+                },
+                onSelectAll : function(aRowids, status){
+                    selRow();
+                },
+                loadComplete : function(data){
+                    for (var id in selected) {
+                        $(this).setSelection(id, false);
+                    }
+                }
+            }).setGridWidth(735).setGridHeight(325);
+        }
+
+        /*
+         * キャンセル
+         */
+        function cancelOnClick(){
+            if("{!type}" == "detail"){
+                location.href = "SettingLifeCycleDefEdit?id=" + LC_definitionId;
+            } else {
+                location.href = "SettingLifeCycleList";
+            }
+        }
+
+        /*
+         * 保存
+         */
+        function dosave(){
+            $(".btn").attr("disabled", "disabled");
+
+            PS_err = false;
+            /*-- 定義名チェック --*/
+            if ($("#LC_name").val() == "") {
+                PS_err = true;
+                alert('{!$Label.msg_01025}');
+            } else if($("#LC_name").val().length >100){
+                PS_err = true;
+                alert('{!$Label.msg_00277}');
+            }
+
+            /*- ライフサイクル未設定の場合 --*/
+            if($("#filters").children().length <= 0){
+                PS_err = true;
+                alert('{!$Label.msg_01120}');
+            }
+
+             validateMailUser();
+
+            /*
+             *　エラーがある場合
+             */
+            if (PS_err == true){
+                $(".btn").removeAttr("disabled");
+                return false;
+            }
+
+            /*
+             *　パラメータ生成
+             */
+
+            $("#mailUserSelected option").each(function() {
+                var opt = $(this);
+                mailUsers.push(opt.val());
+            });
+            var mailUserIDs = [];
+            for (var id in selected){
+                var id = selected[id].id;
+                mailUserIDs.push(id);
+            }
+
+            var query = {
+
+                   id                   : LC_definitionId,                                             //定義ID
+                   name                 : $('#LC_name').val(),                                         //定義名
+                   enabled              : $("#LC_enabled").attr("checked"),                            //有効化
+                   settablePerContents  : $("#settablePerContents").attr("checked"),                   //コンテンツごと設定許可
+                   priority             : $("input[name=LC_priority]:checked").val(),                  //優先設定
+                   filters              : JSON.stringify(convertFiltersClToSv(LC_filters)),            //フィルタ条件
+                   mailUsers            : JSON.stringify(mailUserIDs),                                 //メール送信先
+                   spaces               : JSON.stringify(LC_spaces),                                   //スペース
+                   reminderEnabled      : $("#reminder_enabled").attr("checked"),                      //リマインダー
+                   reminderTime         : $("#reminder_time").val(),                                   //リマインダー時間
+            }
+
+
+            /*-- -------- --*/
+            /*-- 登録処理 --*/
+            /*-- -------- --*/
+            var callback = function(data){
+                if(!data.result){
+                    CsoScript_loadingStop();
+                    if((data.userMsg != null) && (data.userMsg != "")){
+                        alert('userMsg: ' + data.userMsg);
+                    }
+                    if((data.message != null) && (data.message != "")){
+                        alert('message: ' + data.message);
+                    }
+                    $(".btn").removeAttr("disabled");
+                    return false;
+                }
+                CsoScript_loadingStop();
+                cancelOnClick();
+            };
+            var callerror =  function(data){
+                CsoScript_loadingStop();
+              //  alert("lifecycleEdit:" + data);
+                $(".btn").removeAttr("disabled");
+            };
+
+            CsoScript_loadingStart();
+
+
+
+            securePostAsync('/setup/LifecycleEdit.json', query, callback, callerror);
+
+            return true;
+
+        }
+
+        function openAddSpace() {
+            var ids = $("#spaceList").getGridParam("data");
+            $("input[type=checkbox]", $("#spaceTree")).each(function() {
+                var id = $(this).attr("id");
+                var checked = false;
+                for (var i in ids) {
+                    if (ids[i].id == id) {
+                        checked = true;
+                        break;
+                    }
+                }
+                $(this).attr("checked", checked);
+            });
+            $("#addSpaceDialogMain").css("height", "380px");
+            $("#addSpaceDialog").dialog("open");
+            return false;
+        }
+
+        function clickSpace(obj, id) {
+            var checked = $(obj).attr("checked");
+            var p = $(obj).parent().parent();
+            var c = $("input[type=checkbox]", p);
+
+            c.attr({checked:checked, interlock:checked});
+        }
+
+        function closeAddSpace() {
+            $("#addSpaceDialog").dialog("close");
+            return false;
+        }
+
+        function addSpace() {
+            var escaper = $("<div/>");
+            var spaces = [];
+            $(LC_spaces).each(function() {
+                if ($("#spaceTree").find("li#" + this.id).length < 1) {
+                    spaces.push(this);
+                }
+            });
+
+            LC_spaces = [];
+            $("input[type=checkbox]:checked", $("#spaceTree")).each(function() {
+
+                var spaceId = $(this).attr("id");
+
+                var bExists = false;
+                $(LC_spaces).each(function() {
+                    if (this.id == spaceId) {
+                        spaces.push(this);
+                        bExists = true;
+                        return false;
+                    }
+                });
+
+                if(bExists == true){
+                    return true;
+                }
+
+                var spaceName = escaper.text($(this).attr("spacename")).html();
+
+                var space = {
+                    id : $(this).attr("id"),
+                    space_info : "<div title='" + spaceName + "' style='position: relative;'><div style='float: left; width: 100%;'><div style='float: left;'></div><div style='margin-top: 3px;'><div class='jqgrid-list-standard-name-top'>" + spaceName + "</div><div class='jqgrid-list-standard-name-bottom'>" + $(this).attr("path") + "</div></div></div><div style='position: absolute; top: 20px; right: 0px;'></div></div>",
+                    space_name : $(this).attr("spacename")
+                };
+                spaces.push(space);
+
+                var $li = $("#spaceTree").find("li#" + spaceId);
+                if($li.hasClass("hasChildren")){
+                    if(_spaceTreeList != null){
+                        for(var i = 0; i < _spaceTreeList.length; i++){
+                            var info = _spaceTreeList[i];
+                            var path = info.parentPath;
+                            if(!path){
+                            }else{
+                                //-- 重複チェック --%>
+                                var bExists = false;
+                                for(var idx = 0; idx < spaces.length; idx++){
+                                    if(spaces[idx].id == info.spaceId){
+                                        bExists = true;
+                                        break;
+                                    }
+                                }
+                                if(bExists == true){
+                                    continue;
+                                }
+
+                                if(path.indexOf(spaceId)!=-1){
+                                    var space = {
+                                        id : info.spaceId,
+                                        space_info : "<div class='jqgrid-list-standard-name-top'>" + escaper.text(info.spaceName).html() + "</div><div class='jqgrid-list-standard-name-bottom'>" + escaper.text(info.spacePath).html() + "</div>",
+                                        space_name : info.spaceName
+                                    };
+                                    spaces.push(space);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            //-- 選択したスペース一覧から、下位連動で未選択とされたスペースを削除 --%>
+            $("#spaceTree").find("input[type=checkbox][interlock=false]").each(function(){
+                var spaceId = $(this).context.id;
+                var $li = $("#spaceTree").find("li#" + spaceId);
+                if($li.hasClass("hasChildren")){
+                    if(_spaceTreeList != null){
+                        for(var i = 0; i < _spaceTreeList.length; i++){
+                            var info = _spaceTreeList[i];
+                            var path = info.parentPath;
+                            if(!path){
+                            }else{
+                                if(path.indexOf(spaceId)!=-1){
+                                    for(var idx = 0; idx < spaces.length; idx++){
+                                        if(spaces[idx].id == info.spaceId){
+                                            spaces.splice(idx, 1);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+
+            $("#addSpaceDialog").dialog("close");
+            $("#spaceList").clearGridData().setGridParam({data : spaces}).trigger("reloadGrid");
+            LC_spaces = spaces;
+            return false;
+        }
+
+        function removeSpace() {
+
+            var selected = $("#spaceList").getGridParam("selarrrow");
+            if (selected.length == 0) {
+                alert('{!$Label.msg_01034}');
+                return false;
+            }
+
+            if (!confirm('{!$Label.msg_01105}')) {
+                return false;
+            }
+
+            var ids = LC_spaces;
+            LC_spaces = [];
+            for (var i=0; i<ids.length; i++) {
+                var k = ids[i];
+                if (jQuery.inArray(k.id, selected) < 0) {
+                    LC_spaces.push(k);
+                }
+            }
+
+            $("#spaceList").clearGridData().setGridParam({data : LC_spaces}).trigger("reloadGrid");
+
+            return false;
+        }
+
+        // ユーザ追加モーダル開
+        function openAddUserModal() {
+
+            var postData = {};
+
+        // スペースIDを入れる(スペース毎の設定用)
+        //    if(test="${not empty spaceId}"){
+        //        postData.spaceId = "${spaceId}";
+        //    }
+
+            $("#managerUserTable").jqGrid({
+              url : _apiUrl + "/setup/LifecycleUserList.json",
+        //        url : '',
+                postData : postData,
+                colNames:[
+                    '',
+                    '',
+                    '{!$Label.label_00039}',
+                    '{!$Label.label_10097}',
+                ],
+                colModel:[
+                    {name:'id',index:'id', width:60, hidden:true},
+                    {name:'name',index:'name', hidden:true},
+                    {name:'info',index:'userid', width:450},
+                    {name:'corporation',index:'corporation', width:180},
+                ],
+                rowNum:10,
+                rowList:[10,50,100],
+                sortname: 'userid',
+                pager: '#managerUserTablePager',
+                viewrecords: true,
+                shrinkToFit : false,
+                multiselect: true,
+                multiboxonly: true,
+                onSelectRow : function(rowid, status, ev){
+                    selRow();
+                },
+                onSelectAll : function(aRowids, status){
+                    selRow();
+                },
+                loadComplete : function(data){
+                    for (var id in selected) {
+                        $(this).setSelection(id, false);
+                    }
+                }
+            }).setGridWidth(735).setGridHeight(325);
+            createAndAssignColumnModelNameMap($("#managerUserTable"));
+            $("#managerUserTable").setGridParam({url : _apiUrl + "/setup/LifecycleUserList.json", page : 1}).trigger("reloadGrid");
+            $("#ugtab").css("height", "30");
+            $("#addUserModal").dialog("open");
+        }
+
+        function createAndAssignColumnModelNameMap(jqgridObj) {
+            var colModel = jqgridObj.getGridParam('colModel');
+            var colModelNameMap = [];
+            for (var i=0; i<colModel.length; ++i) {
+                colModelNameMap[colModel[i].name] = i;
+            }
+            jqgridObj.data('colModelNameMap', colModelNameMap);
+        }
+
+        function getColumnModelNameMap(jqgridObj) {
+            return jqgridObj.data('colModelNameMap');
+        }
+
+        function constructObjectFromRowData(cellArray, columnModelNameMap, format) {
+            var obj = {};
+            if (format === 'text') {
+                for (var name in columnModelNameMap) {
+                    obj[name] = $(cellArray[columnModelNameMap[name]]).text();
+                }
+            } else {
+                for (var name in columnModelNameMap) {
+                    obj[name] = $(cellArray[columnModelNameMap[name]]).html();
+                }
+            }
+            return obj;
+        }
+
+        function selRow() {
+            var rawData, obj;
+            var managerUserTable = $("#managerUserTable");
+            var allRows = managerUserTable.getRowData();
+            var rows = managerUserTable.jqGrid('getGridParam', 'selarrrow');
+            var columnModelNameMap = getColumnModelNameMap(managerUserTable);
+
+            for (var i in allRows) {
+                var r = allRows[i];
+                if ($.inArray(r.id, rows) >= 0) {
+                    rawData = managerUserTable.find("#" + r.id + " td");
+                    obj = constructObjectFromRowData(rawData, columnModelNameMap);
+                    addUserid(r.id, obj);
+                } else {
+                    removeUserid(r.id);
+                }
+            }
+        }
+
+        function addUserid(id, obj) {
+            if (!(id in selected)) {
+                selected[id] = obj;
+            }
+        }
+
+        function removeUserid(id) {
+            if (id in selected) {
+                delete selected[id];
+            }
+        }
+
+        function validateMailUser() {
+            if ($("#reminder_enabled").attr("checked")) {
+                var time = $("#reminder_time").val();
+                if (time == "") {
+                    PS_err = true;
+                    alert("{!$Label.msg_01115}");
+                } else {
+                    time = parseInt(time);
+                    if (time <= 0) {
+                        PS_err = true;
+                        alert("{!$Label.msg_01116}");
+                    }
+                }
+                if($.isEmptyObject(selected)){
+                    PS_err = true;
+                    alert("{!$Label.msg_01086}");
+                }
+            }
+        }
+
+        // ユーザ追加モーダル閉
+        function closeAddUserModal() {
+            $("#addUserModal").dialog("close");
+        }
+
+        // 検索動作
+        function onSearchClicked() {
+            var group = "";
+            var post = "";
+            var name = $("#user-search-txt").val();
+            if(name == "{!$Label.label_10448}"){
+                name ="";
+            }
+            var opt = $("#op1").val();
+
+            var postData = $("#managerUserTable").getGridParam("postData");
+
+            if(postData != null){
+                if("1" == opt){
+                    group = $("#op2").val();
+                }else if("2" == opt){
+                    post = $("#op2").val();
+                }
+
+                delete postData.corp;
+
+                if (group && group != "") {
+                    postData.group = group;
+                } else {
+                    delete postData.group;
+                }
+
+                if (post && post != "") {
+                    postData.post = post;
+                } else {
+                    delete postData.post;
+                }
+
+                if (name && name != "") {
+                    postData.name = name;
+                } else {
+                    delete postData.name;
+                }
+                $("#managerUserTable").setGridParam({url : _apiUrl + "/setup/LifecycleUserList.json", postData : postData, page : 1}).trigger("reloadGrid");
+            }
+        }
+
+        // クリア動作
+        function onClearClicked() {
+            $("#op1").val("0");
+            $("#op2").val("");
+            $("#op2").hide();
+            $("#user-search-txt").val("");
+
+            onSearchClicked();
+        }
+
+        // ユーザ追加
+        function addUserInfo() {
+            $("#mailUserList").clearGridData();
+            for (var id in selected) {
+                var obj = selected[id];
+                $("#mailUserList").addRowData(id, obj);
+            }
+
+            var k = $("#mailUserList").getGridParam("data");
+            selected = {};
+            for (var i=0; i<k.length ; i++) {
+                var id = k[i].id
+                selected[id] = k[i];
+            }
+
+            closeAddUserModal();
+        }
+
+        // ユーザ削除
+        function removeUserInfo() {
+            var ids = $("#mailUserList").getGridParam("selarrrow");
+
+            if (ids.length == 0) {
+                alert('{!$Label.msg_01086}');
+                return false;
+            }
+
+            if (!confirm('{!$Label.msg_01087}')) {
+                return false;
+            }
+
+            var newIds = $.merge([], ids);
+            for (var i in newIds) {
+                var id = newIds[i];
+                $("#mailUserList").delRowData(id);
+            }
+
+            var k = $("#mailUserList").getGridParam("data");
+            selected = {};
+            for (var i in k) {
+                var id = k[i].id
+                selected[id] = k[i];
+            }
+        }
+
+        /*
+         * タブ切り替え
+         */
+        function switchTab(tabName) {
+            if (tabName == 'basicinfo') {
+                $("#tab_basic").show();
+                $("#evidence_tab_basic").removeClass("evidence_tab_deactive").addClass("evidence_tab_active");
+
+                $("#tab_space").hide();
+                $("#evidence_tab_space").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                $("#tab_mail").hide();
+                $("#evidence_tab_mail").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+            } else if (tabName == 'space') {
+                $("#tab_space").show();
+                $("#evidence_tab_space").removeClass("evidence_tab_deactive").addClass("evidence_tab_active");
+
+                $("#tab_basic").hide();
+                $("#evidence_tab_basic").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                $("#tab_mail").hide();
+                $("#evidence_tab_mail").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                resizeGrid();
+
+            }else if (tabName == 'mail') {
+                $("#tab_mail").show();
+                $("#evidence_tab_mail").removeClass("evidence_tab_deactive").addClass("evidence_tab_active");
+
+                $("#tab_basic").hide();
+                $("#evidence_tab_basic").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                $("#tab_space").hide();
+                $("#evidence_tab_space").removeClass("evidence_tab_active").addClass("evidence_tab_deactive");
+
+                resizeGrid();
+
+            }
+        }
+        /*
+         * メール送信先を追加
+         */
+        function addMailUser() {
+            $("#mailUser option:selected").each(function() {
+                var opt = $(this);
+                var value = opt.val();
+                var text = opt.text();
+
+                var newOpt = $("<option>").val(value).text(text);
+                $("#mailUserSelected").append(newOpt);
+                opt.remove();
+            });
+        }
+        /*
+         * メール送信先を削除
+         */
+        function removeMailUser() {
+            $("#mailUserSelected option:selected").each(function() {
+                var opt = $(this);
+                var value = opt.val();
+                var text = opt.text();
+
+                var newOpt = $("<option>").val(value).text(text);
+                $("#mailUser").append(newOpt);
+                opt.remove();
+            });
+        }
+
+
+        /*
+         * ラジオボタンを無効
+         */
+// 9714 無効時も設定できるよう修正
+/*
+        function disableradio(){
+            var selected=document.getElementById('LC_enabled').checked;
+            var items=document.getElementsByTagName('input');
+
+            for (i=0; i<items.length; i++) {
+                if (items[i].type == 'radio'){
+
+                    if(selected==false){
+                        items[i].setAttribute("disabled", true);
+                    }else{
+                        items[i].removeAttribute("disabled");
+                    }
+                }
+            }
+            if(selected==false){
+                $(".lcparts").attr("disabled", true);
+            } else {
+                $(".lcparts").removeAttr("disabled");
+            }
+            $("#reminder_enabled").trigger("change");
+        }
+*/
+
+        //フィルタ追加ボタン処理
+        var add = false;
+        var change = false;
+        function addcondition() {
+
+            // 初期化
+            filterDialogInit();
+
+            $("#lifecycleview").lifecycle({
+                mode : 1,
+                actSelect : "lifecycleviewSelector",
+                data : null,
+                resource : {
+                    Store   : "{!$Label.label_13019}",
+                    Archive : "{!$Label.label_00055}",
+                    Trash   : "{!$Label.label_00056}",
+                    Delete  : "{!$Label.label_13012}",
+                    Day     : "{!$Label.label_13064}",
+                    Week    : "{!$Label.label_13065}",
+                    Month   : "{!$Label.label_13066}",
+                    Year    : "{!$Label.label_13067}",
+                }
+            });
+
+
+            //ダイアログを開く
+            $("#filterdialog").dialog("open");
+            $("#filterdialog").css("height", "auto");
+          //  $("#filterDialog").dialog({ width: 550, minWidth: 460 });
+            //追加ボタンが押された時の判定
+            add = true;
+            change = false;
+
+
+        }
+
+        //ダイアログ内のデータを初期化
+        function filterDialogInit(){
+            $("#LC_filterName").val("");
+            $("#contents").attr("checked", "checked");
+            $("#LC_Condition").val("");
+            $("#DialogError").empty();
+            $("#lifecycleview").empty();
+
+            //クリア
+            var styleClass = "error";
+            $("." + styleClass).each(function(){
+                $(this).removeClass(styleClass);
+            });
+        }
+
+        <!-- フィルタ編集ボタン -->
+        function editButton(){
+            var len = $('#filters option:selected').length;
+            if(len <= 0){
+                return;
+            }
+            if(len > 1){
+                alert("{!$Label.msg_01109}");
+                return;
+            }
+
+            <!-- 初期化 -->
+            filterDialogInit();
+
+            <!-- 編集ボタン押された -->
+            change = true;
+            add = false;
+
+            <!-- 編集情報設定 -->
+            var filterObj = LC_filters[$("select[id='filters']").val()];
+
+            <!-- フィルタ名をセット -->
+            $("#LC_filterName").val(filterObj.name);
+
+            <!-- コンテンツ名orタグ名をセット -->
+            if(filterObj.type == "CONTENTS"){
+                $("#contents").attr("checked", "checked");
+            }else{
+                $("#tag").attr("checked", "checked");
+            }
+
+            <!-- 条件をセット -->
+            $("#LC_Condition").val(filterObj.value);
+
+            $("#lifecycleview").lifecycle({
+                mode : 1,
+                actSelect : "lifecycleviewSelector",
+                data : filterObj.actions,
+                resource : {
+                    Store   : "{!$Label.label_13019}",
+                    Archive : "{!$Label.label_00055}",
+                    Trash   : "{!$Label.label_00056}",
+                    Delete  : "{!$Label.label_13012}",
+                    Day     : "{!$Label.label_13064}",
+                    Week    : "{!$Label.label_13065}",
+                    Month   : "{!$Label.label_13066}",
+                    Year    : "{!$Label.label_13067}",
+                }
+            });
+
+            if(filterObj.condition == "CONTAINS") {
+                $("#conditionCheck").removeAttr("checked");
+                $("#conditionDetail").show();
+            } else if(filterObj.condition == "NO_CONDITION"){
+                $("#conditionCheck").attr("checked","checked");
+                $("#conditionDetail").hide();
+            }
+
+            //ダイアログを開く
+            $("#filterdialog").dialog("open");
+            $("#filterdialog").css("height", "auto");
+        }
+
+
+        <!--フィルタ削除-->
+        function removeButton(){
+            <!-- 配列から削除 -->
+            $('#filters option:selected').each(function(idx){
+                LC_filters.splice($(this).val() - idx, 1);
+            });
+
+            <!-- selectから削除 -->
+            $("#filters").find("option:selected").remove();
+
+            <!-- valueを振り直す -->
+            $('#filters option').each(function(idx){
+                $(this).val(idx);
+            });
+            $("#filterDetail").empty();
+        }
+
+        // フィルタ編集画面OKボタン処理
+        function clickFilterOkButton() {
+
+            //クリア
+            var styleClass = "error";
+            $("." + styleClass).each(function(){
+                $(this).removeClass(styleClass);
+            });
+
+
+            //エラーチェック
+            checkInputData();
+
+            //エラーがあった場合
+            if (LCF_err.length != 0){
+                $("#DialogError").show();
+                viewErr("#DialogError", LCF_err);
+                resizeGrid();
+                return false;
+            }
+
+
+            //設定値の取得
+            <!-- フィルタ名 -->
+            var FilterName = $("#LC_filterName").val();
+
+
+            <!-- 条件定義名の取得 -->
+            var DefinitionName = $("#LC_Condition").val();
+            var ContStatus = "";
+            if($("#conditionCheck").attr("checked") || DefinitionName == "*") {
+                ContStatus = "NO_CONDITION";
+                //DefinitionName = $("#LC_Condition").val("");
+            } else {
+                ContStatus = "CONTAINS";
+            }
+
+            <!-- 条件タイプの取得 -->
+            var ContType = "";
+            var DefinitionType = document.getElementsByName("terms");
+            for (var i = 0; i < DefinitionType.length; i++) {
+                if(DefinitionType[i].checked) {
+                    var Result = DefinitionType[i].id;
+                    break;
+                }
+            }
+            if(Result == "contents") {
+                ContType = "CONTENTS";
+            } else if(Result == "tag") {
+                ContType = "TAG";
+            }
+
+            var obj = {
+                name      : FilterName,
+                type      : ContType,
+                value     : DefinitionName,
+                condition : ContStatus,
+                actions   : getLcData()
+            }
+
+            <!-- 設定 -->
+            var selIdx = $("#filters").find("option").length;
+            var Idx = $("#filters").val();
+
+            if(add == true) {
+                $("#filters").append($("<option>").attr({value : selIdx}).text(FilterName));
+                LC_filters.push(obj);
+                $("#filterdialog").dialog("close");
+                $("#sectionHeader").hide();
+                $("#filters").val(selIdx);
+                $("#filters").change();
+            } else if(change == true) {
+                LC_filters.splice(Idx, 1, obj);
+                document.getElementById("filters").options[Idx].text = FilterName;
+                $("#filterdialog").dialog("close");
+                $("#sectionHeader").hide();
+                $("#filters").val(Idx[0]);
+                $("#filters").change();
+            }
+
+            $(".btn").removeAttr("disabled");
+
+            return true;
+        }
+
+        /**フィルタ編集キャンセル**/
+        function cancelEditFilter() {
+            $('#DialogError').hide();
+             $("#filterdialog").dialog("close");
+        }
+
+        /**ライフサイクル**/
+
+        (function(jQuery){
+
+            var data;
+            var actNum = 1;
+            var res;
+            var actSelectId;
+            var mode;
+            var objID;
+
+            // ID
+            var act_1;
+            var act_2;
+            var act_3;
+
+            var tran_num_1;
+            var tran_num_2;
+            var tran_num_3;
+
+            var tran_unit_1;
+            var tran_unit_2;
+            var tran_unit_3;
+
+            var tdIDList;
+
+            var elementIDObj;
+
+            $.fn.lifecycle = function(options){
+
+                act_1 = "LC_ACT_" + Math.floor(Math.random () * 10000000000);
+                act_2 = "LC_ACT_" + Math.floor(Math.random () * 10000000000);
+                act_3 = "LC_ACT_" + Math.floor(Math.random () * 10000000000);
+
+                tran_num_1 = "LC_TRN_NUM_" + Math.floor(Math.random () * 10000000000);
+                tran_num_2 = "LC_TRN_NUM_" + Math.floor(Math.random () * 10000000000);
+                tran_num_3 = "LC_TRN_NUM_" + Math.floor(Math.random () * 10000000000);
+
+                tran_unit_1 = "LC_TRN_UNIT_" + Math.floor(Math.random () * 10000000000);
+                tran_unit_2 = "LC_TRN_UNIT_" + Math.floor(Math.random () * 10000000000);
+                tran_unit_3 = "LC_TRN_UNIT_" + Math.floor(Math.random () * 10000000000);
+
+                tdIDList = new Array();
+
+                elementIDObj = {
+                    1 : {
+                        act : act_1,
+                        num : tran_num_1,
+                        unit : tran_unit_1,
+                    },
+                    2 : {
+                        act : act_2,
+                        num : tran_num_2,
+                        unit : tran_unit_2,
+                    },
+                    3 : {
+                        act : act_3,
+                        num : tran_num_3,
+                        unit : tran_unit_3,
+                    },
+                }
+
+                var r = {
+                    Store : "Store",
+                    Archive : "Archive",
+                    Trash : "Trash",
+                    Delete : "Delete",
+                    Day : "Day",
+                    Week : "Week",
+                    Month : "Month",
+                    Year : "Year",
+                }
+
+                var options = $.extend({
+                    data : null,
+                    resource : r,
+                    mode : 0,
+                    actSelect : "",
+                }, options);
+
+                data = options.data;
+                res = options.resource;
+                actSelectId = options.actSelect;
+                mode = options.mode;
+                objID = $(this).attr("id");
+
+                //createLifecycleSelecter(options.resource);
+
+                var $table = $("<table>").attr({
+                    "id" : "cso-lc-table"
+                }).css({
+                    width : "500px"
+                });
+
+                var $tr_row1 = $("<tr>");
+                var $tr_row2 = $("<tr>");
+                var $tr_row3 = $("<tr>");
+
+                var tdList = new Array();
+                for(var i = 0; i < 9; i++){
+                    var tdID = "LC_TD_" + i + Math.floor(Math.random () * 10000000000);
+                    tdIDList.push(tdID);
+                    tdList.push($("<td>").css({
+                        "text-align":"center",
+                        "width" : "100px",
+                        "height" : "100px",
+                        "padding" : "0px 30px 0px 30px",
+                    }).attr("id", tdID));
+                }
+
+                var $div;
+                var $actImg;
+                var $actText;
+
+                var $arrowImg;
+                var $arrowNum;
+                var $arrowUnit;
+
+                // 保管セル
+                $actImg = $("<img>").attr("src", "{!URLFOR($Resource.cso, 'image/lc-storeNew.png')}").css({
+                    width : "48px",
+                    height : "48px",
+                    border : "none"
+                });
+                $actText = $("<div>").css({
+                    "text-align" : "center"
+                }).html(res.Store);
+                tdList[1].append($actImg).append($actText);
+
+                // 1→2アクションへの矢印
+                $arrowNum = getNum(tran_num_1);
+                $arrowUnit = getUnit(tran_unit_1);
+                $arrowImg = $("<img>").attr("src", "{!URLFOR($Resource.cso, 'image/ActionArrow0.png')}").css({
+                    border : "none"
+                });
+                if(mode == 0){
+                    var $fixDateDiv = $("<div>").attr("id", tran_num_1);
+                    tdList[2].append($fixDateDiv).append($("<br>")).append($arrowImg);
+                }else{
+                    tdList[2].append($arrowNum).append($arrowUnit).append($("<br>")).append($arrowImg);
+                }
+
+                // 1アクション目
+                $actImg = addActDom(act_1, 1);
+                $actText = $("<div>");
+                $div = $("<div>");
+                if(mode != 0){
+                    $div.addClass("lc-hover-icon").css({
+                        "position" : "relative"
+                    })
+                }
+                $div.append($actImg).append($actText);
+                tdList[5].append($div);
+
+                $tr_row1.append(tdList[0]).append(tdList[1]).append(tdList[2]);
+                $tr_row2.append(tdList[3]).append(tdList[4]).append(tdList[5]);
+                $tr_row3.append(tdList[6]).append(tdList[7]).append(tdList[8]);
+                $table.append($tr_row1).append($tr_row2).append($tr_row3);
+                $(this).append($table);
+
+                // 編集モード
+                if(options.data){
+
+                    // データ展開
+                    for(var i = 0; i < data.length; i++){
+                        actNum = i + 1;
+                        if(mode == 0){
+                            $("#" + elementIDObj[actNum].num).html(data[i].time);
+                        }else{
+                            $("#" + elementIDObj[actNum].num).val(data[i].time);
+                            $("#" + elementIDObj[actNum].unit).val(data[i].date_unit);
+                        }
+
+                        selectAct(data[i].action);
+                    }
+                }
+
+                return this;
+            };
+
+            function getUnit(id){
+                $select = $("<select>").attr("id", id);
+
+                $select.append($("<option>").val("0").html(res.Day));
+                $select.append($("<option>").val("1").html(res.Week));
+                $select.append($("<option>").val("2").html(res.Month));
+                $select.append($("<option>").val("3").html(res.Year));
+
+                return $select;
+            }
+
+            function getNum(id){
+                var $arrowNum = $("<input>").attr({
+                    "type" : "text",
+                    "maxlength" : "3",
+                    "id" : id,
+                }).addClass("c_require").css({
+                    "width" : "30px",
+                    "margin-right" : "5px",
+                });
+                return $arrowNum;
+            }
+
+            function addActDom(act_id, act_num){
+                var $actImg = $("<img>").attr({
+                    "id" : act_id,
+                    "src" : "{!URLFOR($Resource.cso, 'image/ActionUndefinedNew.png')}",
+                }).css({
+                    width : "48px",
+                    height : "48px",
+                    border : "none"
+                }).click(function(e){
+
+                    if(mode == 0) return;
+
+                    actNum = act_num;
+
+                    switch(act_num){
+                    case 1:
+                        // 第1アクション
+                        actSelectStatus(true, true, true);
+                        break;
+                    case 2:
+                        // 第2アクション
+                        var actType = $("#" + act_1).attr("lcactval");
+                        if(actType == 1){
+                            actSelectStatus(false, true, true);
+                        }else if(actType == 2){
+                            actSelectStatus(false, false, true);
+                        }
+                        break;
+                    case 3:
+                        // 第3アクション
+                        actSelectStatus(false, false, true);
+                        break;
+                    }
+
+                    $("#" + actSelectId).csoBalloon({
+                        width : 250,
+                        height : 100,
+                        posX : e.pageX + 90,
+                        posY : e.pageY - 70,
+                        show : true,
+                        udlr : -1,
+                        align : 2,
+                        zIndex : 1000,
+                    });
+                    $("#lifecycleviewSelectorTable").parent('div').css("z-index", "9999");
+                });
+
+                return $actImg;
+            }
+
+            function actSelectStatus(isArc, isTrash, isDel){
+                // すべてのクラスを削除
+                $("#[lctype]").each(function(){
+                    $(this).removeClass("lc-hover-icon");
+                    $(this).removeClass("lc-icon-disabled");
+                });
+                // クラスを設定
+                $("#[lctype=1]").addClass(isArc ? "lc-hover-icon" : "lc-icon-disabled");
+                $("#[lctype=2]").addClass(isTrash ? "lc-hover-icon" : "lc-icon-disabled");
+                $("#[lctype=3]").addClass(isDel ? "lc-hover-icon" : "lc-icon-disabled");
+            }
+
+            function selectAct(val){
+                actClean(actNum);
+                switch(actNum){
+                case 1:
+                    // 選択したアクションに表示を変更
+                    $("#" + act_1).attr({
+                        "src" : getActImg(val),
+                        "lcactval" : val,
+                    });
+                    $("#" + act_1).next().html(getActText(val));
+
+                    if(mode != 0){
+                        // アクションの削除アイコンの追加
+                        $delImg = getDelImg(act_1, actNum);
+                        $("#" + act_1).parent().append($delImg);
+                    }
+
+                    if(val != 3){
+
+                        // 2番目のアクション矢印生成
+                        var $arrowNum = getNum(tran_num_2);
+                        var $arrowUnit = getUnit(tran_unit_2);
+                        var $arrowImg = $("<img>").attr("src", "{!URLFOR($Resource.cso, 'image/ActionArrow1.png')}").css({
+                            border : "none"
+                        });
+                        if(mode == 0){
+                            var $fixDateDiv = $("<div>").attr("id", tran_num_2);
+                            $("#" + tdIDList[8]).append($arrowImg).append($("<br>")).append($fixDateDiv);
+                        }else{
+                            $("#" + tdIDList[8]).append($arrowImg).append($("<br>")).append($arrowNum).append($arrowUnit);
+                        }
+
+                        // 2番目のアクションを追加表示にする
+                        var $actImg = addActDom(act_2, 2);
+                        var $actText = $("<div>");
+                        var $div = $("<div>");
+                        if(mode != 0){
+                            $div.addClass("lc-hover-icon").css({
+                                "position" : "relative"
+                            })
+                        }
+                        $div.append($actImg).append($actText);
+                        $("#" + tdIDList[7]).append($div);
+                    }
+
+                    break;
+                case 2:
+                    // 選択したアクションに表示を変更
+                    $("#" + act_2).attr({
+                        "src" : getActImg(val),
+                        "lcactval" : val,
+                    });
+                    $("#" + act_2).next().html(getActText(val));
+
+                    if(mode != 0){
+                        // アクションの削除アイコンの追加
+                        $delImg = getDelImg(act_2, actNum);
+                        $("#" + act_2).parent().append($delImg);
+                    }
+
+                    if(val != 3){
+                        // 3番目のアクション矢印生成
+                        var $arrowNum = getNum(tran_num_3);
+                        var $arrowUnit = getUnit(tran_unit_3);
+                        var $arrowImg = $("<img>").attr("src", "{!URLFOR($Resource.cso, 'image/ActionArrow2.png')}").css({
+                            border : "none"
+                        });
+                        if(mode == 0){
+                            var $fixDateDiv = $("<div>").attr("id", tran_num_3);
+                            $("#" + tdIDList[6]).append($arrowImg).append($("<br>")).append($fixDateDiv);
+                        }else{
+                            $("#" + tdIDList[6]).append($arrowImg).append($("<br>")).append($arrowNum).append($arrowUnit);
+                        }
+
+                        // 3番目のアクションを追加表示にする
+                        var $actImg = addActDom(act_3, 3);
+                        var $actText = $("<div>");
+                        var $div = $("<div>");
+                        if(mode != 0){
+                            $div.addClass("lc-hover-icon").css({
+                                "position" : "relative"
+                            })
+                        }
+                        $div.append($actImg).append($actText);
+                        $("#" + tdIDList[3]).append($div);
+                    }
+
+                    break;
+                case 3:
+                    // 選択したアクションに表示を変更
+                    $("#" + act_3).attr({
+                        "src" : getActImg(val),
+                        "lcactval" : val,
+                    });
+                    $("#" + act_3).next().html(getActText(val));
+
+                    if(mode != 0){
+                        // アクションの削除アイコンの追加
+                        $delImg = getDelImg(act_3, actNum);
+                        $("#" + act_3).parent().append($delImg);
+                    }
+                    break;
+                }
+
+                $(this).csoBalloonHide();
+            }
+
+            $.fn.lcSelectAct = function(val){
+                if($(this).hasClass("lc-icon-disabled")){
+                    // 選択不可項目なため、何もしない
+                    return;
+                }
+                selectAct(val);
+            }
+
+            function getDelImg(act_id, act_num){
+                var $delImg = $("<img>").attr("src", "{!URLFOR($Resource.cso, 'image/cancel.png')}").css({
+                    "position" : "absolute",
+                    "top" : "10px",
+                    "right" : "10px",
+                }).click(function(){
+                    actClean(act_num);
+                    $("#" + act_id).parent().html(addActDom(act_id, act_num));
+                    $("#" + act_id).parent().append($("<div>"));
+                });
+                return $delImg;
+            }
+
+            function actClean(val){
+                switch(val){
+                case 1:
+                    $("#" + tdIDList[3]).empty();
+                    $("#" + tdIDList[6]).empty();
+                    $("#" + tdIDList[7]).empty();
+                    $("#" + tdIDList[8]).empty();
+                    break;
+                case 2:
+                    $("#" + tdIDList[3]).empty();
+                    $("#" + tdIDList[6]).empty();
+                    break;
+                case 3:
+                    break;
+                }
+            }
+
+            function getActImg(val){
+                switch(val - 0){
+                case 1:
+                    return "{!URLFOR($Resource.cso, 'image/lc-archNew.png')}";
+                case 2:
+                    return "{!URLFOR($Resource.cso, 'image/lc-trashNew.png')}";
+                case 3:
+                    return "{!URLFOR($Resource.cso, 'image/lc-delNew.png')}";
+                }
+            }
+
+            function getActText(val){
+                switch(val){
+                case 1:
+                    return res.Archive;
+                case 2:
+                    return res.Trash;
+                case 3:
+                    return res.Delete;
+                }
+            }
+
+            $.fn.getLcData = function(){
+                var l = new Array();
+
+                for(var i = 0; i < 3; i++){
+                    var lcData = new Object();
+                    lcData.action = $("#" + elementIDObj[i + 1].act).attr("lcactval");
+                    lcData.time = $("#" + elementIDObj[i + 1].num).val();
+                    lcData.date_unit = $("#" + elementIDObj[i + 1].unit).val();
+                    l.push(lcData);
+                }
+
+                return l;
+
+            }
+
+            $.fn.getTimeObject = function(idx){
+                return $("#" + elementIDObj[idx + 1].num);
+            }
+
+            $.fn.getActionObject = function(idx){
+                return $("#" + elementIDObj[idx + 1].act);
+            }
+
+        })(jQuery);
+
+        /**ライフサイクル End**/
+
+
+        /*フィルタ編集画面入力チェック */
+
+         var LCF_err = [];
+
+        function checkInputData(){
+            var styleClass = "error";
+
+            LCF_err = [];
+
+
+            <!-- フィルタ名 -->
+            <!-- 未入力チェック -->
+            if($.trim($("#LC_filterName").val()) == "") {
+                $("#LC_filterName").addClass(styleClass);
+                LCF_err.push('{!$Label.label_13027}');
+            }
+
+            <!-- フィルタ名重複チェック -->
+            var Idx = $("select").attr("value");
+            for (i = 0; i < document.getElementById("filters").length; i++) {
+                <!-- リストにあるか検索 -->
+                if($("#LC_filterName").val() == document.getElementById("filters").options[i].text) {
+                    <!-- 編集した項目は除外 -->
+                    if($("#LC_filterName").val() !=  document.getElementById("filters").options[Idx].text) {
+                        $("#LC_filterName").addClass(styleClass);
+                        LCF_err.push('{!$Label.msg_01089}');
+                    }
+                }
+            }
+
+            <!-- 条件 -->
+            <!-- 未入力チェック -->
+            if($("#conditionCheck").is(':checked')==false){
+                if ($.trim($("#LC_Condition").val()) == "") {
+                    $("#LC_Condition").addClass(styleClass);
+                    LCF_err.push('{!$Label.msg_01090}');
+                }
+            }
+            <!-- ライフサイクル -->
+            var actions = $(this).getLcData()
+
+            for(var i = 0; i < actions.length; i++){
+                var actionObj = actions[i];
+                <!-- 未入力の場合 -->
+                if(($.trim(actionObj.time) == "") && (!actionObj.action)){
+                    <!-- 1段階目が未入力の場合 -->
+                    if(i == 0){
+                        $(this).getTimeObject(i).addClass(styleClass);
+                        LCF_err.push(getMsg([(i + 1)], '{!$Label.msg_01091}'));
+                        $(this).getActionObject(i).addClass(styleClass);
+                        LCF_err.push(getMsg([(i + 1)], '{!$Label.msg_01092}'));
+                    }
+                    break;
+                }
+
+                <!-- 日数 -->
+                if ($.trim(actionObj.time) == "") {
+                    $(this).getTimeObject(i).addClass(styleClass);
+                    LCF_err.push(getMsg([(i + 1)], '{!$Label.msg_01091}'));
+                }
+                <!-- 半角数字以外入力不可 -->
+                else if(actionObj.time.match(/[^0-9]/)) {
+                    $(this).getTimeObject(i).addClass(styleClass);
+                    LCF_err.push(getMsg([(i + 1)], '{!$Label.msg_01093}'));
+                }
+                <!-- 1以上 -->
+                else if(actionObj.time - 0 == 0){
+                    $(this).getTimeObject(i).addClass(styleClass);
+                    LCF_err.push(getMsg([(i + 1), 1], '{!$Label.msg_01094}'));
+                }
+                <!-- 365以下 -->
+                else if(actionObj.time - 0 > 365){
+                    $(this).getTimeObject(i).addClass(styleClass);
+                    LCF_err.push(getMsg([(i + 1), 365], '{!$Label.msg_01095}'));
+                }
+
+                <!-- アクション -->
+                if(!actionObj.action){
+                    $(this).getActionObject(i).addClass(styleClass);
+                    LCF_err.push(getMsg([(i + 1)], '{!$Label.msg_01092}'));
+                }
+            }
+        }
+
+        function getLcData(){
+            var actions = $(this).getLcData()
+
+            var retActions = [];
+
+            for(var i = 0; i < actions.length; i++){
+                var actionObj = actions[i];
+                <!-- 未入力の場合 -->
+                if(($.trim(actionObj.time) == "") && (!actionObj.action)){
+                    break;
+                }
+                retActions[i] = actionObj;
+            }
+
+            return retActions;
+        }
+
+        <!-- エラーメッセージ表示用 -->
+        function viewErr(element, array){
+
+            $(element).empty();
+
+            if (array.length == 0) {
+                $(element).hide();
+                return;
+            }
+
+            var dom = "<ul class='err'>"
+            for(var i = 0; i < array.length; i++){
+            dom += "<li>" + array[i] + "</li>";
+
+            }
+            dom += "</ul>";
+            $(element).append(dom);
+            $(element).show();
+
+        }
+          /*フィルタ編集画面入力チェック End */
+
+          /**フィルタ情報処理**/
+        function convertFiltersClToSv(datas){
+            var retData = [];
+
+            for(var  i = 0; i < datas.length; i++){
+                var actions = [];
+                var data = datas[i];
+                for(var j = 0; j < data.actions.length; j++){
+                    var actionObj = data.actions[j];
+                    if(actionObj.action == "1") {
+                        actionObj.action = "ARCHIVE";
+                    }else if(actionObj.action == "2") {
+                        actionObj.action = "TRASH";
+                    }else if(actionObj.action == "3") {
+                        actionObj.action = "WIPE";
+                    }
+
+                    if(actionObj.date_unit == "0") {
+                        actionObj.date_unit = "DAY";
+                    }else if(actionObj.date_unit == "1") {
+                        actionObj.date_unit = "WEEK";
+                    }else if(actionObj.date_unit == "2") {
+                        actionObj.date_unit = "MONTH";
+                    }else if(actionObj.date_unit == "3") {
+                        actionObj.date_unit = "YEAR";
+                    }
+
+                    actionObj.time = actionObj.time - 0;
+
+                    actions[j] = actionObj;
+                }
+                var after =
+                {
+                    name      : data.name,
+                    condition : data.condition,
+                    type      : data.type,
+                    value     : data.value,
+                    actions   : actions
+                };
+
+                retData[i] = after;
+            }
+
+            return retData;
+        }
+
+        function convertFiltersSvToCl(datas){
+            var retData = [];
+
+            for(var  i = 0; i < datas.length; i++){
+                var actions = [];
+                var data = datas[i];
+                for(var j = 0; j < data.actions.length; j++){
+                    var actionObj = data.actions[j];
+                    if(actionObj.action == "ARCHIVE") {
+                        actionObj.action = "1";
+                    }else if(actionObj.action == "TRASH") {
+                        actionObj.action = "2";
+                    }else if(actionObj.action == "WIPE") {
+                        actionObj.action = "3";
+                    }
+
+                    if(actionObj.date_unit == "DAY") {
+                        actionObj.date_unit = "0";
+                    }else if(actionObj.date_unit == "WEEK") {
+                        actionObj.date_unit = "1";
+                    }else if(actionObj.date_unit == "MONTH") {
+                        actionObj.date_unit = "2";
+                    }else if(actionObj.date_unit == "YEAR") {
+                        actionObj.date_unit = "3";
+                    }
+
+                    actionObj.time = actionObj.time + "";
+
+                    actions[j] = actionObj;
+                }
+                var after =
+                {
+                    name      : data.name,
+                    condition : data.condition,
+                    type      : data.type,
+                    value     : data.value,
+                    actions   : actions
+                };
+
+                retData[i] = after;
+            }
+
+            return retData;
+        }
+
+        function resizeStr(strSrc, maxLength){
+            len = 0;
+            actLen = 0;
+            var escStrSrc = escape(strSrc);
+            for(i = 0; i < escStrSrc.length; i++, len++){
+                if(escStrSrc.charAt(i) == "%"){
+                    if(escStrSrc.charAt(++i) == "u"){
+                        i += 3;
+                        len++;
+                    }
+                    i++;
+                }
+                actLen++;
+                if(len > maxLength){
+                    return strSrc.substring(0, actLen) + '...';
+                }
+            }
+            return strSrc;
+        }
+
+
+        $("#filters").change(function(){
+
+            var selIdx = $(this).val();
+
+            if(selIdx.length != 1){
+                return;
+            }
+
+            $("#filterDetail").empty();
+
+            var filterObj = LC_filters[selIdx];
+
+
+            var $header = $("<div>").css({
+                "padding-bottom" : "10px"
+            });
+
+            var CondMsg = filterObj.condition;
+            var TypeMsg = filterObj.type;
+
+            if(filterObj.type == "CONTENTS") {
+                <!-- コンテンツ -->
+                TypeMsg = getMsg([], '{!$Label.label_10081}');
+            } else if(filterObj.type == "TAG") {
+                <!-- タグ -->
+                TypeMsg = getMsg([], '{!$Label.label_10763}');
+            }
+
+            if(filterObj.condition == "CONTAINS") {
+                var value = $(div).text(filterObj.value).html();
+                value = resizeStr(value, 25);
+                $header.append(getMsg([TypeMsg, value], '{!$Label.msg_01096}'));
+                $("#conditionCheck").removeAttr("checked");
+                $("#conditionDetail").show();
+            } else if(filterObj.condition == "NO_CONDITION"){
+                $("#conditionCheck").attr("checked","checked");
+                $("#conditionDetail").hide();
+                $header.append(getMsg([], '{!$Label.msg_01097}'));
+            }
+
+            var $actions = $("<div>").css({
+                "padding-left" : "10px"
+            });
+
+
+            for(var i = 0; i < filterObj.actions.length; i++){
+                var actionObj = filterObj.actions[i];
+
+                if(!actionObj.action){
+                    break;
+                }
+
+                var $action = $("<div>");
+                var $arrowImg = $("<img src='{!URLFOR($Resource.cso, 'image/arrow_down_black.png')}'  style='width:16px; height:16px;' />");
+
+                if(i > 0) {
+                    $actions.append($arrowImg);
+                }
+
+
+                <!-- メッセージ変換用変数 -->
+                var ActMsg = actionObj.action;
+                var DateMsg = actionObj.date_unit;
+
+                if(actionObj.action == "1") {
+                    <!-- アーカイブ保管 (アーカイブ化) -->
+                    ActMsg = getMsg([], '{!$Label.msg_01098}');
+                }else if(actionObj.action == "2") {
+                    <!-- 削除 (ゴミ箱に移動) -->
+                    ActMsg = getMsg([], '{!$Label.msg_01099}');
+                }else if(actionObj.action == "3") {
+                    <!-- 消去 (完全削除) -->
+                    ActMsg = getMsg([], '{!$Label.msg_01100}');
+                }
+
+                if(actionObj.date_unit == "0") {
+                    //
+                    <!-- 日 -->
+                    DateMsg = getMsg([], '{!$Label.label_13111}');
+                }else if(actionObj.date_unit == "1") {
+                    <!-- 週 -->
+                    DateMsg = getMsg([], '{!$Label.msg_01101}');
+                }else if(actionObj.date_unit == "2") {
+                    <!-- 月 -->
+                    DateMsg = getMsg([], '{!$Label.msg_01102}');
+                }else if(actionObj.date_unit == "3") {
+                    <!-- 年 -->
+                    DateMsg = getMsg([], '{!$Label.label_13112}');
+                }
+
+                $actions.append($action);
+                    <!-- アクション -->
+                $action.append(getMsg([ActMsg, actionObj.time ,DateMsg], '{!$Label.label_13062}'));
+            }
+
+
+            $("#filterDetail").append($header);
+            $("#filterDetail").append($actions);
+
+            $("#filterStatus").show();
+
+            return true;
+        });
+
+        // リマインダON・OFF
+        $("#reminder_enabled").change(function() {
+            var disabled = $(this).attr("disabled");
+            var isDisabled = typeof disabled !== "undefined" && disabled !== false;
+            var c = $(this).attr("checked") && !isDisabled;
+            if (c) {
+                $("#reminder_time").removeAttr("disabled").addClass("c_require");
+            } else {
+                $("#reminder_time").attr("disabled", "disabled");
+                if (!isDisabled) {
+                    $("#reminder_time").val("");
+                }
+            }
+        });
+
+        <!-- （フィルタ）▲▼ボタン処理 -->
+        function changePriority(isUp){
+            $.fn.reverse = [].reverse;
+
+            var $opt = $("#filters option:selected");
+            if (!$opt.length) return;
+            if (!isUp) $opt.reverse();
+            $opt.each(function(i) {
+                var $src = $(this);
+                var $dst = $src[isUp ? "prev" : "next"]();
+                if ($dst.length && $dst[0].selected){
+                    return;
+                }
+
+                var index = $(this).val() - 0;
+                if(isUp == true){
+                    index = index -1;
+                }
+                if((index < 0) || (index >= LC_filters.length - 1)){
+                    return;
+                }
+                <!-- 配列を入れ替える -->
+                changeArray(LC_filters, index);
+
+                <!-- optionを入れ替える -->
+                $dst[isUp ? "before" : "after"]($src);
+
+                <!-- valueを振り直す -->
+                $('#filters option').each(function(idx){
+                    $(this).val(idx);
+                });
+            });
+        }
+        function changeArray(array, index){
+            array.splice(index, 2, array[index+1], array[index]);
+        }
+
+        function singleSelect(){
+            if($("#filters").val().length > 1){
+                $("#filters").find("option").attr("selected", "");
+            }
+        }
+
+          /**フィルタ情報処理 End**/
+
+        </script>
+        <apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+    </apex:outputPanel>
+</apex:page>

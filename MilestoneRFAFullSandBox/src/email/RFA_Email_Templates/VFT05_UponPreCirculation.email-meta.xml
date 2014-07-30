@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>25.0</apiVersion>
+    <available>true</available>
+    <description>Notify Location Coordinator(s) when RFA enters Pre-Circulation</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>VFT05_Upon Pre-Circulation</name>
+    <style>none</style>
+    <subject>Action Required:  – sent to</subject>
+    <type>visualforce</type>
+</EmailTemplate>

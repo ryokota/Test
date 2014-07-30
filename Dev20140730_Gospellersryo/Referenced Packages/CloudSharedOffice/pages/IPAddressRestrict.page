@@ -1,0 +1,211 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.IPAddressRestrictController" tabStyle="setting__tab">
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_network_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_network_manage == 'true' && cso_userInfo.showErrPage == false, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/setting.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+var defaultIpAddrArray=new Array();
+/*
+ * 画面読込処理
+ */
+jQuery.event.add(window, "load", function(){
+    $(window).resize(resizeGrid);
+
+    $("#ipAddrList").jqGrid({
+        url: _apiUrl + '/setup/LoginIpListV2Get.json',
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id         : "id"
+        },
+        colNames:[ '',
+                   '{!$Label.label_10174}',
+                   '{!$Label.label_10423}',
+                   '{!$Label.label_10424}',
+                   '{!$Label.label_10425}',
+                   '{!$Label.label_10804}',
+                   '{!$Label.label_10805}',
+                   '{!$Label.label_10006}',
+                   '{!$Label.label_10024}'
+                 ],
+        colModel:[
+                   {name:'id',index:'id', width:100, hidden:true},
+                   {name:'action', index:'action', width:70, align:'center', sortable : false},
+                   {name:'name',index:'name', width:200, align:"left"},
+                   {name:'ipaddress_from',index:'ipaddress_from', width:110, align:"center"},
+                   {name:'ipaddress_to',index:'ipaddress_to', width:110, align:"center"},
+                   {name:'regInfo',index:'regist_date', width:120, align:"center", hidden:true},
+                   {name:'upInfo',index:'update_date', width:120, align:"center"},
+                   {name:'update_date',index:'udate_date', width:100, align:"center", hidden:true},
+                   {name:'update_name',index:'update_name', width:100, align:"center", hidden:true}
+                ],
+        autowidth: true,
+        shrinkToFit : true,
+        rowNum:10,
+        rowList:[10,50,100],
+        height: getBrowserHeight() - 260,
+        sortname: 'name',
+        sortorder: "desc",
+        pager: '#ipAddrListPager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true
+    });
+    $("#ipAddrList").jqGrid('navGrid', '#ipAddrListPager', {edit:false, add:false, del:false, refresh:false, search:false});
+
+    var callback = function(data){
+        if(data.result){
+            $.extend(defaultIpAddrArray, data.list);
+        } else {
+            alert(data.message);
+        }
+    };
+    secureGetAsync('/setup/nonCopyNetworkListGet.json', '', callback);
+
+    resizeGrid();
+
+});
+
+function onEditClicked(id){
+    window.top.location.href = '{!JSENCODE(URLFOR($Page.CreateIPAddressRestrict))}?ip_id=' + id;
+}
+
+/**
+ * グリッドリサイズ処理
+ */
+function resizeGrid(){
+    var height = getBrowserHeight() - 260;
+    $("#ipAddrList").setGridWidth($("#ipAddrList-container").innerWidth());    
+
+    if (height >= 270) {
+        $("#ipAddrList").setGridHeight(height);
+    }
+}
+
+function loadGridInit(){
+    var n = $('#ipAddrList').getGridParam('reccount');
+    var disFlag = n < 1 ? "true" : "";
+    $('#removeBtn').attr("disabled",disFlag);
+}
+
+/**
+ * 削除処理（レコードリンク）
+ */
+function removeRow(id){
+    if(confirm('{!$Label.msg_00049}')){
+        CsoScript_loadingStart();
+        var callback = function(data){
+            if(data.result == false){
+                alert(data.message);
+                CsoScript_loadingStop();
+            }
+            $("#ipAddrList").trigger("reloadGrid");
+            CsoScript_loadingStop();
+        };
+        securePostAsync('/setup/LoginIpDelete.json', {"deleteIpAddrIds":id}, callback);
+    }
+}
+
+/**
+ * 削除処理（ボタン）
+ */
+function removeButton(){
+    var allIds = $("#ipAddrList").jqGrid('getGridParam','selarrrow');
+    var delIds = new Array();
+    var isSys;
+    $.each(allIds,function(n,id){
+            isSys=false;
+            $.each(defaultIpAddrArray,function(n,obj){
+                if(obj.addressId==id){
+                    isSys=true;
+                }
+            });
+            if(!isSys){
+                delIds.push(id);
+            }
+    });
+    if(allIds.length == 0){
+        alert('{!$Label.msg_00182}');
+    }else if(delIds.length==0){
+        alert('{!$Label.msg_00182}');
+    }else if(confirm('{!$Label.msg_00183}')){
+        CsoScript_loadingStart();
+        var callback = function(data){
+            if(data.result == false){
+                alert(data.message);
+                CsoScript_loadingStop();
+            }
+            $("#ipAddrList").trigger("reloadGrid");
+            CsoScript_loadingStop();
+        };
+        securePostAsync('/setup/LoginIpDelete.json', {'deleteIpAddrIds' : delIds.toString()}, callback);
+    }
+}
+
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/IP_restrict_org.png')}" alt="{!$Label.solxyzcso001__label_10297}" title="{!$Label.solxyzcso001__label_10297}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10297}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_10398}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                <apex:pageBlock >
+                    <!-- コマンドボタン -->
+                    <apex:pageBlockButtons location="top" >
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00072}" onclick="removeButton(); return false;"/>
+                        <apex:commandButton value="{!$Label.solxyzcso001__label_00074}" action="{!create}"/>
+                    </apex:pageBlockButtons>
+                    <div id="ipAddrList-container">
+                        <table id="ipAddrList"/>
+                        <div id="ipAddrListPager"/>
+                    </div>
+                </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+</apex:page>

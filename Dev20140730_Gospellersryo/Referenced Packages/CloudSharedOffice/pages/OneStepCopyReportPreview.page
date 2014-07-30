@@ -1,0 +1,5 @@
+<apex:page showHeader="false" Controller="SOLXYZCSO001.OneStepCopyReportController" tabStyle="SOLXYZCSO001__ReportOutPutGroupHistory__c">
+<script>
+    location.href="{!previewPath}";
+</script>
+</apex:page>

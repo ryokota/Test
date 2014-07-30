@@ -1,0 +1,1284 @@
+<apex:page id="page" showHeader="true" sidebar="false" controller="SOLXYZCSO001.ReportImageSelectController" action="{!init}">
+
+
+<!-- CSO認証共通モジュール -->
+<c:CsoBridgeComp id="csoBridgeComp"/>
+<c:CsoScriptComp id="csoScriptComp"/>
+<c:CSOSilverlightComp id="csoSilverlightComp" rendered="{!IF(BrowserName=='ie',true,false)}"/>
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/document.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+
+
+
+<apex:outputPanel rendered="{!IF(cso_userInfo.showErrPage == false, true, false)}">
+
+
+
+
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+
+<style type="text/css">
+.drags { 
+/*    background-color: #ddd;
+    background-image: url(/img/ple/compbg.gif);
+    background-position: left center;
+    background-repeat: repeat-x;*/
+    color: #333;
+    font-weight: bold;
+    border: 1px solid #9daab2;
+    cursor: move;
+    text-indent: 4px;
+    width   : 100px   ; 
+    /*height  : 10px   ;*/ 
+    padding : 10px    ; 
+    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    
+    border:5px 5px 5px 5px;
+    border-style:dotted;
+    border-color:blue;
+    border-width:2px;
+    margin:5px;
+}
+
+
+.dropInput { 
+    width   : 90px;
+    padding : 15px; 
+    display:inline-block;
+    
+    background: none repeat scroll 0 0 #EEF2F7;
+    border: 2px dashed #CCCCCC;
+    border-radius: 6px 6px 6px 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    
+    vertical-align:middle;
+}
+
+
+.dropInputed { 
+    width   : 90px   ; 
+     
+    padding : 10px    ; 
+    display:inline-block;
+/*    
+    background-color: #ddd;
+    background-image: url(/img/ple/compbg.gif);
+    background-position: left center;
+    background-repeat: repeat-x;*/
+    color: #333;
+    font-weight: bold;
+    border: 1px solid #9daab2;
+    cursor: move;
+    text-indent: 4px;
+    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    
+    border:5px 5px 5px 5px;
+    border-style:dotted;
+    border-color:blue;
+    border-width:2px;
+    margin:5px;
+}
+
+.dropArea{
+    width   : 300px   ; 
+    /*height  : 200px   ;*/ 
+    /*padding : 10px    ;*/ 
+    
+}
+
+.drops{
+    height:50px;
+    width:150px;
+    /*display:inline-block;*/
+}
+
+
+
+.scrollOn{
+    overflow-x:scroll;
+    overflow-y:hidden;
+}
+
+
+span.tooltip{  
+/*color:#fff;*/
+color:black;  
+width:200px;  
+/*background:#FF9900;*/
+background:#87CEEB;  
+border:2px solid white;  
+padding:1em;  
+font-size:small;  
+zIndex:1000;
+}
+
+.nav {
+    padding: 0 20px;
+    margin: 0 auto 60px;
+    /*width: 760px;*/
+    font-size: 85%;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    /*background: #333;*/
+    /*background: blue;*/
+    background: #53A0EC;
+    background: -moz-linear-gradient(top, #666, #53A0EC);
+    background: -webkit-gradient(linear, left top, left bottom, from(#666), to(#53A0EC));
+    background: -o-linear-gradient(top, #666, #53A0EC);
+    -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.3);
+    -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.3);
+    box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.3);
+}
+.nav li {
+    list-style: none;
+    float: left;
+}
+.nav li a {
+    text-decoration: none;
+    color: #fff;
+    padding: 8px 12px;
+    display: block;
+    width: 100px;
+}
+.nav li a:hover {
+    /*background: #666;*/
+    background: #53A0EC;
+}
+/* サブナビゲーション */
+.nav li ul {
+    display: none;
+    position: absolute;
+    font-size: 85%;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.3);
+    -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.3);
+    box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.3);
+}
+.nav li ul li {
+    float: none;
+}
+.nav li ul li a {
+    /*background: #444;*/
+    background: #53A0EC;
+}
+.nav li ul li:last-child a {
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.fixednav {
+    position: fixed;
+    /*top: 0;*/
+    top: 0px;
+    /*left: 100;*/
+    left: 250px;
+    /*width: 100%;*/
+    /*min-width : 720px;*/
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    -o-border-radius: 0;
+}
+li {
+margin: 5px;
+}
+
+
+#mappingTable {
+    width:100%;
+}
+
+
+#mappingTable tbody tr td{
+    vertical-align:middle;
+    height:60px;
+}
+
+.del{
+    vertical-align:middle;
+}
+
+</style>
+
+
+<script type="text/javascript">
+
+/**
+ * ドキュメントＩＤごとに画像情報を保持する
+ */
+var contentsImageMap = {};
+
+/**
+ * コントローラで定義されている帳票画像DTOクラス
+ * RemoteActionを利用する情報はこのDTOクラスで一元管理する
+ */
+var reportImageDto;
+
+/**
+ * OverlayColumnDtoの定義のコピー元
+ * 空のインスタンスを保持する
+ * 上書き禁止
+ */
+var OVERLAY_COLUMN_DTO_INSTANCE;
+
+/**
+ * オーバレイ項目IDで引けるようにする
+ */
+var overlayColumnIDMap = {};
+
+/**
+ * jQueryのセレクターを生成する
+ */
+function esc(myid) {
+    return '#' + myid.replace(/(:|\.)/g,'\\\\$1');
+}
+
+function objClone(_obj) {
+    /// <summary>
+    /// オブジェクトのコピー（値渡し）
+    /// </summary>
+
+    if(typeof _obj == "object" && _obj.constructor.name == "Array") {
+        var _clone = new Array();
+    }
+    else if (typeof _obj == "object" && _obj.constructor.name == "Object") {
+        var _clone = ({});
+    }
+    else {
+        return _obj;
+    }
+
+    for(var i in _obj){
+        if(typeof _obj[i] == "object" && _obj[i] != null){
+            _clone[i] = objClone(_obj[i]);
+        }
+        else{
+            _clone[i] = _obj[i];
+        }
+    }
+    return _clone;
+}
+
+/**
+ * draggableを設定する
+ */
+function createDraggable(){
+    
+    $('.drags').draggable(
+        {
+            cursor: 'move'
+            /*, cursorAt: {top: 20,left: 90}*/
+            ,absolutePosition:{top:20,left:90} 
+            ,cancel: false
+            ,revert: 'invalid'
+            ,helper:'clone'
+            ,opacity:0.5
+            /*,scroll:false*/
+            ,zIndex:999
+            ,drag:function(e,ui){}
+            ,stop:function(e,ui){}
+        }
+    );
+    
+    $("span.tooltip").css({  
+        opacity:"0.8",  
+        position:"absolute",  
+        display:"none"  
+    });
+    $(".drags").mouseover(function(){  
+        //$(this).next("span.tooltip").fadeIn();
+        
+        
+        //$(this).next("span.tooltip").fadeIn();
+        var h = '';
+        h = $(this).next('span.tooltip').html();
+        
+        if(h != '' && h != undefined && h != null){
+            $('#hiddentooltip').html(h);
+            //$('#hiddentooltip').delay(3000).fadeIn('slow');
+            $('#hiddentooltip').fadeIn('slow');
+        }
+    
+    }).mouseout(function(){  
+        //$(this).next("span.tooltip").fadeOut() 
+        //$(this).next("span.tooltip").hide(); 
+        //$(this).next('span.tooltip').fadeOut();
+        //$('#hiddentooltip').html($(this).next('span.tooltip').html());
+        //$('#hiddentooltip').fadeOut();
+        $('#hiddentooltip').hide();
+        //$('#hiddentooltip').dequeue();
+        //$('#hiddentooltip').dequeue();
+        
+        }).mousemove(function(e){  
+        //$(this).next("span.tooltip").css({ 
+         $('#hiddentooltip').css({
+        //"top":e.pageY/30+15+"px",
+        "top":e.pageY-200+"px", 
+        //"top":50+"px", 
+        "left":e.pageX-290+"px"  
+        //"top":50+"px",  
+        //"left":15+"px"  
+        })  
+   
+        
+    });
+    
+    $('#divDrags').mouseout(function(){
+         $('#hiddentooltip').clearQueue();
+         $("#hiddentooltip").css({  
+            opacity:"0.8",  
+            position:"absolute",  
+            display:"none"  
+        });
+    });
+}
+
+/**
+ * droppableを設定する
+ */
+function createDroppable(){
+    
+    //動的に作成したdroppableにドロップできなくなるため、初期化する
+    $('.drops').droppable('destroy');
+    $('.notdrops').droppable('destroy');
+    
+    $('.drops').droppable({
+        accept : ".drags",
+        //containment : ".dropArea",
+        //containment : "parent",
+        //containment : "document",
+        //scroll : false,
+        drop : function(ev,ui){
+                    
+                    
+                    
+                    //ドラッグ要素のIDを保持する
+                    var dragId = ui.draggable.attr('id');
+                    var dragE = $(esc(dragId));
+                    
+                    //ドロップ要素
+                    var dropE = $(this);
+                    
+                    dropMapping(dragId,dragE,dropE);
+                    
+                },
+         stop : function(ev,ui){
+                    
+                    
+                }
+    });
+    
+    
+    $('.notdrops').droppable({
+        accept : ".drags",
+        drop : function(ev,ui){
+                    //何もしない
+                    
+                }
+    });
+    
+    $("span.tooltip").css({  
+        opacity:"0.8",  
+        position:"absolute",  
+        display:"none"  
+    });
+    $(".drops").mouseover(function(){  
+        if($(this).children('span').text() != ''){
+            //$(this).next("span.tooltip").delay(600).show(); 
+            $('#hiddentooltip2').html($(this).next('span.tooltip').html());
+            $('#hiddentooltip2').delay(3000).fadeIn('slow'); 
+        }
+    }).mouseout(function(){  
+        //$(this).next("span.tooltip").hide();
+        $('#hiddentooltip2').hide();
+        
+    }).mousemove(function(e){  
+        //$(this).next("span.tooltip").css({  
+        $("#hiddentooltip2").css({
+            "top":e.pageY-215+"px",  
+            "left":e.pageX-215+"px"
+            //"top":300+"px",  
+            //"left":515+"px"
+        })  
+    });
+    
+    $('#mappingTable').mouseout(function(){
+        $('#hiddentooltip2').clearQueue();
+    });
+    
+    $(".breadcrumbs").mouseover(function(){
+        
+        if($(this).text() != ''){
+            //$(this).next("span.tooltip").delay(600).show(); 
+            $('#hiddentooltip2').html($(this).html());
+            $('#hiddentooltip2').delay(3000).fadeIn('slow'); 
+        }
+        
+    }).mouseout(function(){  
+        
+        //$(this).next("span.tooltip").hide();
+        $('#hiddentooltip2').hide();
+        
+    }).mousemove(function(e){  
+        //$(this).next("span.tooltip").css({
+        $("#hiddentooltip2").css({
+            "top":e.pageY-215+"px",  
+            "left":e.pageX-215+"px"
+            //"top":300+"px",  
+            //"left":515+"px"
+        })  
+    });
+}
+
+function dropMapping(dragId,dragE,dropE){
+    
+    var objReportMapping = {};
+    
+    //ドラッグ要素のIDを保持する
+    //var dragId = ui.draggable.attr('id');
+    //var dragE = $(esc(dragId));
+    
+    //ドロップ要素
+    //var dropE = $(this);
+    
+    //dropE.children('span').text(dragE.text());
+    var imgHtml = '';
+    imgHtml += '<img src=\"';
+    imgHtml += contentsImageMap[dragId].thumb_36x36;
+    imgHtml += '\" />';
+    imgHtml += $("<div/>").text(contentsImageMap[dragId].name || "").html();
+    dropE.children('span').html(imgHtml);
+//    dropE.children('span').text(contentsImageMap[dragId].name);
+    dropE.children('span').removeClass('dropInput').addClass('dropInputed');
+    
+//    dropE.parent('td').next('td').text(dragE.text());
+    dropE.next('span').text(dragE.text());
+    
+    //オーバレイ項目ID
+    //var strOverlayColumnID = dropE.parent('td').prev('td').prev('td').text();
+    var strOverlayColumnID = dropE.parent('td').prev('td').text();
+    
+    var indexOverlayColumnID = strOverlayColumnID.toLowerCase();
+    
+    if(indexOverlayColumnID.lastIndexOf('*')>0){
+        indexOverlayColumnID = indexOverlayColumnID.replace('*','');
+    }
+    
+    overlayColumnIDMap[indexOverlayColumnID].contentsId = contentsImageMap[dragId].id;
+    
+    
+}
+
+/**
+ * ドロップしたドラッグ要素を削除する
+ */
+function deleteDrags(){
+    
+    $('.del').click(
+        function(){
+            var delE = $(this);
+            delE.prev('span').text('').removeClass('dropInputed').addClass('dropInput');
+            
+            var strOverlayColumnID = delE.parent('div').parent('td').prev('td').text();
+            
+            var indexOverlayColumnID = strOverlayColumnID.toLowerCase();
+            
+            if(indexOverlayColumnID.lastIndexOf('*')>0){
+                indexOverlayColumnID = indexOverlayColumnID.replace('*','');
+            }
+            
+            overlayColumnIDMap[indexOverlayColumnID].objReportMapping['{!$ObjectType.ReportMapping__c.fields.tempPicID__c.Name}'] = '';
+            overlayColumnIDMap[indexOverlayColumnID].contentsId = '';
+            
+        }
+   );
+}
+
+
+
+jQuery.event.add(window, "load", function(){
+    
+    asyncGetInstanceReportImageDto();
+    
+    asyncGetInstanceOverlayColumnDto();
+    
+    var browserType = getBrowserType();
+
+//    b4d_nowId = "";
+    //----------------------------//
+    //  コンテンツ選択ダイアログ  //
+    //----------------------------//
+    //$("#reportImageSelectModal").dialog({autoOpen: false, bgiframe: true, width: 800, modal: true, resizable: false, closeText: "Close", close: function(){cancelOnClick();}});
+    $('#reportImageSelectModal_ok').unbind().click(function(){
+        
+        if($('#reportDefSfId').val() == ''){
+            
+            alert('{!$Label.msg_010075_fe}');
+            
+        }else{
+            
+            reportImageDto.reportDefSfId = $('#reportDefSfId').val();
+            
+            aysncCreateOverlayColumnDtoList(reportImageDto);
+            
+            $('#reportDefSelect').hide();
+            $('#reportImageSelect').show();
+            
+        }
+        
+    });
+    
+    $('#reportImageSelectModal_ok2').unbind().click(function(){
+        
+        //saveCSOImageMappingAsync();
+        saveCSOImageMappingAsync(reportImageDto);
+    });
+    
+    $('#reportImageSelectModal_cancel').unbind().click(function(){
+          $("#reportImageSelectModal").dialog("close");
+          //画面遷移
+          if('{!JSENCODE(retURL)}'==''||'{!JSENCODE(retURL)}'==null){
+            top.location.href = '/{!JSENCODE(Sf_Id)}';
+          }else{
+            top.location.href = '{!JSENCODE(salesforceBaseUrl)}{!JSENCODE(retURL)}';
+          }
+      });
+    
+    $('#reportImageSelectModal_cancel2').unbind().click(function(){
+          $("#reportImageSelectModal").dialog("close");
+          //画面遷移
+          if('{!JSENCODE(retURL)}'==''||'{!JSENCODE(retURL)}'==null){
+            top.location.href = '/{!JSENCODE(Sf_Id)}';
+          }else{
+            top.location.href = '{!JSENCODE(salesforceBaseUrl)}{!JSENCODE(retURL)}';
+          }
+      });
+    
+    //$("#reportImageSelectModal").dialog("open");
+    getContentsImageJsonListBySfId();
+    
+    var nav = $('#navTab');
+    
+    var navTop = nav.offset().top+200;
+    
+    $(window).scroll(function () {
+            
+        var winTop = $(this).scrollTop();
+            
+        if (winTop > navTop) {
+            
+            nav.width(nav.width());
+            nav.addClass('fixednav');
+            
+        } else if (winTop <= navTop) {
+            
+            //nav.width(720);
+            nav.css('width','');
+            nav.removeClass('fixednav');
+            
+        }
+    
+    });
+    
+    $(window).bind("resize", bindResize);
+    
+});
+
+
+//==============//
+//  キャンセル  //
+//==============//
+function cancelOnClick(){
+    top.window.history.back();
+    /*
+    if(top.window.opener == null){
+        //  戻る
+        top.window.history.back();
+    }
+    else{
+        //  windowクローズ
+        top.window.close();
+    }
+    */
+}
+
+//=============================//
+//  securePostAsyncの呼び出し  //
+//=============================//
+function callSecurePostAsync(url, param, callback, callerror){
+    if(getBrowserType() == 'Chrome'){
+        if(typeof(param) == 'string'){
+            param = JSON.parse(param);
+        }
+        xhr2Access(url, param, true, false, callback, callerror);
+        return;
+    }
+    if(top.window.opener == null){
+        securePostAsync(url, param, callback, callerror);
+    } else{
+        top.window.opener.securePostAsync(url, param, callback, callerror);
+    }
+}
+
+
+function getContentsImageJsonListBySfId(){
+    
+    var callerror = function(data){
+        CsoScript_loadingStop();
+        
+        
+        
+    };
+    
+    var callback = function(data){
+        var name, escaper = $("<div/>");
+        CsoScript_loadingStop();
+        
+        
+        var dragAppendHtml = '';
+        
+        for(var i=0;i<data.rows.length; i++){
+            name = escaper.text(data.rows[i].name || "").html();
+            contentsImageMap[data.rows[i].id] = data.rows[i];
+            
+            dragAppendHtml += '<div class=\"drags\" style=\"z-index: 999; float: left; \" id=\"';
+            dragAppendHtml += data.rows[i].id;
+            dragAppendHtml += '\" >';
+            dragAppendHtml += '<img src=\"';
+            dragAppendHtml += data.rows[i].thumb_36x36;
+            dragAppendHtml += '\" />';
+            dragAppendHtml += name;
+            dragAppendHtml += '</div>';
+            
+            dragAppendHtml += '<span class=\"tooltip\" style=\"display:none;\">';
+            dragAppendHtml += name;
+            dragAppendHtml += '</span>';
+        }
+        
+        
+        
+        
+        $('#ulDrags').html(dragAppendHtml);
+        
+        createDraggable();
+        
+        resizeDragsAreaWidth(data.rows.length);
+    };
+    
+    
+    CsoScript_loadingStart();
+    secureGetAsync('/contentsmanagement/ContentsRelationListGet.json', {"thumb":1,"objid": "{!JSENCODE(Sf_ID)}","sidx":"name","imagable":1,"ext":"jpg,png,bmp,gif"}, callback, callerror);
+    
+    
+}
+
+
+
+
+function asyncGetInstanceOverlayColumnDto(){
+    
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.ReportImageSelectController.getInstanceOverlayColumnDto}'
+        
+        ,function(result, event){
+            
+            if (event.status) {
+                CsoScript_loadingStop();
+                //グローバル変数に戻り値を設定する
+                OVERLAY_COLUMN_DTO_INSTANCE = result;
+                
+                
+            } else if (event.type === 'exception') {
+                
+                CsoScript_loadingStop();
+                
+                var message = event.message;
+                
+                var errMessageArray = [];
+                errMessageArray.push(message);
+                
+                var messageHtml = createMessageHtml(errMessageArray);
+                
+                $('#jsPageMessagesCell').html(messageHtml);
+                $('#jsPageMessages').show();
+                
+            } else {
+                
+                CsoScript_loadingStop();
+                
+                var message = event.message;
+                
+                var errMessageArray = [];
+                errMessageArray.push(message);
+                
+                var messageHtml = createMessageHtml(errMessageArray);
+                
+                $('#jsPageMessagesCell').html(messageHtml);
+                $('#jsPageMessages').show();
+                
+            }
+        }
+        ,{escape: true}
+    );
+}
+
+function asyncGetInstanceReportImageDto(){
+    
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.ReportImageSelectController.getInstanceReportImageDto}'
+        
+        ,function(result, event){
+            
+            if (event.status) {
+                CsoScript_loadingStop();
+                //グローバル変数に戻り値を設定する
+                reportImageDto = result;
+                
+                
+                //reportImageDto.objRecId = '{!JSENCODE(Sf_ID)}';
+                reportImageDto.objRecId = '{!JSENCODE(objRecId)}';
+                reportImageDto.objRecCreatedDate = '{!JSENCODE(objRecCreatedDate)}';
+                reportImageDto.objectName = '{!JSENCODE(objectName)}';
+                
+            } else if (event.type === 'exception') {
+                
+                CsoScript_loadingStop();
+                
+                var message = event.message;
+                
+                var errMessageArray = [];
+                errMessageArray.push(message);
+                
+                var messageHtml = createMessageHtml(errMessageArray);
+                
+                $('#jsPageMessagesCell').html(messageHtml);
+                $('#jsPageMessages').show();
+                
+            } else {
+                
+                CsoScript_loadingStop();
+                
+                var message = event.message;
+                
+                var errMessageArray = [];
+                errMessageArray.push(message);
+                
+                var messageHtml = createMessageHtml(errMessageArray);
+                
+                $('#jsPageMessagesCell').html(messageHtml);
+                $('#jsPageMessages').show();
+                
+            }
+        }
+        ,{escape: true}
+    );
+}
+
+
+var cntContentsId = 0;
+var contentsIdList = [];
+var contentsPropertyMap = {};
+var currentNumber = 0;
+var lastNumber = 0;
+
+function aysncCreateOverlayColumnDtoList(dto){
+    
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.ReportImageSelectController.createOverlayColumnDtoList}'
+        ,dto
+        ,function(result, event){
+            
+            if (event.status) {
+                CsoScript_loadingStop();
+                //グローバル変数に戻り値を設定する
+                reportImageDto = result;
+                
+                
+                
+                //for(var i=0;i<reportImageDto.overlayColumnDtoList.length;i++){
+                    
+                //    if(reportImageDto.overlayColumnDtoList[i].contentsId != '' && reportImageDto.overlayColumnDtoList[i].contentsId != undefined){
+                //        contentsPropertyMap[reportImageDto.overlayColumnDtoList[i].contentsId] = reportImageDto.overlayColumnDtoList[i];
+                //    }
+                    
+                //}
+                
+                lastNumber = 0;
+                currentNumber = 0;
+                
+                if(reportImageDto.contentsIdList.length>0){
+                    lastNumber = reportImageDto.contentsIdList.length - 1;
+                    contentPropertyGetAsync(reportImageDto,currentNumber,lastNumber);
+                }else{
+                    createHtmlMappingTable(reportImageDto);
+                    deleteDrags();
+                }
+                
+                
+            } else if (event.type === 'exception') {
+                
+                CsoScript_loadingStop();
+                
+                var message = event.message;
+                
+                var errMessageArray = [];
+                errMessageArray.push(message);
+                
+                var messageHtml = createMessageHtml(errMessageArray);
+                
+                $('#jsPageMessagesCell').html(messageHtml);
+                $('#jsPageMessages').show();
+                
+            } else {
+                
+                CsoScript_loadingStop();
+                var message = event.message;
+                
+                var errMessageArray = [];
+                errMessageArray.push(message);
+                
+                var messageHtml = createMessageHtml(errMessageArray);
+                
+                $('#jsPageMessagesCell').html(messageHtml);
+                $('#jsPageMessages').show();
+                
+                
+            }
+        }
+        ,{escape: true}
+    );
+}
+
+
+function getContentsProperty(dto){
+    
+    
+    
+}
+
+function contentPropertyGetAsync(dto,current,last){
+    
+    
+    var callerror = function(data){
+        CsoScript_loadingStop();
+        
+        
+        
+    };
+    
+    var callback = function(data){
+        
+        
+        //contentsPropertyMap[data.fileId].contentsName = data.model.docName;
+        //contentsPropertyMap[data.fileId].contentsThumb = data.thumb_36x36;
+        contentsPropertyMap[data.fileId] = data;
+        
+        if(currentNumber==lastNumber){
+            CsoScript_loadingStop();
+            createHtmlMappingTable(reportImageDto);
+            deleteDrags();
+        }else{
+            currentNumber++;
+            contentPropertyGetAsync(reportImageDto,currentNumber,lastNumber);
+        }
+        
+    };
+    
+    
+    CsoScript_loadingStart();
+    secureGetAsync('/contentsmanagement/ContentsPropertyGet.json?fileId=' + dto.contentsIdList[current],'' ,callback, callerror);
+    
+}
+
+function createHtmlMappingTable(dto){
+    
+    
+    var mappingTableRec = '';
+    
+    for(var i=0; i<dto.overlayColumnDtoList.length;i++){
+        
+        var indexOverlayColumnID = dto.overlayColumnDtoList[i].objReportMapping['{!$ObjectType.ReportMapping__c.fields.OverlayCulomnID__c.Name}'].toLowerCase();
+        
+        if(indexOverlayColumnID.lastIndexOf('*')>-1){
+            indexOverlayColumnID = indexOverlayColumnID.replace('*','');
+        }
+        
+        overlayColumnIDMap[indexOverlayColumnID] = dto.overlayColumnDtoList[i];
+        
+        if((dto.fixedFlg && dto.overlayColumnDtoList[i].isFixedItem)
+            ||
+            (dto.detailFlg && dto.overlayColumnDtoList[i].isDetailItem)){
+            
+            mappingTableRec += '<tr><td id=\"sheetName\">';
+            if(dto.overlayColumnDtoList[i].sheetName != undefined){
+                mappingTableRec += dto.overlayColumnDtoList[i].sheetName;
+            }else{
+                mappingTableRec += '';
+            }
+            mappingTableRec += '</td><td id=\"overlayColumnID\">';
+            mappingTableRec += dto.overlayColumnDtoList[i].overlayColumnID;
+            mappingTableRec += '</td><td id=\"droptd\"><div class\=\"drops ui-droppable\" style\=\"z-index\:999\">';
+            
+            //if(dto.overlayColumnDtoList[i]['contentsId'] != ''){
+            if(contentsPropertyMap[dto.overlayColumnDtoList[i]['contentsId']] != null
+                && contentsPropertyMap[dto.overlayColumnDtoList[i]['contentsId']] != undefined
+                && dto.overlayColumnDtoList[i].objReportMapping['{!$ObjectType.ReportMapping__c.fields.tempPicID__c.Name}'] == 'UserSelect'
+                ){
+                mappingTableRec += '<span id\=\"myInput\" class\=\"dropInputed\"><img src=\"';
+                //mappingTableRec += contentsImageMap[dto.overlayColumnDtoList[i]['contentsId']].thumb_36x36;
+                mappingTableRec += contentsPropertyMap[dto.overlayColumnDtoList[i]['contentsId']].thumb_36x36;
+                mappingTableRec += '\" />';
+                //mappingTableRec += dto.overlayColumnDtoList[i]['contentsName'];
+                mappingTableRec += contentsPropertyMap[dto.overlayColumnDtoList[i]['contentsId']].model.docName;
+                mappingTableRec += '</span>';
+                mappingTableRec += '<img class=\"del\" src=\"{!URLFOR($Resource.FormFormat,'img/delete.png')}\" height="18px\"/>';
+                
+                mappingTableRec += '</div><span class=\"tooltip\">';
+                
+                //mappingTableRec += dto.overlayColumnDtoList[i]['contentsName'];
+                mappingTableRec += contentsPropertyMap[dto.overlayColumnDtoList[i]['contentsId']].model.docName;
+                mappingTableRec += '</span>';
+                mappingTableRec += '</td>';
+            }else{
+                mappingTableRec += '<span id\=\"myInput\" class\=\"dropInput\"></span><img class=\"del\" src="{!URLFOR($Resource.FormFormat,'img/delete.png')}" height="18px"/>';
+//              mappingTableRec += '</div></td><td id=\"contentsName\"></td>';
+                mappingTableRec += '</div><span class=\"tooltip\"></span></td>';
+                
+            }
+            //mappingTableRec += '<td id="del"><img class=\"del\" src="{!URLFOR($Resource.FormFormat,'img/delete.png')}" height="18px"/></td>';
+            mappingTableRec += '</tr>';
+        }
+    }
+    
+    $('#mappingTable').children('tbody').html(mappingTableRec);
+    createDroppable();
+}
+
+function saveCSOImageMappingAsync(dto){
+    
+    var imageMapping = '';
+    
+    for(var i=0;i<dto.overlayColumnDtoList.length;i++){
+        
+        var overlayIDcontentsID = '';
+        
+        if(dto.overlayColumnDtoList[i].contentsId != ''){
+            overlayIDcontentsID += dto.overlayColumnDtoList[i].overlayColumnID;
+            overlayIDcontentsID += ':';
+            overlayIDcontentsID += dto.overlayColumnDtoList[i].contentsId;
+            
+            if(imageMapping == ''){
+                
+                imageMapping += overlayIDcontentsID;
+                
+            }else{
+                imageMapping += ',';
+                imageMapping += overlayIDcontentsID;
+            }
+            
+            dto.overlayColumnDtoList[i].objReportMapping['{!$ObjectType.ReportMapping__c.fields.tempPicID__c.Name}']
+                = 'UserSelect';
+        }else{
+            
+        }
+    }
+    
+    dto.objCSOImageMapping['{!$ObjectType.CSOImageMapping__c.fields.ReportDefinitionID__c.Name}'] 
+        = reportImageDto.reportDefSfId;
+    
+    dto.objCSOImageMapping['{!$ObjectType.CSOImageMapping__c.fields.Record__c.Name}'] 
+        = reportImageDto.objRecId;
+    
+    dto.objCSOImageMapping['{!$ObjectType.CSOImageMapping__c.fields.RecordCreatedDate__c.Name}'] 
+        = reportImageDto.objRecCreatedDate;
+    
+    
+    dto.objCSOImageMapping['{!$ObjectType.CSOImageMapping__c.fields.ObjectName__c.Name}'] 
+        = reportImageDto.objectName;
+    
+    
+    dto.objCSOImageMapping['{!$ObjectType.CSOImageMapping__c.fields.ImageMapping__c.Name}'] 
+        = imageMapping;
+    
+    
+    
+    CsoScript_loadingStart();
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.ReportImageSelectController.saveCSOImageMapping}'
+        ,dto
+        ,function(result, event){
+            
+            if (event.status) {
+                CsoScript_loadingStop();
+                //グローバル変数に戻り値を設定する
+                reportImageDto = result;
+                
+                if(reportImageDto.errFlg){
+                    
+                    var messageHtml = '';
+                    
+                    messageHtml += createMessageHtml(reportImageDto.errMessageList);
+                    $('#jsPageMessagesCell').html(messageHtml);
+                    $('#jsPageMessages').show();
+                }else{
+                    if('{!JSENCODE(retURL)}'==''||'{!JSENCODE(retURL)}'==null){
+                        top.location.href = '/{!JSENCODE(Sf_Id)}';
+                    }else{
+                        top.location.href = '{!JSENCODE(salesforceBaseUrl)}{!JSENCODE(retURL)}';
+                    }
+                }
+            } else if (event.type === 'exception') {
+                
+                CsoScript_loadingStop();
+                
+                var message = event.message;
+                
+                var errMessageArray = [];
+                errMessageArray.push(message);
+                
+                var messageHtml = createMessageHtml(errMessageArray);
+                
+                $('#jsPageMessagesCell').html(messageHtml);
+                $('#jsPageMessages').show();
+                
+            } else {
+                
+                CsoScript_loadingStop();
+                
+                var message = event.message;
+                
+                var errMessageArray = [];
+                errMessageArray.push(message);
+                
+                var messageHtml = createMessageHtml(errMessageArray);
+                
+                $('#jsPageMessagesCell').html(messageHtml);
+                $('#jsPageMessages').show();
+                
+            }
+        }
+        ,{escape: true}
+    );
+}
+
+
+/**
+ * エラーメッセージを作成する
+ */
+function createMessageHtml(messageArray){
+    
+    var messageHtml = '';
+    messageHtml = '<div id=\"messageDiv\" class=\"messageText\">';
+    messageHtml += '<span id=\"messageSpan\" style=\"color:#cc0000\">';
+    messageHtml += '<h4>{!$Label.label_10716}</h4>';
+    messageHtml += '</span>';
+    messageHtml += '<span>';
+    messageHtml += '<ul style="padding-left:10px;padding-top:0px;margin:0px">';
+    
+    for(var i=0;i<messageArray.length;i++){
+        
+        messageHtml += '<li style="padding-top:5px">';
+        messageHtml += messageArray[i];
+        messageHtml += '</li>';
+    }
+    
+    messageHtml += '</span>';
+    messageHtml += '<br />';
+    messageHtml += '</div>';
+    
+    return messageHtml;
+}
+
+
+function resizeDragsAreaWidth(cnt){
+    
+    if(cnt<7){
+        
+        $('#ulDrags').width($('#reportImageSelectModal').width());
+        
+        if(550<$('#reportImageSelectModal').width()){
+            $('#divDrags').width($('#reportImageSelectModal').width()-25);
+        }else{
+            $('#divDrags').width(550);
+        }
+        
+    }else{
+        //var w = ((cnt/2)+1)*100+100;
+        //var w = ((cnt/4)+1)*80;
+        
+        var w = cnt*150+100;
+        
+        //$('#ulDrags').css('width',w+'px');
+        $('#ulDrags').width(w);
+        
+        if(550<$('#reportImageSelectModal').width()){
+            $('#divDrags').width($('#reportImageSelectModal').width()-25);
+        }else{
+            $('#divDrags').width(550);
+        }
+        
+        
+    }
+    
+}
+
+function bindResize(){
+    
+    var cntDragE = 0;
+    
+    $(".drags").each(function(){
+        
+        if($(this).is(':visible')){
+            cntDragE++;
+        }
+        
+    });
+    
+    resizeDragsAreaWidth(cntDragE);
+}
+</script>
+
+
+
+
+<apex:variable var="Sf_ID"   id="Sf_ID"   value="{!$CurrentPage.parameters.id}"/>
+<apex:variable var="Sf_name" id="Sf_name" value="{!Sf_name}"/>
+<apex:variable var="Sf_type" id="Sf_type" value="{!Sf_type}"/>
+<apex:variable var="Sf_typeName" id="Sf_typeName" value="{!Sf_typeName}"/>
+<apex:variable var="pageType" id="pageType" value="{!pageType}"/>
+
+    <div>
+        <apex:pageMessages id="sfPageMessages"/>
+    </div>
+    <div id="jsPageMessages" style="display:none;">
+        <span id="j_id0:j_id20">
+            <span id="j_id0:j_id20:j_id21:j_id22:0:j_id23">
+                <div class="message errorM3">
+                    <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;">
+                        <tr valign="top">
+                            <td>
+                                <img alt="ERROR" class="msgIcon" src="/s.gif" title="ERROR" />
+                            </td>
+                            <td id="jsPageMessagesCell" class="messageCell"><div id="j_id0:j_id20:j_id21:j_id22:0:j_id23:j_id24:j_id26" class="messageText"><span id="j_id0:j_id20:j_id21:j_id22:0:j_id23:j_id24:j_id27" style="color:#cc0000">
+                                <h4>&#12456;&#12521;&#12540;:</h4></span>&#36984;&#25246;&#12373;&#12428;&#12390;&#12356;&#12427;&#12458;&#12502;&#12472;&#12455;&#12463;&#12488;&#21448;&#12399;&#38917;&#30446;&#12395;&#12450;&#12463;&#12475;&#12473;&#27177;&#12364;&#12394;&#12356;&#12383;&#12417;&#12289;&#20351;&#29992;&#12391;&#12365;&#12414;&#12379;&#12435;&#12290;<br /></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </span>
+        </span>
+    </div>
+<apex:pageBlock >
+
+
+    <!-- コンテンツ選択 -->
+    <div id="reportImageSelectModal" style="" title="{!$Label.label_wf_29034}">
+        
+        <table id="reportDefSelect" style="">
+            <tr>
+                <td valign="top" style="width:200px;">
+                    
+                </td>
+
+                <td valign="top" style="">
+                    <div>
+                        <label>{!$Label.label_wf_00068}</label>
+                        <select id="reportDefSfId" value="" >
+                            
+                            <apex:repeat var="opt" value="{!reportDefOptions}">
+                                <option value="{!opt.value}">{!opt.label}</option>
+                            </apex:repeat>
+                            
+                        </select>
+                        
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td align="center" nowrap="nowrap">
+                    <input type="button" class="btn" id="reportImageSelectModal_ok"     value="{!$Label.field_common_ok}"/>
+                    <input type="button" class="btn" id="reportImageSelectModal_cancel" value="{!$Label.label_00058}"/>
+                </td>
+            </tr>
+        </table>
+        <table id="reportImageSelect" style="display:none;">
+            <tr>
+                
+                <td valign="top" style="">
+                    
+                    <div id="navTab" class="" style="border-style: solid;border-color:#ddd;background:white;min-width:720px;height:100px;border-radius: 5px;-webkit-border-radius: 5px;-moz-border-radius: 5px;">
+                        
+                            <div id="divDrags" class="scrollOn" style="z-index:999;/*overflow-x:scroll;overflow-y:hidden;*/ float:left; min-width:500px;height:100px;">
+                                
+                                <div id="ulDrags" class="clearfix" style="z-index:0;float:left; min-width:500px;">
+                                    
+                                </div>
+                                
+                            </div>
+                    </div>
+                    <span id="hiddentooltip" class="tooltip" style="display:none;"></span>
+                    
+                    <table id="mappingTable" style="/*background-color:white;*/">
+                        <thead>
+                            <tr>
+                                <th style="width:30%;height:50px;">{!$Label.label_wf_29024}</th>
+                                <th style="width:30%;height:50px;">{!$Label.label_wf_00061}</th>
+                                <th style="width:40%;height:50px;">{!$Label.label_wf_29035}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                    <span id="hiddentooltip2" class="tooltip" style="display:none;"></span>
+                    
+                </td>
+            </tr>
+            <tr>
+            <!-- 
+                <td>&nbsp;</td>
+             -->
+                <td align="center" nowrap="nowrap">
+                    <input type="button" class="btn" id="reportImageSelectModal_ok2"     value="{!$Label.field_common_ok}"/>
+                    <input type="button" class="btn" id="reportImageSelectModal_cancel2" value="{!$Label.label_00058}"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</apex:pageBlock>
+</apex:outputPanel>
+</apex:page>

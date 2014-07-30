@@ -1,0 +1,304 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingLifeCycleController" tabStyle="setting__tab" action="{!init}">
+    <apex:outputPanel id="err" rendered="{!IF(commoninfo.proAuth_life_cycle == 'false', true, false)}">{!$Label.solxyzcso001__msg_00137} </apex:outputPanel>
+    <apex:iframe src="/apex/CSO_Error?code={!commoninfo.code}&massage={!commoninfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(commoninfo.showErrPage == true,true,false)}"/>
+    <apex:outputPanel rendered="{!IF(commoninfo.proAuth_life_cycle == 'true' && commoninfo.showErrPage == false, true, false)}">
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+        <!-- CSS -->
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+        <!-- JS -->
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+        <apex:outputPanel rendered="{!IF(commoninfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(commoninfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(commoninfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+        </apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<script type="text/javascript">
+
+
+function resizeGrid(){
+    var height = getBrowserHeight() - 570;
+    $("#definitionList").setGridWidth(1);
+    $("#definitionList").setGridWidth($("#definitionList-container").innerWidth());    
+
+    if (height >= 270) {
+        $("#definitionList").setGridHeight(height);
+    }
+}
+
+jQuery.event.add(window, "load", function(){
+    $(window).resize(resizeGrid);
+    $("#definitionList").jqGrid({
+        url:_apiUrl + '/setup/LifeCycleList.json',
+        datatype: "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id         : "id"
+        },
+        colNames:['{!$Label.label_10647}',
+                  '',
+                  '',
+                  '{!$Label.label_10587}',
+                  ''],
+        colModel:[
+                    {name:'info',index:'name', width:650},
+                    {name:'id',index:'id', hidden:true},
+                    {name:'name',index:'name', hidden:true},
+                    {name:'status',index:'status', width:60,align:"center"},
+                    {name:'hasSpace', index:'hasSpace', hidden:true},
+                ],
+        rowNum:50,
+        height: 480,
+        rowList:[10,50,100],
+        sortname: 'name',
+        pager: '#definitionListPager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        loadComplete: function(data){
+            localStorage.setItem("lifecycleRows", $(this).getGridParam("rowNum"));
+        }
+    });
+//    $("#definitionList").jqGrid('navGrid','#definitionListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+    resizeGrid();
+    $('#spaceName').attr('checked', 'checked');
+});
+
+
+function removeButton(){
+    var allIds = $("#definitionList").jqGrid('getGridParam','selarrrow');
+    var delIds = new Array();
+    var ids = $("#definitionList").getGridParam("selarrrow");
+
+    var hasSpace = false;
+    for (var i in ids) {
+        var id = ids[i];
+        var row = $("#definitionList").getRowData(id);
+        delIds.push(row.id);
+        if (row.hasSpace == "true") {
+            hasSpace = true;
+        }
+    }
+
+    if (ids.length == 0) {
+        alert('{!$Label.msg_01017}');
+        return;
+    }
+
+    var msg = hasSpace ? '{!$Label.msg_01018}' : '{!$Label.msg_01021}';
+    if (confirm(msg) == false) {
+        return;
+    }
+
+    CsoScript_loadingStart();
+    $("#deleteIds").val(delIds.toString());
+    var callback = function(data){
+        // 削除できなかった場合にはメッセージを表示する
+        if(data.result == false){
+            alert(data.message);
+            CsoScript_loadingStop();
+        }
+        $('#definitionList').trigger('reloadGrid');    // 一覧をリロード
+        CsoScript_loadingStop();
+    };
+
+    securePostAsync('/setup/LifeCycleDelete.json',{'id' : delIds.toString()}, callback);
+}
+
+function editButton(){
+    var allIds = $("#definitionList").jqGrid('getGridParam','selarrrow');
+    if(allIds.length == 0) {
+        alert('{!$Label.label_13063}');
+        return false;
+    }
+
+    if (allIds.length > 1) {
+        alert("{!$Label.msg_01117}");
+        return false;
+    }
+
+    var data =  $("#definitionList").getRowData(allIds[0]);
+    var definitionId = data.id;
+    var hasSpace = data.hasSpace;
+    location.href = "SettingLifeCycleDefEdit?id=" + definitionId + "&hasSpace=" + hasSpace;
+
+    return true;
+}
+
+function createButton(){
+    location.href = "SettingLifeCycleDefEdit";
+}
+
+
+function execSearch(){
+    var spaceName = "";
+    var defineName = "";
+    var searchTypeFlg = $('#spaceName').attr('checked');
+    if(searchTypeFlg){
+        spaceName = $.trim($("#searchName").val());
+    } else {
+        defineName = $.trim($("#searchName").val());
+    }
+
+    $('#definitionList').setGridParam({
+        page:1,
+        postData : {
+            dn : defineName,
+            sn : spaceName
+        }
+    });
+    $('#definitionList').trigger('reloadGrid');
+}
+
+function clearCondition(){
+    $("#searchName").val("");
+    execSearch();
+}
+
+function searchClick(){
+    execSearch();
+}
+
+function cancelClick(){
+    $("#searchDiv").dialog("close");
+    return false;
+}
+
+function searchDialog(){
+    $("#searchDiv").dialog({
+        width : 350
+    });
+}
+
+
+</script>
+
+<style type="text/css">
+.status_enable{
+    height : 18px;
+    width : 18px;
+    margin-top : 1px;
+    margin-left : 20px;
+    background-image:url("{!URLFOR($Resource.cso, 'css/images/ok_s.png')}");
+    background-repeat : no-repeat;
+}
+
+.status_disable{
+    height : 18px;
+    width : 18px;
+    margin-top : 1px;
+    margin-left : 20px;
+    background-image:url("{!URLFOR($Resource.cso, 'css/images/001_05_s.png')}");
+    background-repeat : no-repeat;
+}
+
+#searchTable {
+    padding : 5px;
+}
+
+#searchTable th {
+    padding-right : 5px;
+    text-align: right;
+}
+
+</style>
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/LifeCycle_32-32.png')}" alt="{!$Label.solxyzcso001__label_13057}" title="{!$Label.solxyzcso001__label_13057}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_11009}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_13005}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                    <apex:pageBlock >
+                        <!-- コマンドボタン表示 -->
+                        <div class="c_command_l">
+                            <ul class="c_command_pipe">
+                                <li class="item">
+                                    <!-- 検索ボタン -->
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00069}" onclick="searchDialog();return false;"/>
+                                </li>
+                                <li class="item">
+                                    <!-- 削除ボタン -->
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00072}" onclick="removeButton();return false;"/>
+                                </li>
+                                <li class="item">
+                                    <!-- 編集ボタン -->
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00073}"  onclick="editButton(); return false;" />
+                                </li>
+                                <li class="last">
+                                    <!-- 新規作成ボタン -->
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00074}" onclick="createButton(); return false;" />
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- グリッド -->
+                        <div id="definitionList-container">
+                            <table id="definitionList"/>
+                            <div id="definitionListPager" style="text-align:center;"/>
+                        </div>
+                        <!-- 検索ダイアログ -->
+                        <input type="hidden" id="deleteIds" name="deleteIds" />
+                        <div id="searchDiv" class="searchDiv" style="display: none;" title="{!$Label.solxyzcso001__label_00069}">
+                            <table id="searchTable" style="padding : 5px">
+                                <tr>
+                                    <th>{!$Label.label_10618}</th>
+                                    <td><label><input type="radio" name="search_type" id="spaceName" value="0"/>{!$Label.label_11061}</label></td>
+                                    <td><label><input type="radio" name="search_type" id="defineName" value="1"/>{!$Label.label_11043}</label></td>
+                                </tr>
+                                <tr>
+                                    <th>{!$Label.label_10423}</th>
+                                    <td colspan="2"><input type="text" id="searchName" class="middleWidth" name="searchName" /></td>
+                                </tr>
+                            </table>
+                            <p style="width: 100%; text-align: right;">
+                                <input type="button" class="btn" value="{!$Label.label_00070}"  onclick="clearCondition();" />
+                                <input type="button" class="btn" value="{!$Label.label_00058}"  onclick="cancelClick();"/>
+                                <input type="button" class="btn" value="{!$Label.solxyzcso001__label_00069}"  onclick="searchClick();"/>
+                            </p>
+                        </div>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

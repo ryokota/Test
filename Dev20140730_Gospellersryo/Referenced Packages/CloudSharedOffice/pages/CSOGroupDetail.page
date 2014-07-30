@@ -1,0 +1,231 @@
+<apex:page id="CSOGroupDetailPage" tabStyle="setting__tab" controller="SOLXYZCSO001.CSOGroupDetailController" sidebar="false" action="{!init}">
+    <apex:outputPanel id="err" rendered="{!IF(userInfo.proAuth_user_group_manage == 'false', true, false)}">{!$Label.solxyzcso001__msg_00137}</apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(userInfo.proAuth_user_group_manage == 'true', true, false)}">
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__CsoBridge" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /></apex:outputPanel>
+        <apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+            <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /></apex:outputPanel>
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__CsoScript" />
+        <style type="text/css">
+            .setting-grp-comment {
+                max-width: 400px;
+                min-width: 400px;
+                max-height: 100px;
+                min-height: 100px;
+                border: 1px solid silver;
+                white-space: pre;
+            }
+            #settingGrpList td{
+                border-bottom: 1px solid #c5dbec;
+                border-right: 1px solid #c5dbec;
+            }
+        </style>
+        <script type="text/javascript">
+
+            //SilverLight読み込み完了タイマー
+            var timerId;
+
+            //$(document).ready(function () {//この場合、IE8だとSilverlightのエラーが出る。
+            jQuery.event.add(window, "load", function(){
+                //実体参照をデコード（ECMプロファイルから流用）
+                $('#decodeWork').html($('.groupName').html());
+                $('.groupName').html($('#decodeWork').text());
+
+                $('#decodeWork').html($('.setting-grp-comment').html());
+                $('.setting-grp-comment').html($('#decodeWork').text());
+
+                $("#settingGrpList").jqGrid({
+                    datatype:"local",
+                    colNames: [
+                            '',
+                            '{!$Label.label_00039}'
+                    ],
+                    colModel: [{
+                            name: 'id',
+                            index: 'id',
+                            width: 60,
+                            hidden: true
+                        }, {
+                            name: 'name',
+                            index: 'name',
+                            width: 400
+                        }
+                    ],
+                    rowNum: 10,
+                    height: 200,
+                    rowList: [10, 50, 100],
+                    sortname: 'name',
+                    pager: '#settingGrpListPager',
+                    viewrecords: true,
+                    multiselect: false,
+                    loadComplete: function (data) {
+                        resizeGrid(); // 表示サイズの調整
+                    }
+                });
+                
+                $(window).resize(resizeGrid).resize();
+
+                var userAgent = getBrowserType();
+
+
+                if ((userAgent.indexOf("Safari") > -1)||(userAgent.indexOf("Chrome") > -1)||(userAgent.indexOf("Firefox") > -1)) {
+                    initSecurePostAsync();
+                } else {
+                    if(slCtl == null){
+                        timerId = setInterval(checkOnloadSilverlight, 100);
+                    }else{
+                        initSecurePostAsync();
+                    }
+                }
+
+            });
+
+            /**
+             * 初期処理
+             */
+            function initSecurePostAsync(){
+
+
+                var param = {
+                    uid: "{!userIds}",
+                    gid: "{!groupIds}",
+                    sord        : 'asc',
+                    rows        : 100000,
+                    sidx        : 'name',
+                    page        : 1,
+                    nd          : 0,
+                    available   : 'true',
+                    _search     : 0
+                }
+
+                var callback =  function (returnData) {
+                    $("#settingGrpList").jqGrid('clearGridData').setGridParam({
+                        data: returnData.rows
+                    }).trigger("reloadGrid");
+                }
+
+                securePostAsync('/common/coloradoSearchApi.json', param, callback);
+
+            }
+
+            /**
+             * IEの場合は、Silverlightが読み込まれた後に初期処理を実行する
+             */
+            function checkOnloadSilverlight(){
+                if(slCtl != null){
+                    clearInterval(timerId);
+                    initSecurePostAsync();
+                }
+            }
+
+            /*
+             * 削除ボタンが押されたときの処理
+             */
+
+            function removeButton() {
+                var id = $("#" + preId + "\\:roleId").val();
+                var name = $("#" + preId + "\\:name").val();
+                return (confirm(getMsg(new Array(decodeURI(name)), "{!$Label.msg_00065}")));
+            }
+
+            /*
+             * 表示サイズの調整
+             */
+            function resizeGrid() {
+                var height = getBrowserHeight() - 370;
+                $("#settingGrpList").setGridWidth(1);
+                $("#settingGrpList").setGridWidth($("#settingGrpList-container").innerWidth());    
+            
+                if (height >= 270) {
+                    $("#settingGrpList").setGridHeight(height);
+                }
+            }
+        </script>
+        <!-- warapper -->
+        <div id="c_wrapper">
+            <!-- content container -->
+            <table id="c_container" cellspacing="0" border="0">
+                <tr>
+                    <!-- left menu container -->
+                    <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                        <apex:include pageName="SOLXYZCSO001__SettingMenu" />
+                    </td>
+                    <!-- right header container -->
+                    <td id="c_headLeft" nowrap="nowrap">
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/h004.png')}" alt="{!$Label.solxyzcso001__label_10098}" title="{!$Label.solxyzcso001__label_10098}" />
+                         <h1 id="c_headLeftTitle">{!$Label.label_10260}</h1>
+                        <br/>
+                         <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10098}</h2>
+
+                    </td>
+                    <!-- 操作ボックス -->
+                    <td id="c_headRight">
+                        <apex:include pageName="SOLXYZCSO001__OperationLinks" />
+                    </td>
+                </tr>
+                <tr>
+                    <!-- right content container -->
+                    <td id="c_right" colspan="2">
+                        <apex:form id="theForm">
+                            <apex:pageMessages />
+                            <apex:pageBlock id="theBlock" title="{!$Label.solxyzcso001__label_13001}">
+                                <apex:pageBlockButtons >
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00073}" rendered="{!editFlag}" action="{!editGroup}" />
+                                    <apex:commandButton value="{!$Label.solxyzcso001__field_common_back}" action="{!cancelGroup}" /></apex:pageBlockButtons>
+                                <apex:pageblockSection columns="1">
+                                    <apex:outputLabel rendered="{!IF(editFlag == true, false, true)}" style="color:red">※ {!$Label.solxyzcso001__msg_01126}</apex:outputLabel>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >{!$Label.solxyzcso001__label_13002}</apex:outputLabel>
+                                        <apex:outputText value="{!groupName}" styleClass="groupName"/>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageblockSection>
+                                <apex:pageblockSection columns="1">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >{!$Label.solxyzcso001__label_10012}</apex:outputLabel>
+                                        <div id="comment" class="setting-grp-comment" style="padding: 5px; margin-top: 10px; overflow: auto;">{!groupComment}</div>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >{!$Label.solxyzcso001__label_10075}</apex:outputLabel>
+                                        <div style="padding-top: 30px;">
+                                            <div id="settingGrpList-container">
+                                                <table id="settingGrpList"></table>
+                                                <div id="settingGrpListPager"></div>
+                                            </div>
+                                        </div>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageblockSection>
+                                <apex:pageblockSection columns="2">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >{!$Label.solxyzcso001__label_10015}</apex:outputLabel>
+                                        <div id="regInfo">{!regInfo}</div>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >{!$Label.solxyzcso001__label_10238}</apex:outputLabel>
+                                        <div id="upInfo">{!upInfo}</div>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageblockSection>
+                            </apex:pageBlock>
+                        </apex:form>
+                    </td>
+                </tr>
+            </table>
+            <div id="decodeWork" style="display:none;"></div>
+            <div id="copyright">{!$Label.label_00001}</div>
+        </div>
+    <apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+    </apex:outputPanel>
+</apex:page>

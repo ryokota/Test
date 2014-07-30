@@ -1,0 +1,1374 @@
+<apex:page >
+<script type="text/javascript">
+(function($){
+    var _divID;
+    var _canvasID;
+    var _obj;
+    var _opt;
+    var _ext;
+    var _zoomAttr = [50, 75, 100, 125, 150, 200];
+    var _totalPage;
+    var _token;
+    var _nowPage;
+    var _respData;
+
+    var _fid;
+    var _sid;
+    var _sort;
+    var _order;
+
+    var _index;
+    var _files;
+    var _isCanvas;
+
+    var _prevImg;
+    var _searchHitPages = "";
+    var _seekSet = false;
+    var _mouseMoveFlg;
+    var _point = new Object();
+    var _redraw = false;
+    var _resizeStime = 0;
+    var _hoverFlg = false;
+    var _closeCallback;
+    var _viewType;
+    var _version;
+
+    var _word = "";
+    var _curseek = 0;
+    var _maxseek = 0;
+    var _curpage = 1;
+    var _maxpage = 1;
+    var _zoom = "page-width";
+    var _docPasswd = "";
+
+    var _cacheDataMap = new Object();
+    var _convertData = null;
+    var _cachePageSize = 5;
+    var _canvasHeight = -1;
+
+    var _beforeWindowWidth;
+    var _beforeWindowHeight;
+    
+    var TIMEOUTCONST;
+    if(!isIE8()){
+        document.write('<link rel="stylesheet" href="{!URLFOR($Resource.SOLXYZCSO001__cso, '/css/viewer.css')}">');
+        document.write('\x3Cscript type="text/javascript" src="{!URLFOR($Resource.SOLXYZCSO001__cso, '/js/compatibility.js')}">\x3C/script>');
+        document.write('\x3Cscript type="text/javascript" src="{!URLFOR($Resource.SOLXYZCSO001__cso, '/js/pdf.js')}">\x3C/script>');
+        document.write('\x3Cscript type="text/javascript" src="{!URLFOR($Resource.SOLXYZCSO001__cso, '/js/text_layer_builder.js')}">\x3C/script>');
+        document.write('\x3Cscript type="text/javascript" src="{!URLFOR($Resource.SOLXYZCSO001__cso, '/js/ui_utils.js')}">\x3C/script>');
+        document.write('\x3Cscript type="text/javascript" src="{!URLFOR($Resource.SOLXYZCSO001__cso, '/js/pdf_find_controller.js')}">\x3C/script>');
+    }
+
+    $.fn.clearData = function(){
+        clearData();
+    }
+
+    $.fn.csopreview = function(options, closeCallback){
+        _divID = $(this).attr("id");
+        _closeCallback = closeCallback;
+        //_canvasID = _divID + "-" + Math.floor(Math.random () * 10000000000);
+        _obj = $(this);
+
+        _opt = $.extend({}, $.fn.csopreview.defaults, options);
+
+        var $headerDiv = $("<div>").attr("id", getID("header"));
+        var $headerUl = $("<ul>");
+
+        // 左
+        var $headerUl_Li_Left = $("<li>").addClass(getID("title-li")).append($("<div>").attr({"id": getID("title"), "style": "overflow:hidden;"}));
+
+        // 中央
+        var $headerUl_Li_Center = $("<li>").css({
+            "text-align" : "center"
+        }).append($("<img>").attr({
+            "src"   : "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/back-page.png')}",
+            "id"    : getID("header-back-img")
+        }).click(function(){
+            moveFile(0);
+        })).append($("<span>").attr("id", getID("header-files")).css({"vertical-align":"3px"})).append($("<img>").attr({
+            "src"   : "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/next-page.png')}",
+            "id"    : getID("header-next-img")
+        }).click(function(){
+            moveFile(1);
+        }));
+
+        var $headerUl_Li_Center_noNavigator = $("<li>").css({"text-align" : "center"});
+        $webTxtSelect = $("<span>").attr("id", getID("encode-el")).append($("<select>").attr({
+            "id"        : getID("encode")
+        }).css({
+            "padding"           : "3px",
+            "vertical-align"    : "5px"
+        }).append($("<option>").attr({
+            "value"     : "MS932",
+            "selected"  : "selected"
+        }).text("SJIS")).append($("<option>").attr({
+            "value"     : "UTF-8"
+        }).text("UTF-8")).append($("<option>").attr({
+            "value"     : "EUC-JP"
+        }).text("EUC-JP")).change(function(){
+            $("#" + getID("loading-img")).show();
+            $("#" + getID("other")).hide();
+            $.ajax({
+                url         : _apiUrl+ "/contentsmanagement/webTextLoad.json",
+                dataType    : "jsonp",
+                data        : {
+                    "id"        : _fid,
+                    "encoding"  : $("#" + getID("encode")).val(),
+                    "position"  : 0,
+                    "version"   : _version,
+                },
+                success     : function(ret, retType){
+                    $("#" + getID("loading-img")).hide();
+                    $("#" + getID("other") + " textarea").val(ret.text);
+                    $("#" + getID("other")).show();
+                }
+            });
+        })).append($("<img>").attr({
+            "src"       : "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/edit.png')}",
+            "id"        : getID("edit-link"),
+        }).css({
+            "width"         : "24px",
+            "height"        : "24px",
+            "margin-right"  : "-10px",
+            "margin-left"   : "20px",
+        }).click(function(){
+            $("#favoriteDiv").dialog("close");
+            jQuery("#listView1").jqGrid('resetSelection');
+            jQuery("#listView1").jqGrid('setSelection', _fid);
+            context_onlineEdit(_fid, $("#" + getID("encode")).val());
+            clearData();
+            if(_closeCallback){
+                _closeCallback();
+            }
+        })).css({
+            "display"   : "none"
+        });
+
+        // 右
+        var $headerUl_Li_Right = $("<li>").css({
+            "text-align" : "right"
+        }).append($webTxtSelect).append($("<input>").attr({
+            "type"  : "text",
+            "id"    : getID("prev-search-text")
+        }).keypress(function(e){
+            if(e.keyCode == 13){
+                e.preventDefault();
+                search();
+            }
+        })).append($("<img>").attr({
+            "src"   : "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/search-back.png')}",
+            "id"    : "csopreview-search-back",
+        }).css({
+            "margin-left"   : "-43px",
+            "margin-right"  : "0px",
+            "vertical-align": "4px",
+            "display"       : "none",
+        }).click(function(){
+            if(_word != $.trim($("#" + getID("prev-search-text")).val())){
+                search();
+                return;
+            }
+            _curseek--;
+            _redraw = true;
+            if(_curseek <= 0){
+                for(var i = 0; i < _searchHitPages.length; i++){
+                    if(_nowPage == _searchHitPages[i]){
+                        if(i == 0){
+                            if(confirm(_opt.resource["search_s"])){
+                                _seekSet = true;
+                                movePage(-1, _searchHitPages[_searchHitPages.length - 1]);
+                            }else{
+                                _curseek++;
+                            }
+                        }else{
+                            _seekSet = true;
+                            movePage(-1, _searchHitPages[i - 1]);
+                        }
+                        break;
+                    }
+                }
+            }else{
+                canvasRepaint();
+            }
+            _redraw = false;
+        })).append($("<img>").attr({
+            "src"   : "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/search-next.png')}",
+            "id"    : "csopreview-search-next",
+        }).css({
+            "margin-right"  : "0px",
+            "vertical-align": "4px",
+            "display"       : "none",
+        }).click(function(){
+            search();
+        })).append($("<img>").attr({
+            "src"   : "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/download.png')}",
+        }).css({
+            "width"     : "24px",
+            "height"    : "24px",
+            "padding"   : "0px 10px 0px 20px"
+        }).click(function(){
+            if(_respData.wfId){
+                commonDownloadWorkflow({
+                    "fileId"        : _fid,
+                    "workflowID"    : _respData.wfId
+                });
+            }else{
+            contents_info_download({
+                "fileId"        : _fid,
+                "refSpaceId"    : _sid,
+                "ver"           : _version
+            });
+            }
+        })).append($("<img>").attr({
+            "src"   : "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/close.png')}",
+            "id"    : "csopreview-close",
+        }).click(function(e){
+            clearData();
+            if(_closeCallback){
+                _closeCallback();
+            }
+        }).css({
+            "padding-right"     : "10px",
+            "vertical-align"    : "5px",
+        }));
+
+        if(options.showNavigator){
+            $headerUl.append($headerUl_Li_Left).append($headerUl_Li_Center).append($headerUl_Li_Right);
+        }else{
+            $headerUl.append($headerUl_Li_Left).append($headerUl_Li_Center_noNavigator).append($headerUl_Li_Right);
+        }
+        $headerDiv.append($headerUl);
+
+        var $table = $("<table>").addClass(getID("prev-table")).attr({
+            "cellpadding"   : "0",
+            "cellspacing"   : "0"
+        });
+
+        var $td_side_main = $("<td>").attr({
+            "id"    : getID("side-main"),
+            "valign": "top"
+        }).css("text-align", "center").append($("<div>").attr("id", getID("side-main-div")).css({
+            "overflow-y"    : "auto",
+            "height"        : "100%"
+        }));
+        var $td_side_bar = $("<td>").attr("id", getID("sidebar")).append($("<img>").attr({
+            "src"   : "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/expand.png')}",
+            "id"    : getID("sidebar-img")
+        })).click(function(e){
+            if($("#cso-preview-side-main").is(":hidden")){
+                /*$("#cso-preview-prev-main-area").animate({width:$(window).width() - 20 - 200}, 500);
+                $("#cso-preview-side-main").animate({width:"toggle"}, "slow");
+                $("#cso-preview-pager").animate({"margin-left":"+=110px"}, 500);*/
+                $("#cso-preview-prev-main-area").css("width", $(window).width() - 20 - 280);
+                $("#cso-preview-side-main").css("display", "block");
+                $("#cso-preview-pager").css({"margin-left":"-120px"});
+                $("#cso-preview-sidebar-img").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/collapse.png')}");
+                seekSlideSidebar($(".cso-preview-thumbnail-click"));
+            }else{
+                /*$("#cso-preview-prev-main-area").animate({width:$(window).width() - 20}, 500);
+                $("#cso-preview-side-main").animate({width:"toggle"}, 500);
+                $("#cso-preview-pager").animate({"margin-left":"-=110px"}, 500);*/
+                $("#cso-preview-prev-main-area").css("width", $(window).width() - 20);
+                $("#cso-preview-side-main").hide();
+                $("#cso-preview-pager").css({"margin-left":"-260px"});
+                $("#cso-preview-sidebar-img").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/expand.png')}");
+            }
+        });
+
+        var zoomSelectEl = $("<select>").attr({"id" : getID("zoom")}).css({"margin-right" : "50px"}).change(function(){zoomCanvas(0)});
+        for(var i=0; i<_zoomAttr.length; i++){
+            zoomSelectEl.append($("<option>").attr("value",_zoomAttr[i]).text(_zoomAttr[i] + "%"));
+        }
+        zoomSelectEl.append($("<option>").attr({
+            "value"     : "page-width",
+            "selected"  : "selected",
+        }).text(_opt.resource["zoomWidthFit"])).append($("<option>").attr({
+            "value"     : "page-height",
+        }).text(_opt.resource["zoomHeightFit"]));
+
+        var $td_prev_main = $("<td>").attr({
+            "id"        : getID("prev-main"),
+            "valign"    : "top"
+        }).css({
+            "overflow"  : "auto"
+        }).append($("<div>").attr({
+            "id"    : getID("prev-main-area")
+        }).mousedown(function(e){
+            _mouseMoveFlg = true;
+            $(this).css({"cursor"   : "move"});
+            _point.x = e.pageX;
+            _point.y = e.pageY;
+        }).mousemove(function(e){
+            if(!_mouseMoveFlg) return;
+            var x = _point.x - e.pageX;
+            var y = _point.y - e.pageY;
+            _point.x = e.pageX;
+            _point.y = e.pageY;
+            var left = $(this).scrollLeft();
+            var top = $(this).scrollTop();
+            $(this).scrollLeft(left + x);
+            $(this).scrollTop(top + y);
+        }).mouseup(function(e){
+            _mouseMoveFlg = false;
+            $(this).css({"cursor"   : "auto"});
+        })).append($("<div>").attr("id", getID("pager")).css("z-index", "2000").mouseenter(function(){
+            showPager(true);   
+        }).mouseleave(function(){
+            showPager(false);
+        })
+            .append($("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/zoom-out.png')}").click(function(e){zoomCanvas(-1)}))
+            .append($("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/zoom-in.png')}").click(function(e){zoomCanvas(1)}))
+            .append(zoomSelectEl)
+            .append($("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/start.png')}").click(function(){movePage(1, null)}))
+            .append($("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/back.png')}").click(function(){movePage(2, null)}))
+            .append($("<input>").attr({
+                "type"      : "text",
+                "id"        : getID("page"),
+            }).keypress(function(e){
+                if(e.keyCode == 13){
+                    movePage(0, null);
+                }
+            }).click(function() {
+                $(this).select();
+            }))
+            .append($("<span>").attr({"id": getID("totalPage"), "style": "color:white"}))
+            .append($("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/next.png')}").click(function(){movePage(3, null)}))
+            .append($("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/end.png')}").click(function(){movePage(4, null)})));
+
+        $table.append($("<tr>").append($td_side_main).append($td_side_bar).append($td_prev_main));
+
+        var $downloadDiv = $("<div>").attr("id", getID("download")).append($("<img>").attr({
+            "src"   : "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/unprev.png')}",
+        }).css({
+            "float"         : "left",
+            "padding-right" : "10px",
+        })).append($("<div>").attr({
+            "id"    : getID("download-filename")
+        }).css({
+            "font-size"     : "24px",
+            "white-space"   : "nowrap",
+        })).append($("<div>").css({
+            "margin-top"    : "5px",
+            "white-space"   : "nowrap",
+            "font-size"     : "16px",
+            "color"         : "gray",
+        }).text(_opt.resource["downloadMsg"])).append($("<input>").css({
+            "margin-top"    : "40px"
+        }).attr("type", "button").addClass(getID("download-button")).val(_opt.resource["download"]).click(function(){
+            contents_info_download({
+                "fileId"        : _fid,
+                "refSpaceId"    : _sid,
+                "ver"           : _version
+            });
+        }));
+
+        var $loadImg = $("<img>").attr({
+            "id"        : getID("loading-img"),
+            "src"       : "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/loading.gif')}",
+        }).css({
+            "border"        : "none",
+            "position"      : "absolute",
+            "top"           : "50%",
+            "left"          : "50%",
+            "margin-top"    : "-64px",
+            "margin-left"   : "-64px",
+        });
+
+        var $passwordDiv = $("<div>").attr({
+            "id"        : getID("password")
+        }).append($("<div>").css("color", "white").html(_opt.resource["dialog_info"])).append($("<div>").css({
+            "float"     : "right",
+        }).html($("<img>").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/close.png')}").css({
+            "cursor"    : "pointer",
+            "width"     : "16px",
+            "height"    : "16px",
+            "margin-top": "-16px",
+        }).click(function(){
+            $("#" + getID("password")).hide();
+            $("#" + getID("download")).show();
+        }))).append($("<div>").addClass(getID("password-inDiv")).append($("<div>").css({
+            "padding"   : "10px"
+        }).attr("id", getID("password-msg")).append(_opt.resource["password_1"])).append($("<div>").css({
+            "padding"   : "0px 10px 10px 10px"
+        }).attr("id", getID("password-msg")).append($("<input>").attr({
+            "type"      : "password",
+            "id"        : getID("password-input")
+        }).css({
+            "padding"   : "5px",
+            "width"     : "365px",
+        }).keypress(function(e){
+            if(e.keyCode == 13){
+                $("#" + getID("password-btn")).click();
+            }
+        }))).append($("<div>").css({
+            "padding"   : "0px 10px 10px 10px",
+            "float"     : "right"
+        }).attr("id", getID("password-msg")).append($("<input>").attr({
+            "type"      : "button",
+            "value"     : "OK",
+            "id"        : getID("password-btn"),
+        }).addClass("btn").click(function(){
+            _docPasswd = $("#" + getID("password-input")).val();
+            $("#" + getID("password")).hide();
+            $("#" + getID("loading-img")).show();
+            requestViweingServer(_respData, 1);
+        }))));
+
+        $(this).append($headerDiv).append($table).append($downloadDiv).append($loadImg).append($passwordDiv).addClass(getID("main")).attr({
+            "onContextmenu" : "return false"
+        });
+
+        $(window).keydown(function(e){
+            if($("#" + _divID).is(":visible") && $(":focus").attr("id") != getID("page")){
+                if(e.keyCode == 37 || e.keyCode == 38){
+                    movePage(2, null);
+                    $("#" + getID("prev-main-area")).mousemove();
+                }else if(e.keyCode == 39 || e.keyCode == 40){
+                    movePage(3, null);
+                    $("#" + getID("prev-main-area")).mousemove();
+                }
+            }
+        });
+
+        /*$("#cso-preview-prev-main-area").scroll(function(e){
+            var scrollHeight = $(this).height();
+            var scrollPosition = $(this).height() + $(this).scrollTop();
+
+            if($(this).scrollTop() == 0){
+                if(movePage(2, null) > 0){
+                    $(this).scrollTop($("#" + _canvasID).height() - scrollPosition - 2);
+                }
+            }else if(scrollPosition >= $("#" + _canvasID).height()){
+                if(movePage(3, null) > 0){
+                    $(this).scrollTop(5);
+                }
+            }
+        });*/
+
+        $("#cso-preview-prev-main-area").height($(window).height() - 39);
+        $("#cso-preview-prev-main-area").width($(window).width() - 20);
+        $(".cso-preview-prev-table td").each(function(){
+            $(this).height($(window).height() - 39);
+        });
+
+        // リサイズイベント登録
+        $(window).resize(resizeWindow);
+    }
+
+    $.fn.csopreview.defaults = {
+        resource : {
+            zoomWidthFit        : "Fit the page width",
+            zoomHeightFit       : "Fit the page height",
+            downloadMsg : "Please download, because cannot preview this file.",
+            download    : "Download",
+            search_s    : "This is the first page. Are you sure you want to search from the last page?",
+            search_e    : "This is the last page. Are you sure you want to search from the first page?",
+            no_hit      : "Finished searching the document. No matches were found.",
+            password_1      : "This file is password protected. Please enter a password.",
+            password_2      : "The password is incorrect. Please re-enter.",
+            dialog_info     : "INFO",
+        },
+        wrurl: "{!$Label.solxyzcso001__field_CSO_DVURL}",
+        ecmurl: _apiUrl+ "/file/ContentsViewing.json",
+    };
+
+    function search(){
+        if(_word == $.trim($("#" + getID("prev-search-text")).val())){
+            nextFind();
+        }else{
+            _word = $.trim($("#" + getID("prev-search-text")).val());
+            if(_word == "") return;
+            $.get(_respData.server_url + "/search", {
+                "key"   : _token,
+                "ext"   : _ext,
+                "text"  : _word
+            }, function(ret){
+                _searchHitPages = ret.hitpage;
+                if(_searchHitPages.length == 0) alert(_opt.resource["no_hit"]);
+                _curseek = 1;
+                for(var i = 0; i < _searchHitPages.length; i++){
+                    if(_nowPage == _searchHitPages[i]){
+                        hitCount();
+                        canvasRepaint();
+                        break;
+                    }else if(_nowPage < _searchHitPages[i]){
+                        movePage(-1, _searchHitPages[i]);
+                        break;
+                    }
+                }
+            }, "jsonp");
+        }
+    }
+
+    function nextFind(){
+        _curseek++;
+        _redraw = true;
+        if(_curseek > _maxseek){
+            for(var i = 0; i < _searchHitPages.length; i++){
+                if(_nowPage == _searchHitPages[i]){
+                    if((i + 1) == _searchHitPages.length){
+                        if(confirm(_opt.resource["search_e"])){
+                            _curseek = 1;
+                            movePage(-1, _searchHitPages[0]);
+                        }else{
+                            _curseek--;
+                        }
+                    }else{
+                        _curseek = 1;
+                        movePage(-1, _searchHitPages[i + 1]);
+                    }
+                    break;
+                }
+            }
+        }else{
+            canvasRepaint();
+        }
+        _redraw = false;
+    }
+
+    function transmissionEffect(id, t){
+        if($("#" + id).is(":hidden")) return;
+        if($("#" + id).attr("trans") != "true"){
+            $("#" + id).fadeTo(100, 1).attr("trans", "true");
+            setTimeout(function(){
+                if(_hoverFlg) return;
+                $("#" + id).removeAttr("trans");
+                if($("#" + id).is(":hidden")) return;
+                $("#" + id).fadeTo(1000, 0.1);
+            }, t);
+        }
+    }
+    
+    function showPager(hover){
+        if(hover){
+            clearTimeout(TIMEOUTCONST);
+            if($("#" + getID("pager")).is(":hidden")) return;
+            if($("#" + getID("pager")).attr("trans") != "true"){
+                $("#" + getID("pager")).stop().fadeTo(100, 1).attr("trans", "true");
+            } 
+        }else{
+            TIMEOUTCONST = setTimeout(function(){            
+                $("#" + getID("pager")).removeAttr("trans");
+                if($("#" + getID("pager")).is(":hidden")) return;
+                $("#" + getID("pager")).stop().fadeTo(1000, 0.1);
+            }, 3000);
+        }               
+    }
+
+    function moveFile(type){
+        if(type == 0){
+            // 前のページ
+            if(_index == 0) return;
+            _fid = _files[_index - 1];
+        }else{
+            // 次のページ
+            if((_index + 1) == _files.length) return;
+            _fid = _files[_index + 1];
+        }
+        loadPreview(_fid, _sid, "", _sort, _order, "", _files, _viewType);
+    }
+
+    function clearData(){
+        if(!$("#cso-preview-side-main").is(":hidden")){
+            $("#" + getID("sidebar")).click();
+        }
+        $("#" + getID("zoom")).val("page-width");
+        _zoom = "page-width";
+        $("#" + _divID).hide();
+        $("#cso-preview-side-main-div").empty();
+        $("." + getID("canvas")).each(function(i){
+            $(this).removeAttr("width").removeAttr("height");
+        });
+        $("html").css("overflow", "auto");
+        $("body").css("overflow", "auto");
+    }
+
+    function canvasWHZero(){
+        $("." + getID("canvas")).each(function(i){
+            //$(this).removeAttr("width").removeAttr("height");
+            $(this).attr({
+                "width"     : "0px",
+                "height"    : "0px",
+            });
+        });
+    }
+
+    function isResize(){
+        if(_beforeWindowWidth == $(window).width() &&
+                _beforeWindowHeight == $(window).height()){
+            return false;
+        }else{
+            _beforeWindowWidth = $(window).width();
+            _beforeWindowHeight = $(window).height();
+            return true;
+        }
+    }
+
+    function resizeWindow(){
+
+        var w = 0;
+        if(!$("#cso-preview-side-main").is(":hidden")){
+            w = 280;
+        }
+
+        if(_isCanvas){
+            // Canvas
+            if(isResize()){
+            $("#cso-preview-prev-main-area").height($(window).height() - 38);
+            $("#cso-preview-prev-main-area").width($(window).width() - 20 - w);
+            if(!isNumber($("#" + getID("zoom")).val())){
+                canvasResize(_canvasID);
+                canvasRepaint();
+                }
+            }
+        }else{
+            // Div
+            $("#cso-preview-prev-main-area").height($(window).height() - 38);
+            $("#cso-preview-prev-main-area").width($(window).width());
+            var win_w = $("#cso-preview-prev-main-area").width();
+            var win_h = $("#cso-preview-prev-main-area").height();
+            if($("#" + getID("other")).attr("data-type") == "img"){
+                // Image
+                win_w -= 100;
+                win_h -= 100;
+                $("#" + getID("other")).css({
+                    "margin-left"   : -(win_w / 2),
+                    "margin-top"    : -(win_h / 2)
+                });
+                if(_prevImg.height > $("#cso-preview-prev-main-area").height()){
+                    $("#" + getID("other")).css({
+                        "width"             : win_w - 50,
+                        "height"            : win_h - 100,
+                    });
+                }else{
+                    $("#" + getID("other")).css({
+                        "width"             : _prevImg.width,
+                        "height"            : _prevImg.height,
+                    });
+                }
+                if(_prevImg.height == 0){
+                    setTimeout(function(){resizeWindow();}, 10)
+                }
+            }else{
+                // Text
+                win_w -= 100;
+                win_h -= 100;
+                $("#" + getID("other")).css({
+                    "width"         : win_w,
+                    "height"        : win_h,
+                    "margin-left"   : -(win_w / 2) - 30,
+                    "margin-top"    : -(win_h / 2) - 30
+                });
+            }
+
+        }
+
+        $(".cso-preview-prev-table td").each(function(){
+            $(this).height($(window).height() - 43);
+        });
+    }
+
+    function movePage(type, p){
+        // 0:ページ指定,1:最初,2：1つ前,3：1つ後ろ,4：最後
+        var page = 1;
+        switch(type){
+        case 0:
+            page = !isNumber($("#" + getID("page")).val()) ? -1 : $("#" + getID("page")).val() - 0;
+            if(page > _totalPage){
+                page = _totalPage;
+            }
+            break;
+        case 1:
+            page = 1;
+            break;
+        case 2:
+            page = _nowPage > 1 ? _nowPage - 1: -1;
+            break;
+        case 3:
+            page = _nowPage == _totalPage ? -1: _nowPage + 1;
+            break;
+        case 4:
+            page = _totalPage;
+            break;
+        default:
+            page = p;
+            break;
+        }
+
+        if(page > 0){
+            if($("#" + getID("canvas-" + page)).attr("height") < 200){
+                //return _nowPage;
+                delete _cacheDataMap[page];
+            }
+            requestViweingServer(_respData, page);
+            //bgCanvasRepaint(_respData, page + (_cachePageSize - 1));
+            $("#" + getID("page")).val(page);
+            $(".cso-preview-thumbnail").each(function(){
+                if($(this).attr("page") == page){
+                    $(this).addClass("cso-preview-thumbnail-click");
+                    seekSlideSidebar($(this));
+                }else{
+                    $(this).removeClass("cso-preview-thumbnail-click");
+                }
+            });
+        }
+        return page;
+    }
+
+    function seekSlideSidebar(o){
+        if($("#cso-preview-prev-main-area").height() < o.position().top){
+            $("#cso-preview-side-main-div").scrollTop($("#cso-preview-side-main-div").scrollTop() + o.position().top - $("#cso-preview-prev-main-area").height() + 100);
+        }else if(o.position().top < 0){
+            $("#cso-preview-side-main-div").scrollTop($("#cso-preview-side-main-div").scrollTop() + o.position().top - 40);
+        }
+    }
+
+    function getID(postFix){
+        return "cso-preview-" + postFix
+    }
+
+    function zoomCanvas(type){
+        var nowZoom = $("#" + getID("zoom")).val();
+        switch(type){
+        case 0:
+            _zoom = !isNumber(nowZoom) ? nowZoom : nowZoom / 100;
+            canvasRepaint();
+            break;
+        case -1:
+            // 縮小
+            nowZoom = !isNumber(nowZoom) ? 100 : nowZoom;
+            _zoom = getZoomVal(nowZoom, false) / 100;
+            if(isNaN(_zoom)) return;
+            $("#" + getID("zoom")).val(getZoomVal(nowZoom, false));
+            $("#" + getID("zoom")).change();
+            break;
+        case 1:
+            // 拡大
+            nowZoom = !isNumber(nowZoom) ? 100 : nowZoom;
+            _zoom = getZoomVal(nowZoom, true) / 100;
+            if(isNaN(_zoom) || _zoom == (nowZoom / 100)) return;
+            $("#" + getID("zoom")).val(getZoomVal(nowZoom, true));
+            $("#" + getID("zoom")).change();
+            break;
+        }
+        $("#" + getID("zoom")).blur();
+    }
+
+    function getZoomVal(nz, isZoom){
+        try{
+            nz -= 0;
+            for(var i = 0; i < _zoomAttr.length; i++){
+                if(nz == _zoomAttr[i]){
+                    if(isZoom && (i + 1) == _zoomAttr.length){
+                        return nz;
+                    }else{
+                        return isZoom ? _zoomAttr[i + 1] : _zoomAttr[i - 1];
+                    }
+                }
+            }
+        }catch(e){
+            return nz;
+        }
+    }
+
+    $.fn.loadPreview = function(fileID, spaceID, version, sort, order, searchWord, fileIDs, vt){
+        loadPreview(fileID, spaceID, version, sort, order, searchWord, fileIDs, vt);
+    };
+
+    $.fn.editLink = function(f){
+        if(f){
+            $("#" + getID("edit-link")).show();
+        }else{
+            $("#" + getID("edit-link")).hide();
+        }
+    };
+
+    $.fn.context_onlineEdit = function(){
+        window.opener.$("#favoriteDiv").dialog("close");
+        window.opener.jQuery("#listView1").jqGrid('resetSelection');
+        window.opener.jQuery("#listView1").jqGrid('setSelection', _fid);
+        context_onlineEdit(_fid, $("#" + getID("encode")).val());
+        window.close();
+        if(_closeCallback){
+            _closeCallback();
+        }
+    };
+
+    function loadPreview(fileID, spaceID, version, sort, order, searchWord, fileIDs, vt){
+        _docPasswd = "";
+        $("html").css("overflow", "hidden");
+        $("body").css("overflow", "hidden");
+        $("#" + getID("password-input")).val("");
+        $("#" + getID("password-msg")).html(_opt.resource["password_1"]);
+        $("#" + getID("loading-img")).show();
+        $("#cso-preview-side-main-div").empty();
+        $("#" + getID("prev-main-area")).empty();
+        $("#" + getID("pager")).hide();
+        $("#" + getID("encode-el")).hide();
+        $("#" + getID("prev-search-text")).hide();
+        $("#" + getID("prev-search-text")).next().hide();
+        $("#" + getID("prev-search-text")).next().next().hide();
+        $("#fileDetails").hide();
+        $("#" + getID("prev-search-text")).val("");
+        $("#" + getID("sidebar")).hide();
+        $("#" + getID("side-main")).hide();
+        $("#" + getID("other")).remove();
+        $("#" + getID("download")).hide();
+        $("#cso-preview-prev-main-area").height($(window).height() - 38);
+        $("#cso-preview-prev-main-area").width($(window).width() - 20);
+        $("#" + _divID).show();
+        _cacheDataMap = new Object();
+        _word = searchWord;
+        _convertData = null;
+        _canvasHeight = -1;
+        canvasWHZero();
+        _fid = fileID;
+        _sid = spaceID;
+        _sort = sort;
+        _order = order;
+        _viewType = vt;
+        _version = version;
+        if(!vt) vt = 0;
+        $.get(_opt.ecmurl, {
+            "fileId"    : fileID,
+            "spaceId"   : spaceID,
+            "version"   : version,
+            "sort"      : sort,
+            "order"     : order,
+            "viewType"      : vt,
+        }, function(data){
+            if(spaceID == null){
+                var i = 0;
+                try{
+                for(;i < fileIDs.length; i++){
+                    if(fileIDs[i] == fileID){
+                        break;
+                    }
+                    }
+                }catch(e){
+                    fileIDs = [fileID];
+                }
+                $("#cso-preview-header-files").text(i + 1 + " / " + fileIDs.length);
+                _index = i;
+                _files = fileIDs;
+            }else{
+            $("#cso-preview-header-files").text(data.file_index + 1 + " / " + data.files.length);
+            _index = data.file_index;
+            _files = data.files;
+            }
+            _ext = data.file_ext;
+            _respData = data;
+            if(data.type == 0){
+                // ドキュメント変換サーバ
+                _isCanvas = true;
+                if(isIE8()){
+                    $("#" + getID("download")).show();
+                    $("#" + getID("loading-img")).hide();
+                }else{
+                    _token = data.token;
+                    if(_word != ""){
+                        $.ajax({
+                            "url"       : _respData.server_url + "/search",
+                            "data"      : {
+                                "key"   : _token,
+                                "ext"   : _ext,
+                                "text"  : _word
+                            },
+                            "dataType"  : "jsonp",
+                            "success"   : function(ret, dataType){
+                                _searchHitPages = ret.hitpage;
+                                _curseek = 1;
+                                var page = _searchHitPages[0];
+                                $("#" + getID("prev-search-text")).val(_word);
+                                $("#cso-preview-page").val(page);
+                                requestViweingServer(data, page);
+                            }
+                        });
+                    }else{
+                        $("#cso-preview-page").val(1);
+                        requestViweingServer(data, 1);
+                    }
+                }
+            }else{
+                _isCanvas = false;
+                // 内部ビューイング処理
+                if(data.view && (_ext == "txt" || _ext == "xml" || data.prev_url != "")){
+                    var $div = $("<div>").attr({
+                        "id"    : getID("other")
+                    });
+                    if(data.prev_url != ""){
+                        // Image
+                        $div.css({
+                            "background-repeat" : "no-repeat",
+                            "position"          : "absolute",
+                            "top"               : "50%",
+                            "left"              : "50%",
+                            "background-size"   : "contain"
+                        }).attr("data-type", "img");
+                        loadImage(_apiUrl + data.prev_url);
+                        $("#" + getID("prev-main-area")).append($div);
+                    }else{
+                        // Text
+                        $.ajax({
+                            url         : _apiUrl+ "/contentsmanagement/webTextLoad.json",
+                            async       : false,
+                            dataType    : "jsonp",
+                            data        : {
+                                "id"        : _fid,
+                                "encoding"  : $("#" + getID("encode")).val(),
+                                "position"  : 0,
+                                "version"   : version,
+                            },
+                            success     : function(ret, retType){
+                                $("#" + getID("encode-el")).show();
+                                if(!ret.edit){
+                                    $("#" + getID("encode-el")).find("img").hide();
+                                }else{
+                                    $("#" + getID("encode-el")).find("img").show();
+                                }
+                                $div.addClass(getID("web-text")).attr("data-type", "txt").append($("<textarea>").attr({
+                                    "wrap"      : "off",
+                                    "readonly"  : "true",
+                                }).css({
+                                    "height"    : "100%",
+                                    "width"     : "100%",
+                                    "border"    : "none",
+                                    "outline"   : "none",
+                                }).val(ret.text));
+                                $("#" + getID("loading-img")).hide();
+                                _opt.loadComplete();
+                            }
+                        });
+                    $("#" + getID("prev-main-area")).append($div);
+                    $(window).resize();
+                    }
+
+                }else{
+                    $("#" + getID("download")).show();
+                $("#" + getID("loading-img")).hide();
+            }
+            }
+            var filename;
+            if(data.file_ext == ""){
+                filename = data.filename;
+            }else{
+                filename = data.filename + "." + data.file_ext;
+            }
+            $("#" + getID("title")).text(filename);
+            $("#" + getID("download-filename")).text(filename);
+            $("#" + _divID).show();
+            CsoScript_loadingStop();
+        }, "jsonp");
+    }
+
+    function requestViweingServer(p, page){
+        _nowPage = page;
+        var d = _cacheDataMap[page];
+        try{
+            _convertData = d.convertData[0];
+        }catch(e){}
+
+        _canvasID = getID("canvas-" + page);
+        $("." + getID("canvas") + ":visible").hide();
+        if(_ext == "pdf") $(".textLayer:visible").hide();
+
+        if(d == null || _redraw){
+            if(d == null){
+            $.get(p.server_url + "/" + p.server_servlet, {
+            'key'       : p.token,
+            'ext'       : p.file_ext,
+            'spageno'   : page,
+            'epageno'   : page,
+                    'docpw'     : _docPasswd,
+            'locale'    : p.language
+        }, function(data){
+                    if (data.code == "R-PV-002") {
+                        // パスワードファイル
+                        $("#" + getID("loading-img")).hide();
+                        $("#" + getID("password")).show();
+                        $("#" + getID("password-input")).focus();
+                        return;
+                    } else if (data.code == "R-PV-003") {
+                        // パスワードエラー
+                        $("#" + getID("loading-img")).hide();
+                        $("#" + getID("password-msg")).html(_opt.resource["password_2"]);
+                        $("#" + getID("password")).show();
+                        $("#" + getID("password-input")).focus();
+                        return;
+                    } else if (data.code == "R-PV-004" || data.code == "R-PV-008") {
+                        // 変換中
+                        if($("#" + _divID).is(":visible")){
+                        setTimeout(function(){
+                            requestViweingServer(_respData, _nowPage);
+                            }, 1000);
+                        }
+                        return;
+                    } else if (data.code == "R-PV-011") {
+                        // トークンタイムアウト
+                        if($("#" + _divID).is(":visible")){
+                        $.get(_opt.ecmurl, {
+                            "fileId"        : _fid,
+                            "spaceId"       : _sid,
+                            "version"       : _version,
+                            "sort"          : _sort,
+                            "order"         : _order,
+                            "viewType"      : _viewType,
+                        }, function(innerData){
+                            if(innerData.token){
+                                _respData.token = innerData.token;
+                                _token = innerData.token;
+                                requestViweingServer(_respData, page);
+                            }else{
+                                clearData();
+                                if(_closeCallback){
+                                    _closeCallback();
+                                }
+                                return;
+                            }
+                        });
+                        }
+                        return;
+                    } else if (data.code == "R-PV-012") {
+                        // アクセス権エラー
+                        $("#" + getID("download")).show();
+                        $("#" + getID("loading-img")).hide();
+                        return;
+                    }
+                    saveCacheData(data, page);
+                    //alert(JSON.stringify(data.convertData[0]).length)
+                    _totalPage = data.allpage;
+                    if($("#" + getID("prev-main-area")).html() == ""){
+                        for(var i = 0; i < data.allpage; i++){
+                            var $canvas = $("<canvas>").attr({
+                                "id"    : getID("canvas-" + (i + 1))
+                            }).addClass(getID("canvas"));
+
+                            if(i != 0){
+                                $canvas.css("display", "none");
+                            }
+
+                            $("#" + getID("prev-main-area")).append($canvas);
+                        }
+                        _canvasID = getID("canvas-1");
+
+                    /*if(_totalPage > 1){
+                        setTimeout(function(){
+                                var max = _totalPage > _cachePageSize ? _cachePageSize : _totalPage;
+                                for(var i = 1; i < max; i++){
+                                bgCanvasRepaint(p, i + 1);
+                            }
+                        }, 1000);
+                    }*/
+                    }
+
+                    loadData(data);
+
+                }, "jsonp");
+            }else{
+                loadData(d);
+            }
+        }else{
+            if(d["zoom"] != _zoom){
+                d["zoom"] = _zoom;
+                loadData(d);
+            }else{
+            $("#" + _canvasID).show();
+                if(_ext == "pdf"){
+                    $("#textLayerBase" + page).show();
+                }
+            }
+        }
+    }
+
+    function loadData(data){
+        $("#" + getID("totalPage")).text(" / " + _totalPage);
+        if (data.result == "success") {
+
+            _convertData = null;
+            if (data.convertData != null) {
+                _convertData = data.convertData[0];
+            }
+
+            if (data.allpage != null) {
+                if (data.allpage > 0) {
+                    _maxpage = data.allpage;
+                }
+                if (_maxpage > 1 && _curpage < _maxpage) {
+                }
+            }
+
+            _maxseek = 0;
+            if (_convertData != null) {
+                hitCount();
+                canvasRepaint();
+                drawThumbnail();
+            }
+
+            $("#" + getID("loading-img")).hide();
+
+            if (data.code == "R-PV-000") {
+                // 正常
+                $("#" + getID("pager")).show();
+                transmissionEffect(getID("pager"), 3000);
+                $("#" + getID("prev-search-text")).show();
+                $("#" + getID("prev-search-text")).next().show();
+                $("#" + getID("prev-search-text")).next().next().show();
+                $("#" + getID("sidebar")).show();
+            } else if (data.code == "R-PV-008") {
+                // 変換中エラー
+                alert("エラー");
+                $("#" + getID("download")).show();
+            } else {
+                // 想定外エラー
+                alert(data.result + " (" + data.code + ") : " + data.msg);
+                $("#" + getID("download")).show();
+            }
+
+        } else {
+            if (data.code == "R-PV-001") {
+                // 引数エラー
+                //console.error("A");
+                $("#" + getID("download")).show();
+                $("#" + getID("prev-search-text")).show();
+                $("#" + getID("prev-search-text")).next().show();
+                $("#" + getID("prev-search-text")).next().next().show();
+            } else if (data.code == "R-PV-005") {
+                // エラー
+                //console.error("B");
+                $("#" + getID("download")).show();
+            } else if (data.code == "R-PV-006") {
+                // 変換エラー
+                //console.error("C");
+                $("#" + getID("download")).css("display", "block");
+            } else if (data.code == "R-PV-007") {
+                // サポート対象外
+                //console.error("D");
+                $("#" + getID("download")).show();
+            } else if (data.code == "R-PV-009") {
+                // 変換タイムアウト
+                //console.error("E");
+                $("#" + getID("download")).show();
+            } else {
+                // 想定外
+                //console.error("F");
+                $("#" + getID("download")).show();
+            }
+        }
+        $("#" + getID("loading-img")).hide();
+    }
+
+    function hitCount(){
+        if (_word != "") {
+            if (_ext == "pdf") {
+                getSearchPdfDataCnt(_convertData.data, _word, function(max){
+                    if (max > 0) {
+                        _maxseek = max;
+                    }
+                });
+            } else {
+                var max = getSearchDataCnt(_convertData.data, _word);
+                if (max > 0) {
+                    _maxseek = max;
+                }
+            }
+        }
+
+        if(_seekSet){
+            _curseek = _maxseek;
+            _seekSet = false;
+        }
+    }
+
+    function drawThumbnail(){
+        var $td = $("#" + getID("side-main-div"));
+        if($td.html() != ""){
+            return;
+        }
+
+        for(var i = 0; i < _totalPage; i++){
+            var $img = $("<img>").addClass("cso-preview-thumbnail").attr("src", _respData.server_url + "/thumbnail?key="
+                        + _token + "&spageno=" + (i + 1) + "&date=" + new Date().getTime()).attr("page", i + 1).click(function(){
+            /*var $img = $("<img>").addClass("cso-preview-thumbnail").attr("src", "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/loading.gif')}").attr("page", i + 1).click(function(){*/
+                        movePage(-1, $(this).attr("page") - 0)
+                    });
+
+            if(i == (_nowPage - 1)){
+                $img.addClass("cso-preview-thumbnail-click");
+            }
+            $td.append($img);
+        }
+        //drawThumbnail2();
+    }
+
+    function drawThumbnail2(){
+        setTimeout(function(){
+            var flg = false;
+            $(".cso-preview-thumbnail").each(function(){
+                if($(this).attr("src") == "{!URLFOR($Resource.SOLXYZCSO001__cso, '/image/csopreview/loading.gif')}"){
+                    flg = true;
+                    var obj = $(this);
+                    $.ajax({
+                        url     : _respData.server_url + "/thumbnail",
+                        dataType: "jsonp",
+                        data    : {
+                            key     : _token,
+                            spageno : $(this).attr("page"),
+                            date    : new Date().getTime(),
+                        },
+                        async   : false,
+                        complete : function(data, textStatus, xhr){
+                            if(data.status == 200 || data.status == 0){
+                                obj.attr("src", _respData.server_url + "/thumbnail?key="
+                                        + _token + "&spageno=" + obj.attr("page") + "&date=" + new Date().getTime());
+                            }
+                        }
+                    });
+                }
+            });
+            if(flg){
+                //drowThumbnail2();
+            }
+        }, 1000);
+    }
+
+    function bgCanvasRepaint(p, page){
+        var cacheData = _cacheDataMap[page];
+        var canvasID = getID("canvas-" + page);
+
+        if(cacheData == null || _redraw){
+            if(cacheData == null){
+                // DVサーバからデータを取得し描画
+                $.get(p.server_url + "/" + p.server_servlet, {
+                    'key'       : _token,
+                    'ext'       : _ext,
+                    'spageno'   : page,
+                    'epageno'   : page,
+                    'docpw'     : "",
+                    'locale'    : p.language
+                }, function(data){
+                    saveCacheData(data, page);
+                    bgLoadData(data.convertData[0], canvasID);
+                }, "jsonp");
+            }else{
+                // キャッシュから描画
+                bgLoadData(cacheData.convertData[0], canvasID);
+            }
+        }
+    }
+
+    function bgLoadData(cd, canvasID){
+        canvasResize(canvasID);
+                if (_ext == "pdf") {
+            pdfPaint(canvasID, cd.data, _zoom, true, _word, -1);
+                } else {
+                    docPaint(canvasID, cd.data, _zoom, true, _word, -1);
+                }
+
+                if (_ext == "pdf") {
+            setTimeout(function(){
+                $("#textLayerBase" + getPageNo(canvasID)).css("margin-left", -$("#" + canvasID).width() / 2);
+            }, 2000);
+            }
+        }
+
+    function canvasRepaint() {
+        if (_convertData == null) {
+            return;
+        }
+
+        if(!isNumber(_zoom)){
+                canvasResize(_canvasID);
+            }
+            $('#' + _canvasID).show();
+                if (_ext == "pdf") {
+                    pdfPaint(_canvasID, _convertData.data, _zoom, true, _word, _curseek);
+                } else {
+                    docPaint(_canvasID, _convertData.data, _zoom, true, _word, _curseek);
+                }
+        $("#" + getID("loading-img")).hide();
+
+                if (_ext == "pdf") {
+            setTimeout(function(){
+                $("#textLayerBase" + getPageNo(_canvasID)).css("margin-left", -$("#" + _canvasID).width() / 2);
+
+        if($("#" + _canvasID).height() < $("#cso-preview-prev-main-area").height()){
+            $("#" + _canvasID).css({"margin-top" : ($("#cso-preview-prev-main-area").height() - $("#" + _canvasID).height()) / 2});
+                }else{
+                    $("#" + _canvasID).css({"margin-top" : 0});
+                }
+                _canvasHeight = $("#" + _canvasID).height();
+            }, 500);
+        }else{
+            _canvasHeight = $("#" + _canvasID).height();
+        }
+        var ch = _canvasHeight < 0 ? $("#" + _canvasID).height() : _canvasHeight;
+        if(ch < $("#cso-preview-prev-main-area").height()){
+            $("#" + _canvasID).css({"margin-top" : ($("#cso-preview-prev-main-area").height() - ch) / 2});
+        }else{
+            $("#" + _canvasID).css({"margin-top" : 0});
+        }
+    }
+
+    function getPageNo(canvasID){
+        return canvasID.split("-")[3];
+    }
+
+    function canvasResize(id){
+        if(!isNumber(_zoom)){
+            $("#" + id).attr("width", $("#cso-preview-prev-main-area").width());
+        }
+        $("#" + id).attr("height", $("#cso-preview-prev-main-area").height() - 2);
+    }
+
+    function isNumber(x) {
+        if (typeof (x) != 'number' && typeof (x) != 'string')
+            return false;
+        else
+            return (x == parseFloat(x) && isFinite(x));
+    }
+
+    function saveCacheData(data, page){
+        data["cacheTime"] = new Date().getTime();
+        data["zoom"] = _zoom;
+        _cacheDataMap[page] = data;
+    }
+
+    function loadImage(prev_url){
+        $.ajax({
+            url     : prev_url,
+            data    : {},
+            async   : false,
+            complete : function(data, textStatus, xhr){
+                if(data.status == 200 || data.status == 0){
+                    setTimeout(function(){
+                        $("#" + getID("other")).css({"background-image" : "url(" + prev_url +")"});
+                        $("#" + getID("loading-img")).hide();
+                        _prevImg = new Image();
+                        _prevImg.src = prev_url;
+                        $(window).resize();
+                    }, 100);
+                }else{
+                    setTimeout(function(){loadImage(prev_url)}, 5000);
+                }
+            }
+        });
+    }
+})($);
+
+function isIE(){
+    return getUA().indexOf("msie") >= 0 ? true : false;
+}
+
+function isIE8(){
+    if(!isIE()){
+        return false;
+    }
+    return navigator.appVersion.toLowerCase().indexOf("msie 8.") >= 0 ? true : false;
+}
+
+function getUA(){
+    return navigator.userAgent.toLowerCase();
+}
+
+</script>
+</apex:page>

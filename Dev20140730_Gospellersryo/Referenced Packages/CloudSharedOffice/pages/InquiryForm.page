@@ -1,0 +1,276 @@
+<apex:page sidebar="false" showHeader="false">
+<script type="text/javascript">
+var filecount = 0;
+var result = true;
+var submitenable = true;
+var uploader;
+var reception;
+/*
+ * 読込処理
+ */
+jQuery.event.add(window, "load", function(){
+    $("#remainder").text(getMsg(new Array("512"), '{!$Label.label_10227}'));
+    $("#content").keyup(function(){
+        viewCommentLength("content", "remainder", 512);
+    });
+
+    // 機能・種別・優先度一覧取得
+    secureGetAsync(
+        '/setup/functionClassPriorityGet.json',
+        'exclusion=["HOME"]',
+        function(data, status) {
+            if (status == "success") {
+                // 機能選択肢追加
+                $.each(data.inquiryFunction_select, function() {
+                    $('#function').append('<option value="' + this.code + '">' + this.name + '</option>');
+                });
+                // 種別選択肢追加
+                $.each(data.inqueryKind_select, function() {
+                    $('#kind').append('<option value="' + this.code + '">' + this.name + '</option>');
+                });
+                // 優先度選択肢追加
+                var i=0;
+                $.each(data.inquiryPriority_select, function() {
+                    $('#priority').append('<option value="' + this.code + '">' + this.name + '</option>');
+                    i++;
+                });
+                // 優先度の選択肢が2個以上存在する場合、初期選択値を2番目の候補とする
+                if (i >= 2) {
+                   $('#priority').attr("selectedIndex", 1);
+                }
+            }
+        }
+    );
+
+    var uploadRuntime = '';
+    if(navigator.userAgent.indexOf('MSIE') !== -1) {
+        uploadRuntime = 'silverlight';
+    } else {
+        uploadRuntime = 'html5,silverlight';
+    }
+
+    uploader = new plupload.Uploader({
+        runtimes: uploadRuntime,
+        send_browser_cookies : true,
+        browse_button : "pickfile",
+        container : "container",
+        max_file_size : "2mb",
+        url : _apiUrl + '/setup/supportRegister.json',
+        silverlight_xap_url : '{!$Resource.pluploadsilverlight}',
+        multi_selection : false,
+        dragdrop : true,
+        preinit : {
+            Init : function(up) {
+            }
+        },
+        init : {
+            BeforeUpload : function(up, file) {
+                filecount++;
+                uploader.settings.multipart_params = {
+                    "function" : $("#function").val(),
+                    kind : $("#kind").val(),
+                    priority : $("#priority").val(),
+                    title : $("#title").val(),
+                    content : $("#content").val()
+                };
+            },
+            FilesAdded : function (up, files) {
+            },
+            Error : function(up, err) {
+                if (err.file.size >= up.settings.max_file_size) {
+                    alert('{!$Label.msg_00096}' + err.file.name);
+                } else {
+                    alert(err.message + "\n" + err.file.name);
+                }
+                up.refresh();
+            },
+            FileUploaded : function (up, file, obj) {
+                if (!obj.response) {
+                    return false;
+                }
+                var res = JSON.parse(obj.response);
+                reception = res.reception;
+                var data = eval("(" + obj.response + ")");
+                result = result && data.result;
+                filecount--;
+            },
+            QueueChanged : function (up) {
+                if (up.files.length == 0) return false;
+                var file = up.files[up.files.length - 1];
+                for (var i = 0; i < up.files.length - 1; i++) {
+                    up.removeFile(up.files[i]);
+                }
+
+                $("#filename").val(file.name);
+            },
+            UploadComplete : function(up, files) {
+                // アップロード完了後
+                if(location.pathname.indexOf('Dialog') < 0){
+                    // メイン画面の場合には、一覧へ戻る
+                    window.location.href = 'InquiryHistory';
+                } else {
+                    // ダイアログ表示の場合には、ダイアログを閉じる
+                    location.href = '{!$Page.InquiryResult}?receptionNo=' + reception;
+                }
+            }
+        }
+    });
+
+    uploader.init();
+
+});
+
+/*
+ * 問い合わせ登録処理
+ */
+function clickRegist(){
+    if(!submitenable){
+        return false;
+    }
+
+    if(!validate()){
+        submitenable = true;
+        $('#inquiryForm_ok').removeAttr("disabled");
+        return false;
+    }
+
+    submitenable = false;
+
+	$("#content").val($.trim(content));
+
+    if (uploader.files.length > 0) {
+        uploader.start();
+    } else {
+        var callback = function(data){
+            CsoScript_loadingStop();
+            // アップロード完了後
+            if(location.pathname.indexOf('Dialog') < 0){
+                // メイン画面の場合には、一覧へ戻る
+                window.location.href = 'InquiryHistory';
+            } else {
+                // ダイアログ表示の場合には、ダイアログを閉じる
+                location.href = '{!$Page.InquiryResult}?receptionNo=' + data.reception;
+            }
+        };
+        var callerror =  function(data){
+            CsoScript_loadingStop();
+            alert(data);
+        };
+        CsoScript_loadingStart();
+
+        if(location.pathname.indexOf('Dialog') < 0){
+            securePostAsync('/setup/supportRegister.json', {'function':$('#function').val(),
+                                                       'kind':$('#kind').val(),
+                                                       'priority':$('#priority').val(),
+                                                       'title':$('#title').val(),
+                                                       'content':$('#content').val()},
+                                                       callback,
+                                                       callerror);
+        } else {
+            top.window.opener.securePostAsync('/setup/supportRegister.json', JSON.stringify({'function':$('#function').val(),
+                                                       'kind':$('#kind').val(),
+                                                       'priority':$('#priority').val(),
+                                                       'title':$('#title').val(),
+                                                       'content':$('#content').val()}),
+                                                       callback,
+                                                       callerror);
+        }
+    }
+    return false;
+}
+
+/*
+ * 入力チェック
+ */
+function validate() {
+    if ($('#function').val() == '{!$Label.label_10127}') {
+        alert(getMsg(new Array('{!$Label.label_10115}'), '{!$Label.msg_00058}'));
+        return false;
+    }
+
+    if ($('#kind').val() == '{!$Label.label_10127}') {
+        alert(getMsg(new Array('{!$Label.label_10119}'), '{!$Label.msg_00058}'));
+        return false;
+    }
+
+    if ($.trim($("#title").val()).length == 0) {
+        alert(getMsg(new Array('{!$Label.label_10106}'), '{!$Label.msg_00058}'));
+        return false;
+    } else if($.trim($("#title").val()).length > 100) {
+        alert(getMsg(new Array('{!$Label.label_10106}', 100), '{!$Label.msg_00059}'));
+        return false;
+    }
+
+    var regexp = RegExp(/\r\n|\r|\n/g);
+    content = $("#content").val().replace(regexp, "\r\n");
+    if(content.length == 0) {
+        alert(getMsg(new Array('{!$Label.label_10126}'), '{!$Label.msg_00058}'));
+        return false;
+    } else if(content.length > 512) {
+        alert(getMsg(new Array('{!$Label.label_10126}', 512), '{!$Label.msg_00059}'));
+        return false;
+    }
+    return true;
+}
+</script>
+<div id ="inquiryMain">
+    {!$Label.label_10111}
+    <div>
+        <p>{!$Label.label_10112}<br/>{!$Label.label_10285}<br/>{!$Label.label_10286}</p>
+        <p>{!$Label.label_10113}<br/>{!$Label.label_10287}</p>
+        <p>{!$Label.label_10114}</p>
+    </div>
+    <div>
+        <div id="sectionHeader"></div>
+        <table cellpadding="0">
+            <tr>
+                <th>{!$Label.label_10115}</th>
+                <td>
+                    <select id="function" name="function" >
+                        <option value="" selected="selected">{!$Label.label_10127}</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_10119}</th>
+                <td>
+                    <select id="kind" name="kind" >
+                        <option value="" selected="selected">{!$Label.label_10127}</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_10109}</th>
+                <td>
+                    <select id="priority" name="priority">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>{!$Label.label_10106}</th>
+                <td class="c_require"><input id="title" name="title" type="text" class="c_text_l" maxlength="100" /></td>
+            </tr>
+            <tr>
+                <th style="vertical-align:middle;" rowspan="2">{!$Label.label_10126}</th>
+                <td>
+                    <div id="remainder" style="text-align:right; width:100%;"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="c_require">
+                    <textarea rows="15" id="content" name="content" style="width:500px; resize: none;"></textarea>
+                </td>
+            </tr>
+            <tr style="margin-top:10px;">
+                <th>{!$Label.label_10137}</th>
+                <td>
+                    <div id="container">
+                        <input id="filename" type="text" style="width:300px;" readonly="readonly" />
+                        <button id="pickfile" class="btn">{!$Label.label_10138}</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</apex:page>

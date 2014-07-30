@@ -1,0 +1,346 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.WorkflowDetailController" tabStyle="workflow__tab" action="{!init}">
+
+<apex:outputPanel id="err" rendered="{!IF(csoUserInfo.proAuth_workflow_standard == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!csoUserInfo.code}&massage={!csoUserInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(csoUserInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(csoUserInfo.proAuth_workflow_standard == 'true' && csoUserInfo.showErrPage == false, true, false)}">
+
+
+
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(csoUserInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/commonDownload.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/wf_icon.png')}" alt="{!$Label.solxyzcso001__label_10728}" title="{!$Label.solxyzcso001__label_10728}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10123}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10728}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <style type="text/css">
+                .disk-usage-fs{
+                    margin: 10px;
+                }
+                #headerMenuUsage{
+                    display: none;
+                    width: 250px;
+                    height: 140px;
+                    border: solid 1px gray;
+                    z-index: 1100;
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    border:1px solid #c0c0c0;
+                    border-radius:5px;
+                    -moz-border-radius:5px;
+                    -webkit-border-radius:5px;
+                    -moz-box-shadow:1px 1px 3px #c0c0c0;
+                    -webkit-box-shadow:1px 1px 3px #c0c0c0;
+                    box-shadow:1px 1px 3px #c0c0c0;
+                    float:left;
+                    background-color:#f7f7f7;
+                    margin:10px;
+                    padding:10px;
+                    max-width:1000px;
+                }
+                .diskValueText{
+                    text-align:left;
+                    font-size : 10px;
+                    padding-top:2px;
+                    padding-left:5px;
+                    position: absolute;
+                    min-width: 250px;
+                }
+                .icon{
+                    width: 18px;
+                    height: 18px;
+                    border: none;
+                }
+                .usage_category{
+                    text-align:left;
+                }
+
+                </style>
+                <script type="text/javascript">
+
+                /**
+                 * リリースノート言語判別用
+                 */
+                //sforce.connection.sessionId = '{!$Api.Session_ID}';
+                var releasenote_url = "";
+                var manual_url = "";
+                var application_url  = _apiUrl + "{!$Label.label_application_url}";
+
+
+                var lang_ja = {!lang_ja};
+                var lang_en = {!lang_en};
+                var lang_zh = {!lang_zh};
+
+
+                if(lang_ja){
+                    releasenote_url = "{!$Label.label_releasenote_url}";
+                    manual_url = "{!$Label.solxyzcso001__label_manual}";
+                }else if(lang_zh){
+                    releasenote_url = "{!$Label.label_releasenote_url_zh}";
+                    manual_url = "{!$Label.solxyzcso001__label_manual_zh}";
+                //}else if(lang_en== 'en_US'){
+                //    releasenote_url = "{!$Label.label_releasenote_url_en}";
+                //    manual_url = "{!$Label.solxyzcso001__label_manual_en}";
+                }else{
+                    releasenote_url = "{!$Label.label_releasenote_url_en}";
+                    manual_url = "{!$Label.solxyzcso001__label_manual_en}";
+                }
+
+                $(document).ready(function(){
+
+                if(lang_ja ){
+                    $("#manual_span_ja").css("display", "inline");
+                }else if(lang_zh){
+                    manual_url = "{!$Label.solxyzcso001__label_manual_zh}";
+                    $("#manual_span_zh").css("display", "inline");
+                //}else if(lang  == 'en_US'){
+                //    $("#manual_span_en").css("display", "inline");
+                }else{
+                    $("#manual_span_en").css("display", "inline");
+                }
+
+                });
+                /*
+                 * 使用量用ロード関数
+                 */
+                jQuery.event.add(window, "load", function(){
+                //$(document).ready(function() {
+                    $("#information").mouseover(function(){
+                        showDiskUsage();
+                    ;})
+                    $("#information").mouseout(function(){
+                        $("#headerMenuUsage").hide();
+                    });
+
+                    usageReload();
+                    $("#disk").progressbar({
+                        value: 0
+                    });
+                    $("#io").progressbar({
+                        value: 0
+                    });
+                });
+
+                /*
+                 * 使用量表示関数
+                 */
+                function showDiskUsage() {
+                    var basepos = $( "#information" ).position();
+                    var posX = basepos.left ;
+                    var posY = basepos.top ;
+                    posX -= 230;
+                    posY += 10;
+                    $("#headerMenuUsage").css("left", posX).css('top', posY);
+                    $("#headerMenuUsage").show();
+                }
+
+                /*
+                 * 各種使用量を取得・設定
+                 */
+                function usageReload(){
+                    var callback = function(data){
+                        if (data["maxDisk"] == "8388608.0 TB") {
+                            $("#disk").progressbar("value",100);
+                            $("#div").css('display', 'block');
+                            $("#hid").css('display', 'none');
+                        } else {
+                            $("#maxDisk").html(data["maxDisk"]);
+                            $("#useDisk").html(data["useDisk"]);
+                            $("#disk").progressbar("value",data["diskPercent"]);
+                            $("#hid").css('display', 'block');
+                            $("#div").css('display', 'none');
+                        }
+                        if (data["maxDelivery"] == "8388608.0 TB") {
+                            $("#io").progressbar("value",100);
+                            $("#divDelivery").css('display', 'block');
+                            $("#hidDelivery").css('display', 'none');
+                        } else {
+                            $("#maxDelivery").html(data["maxDelivery"]);
+                            $("#useDelivery").html(data["useDelivery"]);
+                            $("#io").progressbar("value",data["deliveryPercent"]);
+                            $("#hidDelivery").css('display', 'block');
+                            $("#divDelivery").css('display', 'none');
+                        }
+                    };
+                    // 各使用量を取得
+                    secureGetAsync('/setup/diskDeliveryUsageGet.json', '', callback);
+                }
+                </script>
+
+<!-- マニュアル -->
+<span id="manual_span_ja" style="display:none;">
+    <apex:outputLink target="_blank" value="{!$Label.solxyzcso001__label_manual}">
+        {!$Label.solxyzcso001__label_10031}
+    </apex:outputLink>
+</span>
+<span id="manual_span_en" style="display:none;">
+    <apex:outputLink target="_blank" value="{!$Label.solxyzcso001__label_manual_en}">
+        {!$Label.solxyzcso001__label_10031}
+    </apex:outputLink>
+</span>
+<span id="manual_span_zh" style="display:none;">
+    <apex:outputLink target="_blank" value="{!$Label.solxyzcso001__label_manual_zh}">
+        {!$Label.solxyzcso001__label_10031}
+    </apex:outputLink>
+</span>
+<!-- サポート -->
+<span style="display:{!IF(csoUserInfo.option_support == 'true' && csoUserInfo.supportUser == 'true', 'inline', 'none')}">
+｜
+    <a href="javascript:void(0);" onclick="window.open('{!$Page.InquiryDialog}', 'inquiry', 'width=700,height=500,left=100,top=100,scrollbars=yes');">
+        {!$Label.label_10181}
+   <!--
+        <apex:image url="{!URLFOR($Resource.cso, 'image/voice-support.png')}" alt="{!$Label.label_10181}" title="{!$Label.label_10181}"/>
+    -->
+    </a>
+</span>
+｜
+
+<!-- 使用量確認 -->
+<!-- a href="" onclick="return false;" id="userusage">
+    {!$Label.label_10343}
+</a>
+｜-->
+<span>
+    <a id="information" href="javascript:void(0)" onclick="window.open(releasenote_url , 'information', 'width=700,height=500,left=100,top=100,scrollbars=yes');" >
+        {!$Label.label_common_information}
+    </a>
+</span>
+<span style="display:{!IF(csoUserInfo.option_sync == 'true' && csoUserInfo.proAuth_sync_use == 'true', 'inline', 'none')}">
+｜
+    <a href="javascript:void(0)" onclick="window.open(application_url , 'information', 'width=700,height=500,left=100,top=100,scrollbars=yes');" >
+        {!$Label.label_13207}
+    </a>
+</span>
+                <!-- ユーザー使用量 -->
+                <div class="diskusage " id="headerMenuUsage" style="display:none">
+                    <!-- ディスク使用量定義 -->
+                    <fieldset class="disk-usage-fs">
+                        <legend class="usage_category">
+                            <span style="vertical-align: middle;"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/disk.png')}" styleClass="icon"/>{!$Label.label_10089}</span>
+                        </legend>
+                        <div class="diskValueText" id ="hid" >
+                            {!$Label.label_10001}<span id="maxDisk"></span>&nbsp;
+                            {!$Label.label_10002}<span id="useDisk"></span>
+                        </div>
+                        <div  class="diskValueText"  id ="div" style="display: none">
+                            {!$Label.label_10008}
+                        </div>
+                        <div id="disk" style="width: 200px;"></div>
+                    </fieldset>
+                    <!-- 配信使用量定義 -->
+                    <fieldset class="disk-usage-fs">
+                        <legend class="usage_category">
+                            <span style="vertical-align: middle;"><apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/send.png')}" styleClass="icon"/>{!$Label.label_10090}</span>
+                        </legend>
+                        <div class="diskValueText" id="hidDelivery">
+                            {!$Label.label_10001}<span id="maxDelivery"></span>&nbsp;
+                            {!$Label.label_10002}<span id="useDelivery"></span>
+                        </div>
+                        <div  class="diskValueText"  id ="divDelivery" style="display: none">
+                            {!$Label.label_10008}
+                        </div>
+                        <div id="io" style="width: 200px;"></div>
+                    </fieldset>
+                </div>
+            </td>
+        </tr>
+
+
+
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+<apex:include pageName="SOLXYZCSO001__WorkflowDetailInfo" />
+            </td>
+        </tr>
+
+
+
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+
+<script type="text/javascript">
+
+var WM_DETAIL_TYPE = "page";
+var childWindowHandler = null;
+
+jQuery.event.add(window, "unload", function(){
+    if((childWindowHandler != null) && (childWindowHandler.closed == false)){
+        childWindowHandler.close();
+    }
+});
+
+jQuery.event.add(window, "load", function(){
+    var workflowId = "{!workflowId}";
+    initWorkflowDetailInfo(workflowId);
+});
+
+function cancelOnClick(){
+    location.href = "{!$Page.WorkflowApplyList}";
+}
+
+function setHeadSubTitle(value){
+    var title = value;
+    if(title.length > 20){
+        title = title.substring(0, 20) + "...";
+    }
+    $("#c_headLeftSubTitle").text(title);
+}
+
+function getEcmSessionId(){
+    return __ecmSessionId;
+}
+
+function callSecureGetAsync(url, param, callback, callerror){
+    secureGetAsync(url, param, callback, callerror);
+}
+
+function callSecurePostAsync(url, param, callback, callerror){
+    securePostAsync(url, param, callback, callerror);
+}
+
+</script>
+
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+
+</apex:outputPanel>
+</apex:page>

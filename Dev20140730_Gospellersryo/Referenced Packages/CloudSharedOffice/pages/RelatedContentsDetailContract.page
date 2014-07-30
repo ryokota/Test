@@ -1,0 +1,8 @@
+<apex:page standardController="Contract" extensions="SOLXYZCSO001.CSOUserInfoExt" action="{!init}" tabStyle="Contract">
+  <apex:variable var="Sf_type" value="Contract" />
+  <apex:variable var="Sf_typeName" value="{!$Label.solxyzcso001__label_sf_Contract}" />
+<!-- 
+  <apex:include pageName="RelatedContentsDetail"/>
+ -->
+  <c:RelatedContentsDetailComp id="RelatedContentsDetailComp" csoUserInfo="{!cso_UserInfo}"/>
+</apex:page>

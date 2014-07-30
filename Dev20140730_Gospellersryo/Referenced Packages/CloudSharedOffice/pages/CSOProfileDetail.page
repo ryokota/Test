@@ -1,0 +1,377 @@
+<apex:page id="CSOProfileDetailPage" tabStyle="setting__tab" controller="SOLXYZCSO001.CSOProfileController" sidebar="false" action="{!init}">
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_user_profile_manage == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_user_profile_manage == 'true', true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+var preId = "CSOProfileDetailPage\\:theForm\\:theBlock";
+
+function nl2br (str, is_xhtml) {
+    var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
+    return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ breakTag +'$2');
+}
+
+$(document).ready(function(){
+    if(getBrowserType() == 'IE8'){
+        $('.comment_label').html(nl2br("{!JSENCODE(comment)}"));
+    } else {
+        $('.comment_label').html(nl2br(($("<div/>").text("{!JSENCODE(comment)}").html())));
+    }
+});
+
+/*
+ * 削除ボタンが押されたときの処理
+ */
+function removeButton(){
+    var id   = $("#" + preId + "\\:proId").val();
+    var name = $("#" + preId + "\\:proName").val();
+    return(confirm(getMsg(new Array(decodeURI(name)),"{!$Label.msg_00065}")));
+}
+
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/h005.png')}" alt="{!$Label.solxyzcso001__label_10083}" title="{!$Label.solxyzcso001__label_10083}"/>
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10260}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_10294}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form id="theForm">
+                    <apex:pageMessages />
+                    <apex:pageBlock id="theBlock" title="{!$Label.solxyzcso001__label_10186}" >
+                        <apex:pageBlockButtons >
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00073}" action="{!edit}"          rendered="{!notSys}"/>
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00072}" onclick="return removeButton()" action="{!deleteProfile}" rendered="{!notSys}"/>
+                            <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!cancel}"/>
+                        </apex:pageBlockButtons>
+                        <apex:inputHidden id="proId" value="{!proId}"/>
+                        <apex:inputHidden id="proName" value="{!proName}"/>
+                        <apex:pageblockSection columns="1" >
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10185}</apex:outputLabel>
+                               <apex:outputLabel >{!proName}</apex:outputLabel>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        <apex:pageblockSection columns="1" rendered="{!notSys}">
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10012}</apex:outputLabel>
+                               <apex:outputLabel styleClass="comment_label"></apex:outputLabel>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        <apex:pageblockSection columns="2" rendered="{!notSys}">
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10015}</apex:outputLabel>
+                               <apex:outputPanel layout="none">
+                                    <apex:outputLabel escape="false" value="{!JSENCODE(regUser)}" />&nbsp;<apex:outputLabel escape="false" value="{!JSENCODE(regDate)}" />
+                                </apex:outputPanel>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10238}</apex:outputLabel>
+                               <apex:outputPanel layout="none">
+                                    <apex:outputLabel escape="false" value="{!JSENCODE(lastUpUser)}" />&nbsp;<apex:outputLabel escape="false" value="{!JSENCODE(lastUpDate)}" />
+                                </apex:outputPanel>
+                           </apex:pageBlockSectionItem>
+
+                        </apex:pageblockSection>
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10226}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_evidence_00046}</apex:outputLabel>
+                               <apex:inputCheckbox id="EVIDENCE_VIEW" disabled="true" selected="{!EVIDENCE_VIEW}"/>
+                           </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_evidence_00047}</apex:outputLabel>
+                               <apex:inputCheckbox id="EVIDENCE_CSV_EXPORT" disabled="true" selected="{!EVIDENCE_CSV_EXPORT}"/>
+                           </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="EVIDENCE_MANAGE" disabled="true" selected="{!EVIDENCE_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10122}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10192}</apex:outputLabel>
+                               <apex:inputCheckbox id="DELIVERY_STANDARD" disabled="true" selected="{!DELIVERY_STANDARD}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="DELIVERY_MANAGE" disabled="true" selected="{!DELIVERY_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10187}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10192}</apex:outputLabel>
+                               <apex:inputCheckbox id="WORKFLOW_STANDARD" disabled="true" selected="{!WORKFLOW_STANDARD}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10676}</apex:outputLabel>
+                               <apex:inputCheckbox id="WORKFLOW_SETTINGS" disabled="true" selected="{!WORKFLOW_SETTINGS}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10677}</apex:outputLabel>
+                               <apex:inputCheckbox id="WORKFLOW_DEFINITION" disabled="true" selected="{!WORKFLOW_DEFINITION}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10678}</apex:outputLabel>
+                               <apex:inputCheckbox id="WORKFLOW_CATEGORY" disabled="true" selected="{!WORKFLOW_CATEGORY}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="WORKFLOW_MANAGE" disabled="true" selected="{!WORKFLOW_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10260}">
+
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10082}</apex:outputLabel>
+                               <apex:inputCheckbox id="USER_USER_MANAGE" disabled="true" selected="{!USER_USER_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10098}</apex:outputLabel>
+                               <apex:inputCheckbox id="USER_GROUP_MANAGE" disabled="true" selected="{!USER_GROUP_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10191}</apex:outputLabel>
+                               <apex:inputCheckbox id="USER_ROLE_MANAGE" disabled="true" selected="{!USER_ROLE_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10083}</apex:outputLabel>
+                               <apex:inputCheckbox id="USER_PROFILE_MANAGE" disabled="true" selected="{!USER_PROFILE_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                           <!--apex:pageBlockSectionItem id="theBlockSectionItemUSER_GROUPPROFILE_MANAGE">
+                                <apex:outputLabel >{!$Label.label_group_admin_profile_manage}</apex:outputLabel>
+                                <apex:inputCheckbox id="USER_GROUPPROFILE_MANAGE" disabled="true" selected="{!USER_GROUPPROFILE_MANAGE}"/>
+                            </apex:pageBlockSectionItem-->
+                           <!--
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.label_10296}</apex:outputLabel>
+                               <apex:inputCheckbox id="EDIT_USER_ID" disabled="true" selected="{!EDIT_USER_ID}"/>
+                           </apex:pageBlockSectionItem>
+                           -->
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_13152}">
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10192}</apex:outputLabel>
+                               <apex:inputCheckbox id="SPACEUSER_EXPORT_STANDARD" disabled="true" selected="{!SPACEUSER_EXPORT_STANDARD}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="SPACEUSER_EXPORT_MANAGE" disabled="true" selected="{!SPACEUSER_EXPORT_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10345}">
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10240}</apex:outputLabel>
+                               <apex:inputCheckbox id="CORP_STANDARD" disabled="true" selected="{!CORP_STANDARD}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13122}</apex:outputLabel>
+                               <apex:inputCheckbox id="CORP_ALERT" disabled="true" selected="{!CORP_ALERT}"/>
+                           </apex:pageBlockSectionItem>
+
+                           <!-- <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.label_10128}</apex:outputLabel>
+                               <apex:inputCheckbox id="CORP_STANDARD" disabled="true" selected="{!CORP_STANDARD}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.label_10143}</apex:outputLabel>
+                               <apex:inputCheckbox id="CORP_PARTNER" disabled="true" selected="{!CORP_PARTNER}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.label_10179}</apex:outputLabel>
+                               <apex:inputCheckbox id="CORP_SECTION" disabled="true" selected="{!CORP_SECTION}"/>
+                           </apex:pageBlockSectionItem>
+                                      -->
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10297}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="NETWORK_MANAGE" disabled="true" selected="{!NETWORK_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10085}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10100}</apex:outputLabel>
+                               <apex:inputCheckbox id="SERVICE_SITUATION" disabled="true" selected="{!SERVICE_SITUATION}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10101}</apex:outputLabel>
+                               <apex:inputCheckbox id="SERVICE_SPACE" disabled="true" selected="{!SERVICE_SPACE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10361}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10362}</apex:outputLabel>
+                               <apex:inputCheckbox id="INVITE_TO_MY" disabled="true" selected="{!INVITE_TO_MY}"/>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10188}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10192}</apex:outputLabel>
+                               <apex:inputCheckbox id="COLLABO_SPACE_STANDARD" disabled="true" selected="{!COLLABO_SPACE_STANDARD}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10194}</apex:outputLabel>
+                               <apex:inputCheckbox id="COLLABO_SPACE_ROOT_DEFINE" disabled="true" selected="{!COLLABO_SPACE_ROOT_DEFINE}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="COLLABO_SPACE_MANAGE" disabled="true" selected="{!COLLABO_SPACE_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10189}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10192}</apex:outputLabel>
+                               <apex:inputCheckbox id="COMPANY_SPACE_STANDARD" disabled="true" selected="{!COMPANY_SPACE_STANDARD}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10194}</apex:outputLabel>
+                               <apex:inputCheckbox id="COMPANY_SPACE_ROOT_DEFINE" disabled="true" selected="{!COMPANY_SPACE_ROOT_DEFINE}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="COMPANY_SPACE_MANAGE" disabled="true" selected="{!COMPANY_SPACE_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10190}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10192}</apex:outputLabel>
+                               <apex:inputCheckbox id="ARCHIVE_SPACE_STANDARD" disabled="true" selected="{!ARCHIVE_SPACE_STANDARD}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="ARCHIVE_SPACE_MANAGE" disabled="true" selected="{!ARCHIVE_SPACE_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        <!--
+                        <apex:pageblockSection columns="2" title="{!$Label.label_10298}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="SECURITY_MANAGE" disabled="true" selected="{!SECURITY_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        -->
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_11009}">
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_11032}</apex:outputLabel>
+                               <apex:inputCheckbox id="VERSION_SETTING" disabled="true" selected="{!VERSION_SETTING}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_11010}</apex:outputLabel>
+                               <apex:inputCheckbox id="COMPRESS_PASSWORD" disabled="true" selected="{!COMPRESS_PASSWORD}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem rendered="{!IF(cso_userInfo.proAuth_watermark == 'true', true, false)}" >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10607}</apex:outputLabel>
+                               <apex:inputCheckbox id="WATERMARK" disabled="true" selected="{!WATERMARK}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem rendered="{!IF(cso_userInfo.proAuth_pdf_security == 'true', true, false)}" >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10648}</apex:outputLabel>
+                               <apex:inputCheckbox id="PDF_SECURITY" disabled="true" selected="{!PDF_SECURITY}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10783}</apex:outputLabel>
+                               <apex:inputCheckbox id="UPDATED_POST" disabled="true" selected="{!UPDATED_POST}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13017}</apex:outputLabel>
+                               <apex:inputCheckbox id="LIFECYCLE" disabled="true" selected="{!LIFECYCLE}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem rendered="{!IF(cso_userInfo.option_creator == 'true', true, false)}" >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13029}</apex:outputLabel>
+                               <apex:inputCheckbox id="SETTING_CREATORS_LICENSE" disabled="true" selected="{!SETTING_CREATORS_LICENSE}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem rendered="{!IF(cso_userInfo.option_digimark == 'true', true, false)}" >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13110}</apex:outputLabel>
+                               <apex:inputCheckbox id="DIGIMARK_MANAGE" disabled="true" selected="{!DIGIMARK_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__custom_field_label_00000}">
+                           <apex:pageblockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__custom_field_label_00001}</apex:outputLabel>
+                               <apex:inputCheckbox id="CUSTOM_FIELDS_CONTENTS" disabled="true" selected="{!CUSTOM_FIELDS_CONTENTS}"/>
+                           </apex:pageblockSectionItem>
+                           <apex:pageblockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__custom_field_label_00002}</apex:outputLabel>
+                               <apex:inputCheckbox id="CUSTOM_FIELDS_SPACE" disabled="true" selected="{!CUSTOM_FIELDS_SPACE}"/>
+                           </apex:pageblockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_13235}">
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >{!$Label.solxyzcso001__label_13237}</apex:outputLabel>
+                                <apex:inputCheckbox id="LIST_SETTING_CONTENTS" disabled="true" selected="{!LIST_SETTING_CONTENTS}"/>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_13170}" rendered="{!IF(cso_userInfo.option_sync == 'true', true, false)}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_13202}</apex:outputLabel>
+                               <apex:inputCheckbox id="SYNC_USE" disabled="true" selected="{!SYNC_USE}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="SYNC_MANAGE" disabled="true" selected="{!SYNC_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_mobilesettings_00001}" rendered="{!IF(cso_userInfo.option_mobile == 'true', true, false)}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="MOBILE_MANAGE" disabled="true" selected="{!MOBILE_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+
+                        <apex:pageblockSection columns="2" title="{!$Label.solxyzcso001__label_10195}">
+                            <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10192}</apex:outputLabel>
+                               <apex:inputCheckbox id="SUPPORT_STANDARD" disabled="true" selected="{!SUPPORT_STANDARD}"/>
+                           </apex:pageBlockSectionItem>
+                           <apex:pageBlockSectionItem >
+                               <apex:outputLabel >{!$Label.solxyzcso001__label_10025}</apex:outputLabel>
+                               <apex:inputCheckbox id="SUPPORT_MANAGE" disabled="true" selected="{!SUPPORT_MANAGE}"/>
+                           </apex:pageBlockSectionItem>
+                        </apex:pageblockSection>
+                    </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+</apex:page>

@@ -1,0 +1,325 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.DeliveryAddressListController" tabStyle="delivery__tab">
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null || cso_userInfo.showErrPage == true, false, true)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/delivery.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}"> 
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" /> 
+</apex:outputPanel> 
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}"> 
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" /> 
+</apex:outputPanel> 
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}"> 
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" /> 
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/fg.menu.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<style type="text/css">
+.viewbtn {
+    background: url("{!URLFOR($Resource.cso, 'image/s-arrow.gif')}") no-repeat right center;
+    font-weight: bold;
+    padding-right: 20px;
+}
+ul.viewlist {
+    list-style-type: none;
+}
+li.viewitem {
+    font-size : 0.8em;
+}
+.viewMenuImg{
+    filter:alpha(opacity=50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    margin-right: 8px;
+    margin-top: 2px;
+}
+.delivery-address-jqgrid-usr-top{
+    padding-top: 2px;
+    margin-left: 45px;
+}
+.delivery-address-jqgrid-usr-bottom{
+    margin-left: 45px;
+}
+.delivery-address-jqgrid-grp-top{
+    padding-top: 2px;
+    margin-left: 45px;
+}
+.delivery-address-jqgrid-grp-bottom{
+    color: gray;
+    font-size: 10.5px;
+    margin-top: 5px;
+    margin-left: 45px;
+}
+.jqGridPointIcon{
+    position: absolute;
+    top: 18px;
+    left: 23px;
+}
+.jqGridIcon{
+    margin-left: 3px;
+}
+</style>
+<script type="text/javascript">
+/*
+ * 画面読込処理
+ */
+jQuery.event.add(window, "load", function(){
+    $("#deliveryAddressList").jqGrid({
+        url: _apiUrl + '/deliverymanagement/deliveryAddressListGet.json',
+        datatype: "jsonp",
+        postData : { kind : "1"},
+        jsonReader :{ repeatitems: false, id : "id" },
+        colNames:['',
+                  '{!$Label.label_00039}',    // 名前
+                  '{!$Label.label_10016}',    // メールアドレス
+                  '{!$Label.label_10527}',    // エントリーの種類
+                  '{!$Label.label_10546}',''],    // タイプ
+        colModel:[{name:'id',index:'id', width:60, hidden:true},
+                  {name:'nameLink',index:'nameLink', width:260},
+                  {name:'mailAddress',index:'mailAddress', width:200},
+                  {name:'assortEntry',index:'assortEntry', width:100, align:"center"},
+                  {name:'type',index:'type', width:80, align:"center"},
+                  {name:'userId',index:'userId',width:10,hidden:true}
+                 ],
+        rowNum : 50,
+        width:420,
+        height: 530,
+        rowList:[50,100,300],
+        sortname: 'nameLink',
+        pager: '#deliveryAddressListPager',
+        viewrecords: true,
+        multiselect: true,
+        multiboxonly: true,
+        shrinkToFit : true,
+        loadComplete : function(data) {
+            if(!data.result){
+                alert(data.message);
+            }
+            resizeGrid();
+        },
+        gridComplete:function(){resizeGrid();}
+    });
+    $("#deliveryAddressList").jqGrid('navGrid','#deliveryAddressListPager',{edit:false,add:false,del:false,refresh:false,search:false});
+    $(window).resize(resizeGrid);
+    $("#addAddressMenuBtn").menu({ content : $("#addAddressMenu").html(), showSpeed : 0, width : 190});
+    resizeGrid();
+});
+
+function resizeGrid(){
+    var browserWidth = getBrowserWidth();
+    var browserHeight = getBrowserHeight();
+
+    $("#deliveryAddressList").setGridHeight(Math.max(browserHeight - 217, 300));
+
+    if((browserWidth - 340) < 700){
+        $("#deliveryAddressList").setGridWidth(713);
+    } else {
+        if(getBrowserType() != 'IE8'){
+            $("#deliveryAddressList").setGridWidth(browserWidth - 340);
+        } else {
+            $("#deliveryAddressList").setGridWidth(browserWidth - 324);
+        }
+    }
+}
+
+
+function address_del(){
+    var contentsIds = new Array();
+
+    var contentsUids = new Array();
+    var ids = jQuery("#deliveryAddressList").jqGrid('getGridParam','selarrrow');
+
+    for(i in ids) {
+        var ret = $("#deliveryAddressList").jqGrid('getRowData',ids[i]);
+        contentsIds.push(ret.id);
+        contentsUids.push(ret.userId);
+    }
+    var cid= Number(contentsIds.length);
+    var cud= getLen(contentsUids);
+    cud =  Number(cud)
+
+    if(0 < contentsIds.length){
+        if(cid == cud ){
+            alert('{!$Label.msg_00242}');    // 登録ユーザのアドレスが削除できません。
+        }
+        else{
+
+            if(confirm('{!$Label.msg_00243}')){    // 選択したアドレス、またはグループを削除します。\nよろしいですか？
+                var param = new Object();
+                param["delAddressIds"] = contentsIds.join(",");
+                param["delUids"] = contentsUids.join(",");
+                param["type"] = "delete";
+                
+                var callback = function(data){
+                    CsoScript_loadingStop();
+                    if(data.result){
+                        $('#deliveryAddressList').trigger('reloadGrid');
+                    }else{
+                        alert(data.message);
+                    }
+                };
+                
+                var callerror =  function(data){
+                    CsoScript_loadingStop();
+                    alert(data);
+                };
+                
+                CsoScript_loadingStart();
+                
+                securePostAsync('/deliverymanagement/deliveryAddressDelete.json', param, callback, callerror);
+            }
+        }
+    }else{
+        alert('{!$Label.msg_00244}');    // アドレス、またはグループが選択されていません。
+    }
+}
+
+function execSearch(){
+    var search = $.trim($("#search").val());
+
+//    $('#deliveryAddressList').setGridParam({ postData : { kind : "1", search : search } });
+    $('#deliveryAddressList').setGridParam({ page:1, postData : { kind : "1", search : search } });
+    $('#deliveryAddressList').trigger('reloadGrid');
+}
+
+function clearCondition(){
+    $("#search").val("");
+    execSearch();
+}
+
+function searchDialog(){
+    $("#searchDiv").dialog({ width : 350, height : 140 });
+}
+
+function getLen(arr){
+    var len = arr.length;
+    var child
+    for(var i=0;i<arr.length ;i++){
+        child = $.trim(arr[i])
+        if(child ==null | child == "" ){
+            len = len -1;
+        }
+    }
+    return len;
+}
+
+function changeViewAddressList(t){
+    var i = - $(".viewMenuImg").length + 7;
+    $(".viewMenuImg").each(function(){
+        if(t == i){
+            $(this).attr("src", "{!URLFOR($Resource.cso, 'image/check.png')}");
+        }else{
+            $(this).attr("src", "{!URLFOR($Resource.cso, 'image/none_16px.png')}");
+        }
+        i++;
+    });
+    $('#deliveryAddressList').setGridParam({ page:1, postData : { kind : "1", type : t } });
+    $('#deliveryAddressList').trigger('reloadGrid');
+}
+
+</script>
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__DeliveryMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/address-book.png')}" alt="{!$Label.solxyzcso001__label_10545}" title="{!$Label.solxyzcso001__label_10545}"/>    <!-- 配信アドレス管理 配信アドレス管理 -->
+                <h1 id="c_headLeftTitle">{!$Label.solxyzcso001__label_10545}</h1><br/>    <!-- 配信アドレス管理 -->
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10545}</h2>    <!-- 配信アドレス管理 -->
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinksDelivery"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+                <apex:form >
+                <apex:pageBlock >
+                    <!-- コマンドボタン -->
+                    <div class="c_command_l" id="listViewCommand">
+                        <ul class="c_command_pipe">
+                            <li class="item">
+                                <!-- 表示ボタン -->
+                                <button class="btn c_commandButton" id="addAddressMenuBtn" style="padding-right: 3px;">
+                                    <div class="viewbtn">
+                                        {!$Label.label_11105}
+                                    </div>
+                                </button>
+                            </li>
+                            <li class="item">
+                                <!-- 検索ボタン -->
+                                <apex:commandButton styleClass="btn c_commandButton" value="{!$Label.solxyzcso001__label_00069}" onclick="searchDialog();return false;"/>    <!-- 検索 -->
+                            </li>
+                            <li class="item">
+                                <!-- 削除ボタン -->
+                                <apex:commandButton styleClass="btn c_commandButton" value="{!$Label.solxyzcso001__label_00072}" onclick="address_del();return false;"/>    <!-- 削除 -->
+                            </li>
+                            <li class="last">
+                                <!-- 新規作成ボタン -->
+                                <apex:commandButton styleClass="btn c_commandButton" value="{!$Label.solxyzcso001__label_00074}" action="{!createAddress}"/>    <!-- 新規作成 -->
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div id="addAddressMenu" style="display: none;">
+                        <ul class="viewlist">
+                            <li class="viewitem" ><a href="javascript:void(0);" onclick="changeViewAddressList(0);"><img src="{!URLFOR($Resource.cso, 'image/check.png')}    " class="viewMenuImg"/>{!$Label.label_11106}</a></li>
+                            <li class="viewitem" ><a href="javascript:void(0);" onclick="changeViewAddressList(1);"><img src="{!URLFOR($Resource.cso, 'image/none_16px.png')}" class="viewMenuImg"/>{!$Label.label_11107}</a></li>
+                            <li class="viewitem" ><a href="javascript:void(0);" onclick="changeViewAddressList(2);"><img src="{!URLFOR($Resource.cso, 'image/none_16px.png')}" class="viewMenuImg"/>{!$Label.label_11108}</a></li>
+                            <li class="viewitem" ><a href="javascript:void(0);" onclick="changeViewAddressList(3);"><img src="{!URLFOR($Resource.cso, 'image/none_16px.png')}" class="viewMenuImg"/>{!$Label.label_11109}</a></li>
+                            <li class="viewitem" ><a href="javascript:void(0);" onclick="changeViewAddressList(4);"><img src="{!URLFOR($Resource.cso, 'image/none_16px.png')}" class="viewMenuImg"/>{!$Label.label_11110}</a></li>
+                            <li class="viewitem" ><a href="javascript:void(0);" onclick="changeViewAddressList(5);"><img src="{!URLFOR($Resource.cso, 'image/none_16px.png')}" class="viewMenuImg"/>{!$Label.label_11111}</a></li>
+                            <li class="viewitem" ><a href="javascript:void(0);" onclick="changeViewAddressList(6);"><img src="{!URLFOR($Resource.cso, 'image/none_16px.png')}" class="viewMenuImg"/>{!$Label.label_11112}</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- アドレス一覧 -->
+                    <table id="deliveryAddressList"></table>
+                    <div id="deliveryAddressListPager"></div>
+                    
+                    <!-- 検索モーダル -->
+                    <div id="searchDiv" style="display: none;" title="{!$Label.solxyzcso001__label_00069}">    <!-- 検索 -->
+                        <table id="searchTable" cellspacing="5">
+                            <tr>
+                                <th>{!$Label.msg_00245}</th>    <!-- 名前またはメールアドレスから検索できます。 -->
+                            </tr>
+                            <tr>
+                                <td><input type="text" id="search" class="c_text_m" name="search" maxlength="255" /></td>
+                            </tr>
+                        </table>
+                        <div style="text-align: center; margin-top: 5px;">
+                            <input type="button" class="btn" value="{!$Label.solxyzcso001__label_00069}" onclick="execSearch();return false;"/>    <!-- 検索 -->
+                            <input type="button" class="btn" value="{!$Label.label_00070}" onclick="clearCondition();return false;" />    <!-- クリア -->
+                        </div>
+                    </div>
+                </apex:pageBlock>
+                </apex:form>
+            </td>
+        </tr>
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null  && cso_userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

@@ -1,0 +1,83 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.WRInquiryController" action="{!init}" tabStyle="setting__tab">
+    <apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+        <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+    </apex:outputpanel>
+    <apex:outputpanel rendered="{!hasWR && hasPermissionWRAdmin}">
+        <!-- CSO連携モジュール -->
+        <apex:include pageName="SOLXYZCSO001__WRCSOBridge" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/plupload.full.js')}" />
+        <!-- CSO共通スクリプト -->
+        <apex:include pageName="SOLXYZCSO001__WRCSOScript" />
+        <script type="text/javascript">
+            var credential ="{!JSENCODE(credential)}";
+            var isReportOutputRuleTenant = "{!JSENCODE(isReportOutputRuleTenant)}";
+            
+
+        /**
+         * WR証跡を登録
+         */
+        function asyncSaveWREvidence(name){
+        　　　　Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.WRInquiryController.saveRegistEvidence}'
+                ,name
+                ,function(result, event){
+                    if(!result){
+                        //証跡登録に失敗
+                        var errMessageArray = [];
+                        errMessageArray.push('{!$Label.label_wr_evidence_00001}');
+                        var messageHtml = createMessageHtml(errMessageArray);
+                        $('#jsPageMessagesCell').html(messageHtml);
+                        $('#jsPageMessages').show();
+                    }
+                }
+                ,{escape: true}
+            );
+        }
+        </script>
+        <!-- warapper -->
+        <div id="c_wrapper">
+            <!-- content container -->
+            <table id="c_container" cellspacing="0" border="0">
+                <tr>
+                    <!-- left menu container -->
+                    <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                        <apex:include pageName="SOLXYZCSO001__WRSettingMenu" />
+                    </td>
+                    <!-- right header container -->
+                    <td id="c_headLeft" nowrap="nowrap">
+                        <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/voice-support.png')}" alt="{!$Label.solxyzcso001__label_10129}" title="{!$Label.solxyzcso001__label_10129}" />
+                         <h1 id="c_headLeftTitle">{!$Label.label_10181}</h1>
+                        <br/>
+                         <h2 id="c_headLeftSubTitle">{!$Label.label_10284}</h2>
+
+                    </td>
+                    <!-- 操作ボックス -->
+                    <td id="c_headRight">
+                        <apex:include pageName="SOLXYZCSO001__WROptionsLink" />
+                    </td>
+                </tr>
+                <tr>
+                    <!-- right content container -->
+                    <td id="c_right" colspan="2">
+                        <apex:form id="inquiryForm">
+                            <apex:pageBlock >
+                                <apex:pageBlockButtons >
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00075}" onclick="return clickRegist()" id="ok" />
+                                    <apex:commandButton value="{!$Label.solxyzcso001__label_00058}" action="{!cancel}" id="cancel" /></apex:pageBlockButtons>
+                                <apex:include pageName="SOLXYZCSO001__WRInquiryForm" /></apex:pageBlock>
+                        </apex:form>
+                    </td>
+                </tr>
+            </table>
+            <div id="copyright">{!$Label.solxyzcso001__label_00001}</div>
+        </div>
+        <apex:include pageName="SOLXYZCSO001__WRCSOSilverlight" /></apex:outputPanel>
+    <apex:outputPanel rendered="{!IF(wr_userInfo.uid == null && wr_userInfo.showErrPage == false, true, false)}">{!$Label.solxyzcso001__msg_00142}</apex:outputPanel>
+</apex:page>

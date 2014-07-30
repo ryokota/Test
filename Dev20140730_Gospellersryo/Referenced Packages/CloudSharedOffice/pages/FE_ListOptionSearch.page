@@ -1,0 +1,59 @@
+<apex:page standardStylesheets="true" showHeader="false" sidebar="false" Controller="SOLXYZCSO001.FE_ListOptionSearchtController" tabStyle="Opportunity" title="Create Report" Id="page1" action="{!listOptions}" >
+<head>
+  <title>{!$Label.label_wf_00029}</title>
+  <link  href="/sCSS/24.0/sprites/1331837151000/Theme3/ja/common.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css" />
+  <link  href="/sCSS/24.0/sprites/1331837151000/Theme3/ja/extended.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="setup popupTab">
+    <div id="ieBrowserFix" style="display:none;">
+        <apex:sectionHeader title="IE" subtitle="BrowserFix" />
+    </div>
+    <apex:form id="Form1">
+        <apex:actionFunction name="Reflesh" rerender="Form1"/>
+        <br/>
+        <div class="bPageBlock secondaryPalette">
+            <div class="pbBody">
+                <apex:dataTable value="{!listOptions}" var="mtList" id="mtList" styleClass="list" headerClass="headerRow" rowClasses="dataRow" columnClasses="dataCell" >
+                    <apex:column >
+                        <apex:facet name="header">{!$Label.solxyzcso001__label_wf_00063}</apex:facet>
+                        <apex:outputPanel >
+                            <apex:inputCheckbox value="{!mtList.isSelected}" id="option_select2"/>
+                            <apex:outputtext value="{!mtList.optionLabel}" id="option_label"/>
+                        </apex:outputPanel>
+                    </apex:column>
+                </apex:dataTable>
+            </div>
+        </div>
+        <div>
+            <apex:commandButton onclick="saveSection()" id="saveButton" value="{!$Label.solxyzcso001__label_common_00030}" />
+        </div>
+    </apex:form>
+</body>
+
+<script type="text/javascript">
+
+    function saveSection() {
+        var tableIdStr = "page1:Form1:mtList";
+        var table = document.getElementById(tableIdStr);
+        var rows = table.rows;
+        
+        var selectedValue = "";
+        
+        for(var i=1; i<rows.length; i++){
+            var hasChecked = table.rows[i].children[0].firstChild.children[0].checked;
+            if(hasChecked){
+                if(selectedValue != ""){
+                    selectedValue += ",";
+                }
+                selectedValue += table.rows[i].children[0].firstChild.children[1].innerHTML;
+            }
+        }
+        
+        window.opener.document.getElementById("opt_value").value = selectedValue;
+        
+        window.open("about:blank","_self").close();
+    }
+
+</script>
+</apex:page>

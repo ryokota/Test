@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>3ヵ年現金支出</value>
+    </caseValues>
+    <fields>
+        <label>数量増分</label>
+        <name>IncrementalVolumebyYear__c</name>
+    </fields>
+    <fields>
+        <label>Q1 現金支出 (円)</label>
+        <name>Q1CashSpendFunc__c</name>
+    </fields>
+    <fields>
+        <label>Q2 現金支出 (円)</label>
+        <name>Q2CashSpendFunc__c</name>
+    </fields>
+    <fields>
+        <label>Q3 現金支出 (円)</label>
+        <name>Q3CashSpendFunc__c</name>
+    </fields>
+    <fields>
+        <label>Q4 現金支出 (円)</label>
+        <name>Q4CashSpendFunc__c</name>
+    </fields>
+    <fields>
+        <label><!-- RFA --></label>
+        <name>RFA__c</name>
+        <relationshipLabel><!-- 3ヵ年現金支出 --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>年間現金支出 (単位：千円)</label>
+        <name>Report_Annual_Cash_Spend_000JPY__c</name>
+    </fields>
+    <fields>
+        <label>年間現金支出 (円)</label>
+        <name>X3YearCashSpendFunc__c</name>
+    </fields>
+    <fields>
+        <label>適用年度</label>
+        <name>Year__c</name>
+    </fields>
+    <layouts>
+        <layout>Additional Years Layout</layout>
+        <sections>
+            <label>年間現金支出</label>
+            <section>Annual Cash Spend &amp; Incremental Volume</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Three Year Cash Spend Layout</layout>
+        <sections>
+            <label>年間現金支出</label>
+            <section>Annual Cash Spend &amp; Incremental Volume</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>四半期現金支出</label>
+            <section>Quarterly Cash Spend Details</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>現金支出詳細番号</nameFieldLabel>
+    <recordTypes>
+        <label>追加（年）</label>
+        <name>Additional_Years</name>
+    </recordTypes>
+    <validationRules>
+        <errorMessage>四半期現金支出の合計が年間現金支出と一致しません。</errorMessage>
+        <name>Total_check_for_all_spend</name>
+    </validationRules>
+</CustomObjectTranslation>

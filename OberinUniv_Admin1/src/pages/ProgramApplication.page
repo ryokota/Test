@@ -1,0 +1,5 @@
+<apex:page standardController="Application__c">
+<head><title>e-Ryugaku</title></head>
+ <apex:detail />
+ <c:ProgramAttachments program="{!Application__c.program__r.id}"/>
+</apex:page>

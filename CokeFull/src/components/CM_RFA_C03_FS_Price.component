@@ -1,0 +1,18 @@
+<!-- RFA Request Detail 03. FS sales price Component -->
+<!-- CM_RFA_C03_FS_Price -->
+<apex:component >
+    <apex:attribute name="data" description="RFA Request Details 03. FS sales price data " type="CM_RequestDetails__c" required="true" />
+    
+    <apex:componentBody >
+    <apex:pageblock title="{!data.RecordType.Name}" >
+    <apex:pageBlockSection title="Request Detail" showHeader="false" columns="2">
+        <apex:outputField value="{!data.CM_Contract_term_from__c}" />
+        <apex:outputField value="{!data.CM_Contract_term_to__c}" />
+        <apex:outputField value="{!data.CM_Automatic_Renewed__c}" />
+    </apex:pageBlockSection>
+    <apex:pageBlockSection title="" showHeader="false" columns="1">
+        <apex:outputField value="{!data.CM_Contract_Condition_Price_Description__c}" />
+    </apex:pageBlockSection>
+    </apex:pageblock>
+    </apex:componentBody>
+</apex:component>

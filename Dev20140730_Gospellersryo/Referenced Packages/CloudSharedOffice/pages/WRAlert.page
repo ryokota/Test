@@ -1,0 +1,473 @@
+<apex:page cache="false" sidebar="false" controller="SOLXYZCSO001.WRAlertController" tabStyle="setting__tab">
+<apex:outputPanel rendered="{!IF(wr_userInfo.showErrPage == false, true, false)}">
+<apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+    <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+</apex:outputpanel>
+<apex:iframe src="/apex/CSO_WR_Error?code={!wr_userInfo.code}&massage={!wr_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(wr_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel >
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__WRBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(wr_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<style type="text/css">
+.innerTable {
+    margin-top: 0px;
+}
+
+.innerTable th {
+    font-weight: bolder;
+    text-align: right;
+    padding: 1px;
+}
+
+.innerTable td {
+    border: none !important;
+    padding: 1px !important;
+}
+
+.separatorDiv{
+    width: 100%;
+}
+
+.separatorDiv div{
+    font-weight: bold;
+}
+
+.chkIcon{
+    height: 20px;
+    width: 20px;
+    border: none;
+    vertical-align: middle;
+}
+
+.historyTbl {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.historyTbl th{
+    font-weight: bold;
+    width: 100px;
+    text-align: center;
+}
+
+.historyTbl *{
+    white-space: nowrap;
+}
+
+.diskInfo {
+    border: 1px #E3E3E3 solid;
+    border-collapse: collapse;
+    border-spacing: 0;
+    word-break:break-all;
+    width:390px;
+}
+
+.diskInfo th {
+    padding: 5px;
+    border: #E3E3E3 solid;
+    border-width: 0 0 1px 1px;
+    background: #F5F5F5;
+    font-weight: bold;
+    line-height: 120%;
+    text-align: center !important;
+    width:130px;
+    min-width:130px;
+}
+
+.diskInfo td {
+    border: 1px #E3E3E3 solid;
+    border-width: 0 0 1px 1px;
+    text-align: center;
+    width:130px;
+    min-width:130px;
+}
+.imgSize {
+    width:13px;
+    height:13px;
+
+}
+
+.ui-tab {
+    min-height: 350px;
+}
+
+.ui-tabs {
+    background : none;
+    border:none;
+}
+
+</style>
+
+
+
+
+
+<script type="text/javascript">
+
+    var _userApiUrl = '{!$Label.field_csowebreport_userapi_url}';
+
+    function secureGetAsync2(__url, __data, __callback, __callerror){
+        jsonpAccess2(__url, __data, true, false, __callback, __callerror);
+    };
+
+    function jsonpAccess2(__url, __data, __sync, __cache, __callback, __callerror){
+
+        // エラーハンドラーが無い場合には標準ハンドラーを使用
+        if(__callerror === undefined){
+            __callerror = exceptionHandler;
+        }
+
+        $.ajax({
+            url     : _userApiUrl + __url,
+            // GET固定
+            type    : 'GET',
+            data    : __data,
+            dataType: 'jsonp',
+            sync    : __sync,
+            cache   : __cache,
+            success : function(data, status){
+                          // 処理結果が失敗で処理継続等の付属情報も存在しない場合エラーと判断する
+                          if(data.result == false && data.resultInfo == undefined){
+                              alert(data.message);
+                              return;
+                          } else {
+                              // 正常にコールバックを実行する
+                              __callback(data, status);
+                          }
+                      },
+                error   : __callerror
+        });
+    }
+
+
+
+
+    //========//
+    //  定数  //
+    //========//
+//    var coraboDiskType = "1";
+
+
+    $(window).bind('resize', windowResize).trigger('resize');
+
+    function windowResize(){
+        var mainWidth  = getBrowserWidth() - 340;       // 幅    ブラウザの幅   - 340px
+        var mainHeight = getBrowserHeight() - 222;      // 高さ  ブラウザの高さ - 270px
+        if(mainWidth < 680){
+            mainWidth = 680;
+        }
+        $('#tabDiv').height(mainHeight);
+        $('#tabDiv').width(mainWidth);
+
+        var tabWidth=$('#tabDiv').width();
+        var tabHeight=$('#tabDiv').height();
+        $('#tabCollabMailAddress').css("height", tabHeight - 70);
+        $('#tableCollabMailAddress').setGridWidth(tabWidth-170).setGridHeight(tabHeight-240);
+    }
+
+    $('#tabDiv').bind('tabsselect', function(event, ui) {
+        $(ui.panel).css("display", "");
+    });
+
+
+
+
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+        //  スペース使用量通知情報の取得
+        WRAlert_getWRAlertInfo();
+    });
+
+    //================================//
+    //  スペース使用量通知情報の取得  //
+    //================================//
+    function WRAlert_getWRAlertInfo(){
+    //  スペース使用量通知情報の取得処理の呼び出し
+
+        var saveCourse = null;
+        var saveLic = null;
+        var saveMax = null;
+        var creator = null;
+        var createDate = null;
+        var updator = null;
+        var updateDate = null;
+        $("#tabdiv").show;
+        $("#collDisk").show();
+        $('#tabWRThreshold').show();
+        $("#collMailList").show();
+        $('#tabDiv').css("display", "");
+        $('#tabWRThreshold').css("display", "");
+
+
+        secureGetAsync2('/api/getPagethreshold.json',
+                {
+                    userid : "{!wr_userInfo.uid}",
+                    credential : "{!credential}"
+                },
+                function(data) {
+                    mainGridData = data["userlist"],
+                    saveCourse = data.editions[0].course;
+                    saveLic = data.editions[0].lic;
+                    saveMax = data.editions[0].max;
+                    $("#WRAlert_collaboMaxDisk").html(saveCourse);
+                    $("#WRAlert_collaboUsedDisk").html(saveLic);
+                    $("#WRAlert_collaboUsedPerDisk").html(saveMax);
+                    creator = data.registUserName;
+                    createDate = data.registDate;
+                    updator = data.updateUserName;
+                    updateDate = data.updateDate;
+                    $("#WRAlert_collaboCreater").html(creator);
+                    $("#WRAlert_collaboCreateDateTime").html(createDate);
+                    $("#WRAlert_collaboUpdater").html(updator);
+                    $("#WRAlert_collaboUpdateDateTime").html(updateDate);
+                    var WRAlert_active = '<img src="{!URLFOR($Resource.cso, '/image/check_off.png')}" class="chkIcon imgSize"/>';
+                    if (data["activeflg"] == true ) {        //今はapiが動いていないので
+                        WRAlert_active = '<img src="{!URLFOR($Resource.cso, '/image/check_on.png')}" class="chkIcon imgSize"/>';
+                        $("#collDisk").show();
+                        $("#collMailList").show();
+                    } else {
+                        $("#collDisk").hide();
+                        $("#collMailList").hide();
+                    }
+                    $("#WRAlert_active").html(WRAlert_active);
+                    setMainGrid()
+                    $("#tableCollabMailAddress").show();
+                }
+        );
+    }
+
+
+        function setMainGrid(){
+        $("#tableCollabMailAddress").jqGrid({
+            data : mainGridData,
+            datatype : "local",
+            postData : {
+                userid : "{!wr_userInfo.uid}",
+                credential : "{!credential}"
+            },
+            jsonReader : {
+                repeatitems : false,
+                root: "userlist",
+                id : "id"
+            },
+            colNames:[
+                        '',
+                        '',
+                        '',
+                        '{!$Label.label_wf_00006}',  // ⇒
+                        '{!$Label.label_wf_10003}',
+                        '{!$Label.label_wf_10016}',
+                        '{!$Label.label_wr_alert_00001}'
+                     ],
+            colModel:[
+                        {name:'id',index:'id', hidden:true},
+                        {name:'csoId',index:'csoId', hidden:true},
+                        {name:'sentFlg',index:'sentFlg', width:60, hidden:true},
+                        {name:'name',index:'name', width:230},
+                        {name:'uid',index:'uid', width:200},
+                        {name:'mail',index:'mail', width:200},
+                        {name:'th',index:'th', width:150,editable:true}
+                    ],
+            autowidth: true,
+            sortname: 'userid',
+            shrinkToFit: true,
+            rowList:[10,50,100],
+            rowNum:10,
+            loadComplete: function(data) {
+                    windowResize();
+            },
+            pager: '#tableCollabMailAddressPager',
+            viewrecords: true,
+            editurl: 'clientArray'
+        });
+
+
+
+        //  サイズ調整
+        windowResize();
+        // Tabs
+        $('#tabDiv').tabs();
+        // レイアウトが崩れる原因となるクラスを削除
+        $("#tabDiv > ul").removeClass("ui-widget-header");
+    }
+
+
+    function editJump() {
+        var tabIndex = $("#tabDiv").tabs("option", "selected");
+
+        var search = location.search;
+        window.top.location.href = '{!JSENCODE(URLFOR($Page.WRAlertEdit))}' + search + '#' + tabIndex;
+
+    }
+
+</script>
+
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__WRSettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <!--apex:image url="{!URLFOR($Resource.cso, 'image/alert_space_20120420.png')}" alt="{!$Label.label_13122}" title="{!$Label.label_13122}"/-->
+                <h1 id="c_headLeftTitle">{!$Label.label_10345}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.label_13122}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__WROptionsLink"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+
+
+                <apex:pageBlock >
+
+                    <!-- コマンドボタン -->
+                    <apex:pageBlockButtons location="top">
+                        <input class="btn" type="button" value="{!$Label.label_00073}" onclick="editJump();" />
+                    </apex:pageBlockButtons>
+
+
+
+
+
+
+
+
+<div id="tabDiv" style="overflow:auto;">
+
+
+    <div id="tabWRThreshold" style="display:none;overflow:auto;" >
+        <div style=" margin-left: 10px; font-weight: bolder;">
+            <table width="100%">
+                <tr>
+                    <td width="100px" style="font-weight: bolder; text-align: right; white-space: nowrap;" align="right">{!$Label.label_10434}</td>
+                    <td id="WRAlert_active" align="left">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="position: absolute; margin-top: -40px; margin-left: 220px; z-index: 1000">
+            <table class="historyTbl">
+                <tr>
+                    <th>{!$Label.label_10015}</th>
+                    <td id="WRAlert_collaboCreater">
+                    </td>
+                    <th>{!$Label.label_10005}</th>
+                    <td id="WRAlert_collaboCreateDateTime">
+                    </td>
+                </tr>
+                <tr>
+                    <th>{!$Label.label_10024}</th>
+                    <td id="WRAlert_collaboUpdater">
+                    </td>
+                    <th>{!$Label.label_10006}</th>
+                    <td id="WRAlert_collaboUpdateDateTime">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="collDisk" style=" margin-left: 10px;margin-top:10px;">
+            <table width="100%">
+                <tr>
+                    <th width="100px" align="right" style="font-weight: bolder; text-align: right;">
+<!--                        {!$Label.label_10435} -->
+                    </th>
+                    <td id="WRAlert_coraboDiskThreshold" align="left">&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td align="left">
+                        <table class="diskInfo">
+                            <tr>
+                                <th>{!$Label.label_wr_alert_00002}</th>
+                                <th>{!$Label.label_wr_alert_00003}</th>
+                                <th>{!$Label.label_wr_alert_00004}</th>
+                            </tr>
+                            <tr>
+                                <td id="WRAlert_collaboMaxDisk">
+                                </td>
+                                <td id="WRAlert_collaboUsedDisk">
+                                </td>
+                                <td id="WRAlert_collaboUsedPerDisk">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="collMailList" style=" margin-left: 10px;">
+            <table width="100%">
+                 <tr>
+                    <th width="100px" valign="top" align="right" style="font-weight: bold; text-align: right;">{!$Label.label_10436}</th>
+                    <td>
+                        <table id="tableCollabMailAddress" ></table>
+                        <div id="tableCollabMailAddressPager"></div>
+                    </td>
+                 </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+                </apex:pageBlock>
+
+
+            </td>
+        </tr>
+
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+    </div>
+<!-- "Display None" attribute Panel or ContextMenu -->
+
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(wr_userInfo.uid == null && wr_userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:outputpanel>
+</apex:page>

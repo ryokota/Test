@@ -1,0 +1,472 @@
+<apex:page sidebar="false" controller="SOLXYZCSO001.SettingCustomFieldsController" tabStyle="setting__tab">
+<apex:outputPanel rendered="{!IF(userInfo.proAuth_custom_fields_contents == 'false' && userInfo.proAuth_custom_fields_space == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!userInfo.code}&massage={!userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF((userInfo.proAuth_custom_fields_contents == 'true' || userInfo.proAuth_custom_fields_space == 'true') && userInfo.showErrPage == false, true, false)}">
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/newSetting-customFields.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js?20121120')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__SettingCustomFieldsScript"/>
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+<script type="text/javascript">
+var attach = "";
+var customFieldId = "";
+var targetId = "";
+
+$(function(){
+	if("{!attach}" != ""){
+		attach = "{!attach}";
+	}
+	if("{!id}" != ""){
+		customFieldId = "{!id}";
+		targetId = "{!id}";
+	}
+	
+	var callback = function(data){
+		_userLang = data.userLang;
+		var custom = data.customFields;
+		
+		itemDisplay(custom.customType);
+		
+		$("#customName").text(custom.customName);
+		$("#labelJa").text(custom.labelJa);
+		$("#labelEn").text(custom.labelEn);
+		$("#labelZh").text(custom.labelZh);
+		if (isTrue(custom.standard)) {
+			$("#itemType").css("display", "none");
+		} else {
+			$("#customTypeName").text(data.type_text);
+			var regexp = RegExp(/\r\n|\r|\n/g);
+			$("#required").attr("src", getCheckImgUrl(custom.required));
+			$("#unique").attr("src", getCheckImgUrl(custom.unique));
+			$("#lengthMax").text(custom.lengthMax > 0 ? custom.lengthMax : "-");
+			$("#numMin").text(custom.numMin == "" ? "-" : custom.numMin);
+			$("#numMax").text(custom.numMax == "" ? "-" : custom.numMax);
+			if (custom.customType == _TYPE_TEXTAREA) {
+				$("#initialValue").css({
+					"width"		: "500px",
+					"height"	: "80px",
+					"overflow"	: "auto",
+				}).addClass("infoTextarea");
+				$("#initialValue").text(custom.initialValue == "" ? "-" : custom.initialValue.replace(regexp, "<br />"));
+			} else {
+				$("#initialValue").text(custom.initialValue == "" ? "-" : custom.initialValue);
+			}
+			$("#numberingRule").text(custom.numberingRule);
+			if(custom.numberingStartCount != -1){
+				$("#numberingStartCount").text(custom.numberingStartCount);
+			}
+			$("#numberingApplyExisting").attr("src", getCheckImgUrl(custom.numberingApplyExisting))
+			$("#optionList").text(custom.optionList);
+			$("#helpText").text(custom.helpText == "" ? "-" : custom.helpText.replace(regexp, "<br />"));
+			$("#comment").text(custom.comment == "" ? "-" : custom.comment.replace(regexp, "<br />"));
+		}
+		
+		if(_userLang != "ja"){
+			$("#lang" + langMap[_userLang]).insertBefore($("#langJa"));
+		}
+		var labelCount = 3;
+		if (custom.labelJa == "") {
+			$("#langJa").hide();
+			labelCount--;
+		}
+		if (custom.labelEn == "") {
+			$("#langEn").hide();
+			labelCount--;
+		}
+		if (custom.labelZh == "") {
+			$("#langZh").hide();
+			labelCount--;
+		}
+		if (labelCount > 1) {
+			$(".labels").find("td").css({
+				"border-bottom" : "1px #c0c0c0 dotted",
+				"padding"		: "5px 0 5px 0",
+				"display"		: "table-cell",
+			});
+		}
+		
+		var customFieldsList = data.customFieldsList;
+		var labelName = "";
+		var elm = "";
+		var newElm = "";
+		var childElm = "";
+		var target = false;
+		for(var i=0; i < customFieldsList.length; i++){
+			if(customFieldsList[i].id == customFieldId) {
+				target = true;
+			} else {
+				target = false;
+			}
+			if(isTrue(customFieldsList[i].standard)){
+				elm = $("#" + customFieldsList[i].name);
+				elm.attr("id", customFieldsList[i].id);
+				if(target){
+					$("#" + customFieldsList[i].id + " th").addClass("target");
+					$("#" + customFieldsList[i].id + " td").addClass("target");
+				}
+			} else {
+				newElm = $("<tr>").attr("id", customFieldsList[i].id);
+				childElm = $("<th>").text(customFieldsList[i].label);
+				if(target){
+					childElm.addClass("target");
+				}
+				newElm.append(childElm);
+				childElm = $("<td>").text('Sample' + customFieldsList[i].label);
+				if(target){
+					childElm.addClass("target");
+				}
+				newElm.append(childElm);
+				$("#customTbl0").append(newElm);
+			}
+		}
+		
+		positionRearrange(customFieldsList);
+		
+		$("#profileList").jqGrid({
+			data : data.profileList,
+			datatype : "local",
+			colModel :[
+					{name:'proName',index:'proName', width:336,formatter:myFormatter,unformat:myUnformatter},
+					{name:'modifiable',index:'modifiable', width:130, align:"center", formatter:imageFormatter, unformat:myUnformatter},
+					{name:'referenceable',index:'referenceable', width:130, align:"center", formatter:imageFormatter, unformat:myUnformatter},
+			],
+			rowNum : data.profileList.length,
+			height : "auto",
+			autowidth : false,
+			width : 665,
+		});
+		
+		$(".ui-jqgrid-labels").hide();
+		
+		$("#modifiableAll").attr("src", getCheckImgUrl(custom.modifiableAll));
+		$("#referenceableAll").attr("src", getCheckImgUrl(custom.referenceableAll));
+		
+		$("#tab_99").hide();
+		$("#tab_0").show();
+		$("#contents_info_tab_0").click(function(){tab(0);});
+	    $("#contents_info_tab_1").click(function(){tab(1);});
+	    $("#contents_info_tab_2").click(function(){tab(2);});
+		
+		resizeGrid();
+		$(window).resize(resizeGrid);
+	};
+	var callerror = function(data){
+		alert(data);
+	};
+	secureGetAsync('/setup/customfields/customFieldsInfo.json', {edit:false,id:customFieldId,attach:attach}, callback, callerror);
+});
+
+function myFormatter(cellvalue, options, rowObject){
+	if(rowObject['name_raw'] && !rowObject['__initialized_name']){
+		rowObject['__initialized_name'] = true;
+		rowObject['name'] = rowObject['name_raw'];
+	}
+
+	if(cellvalue != null){
+		return $.jgrid.htmlEncode(cellvalue);
+	}
+
+	return "";
+}
+
+function myUnformatter(cellvalue, options, cell){
+	return cellvalue;
+}
+
+function imageFormatter(cellvalue, options, rowObject){
+	if(cellvalue.indexOf('check_on') != -1) {
+		return "<img class=\"checkbox\" src=\"{!URLFOR($Resource.cso, 'image/check_on.png')}\" />";
+	}else{
+		return "<img class=\"checkbox\" src=\"{!URLFOR($Resource.cso, 'image/check_off.png')}\" />";
+	}
+}
+
+function onCancelClicked() {
+	window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingCustomFieldsList))}?attach=' + attach;
+}
+
+function onEditClicked() {
+	window.top.location.href = '{!JSENCODE(URLFOR($Page.SettingCustomFieldsEdit))}?attach=' + attach + "&id=" + customFieldId + "&ref=detail";
+}
+
+function tab(tab){
+    var i = 0;
+    $(".contents_info_tab").each(function(){
+        if(tab == i){
+            $("#tab_" + i).show();
+            $(this).removeClass("contents_info_tab_deactive");
+            $(this).addClass("contents_info_tab_active");
+        }else{
+            $("#tab_" + i).hide();
+            $(this).removeClass("contents_info_tab_active");
+            $(this).addClass("contents_info_tab_deactive");
+        }
+        i++;
+    });
+}
+
+function resizeGrid(){
+	$("#editMain").height(getBrowserHeight() - 350);
+	$(".customTbl").height(getBrowserHeight() - 460);
+	$("#div_pro").height(getBrowserHeight() - 460);
+}
+</script>
+<div id="c_wrapper">
+	<table id="c_container" cellspacing="0" border="0">
+		<tr>
+			<td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+				<apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+			</td>
+			<td id="c_headLeft" nowrap="nowrap">
+				<img id="customfieldsImg" style="display: {!IF(attach == 'contents', 'inline', 'none')}" src="{!URLFOR($Resource.cso, '/image/customfields/custom_item_file.png')}" alt="{!$Label.custom_field_label_00010}" title="{!$Label.custom_field_label_00010}"/>
+				<img id="customfieldsImg" style="display: {!IF(attach == 'space', 'inline', 'none')}" src="{!URLFOR($Resource.cso, '/image/customfields/custom_item_space.png')}" alt="{!$Label.custom_field_label_00011}" title="{!$Label.custom_field_label_00011}"/>
+				<h1 id="c_headLeftTitle">{!$Label.custom_field_label_00009}</h1><br/>
+				<h2 id="c_headLeftSubTitle" style="display: {!IF(attach == 'contents', 'inline', 'none')}">{!$Label.custom_field_label_00010}</h2>
+				<h2 id="c_headLeftSubTitle" style="display: {!IF(attach == 'space', 'inline', 'none')}">{!$Label.custom_field_label_00011}</h2>
+			</td>
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+		</tr>
+		<tr>
+			<td id="c_right" colspan="2">
+				<apex:form >
+					<apex:pageBlock >
+						<apex:pageBlockButtons >
+							<apex:commandButton id="editBtn" value="{!$Label.solxyzcso001__field_common_edit}" onclick="onEditClicked();return false;"/>
+							<apex:commandButton id="cancelBtn" value="{!$Label.solxyzcso001__field_common_cancel}" onclick="onCancelClicked();return false;"/>
+						</apex:pageBlockButtons>
+						<apex:pageBlockSection title="{!$Label.solxyzcso001__label_11053}" collapsible="false"/>
+						
+						<div id="editMain" style="overflow:auto;">
+							<div id="tab_99" class="tabDiv" style="display: block;" >
+								<table>
+								<tr>
+									<td></td>
+								</tr>
+								</table>
+							</div>
+						
+							<div id="tab_0" class="tabDiv" style="display: none;">
+								<div class="step-header">{!$Label.custom_field_label_00048}</div>
+								<table id="customfieldsTbl" class="cstfieTbl">
+									<tr id="itemType">
+										<th>{!$Label.custom_field_label_00012}</th>
+										<td id="customTypeName"></td>
+									</tr>
+									<tr>
+										<th>{!$Label.custom_field_label_00024}</th>
+										<td id="customName"></td>
+									</tr>
+									<tr>
+										<th>{!$Label.custom_field_label_00025}</th>
+										<td>
+											<table class="labels">
+												<tr id="langJa">
+													<td class="label-header" style="width:12%;">{!$Label.custom_field_label_00044}</td>
+													<td id="labelJa"></td>
+												</tr>
+												<tr id="langEn">
+													<td class="label-header">{!$Label.custom_field_label_00045}</td>
+													<td id="labelEn"></td>
+												</tr>
+												<tr id="langZh">
+													<td class="label-header">{!$Label.custom_field_label_00046}</td>
+													<td id="labelZh"></td>
+												</tr>
+											</table>
+										</td>
+									</tr>
+									<tr id="itemLengthMax">
+										<th>{!$Label.custom_field_label_00027}</th>
+										<td id="lengthMax"></td>
+									</tr>
+									<tr id="itemNumMax">
+										<th>{!$Label.custom_field_label_00028}</th>
+										<td id="numMax"></td>
+									</tr>
+									<tr id="itemNumMin">
+										<th>{!$Label.custom_field_label_00029}</th>
+										<td id="numMin"></td>
+									</tr>
+									<tr id="itemOptionList">
+										<th>{!$Label.custom_field_label_00030}</th>
+										<td><textarea id="optionList" class="infoTextarea" style="width: 360px; height: 150px;" disabled="disabled"></textarea></td>
+									</tr>
+									<tr id="itemInitialValue">
+										<th>{!$Label.custom_field_label_00031}</th>
+										<td><div id="initialValue"></div></td>
+									</tr>
+									<tr id="itemNumberingRule">
+										<th>{!$Label.custom_field_label_00032}</th>
+										<td id="numberingRule"></td>
+									</tr>
+									<tr id="itemNumberingStartCount">
+										<th>{!$Label.custom_field_label_00033}</th>
+										<td id="numberingStartCount"></td>
+									</tr>
+									<tr id="itemNumberingApplyExisting">
+										<th></th>
+										<td><img class="checkbox" id="numberingApplyExisting" />{!$Label.custom_field_message_00018}</td>
+									</tr>
+									<tr id="itemRequired">
+										<th>{!$Label.custom_field_label_00034}</th>
+										<td><img id="required" class="checkbox" /></td>
+									</tr>
+									<tr id="itemUnique">
+										<th>{!$Label.custom_field_label_00035}</th>
+										<td><img id="unique" class="checkbox" /></td>
+									</tr>
+									<tr id="itemHelpText">
+										<th>{!$Label.custom_field_label_00036}</th>
+										<td><div id="helpText" class="infoTextarea" style="width:500px;height:80px;"></div></td>
+									</tr>
+									<tr id="itemComment">
+										<th>{!$Label.custom_field_label_00037}</th>
+										<td><div id="comment" class="infoTextarea" style="width:500px;height:80px;"></div></td>
+									</tr>
+								</table>
+							</div>
+							
+							<div id="tab_1" class="tabDiv" style="display: none;">
+								<div class="step-header">{!$Label.custom_field_label_00049}</div>
+								<apex:outputPanel rendered="{!IF(attach == 'contents', true, false)}">
+									<fieldset class="customTbl">
+										<table id="customTbl0" class="positionTbl" cellpadding="7">
+											<tr id="name">
+												<th>{!$Label.label_10011}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_10011}</td>
+											</tr>
+											<tr id="explanation">
+												<th>{!$Label.label_10012}</th>
+												<td>
+													<textarea class="c_textarea_m" readonly="readonly" disabled="disabled">{!$Label.custom_field_label_00008}{!$Label.label_10012}</textarea>
+												</td>
+											</tr>
+											<tr id="tag">
+												<th>{!$Label.label_10763}</th>
+												<td>
+													<input type="text" style="width:320px;height:20px;" readonly="readonly" disabled="disabled" value="{!$Label.custom_field_label_00008}{!$Label.label_10763}"/>
+												</td>
+											</tr>
+											<tr id="version">
+												<th>{!$Label.label_11032}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_11032}</td>
+											</tr>
+										</table>
+										<div style="clear: both;"></div>
+										<table class="registerTbl">
+											<tr>
+												<th>{!$Label.label_10015}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_10015}</td>
+												<th>{!$Label.label_10014}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_10014}</td>
+											</tr>
+											<tr>
+												<th>{!$Label.label_10024}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_10024}</td>
+												<th>{!$Label.label_10018}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_10018}</td>
+											</tr>
+										</table>
+									</fieldset>
+								</apex:outputPanel>
+								<apex:outputPanel rendered="{!IF(attach == 'space', true, false)}">
+									<fieldset class="customTbl">
+										<table id="customTbl0" class="positionTbl" cellpadding="7">
+											<tr id="name">
+												<th>{!$Label.label_11061}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_11061}</td>
+											</tr>
+											<tr id="explanation">
+												<th>{!$Label.label_10012}</th>
+												<td>
+													<textarea class="c_textarea_m" readonly="readonly" disabled="disabled">{!$Label.custom_field_label_00008}{!$Label.label_10012}</textarea>
+												</td>
+											</tr>
+											<tr id="chatter">
+												<th>{!$Label.label_13224}</th>
+												<td>
+													<input type="text" style="width:320px;height:20px;" readonly="readonly" disabled="disabled" value="{!$Label.custom_field_label_00008}{!$Label.label_13224}"/>
+												</td>
+											</tr>
+										</table>
+										<div style="clear: both;"></div>
+										<table class="registerTbl">
+											<tr>
+												<th>{!$Label.label_10015}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_10015}</td>
+												<th>{!$Label.label_10014}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_10014}</td>
+											</tr>
+											<tr>
+												<th>{!$Label.label_10024}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_10024}</td>
+												<th>{!$Label.label_10018}</th>
+												<td>{!$Label.custom_field_label_00008}{!$Label.label_10018}</td>
+											</tr>
+										</table>
+									</fieldset>
+								</apex:outputPanel>
+							</div>
+							
+							<div id="tab_2" class="tabDiv" style="display: none;">
+								<div class="step-header">{!$Label.custom_field_label_00050}</div>
+								<table class="profileTbl">
+									<tr>
+										<th style="width: 290px">{!$Label.label_10028}</th>
+										<th style="width: 125px; text-align: center; padding: 0;"><img id="modifiableAll" class="checkbox" />{!$Label.custom_field_label_00040}</th>
+										<th style="width: 125px; text-align: center; padding: 0;"><img id="referenceableAll" class="checkbox" />{!$Label.custom_field_label_00041}</th>
+										<th style="width: 20px;"></th>
+									</tr>
+									<tr style="vertical-align:top;">
+										<td colspan="4">
+											<div id="div_pro" class="profileList">
+												<table id="profileList"></table>
+											</div>
+										</td>
+									</tr>
+								</table>
+							</div>
+							
+						</div>
+						
+						<div style="background-color: #00B392; height: 50px; width: 100%;">
+							<ul id="contents_info_tab">
+								<li id="contents_info_tab_0" class="contents_info_tab contents_info_tab_active">{!$Label.custom_field_label_00051}</li>
+								<li id="contents_info_tab_1" class="contents_info_tab contents_info_tab_deactive">{!$Label.custom_field_label_00052}</li>
+								<li id="contents_info_tab_2" class="contents_info_tab contents_info_tab_deactive">{!$Label.custom_field_label_00053}</li>
+							</ul>
+						</div>
+					</apex:pageBlock>
+					<div id="tooltip" class="tooltip"></div>
+				</apex:form>
+			</td>
+		</tr>
+	</table>
+	<div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight"/>
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(userInfo.uid == null && userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

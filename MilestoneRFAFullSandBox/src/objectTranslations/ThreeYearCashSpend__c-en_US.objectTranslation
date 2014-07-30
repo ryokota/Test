@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Three Year Cash Spend</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Three Year Cash Spend</value>
+    </caseValues>
+    <fields>
+        <label><!-- Incremental Volume --></label>
+        <name>IncrementalVolumebyYear__c</name>
+    </fields>
+    <fields>
+        <label><!-- Q1 Cash Spend (JPY) --></label>
+        <name>Q1CashSpendFunc__c</name>
+    </fields>
+    <fields>
+        <label><!-- Q2 Cash Spend (JPY) --></label>
+        <name>Q2CashSpendFunc__c</name>
+    </fields>
+    <fields>
+        <label><!-- Q3 Cash Spend (JPY) --></label>
+        <name>Q3CashSpendFunc__c</name>
+    </fields>
+    <fields>
+        <label><!-- Q4 Cash Spend (JPY) --></label>
+        <name>Q4CashSpendFunc__c</name>
+    </fields>
+    <fields>
+        <label><!-- RFA --></label>
+        <name>RFA__c</name>
+        <relationshipLabel><!-- 3ヵ年現金支出 --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Annual Cash Spend (000JPY) --></label>
+        <name>Report_Annual_Cash_Spend_000JPY__c</name>
+    </fields>
+    <fields>
+        <label><!-- Annual Cash Spend (JPY) --></label>
+        <name>X3YearCashSpendFunc__c</name>
+    </fields>
+    <fields>
+        <label><!-- Year --></label>
+        <name>Year__c</name>
+    </fields>
+    <layouts>
+        <layout>Additional Years Layout</layout>
+        <sections>
+            <label><!-- Annual Cash Spend &amp; Incremental Volume --></label>
+            <section>Annual Cash Spend &amp; Incremental Volume</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Three Year Cash Spend Layout</layout>
+        <sections>
+            <label><!-- Annual Cash Spend &amp; Incremental Volume --></label>
+            <section>Annual Cash Spend &amp; Incremental Volume</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- Quarterly Cash Spend Details --></label>
+            <section>Quarterly Cash Spend Details</section>
+        </sections>
+    </layouts>
+    <recordTypes>
+        <label><!-- Additional Years --></label>
+        <name>Additional_Years</name>
+    </recordTypes>
+    <startsWith>Consonant</startsWith>
+    <validationRules>
+        <errorMessage><!-- The total of the Quarterly Spend amounts must equal the Annual Cash Spend amount. --></errorMessage>
+        <name>Total_check_for_all_spend</name>
+    </validationRules>
+</CustomObjectTranslation>

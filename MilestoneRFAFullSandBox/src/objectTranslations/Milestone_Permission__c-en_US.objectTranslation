@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Project Team Member</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Project Team Member</value>
+    </caseValues>
+    <fields>
+        <label>Access Level</label>
+        <name>ProjectRole__c</name>
+        <picklistValues>
+            <masterLabel>Editable(Non-Members)</masterLabel>
+            <translation>Editable(Non-Members)</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Modify All</masterLabel>
+            <translation>Modify All</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Read Only</masterLabel>
+            <translation>Read Only</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Project Name</label>
+        <name>Project__c</name>
+        <relationshipLabel>Project Team Member</relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Expected Roles --></label>
+        <name>RM_Expected_Roles__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function --></label>
+        <name>RM_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- Sub Function --></label>
+        <name>RM_Sub_Function__c</name>
+    </fields>
+    <fields>
+        <label><!-- UniqueId --></label>
+        <name>UniqueId__c</name>
+    </fields>
+    <fields>
+        <label>User Name</label>
+        <name>UserName__c</name>
+        <relationshipLabel>Project Team Member</relationshipLabel>
+    </fields>
+    <layouts>
+        <layout>Milestone_PermissionLayout</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>Team No</nameFieldLabel>
+    <startsWith>Consonant</startsWith>
+    <validationRules>
+        <errorMessage>Please set the role.</errorMessage>
+        <name>RoleNotSetting</name>
+    </validationRules>
+</CustomObjectTranslation>

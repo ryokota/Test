@@ -1,0 +1,7 @@
+<apex:page controller="SelectedListController">
+        <apex:form >
+                <apex:repeat var="test" value="{!chkSet}">
+                        <apex:inputCheckbox value="{!chk}" disabled="{!chk}"/>
+                </apex:repeat>
+        </apex:form>
+</apex:page>

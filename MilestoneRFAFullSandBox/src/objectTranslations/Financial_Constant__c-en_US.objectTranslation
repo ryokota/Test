@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Financial Constant</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Financial Constants</value>
+    </caseValues>
+    <fields>
+        <label><!-- Consumption Tax (%) --></label>
+        <name>Consumption_Tax__c</name>
+    </fields>
+    <fields>
+        <label><!-- Tax Rate (%) --></label>
+        <name>Tax_Rate__c</name>
+    </fields>
+    <fields>
+        <label><!-- WACC (%) --></label>
+        <name>WACC__c</name>
+    </fields>
+    <fields>
+        <label><!-- isActive --></label>
+        <name>isActive__c</name>
+    </fields>
+    <layouts>
+        <layout>Consumption Tax Layout</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>TaxRate Layout</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>WACC</layout>
+        <sections>
+            <label><!-- カスタムリンク --></label>
+            <section>カスタムリンク</section>
+        </sections>
+    </layouts>
+    <recordTypes>
+        <label><!-- Consumption Tax --></label>
+        <name>Consumption_Tax</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- Tax Rate --></label>
+        <name>Tax_Rate</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- WACC --></label>
+        <name>WACC</name>
+    </recordTypes>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

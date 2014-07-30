@@ -1,0 +1,3108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>COA</value>
+    </caseValues>
+    <fields>
+        <label>取締役会</label>
+        <name>BOD__c</name>
+    </fields>
+    <fields>
+        <label><!-- Approver Final Level --></label>
+        <name>CM_Approver_Final_Level__c</name>
+        <picklistValues>
+            <masterLabel>L1</masterLabel>
+            <translation><!-- L1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L10</masterLabel>
+            <translation><!-- L10 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L11</masterLabel>
+            <translation><!-- L11 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L12</masterLabel>
+            <translation><!-- L12 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L13</masterLabel>
+            <translation><!-- L13 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L2</masterLabel>
+            <translation><!-- L2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L3</masterLabel>
+            <translation><!-- L3 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L4</masterLabel>
+            <translation><!-- L4 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L5</masterLabel>
+            <translation><!-- L5 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L6</masterLabel>
+            <translation><!-- L6 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L7</masterLabel>
+            <translation><!-- L7 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L8</masterLabel>
+            <translation><!-- L8 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L9</masterLabel>
+            <translation><!-- L9 --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Approver Random Order --></label>
+        <name>CM_Approver_Random_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- Approver Steps --></label>
+        <name>CM_Approver_Steps__c</name>
+    </fields>
+    <fields>
+        <label><!-- Category --></label>
+        <name>CM_Category__c</name>
+        <picklistValues>
+            <masterLabel>1. Approval of Field Sales Operation and VM Customer Agreement</masterLabel>
+            <translation><!-- 1. Approval of Field Sales Operation and VM Customer Agreement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Pricing</masterLabel>
+            <translation><!-- 1. Pricing --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Approval of Customer Agreement for CS KAM</masterLabel>
+            <translation><!-- 2. Approval of Customer Agreement for CS KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. DME</masterLabel>
+            <translation><!-- 2. DME --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Approval of Customer Agreement for Food KAM</masterLabel>
+            <translation><!-- 3. Approval of Customer Agreement for Food KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Approval of Customer Agreement for SAKAYA KAM</masterLabel>
+            <translation><!-- 4. Approval of Customer Agreement for SAKAYA KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</masterLabel>
+            <translation><!-- 5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>6. Approval of Customer Agreement for Corporate KAM</masterLabel>
+            <translation><!-- 6. Approval of Customer Agreement for Corporate KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>8. Approval of Customer Agreement for FV</masterLabel>
+            <translation><!-- 8. Approval of Customer Agreement for FV --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- L10_10 --></label>
+        <name>CM_L10_10__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_1 --></label>
+        <name>CM_L10_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_2 --></label>
+        <name>CM_L10_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_3 --></label>
+        <name>CM_L10_3__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_4 --></label>
+        <name>CM_L10_4__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_5 --></label>
+        <name>CM_L10_5__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_6 --></label>
+        <name>CM_L10_6__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_7 --></label>
+        <name>CM_L10_7__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_8 --></label>
+        <name>CM_L10_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_9 --></label>
+        <name>CM_L10_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10 Kizai --></label>
+        <name>CM_L10_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_Mapping --></label>
+        <name>CM_L10_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L10_Order --></label>
+        <name>CM_L10_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_10 --></label>
+        <name>CM_L11_10__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_1 --></label>
+        <name>CM_L11_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_2 --></label>
+        <name>CM_L11_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_3 --></label>
+        <name>CM_L11_3__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_4 --></label>
+        <name>CM_L11_4__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_5 --></label>
+        <name>CM_L11_5__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_6 --></label>
+        <name>CM_L11_6__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_7 --></label>
+        <name>CM_L11_7__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_8 --></label>
+        <name>CM_L11_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_9 --></label>
+        <name>CM_L11_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11 Kizai --></label>
+        <name>CM_L11_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_Mapping --></label>
+        <name>CM_L11_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L11_Order --></label>
+        <name>CM_L11_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_10 --></label>
+        <name>CM_L12_10__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_1 --></label>
+        <name>CM_L12_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_2 --></label>
+        <name>CM_L12_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_3 --></label>
+        <name>CM_L12_3__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_4 --></label>
+        <name>CM_L12_4__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_5 --></label>
+        <name>CM_L12_5__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_6 --></label>
+        <name>CM_L12_6__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_7 --></label>
+        <name>CM_L12_7__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_8 --></label>
+        <name>CM_L12_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_9 --></label>
+        <name>CM_L12_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12 Kizai --></label>
+        <name>CM_L12_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_Mapping --></label>
+        <name>CM_L12_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L12_Order --></label>
+        <name>CM_L12_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_10 --></label>
+        <name>CM_L13_10__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_1 --></label>
+        <name>CM_L13_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_2 --></label>
+        <name>CM_L13_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_3 --></label>
+        <name>CM_L13_3__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_4 --></label>
+        <name>CM_L13_4__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_5 --></label>
+        <name>CM_L13_5__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_6 --></label>
+        <name>CM_L13_6__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_7 --></label>
+        <name>CM_L13_7__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_8 --></label>
+        <name>CM_L13_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_9 --></label>
+        <name>CM_L13_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13 Kizai --></label>
+        <name>CM_L13_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_Mapping --></label>
+        <name>CM_L13_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L13_Order --></label>
+        <name>CM_L13_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L1_1 --></label>
+        <name>CM_L1_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L1_2 --></label>
+        <name>CM_L1_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L1 Kizai --></label>
+        <name>CM_L1_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L1_Mapping --></label>
+        <name>CM_L1_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L1_Order --></label>
+        <name>CM_L1_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L2_1 --></label>
+        <name>CM_L2_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L2_2 --></label>
+        <name>CM_L2_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L2 Kizai --></label>
+        <name>CM_L2_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L2_Mapping --></label>
+        <name>CM_L2_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L2_Order --></label>
+        <name>CM_L2_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L3_1 --></label>
+        <name>CM_L3_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L3_2 --></label>
+        <name>CM_L3_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L3 Kizai --></label>
+        <name>CM_L3_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L3_Mapping --></label>
+        <name>CM_L3_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L3_Order --></label>
+        <name>CM_L3_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L4_1 --></label>
+        <name>CM_L4_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L4_2 --></label>
+        <name>CM_L4_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L4 Kizai --></label>
+        <name>CM_L4_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L4_Mapping --></label>
+        <name>CM_L4_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L4_Order --></label>
+        <name>CM_L4_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_10 --></label>
+        <name>CM_L5_10__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_1 --></label>
+        <name>CM_L5_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_2 --></label>
+        <name>CM_L5_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_3 --></label>
+        <name>CM_L5_3__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_4 --></label>
+        <name>CM_L5_4__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_5 --></label>
+        <name>CM_L5_5__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_6 --></label>
+        <name>CM_L5_6__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_7 --></label>
+        <name>CM_L5_7__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_8 --></label>
+        <name>CM_L5_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_9 --></label>
+        <name>CM_L5_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5 Kizai --></label>
+        <name>CM_L5_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_Mapping --></label>
+        <name>CM_L5_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L5_Order --></label>
+        <name>CM_L5_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_10 --></label>
+        <name>CM_L6_10__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_1 --></label>
+        <name>CM_L6_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_2 --></label>
+        <name>CM_L6_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_3 --></label>
+        <name>CM_L6_3__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_4 --></label>
+        <name>CM_L6_4__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_5 --></label>
+        <name>CM_L6_5__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_6 --></label>
+        <name>CM_L6_6__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_7 --></label>
+        <name>CM_L6_7__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_8 --></label>
+        <name>CM_L6_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_9 --></label>
+        <name>CM_L6_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6 Kizai --></label>
+        <name>CM_L6_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_Mapping --></label>
+        <name>CM_L6_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L6_Order --></label>
+        <name>CM_L6_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_10 --></label>
+        <name>CM_L7_10__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_1 --></label>
+        <name>CM_L7_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_2 --></label>
+        <name>CM_L7_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_3 --></label>
+        <name>CM_L7_3__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_4 --></label>
+        <name>CM_L7_4__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_5 --></label>
+        <name>CM_L7_5__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_6 --></label>
+        <name>CM_L7_6__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_7 --></label>
+        <name>CM_L7_7__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_8 --></label>
+        <name>CM_L7_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_9 --></label>
+        <name>CM_L7_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7 Kizai --></label>
+        <name>CM_L7_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_Mapping --></label>
+        <name>CM_L7_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L7_Order --></label>
+        <name>CM_L7_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_10 --></label>
+        <name>CM_L8_10__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_1 --></label>
+        <name>CM_L8_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_2 --></label>
+        <name>CM_L8_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_3 --></label>
+        <name>CM_L8_3__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_4 --></label>
+        <name>CM_L8_4__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_5 --></label>
+        <name>CM_L8_5__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_6 --></label>
+        <name>CM_L8_6__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_7 --></label>
+        <name>CM_L8_7__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_8 --></label>
+        <name>CM_L8_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_9 --></label>
+        <name>CM_L8_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8 Kizai --></label>
+        <name>CM_L8_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_Mapping --></label>
+        <name>CM_L8_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L8_Order --></label>
+        <name>CM_L8_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_10 --></label>
+        <name>CM_L9_10__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_1 --></label>
+        <name>CM_L9_1__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_2 --></label>
+        <name>CM_L9_2__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_3 --></label>
+        <name>CM_L9_3__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_4 --></label>
+        <name>CM_L9_4__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_5 --></label>
+        <name>CM_L9_5__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_6 --></label>
+        <name>CM_L9_6__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_7 --></label>
+        <name>CM_L9_7__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_8 --></label>
+        <name>CM_L9_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_9 --></label>
+        <name>CM_L9_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9 Kizai --></label>
+        <name>CM_L9_Kizai__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_Mapping --></label>
+        <name>CM_L9_Mapping__c</name>
+    </fields>
+    <fields>
+        <label><!-- L9_Order --></label>
+        <name>CM_L9_Order__c</name>
+    </fields>
+    <fields>
+        <label><!-- CMPrimary COA Sub Category 1 --></label>
+        <name>CM_PrimaryCOASubCategory__c</name>
+        <picklistValues>
+            <masterLabel>1. Approval of Field Sales Operation and VM Customer Agreement</masterLabel>
+            <translation><!-- 1. Approval of Field Sales Operation and VM Customer Agreement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Approval of Customer Agreement for CS KAM</masterLabel>
+            <translation><!-- 2. Approval of Customer Agreement for CS KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Approval of Customer Agreement for Food KAM</masterLabel>
+            <translation><!-- 3. Approval of Customer Agreement for Food KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Approval of Customer Agreement for SAKAYA KAM</masterLabel>
+            <translation><!-- 4. Approval of Customer Agreement for SAKAYA KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter</masterLabel>
+            <translation><!-- 5. Approval of Customer Agreement for VM Corporate Sales&amp;Hunter --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>6. Approval of Customer Agreement for Corporate KAM</masterLabel>
+            <translation><!-- 6. Approval of Customer Agreement for Corporate KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>7. Approval of Customer Agreement for FV - Corporate Sales</masterLabel>
+            <translation><!-- 7. Approval of Customer Agreement for FV - Corporate Sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>7. Approval of Customer Agreement for FV - OCS, Shop Caffe</masterLabel>
+            <translation><!-- 7. Approval of Customer Agreement for FV - OCS, Shop Caffe --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>7. Approval of Customer Agreement for FV - VM</masterLabel>
+            <translation><!-- 7. Approval of Customer Agreement for FV - VM --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- CMPrimary COA Category C1 --></label>
+        <name>CM_Primary_COA_Category_C1__c</name>
+        <picklistValues>
+            <masterLabel>C. Price promotion for Marketing &amp; Commercial leadership</masterLabel>
+            <translation><!-- C. Price promotion for Marketing &amp; Commercial leadership --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- CMPrimary COA Category C2 --></label>
+        <name>CM_Primary_COA_Category_C2__c</name>
+        <picklistValues>
+            <masterLabel>1. Price promotion for Marketing &amp; Commercial leadership　1. Price</masterLabel>
+            <translation><!-- 1. Price promotion for Marketing &amp; Commercial leadership　1. Price --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Price promotion for Marketing &amp; Commercial leadership　2. Sales promotion expenses</masterLabel>
+            <translation><!-- 1. Price promotion for Marketing &amp; Commercial leadership　2. Sales promotion expenses --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Flush out</masterLabel>
+            <translation><!-- 2. Flush out --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Z. Other</masterLabel>
+            <translation><!-- Z. Other --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- CMPrimary COA Category C3 --></label>
+        <name>CM_Primary_COA_Category_C3__c</name>
+        <picklistValues>
+            <masterLabel>1. Flush out</masterLabel>
+            <translation><!-- 1. Flush out --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Non-price promotion (National)</masterLabel>
+            <translation><!-- 1. Non-price promotion (National) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Price promotion (wholesale price)</masterLabel>
+            <translation><!-- 1. Price promotion (wholesale price) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Non-price promotion (Local)</masterLabel>
+            <translation><!-- 2. Non-price promotion (Local) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Selling price promotion (full service VM)</masterLabel>
+            <translation><!-- 2. Selling price promotion (full service VM) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Media expense</masterLabel>
+            <translation><!-- 3. Media expense --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. New product sample</masterLabel>
+            <translation><!-- 4. New product sample --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5. POS material,Event, incentive, sponsor connection, other sales promotion-related expenses</masterLabel>
+            <translation><!-- 5. POS material,Event, incentive, sponsor connection, other sales promotion-related expenses --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- CMPrimary COA Category C4 --></label>
+        <name>CM_Primary_COA_Category_C4__c</name>
+        <picklistValues>
+            <masterLabel>1. Total amount per transaction ＞ 100,000,000 yen</masterLabel>
+            <translation><!-- 1. Total amount per transaction ＞ 100,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Total amount per transaction ＞ 50,000,000 yen</masterLabel>
+            <translation><!-- 1. Total amount per transaction ＞ 50,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. ＞ 25,000,000 yen and ≦ 50,000,000 yen</masterLabel>
+            <translation><!-- 2. ＞ 25,000,000 yen and ≦ 50,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. ＞ 50,000,000 yen and ≦ 100,000,000 yen</masterLabel>
+            <translation><!-- 2. ＞ 50,000,000 yen and ≦ 100,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. ＞ 20,000,000 yen and ≦ 50,000,000 yen</masterLabel>
+            <translation><!-- 3. ＞ 20,000,000 yen and ≦ 50,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. ＞ 5,000,000 yen and ≦ 25,000,000 yen</masterLabel>
+            <translation><!-- 3. ＞ 5,000,000 yen and ≦ 25,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. ≦ 20,000,000 yen</masterLabel>
+            <translation><!-- 4. ≦ 20,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. ≦ 5,000,000 yen</masterLabel>
+            <translation><!-- 4. ≦ 5,000,000 yen --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Sub Category B8 --></label>
+        <name>CM_Sub_Category_B8__c</name>
+        <picklistValues>
+            <masterLabel>a. Non-standard Equipment</masterLabel>
+            <translation><!-- a. Non-standard Equipment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Vending Equipment parts</masterLabel>
+            <translation><!-- b. Vending Equipment parts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>c. Incidental work</masterLabel>
+            <translation><!-- c. Incidental work --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>d. Vending Equipment Lease</masterLabel>
+            <translation><!-- d. Vending Equipment Lease --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>e. Equipment retirement</masterLabel>
+            <translation><!-- e. Equipment retirement --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Sub Category --></label>
+        <name>CM_Sub_Category__c</name>
+        <picklistValues>
+            <masterLabel>01. Contract unit price</masterLabel>
+            <translation><!-- 01. Contract unit price --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>02. Special price / Promotion discount</masterLabel>
+            <translation><!-- 02. Special price / Promotion discount --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>03. FS selling price</masterLabel>
+            <translation><!-- 03. FS selling price --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>04. FS commission (Variable)</masterLabel>
+            <translation><!-- 04. FS commission (Variable) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>05. FS commission (Fixed)</masterLabel>
+            <translation><!-- 05. FS commission (Fixed) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>06. Key money / Rebate / Spot / Other</masterLabel>
+            <translation><!-- 06. Key money / Rebate / Spot / Other --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>07. Only in the case of Rebate</masterLabel>
+            <translation><!-- 07. Only in the case of Rebate --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>08. Other support</masterLabel>
+            <translation><!-- 08. Other support --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>09. Promotion / Other expense</masterLabel>
+            <translation><!-- 09. Promotion / Other expense --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>10. Promotion (Cooperation / Sampling)</masterLabel>
+            <translation><!-- 10. Promotion (Cooperation / Sampling) --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Sub-sub Category B8 --></label>
+        <name>CM_Sub_sub_Category_B8__c</name>
+        <picklistValues>
+            <masterLabel>1. Application for Non-standard Equipment</masterLabel>
+            <translation><!-- 1. Application for Non-standard Equipment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Application for Vending Equipment Leases</masterLabel>
+            <translation><!-- 1. Application for Vending Equipment Leases --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Depletion treatment of equipment whose whereabouts are unaccounted for</masterLabel>
+            <translation><!-- Depletion treatment of equipment whose whereabouts are unaccounted for --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Necessity of sales/transfer</masterLabel>
+            <translation><!-- Necessity of sales/transfer --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Total amount per transaction ≦ 100,000 yen</masterLabel>
+            <translation><!-- Total amount per transaction ≦ 100,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Total amount per transaction ≦ 500,000 yen</masterLabel>
+            <translation><!-- Total amount per transaction ≦ 500,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Total amount per transaction ＞ 100,000 yen</masterLabel>
+            <translation><!-- Total amount per transaction ＞ 100,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Total amount per transaction ＞ 500,000 yen</masterLabel>
+            <translation><!-- Total amount per transaction ＞ 500,000 yen --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Sub-sub Category --></label>
+        <name>CM_Sub_sub_Category__c</name>
+        <picklistValues>
+            <masterLabel>--- 01. Contract unit price ---</masterLabel>
+            <translation><!-- - - - 01. Contract unit price - - - --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Category A</masterLabel>
+            <translation><!-- Category A --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Category B</masterLabel>
+            <translation><!-- Category B --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Category C</masterLabel>
+            <translation><!-- Category C --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Dealings by OCS</masterLabel>
+            <translation><!-- Dealings by OCS --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Outside of the object of approval</masterLabel>
+            <translation><!-- Outside of the object of approval --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Pay in fixed amount</masterLabel>
+            <translation><!-- Pay in fixed amount --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Per deal ≦ 10 cases and ≦ 20,000 yen</masterLabel>
+            <translation><!-- Per deal ≦ 10 cases and ≦ 20,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Per deal ≦ 50 cases and ≦ 100,000 yen</masterLabel>
+            <translation><!-- Per deal ≦ 50 cases and ≦ 100,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Per deal ＞ 10 cases and ≦ 50 cases, ＞ 20,000 yen and ≦ 100,000 yen</masterLabel>
+            <translation><!-- Per deal ＞ 10 cases and ≦ 50 cases, ＞ 20,000 yen and ≦ 100,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Per deal ＞ 10 cases and ＞ 20,000 yen</masterLabel>
+            <translation><!-- Per deal ＞ 10 cases and ＞ 20,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Per deal ＞ 50 cases or ＞ 100,000 yen</masterLabel>
+            <translation><!-- Per deal ＞ 50 cases or ＞ 100,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Standard wholesale price, and set above the standard wholesale price</masterLabel>
+            <translation><!-- Standard wholesale price, and set above the standard wholesale price --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>The deletion request of registration</masterLabel>
+            <translation><!-- The deletion request of registration --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Total amount per transaction ＞ 10,000,000 yen</masterLabel>
+            <translation><!-- Total amount per transaction ＞ 10,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Total amount per transaction ＞ 25,000,000 yen</masterLabel>
+            <translation><!-- Total amount per transaction ＞ 25,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Total amount per transaction ＞ 50,000,000 yen</masterLabel>
+            <translation><!-- Total amount per transaction ＞ 50,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>≦ 1,000,000 yen</masterLabel>
+            <translation><!-- ≦ 1,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>≦ 100,000 yen</masterLabel>
+            <translation><!-- ≦ 100,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>≦ 250,000 yen</masterLabel>
+            <translation><!-- ≦ 250,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>≦ 3,000,000 yen</masterLabel>
+            <translation><!-- ≦ 3,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>≦ 5,000,000 yen</masterLabel>
+            <translation><!-- ≦ 5,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 1,000,000 yen and ≦ 10,000,000 yen</masterLabel>
+            <translation><!-- ＞ 1,000,000 yen and ≦ 10,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 1,000,000 yen and ≦ 25,000,000 yen</masterLabel>
+            <translation><!-- ＞ 1,000,000 yen and ≦ 25,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 1,000,000 yen and ≦ 5,000,000 yen</masterLabel>
+            <translation><!-- ＞ 1,000,000 yen and ≦ 5,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 10,000,000 yen and ≦ 25,000,000 yen</masterLabel>
+            <translation><!-- ＞ 10,000,000 yen and ≦ 25,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 10,000,000 yen and ≦ 30,000,000 yen</masterLabel>
+            <translation><!-- ＞ 10,000,000 yen and ≦ 30,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 100,000 yen and ≦ 1,000,000 yen</masterLabel>
+            <translation><!-- ＞ 100,000 yen and ≦ 1,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 15,000,000 yen and ≦ 30,000,000 yen</masterLabel>
+            <translation><!-- ＞ 15,000,000 yen and ≦ 30,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 25,000,000 yen and ≦ 35,000,000 yen</masterLabel>
+            <translation><!-- ＞ 25,000,000 yen and ≦ 35,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 25,000,000 yen and ≦ 50,000,000 yen</masterLabel>
+            <translation><!-- ＞ 25,000,000 yen and ≦ 50,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 250,000 yen and ≦ 1,000,000 yen</masterLabel>
+            <translation><!-- ＞ 250,000 yen and ≦ 1,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 3,000,000 yen and ≦ 10,000,000 yen</masterLabel>
+            <translation><!-- ＞ 3,000,000 yen and ≦ 10,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 30,000,000 yen and ≦ 40,000,000 yen</masterLabel>
+            <translation><!-- ＞ 30,000,000 yen and ≦ 40,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 30,000,000 yen and ≦ 50,000,000 yen</masterLabel>
+            <translation><!-- ＞ 30,000,000 yen and ≦ 50,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 35,000,000 yen and ≦ 50,000,000 yen</masterLabel>
+            <translation><!-- ＞ 35,000,000 yen and ≦ 50,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 40,000,000 yen and ≦ 50,000,000 yen</masterLabel>
+            <translation><!-- ＞ 40,000,000 yen and ≦ 50,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 5,000,000 yen and ≦ 10,000,000 yen</masterLabel>
+            <translation><!-- ＞ 5,000,000 yen and ≦ 10,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 5,000,000 yen and ≦ 15,000,000 yen</masterLabel>
+            <translation><!-- ＞ 5,000,000 yen and ≦ 15,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 5,000,000 yen and ≦ 7,500,000 yen</masterLabel>
+            <translation><!-- ＞ 5,000,000 yen and ≦ 7,500,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 7,500,000 yen and ≦ 10,000,000 yen</masterLabel>
+            <translation><!-- ＞ 7,500,000 yen and ≦ 10,000,000 yen --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>各種委員会</label>
+        <name>Committee__c</name>
+    </fields>
+    <fields>
+        <label><!-- ELT 1 --></label>
+        <name>ELT_1__c</name>
+        <picklistValues>
+            <masterLabel>CBIO</masterLabel>
+            <translation><!-- CBIO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCO</masterLabel>
+            <translation><!-- CCO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CEO</masterLabel>
+            <translation><!-- CEO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CFO</masterLabel>
+            <translation><!-- CFO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CHRO</masterLabel>
+            <translation><!-- CHRO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CITO</masterLabel>
+            <translation><!-- CITO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CLO</masterLabel>
+            <translation><!-- CLO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>COP</masterLabel>
+            <translation><!-- COP --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPACO</masterLabel>
+            <translation><!-- CPACO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CSCO</masterLabel>
+            <translation><!-- CSCO --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- ELT 2 --></label>
+        <name>ELT_2__c</name>
+        <picklistValues>
+            <masterLabel>CBIO</masterLabel>
+            <translation><!-- CBIO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCO</masterLabel>
+            <translation><!-- CCO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CEO</masterLabel>
+            <translation><!-- CEO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CFO</masterLabel>
+            <translation><!-- CFO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CHRO</masterLabel>
+            <translation><!-- CHRO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CITO</masterLabel>
+            <translation><!-- CITO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CLO</masterLabel>
+            <translation><!-- CLO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPACO</masterLabel>
+            <translation><!-- CPACO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPO</masterLabel>
+            <translation><!-- CPO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CSCO</masterLabel>
+            <translation><!-- CSCO --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- ELT 3 --></label>
+        <name>ELT_3__c</name>
+        <picklistValues>
+            <masterLabel>CBIO</masterLabel>
+            <translation><!-- CBIO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCO</masterLabel>
+            <translation><!-- CCO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CEO</masterLabel>
+            <translation><!-- CEO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CFO</masterLabel>
+            <translation><!-- CFO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CHRO</masterLabel>
+            <translation><!-- CHRO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CITO</masterLabel>
+            <translation><!-- CITO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CLO</masterLabel>
+            <translation><!-- CLO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>COP</masterLabel>
+            <translation><!-- COP --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPACO</masterLabel>
+            <translation><!-- CPACO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CSCO</masterLabel>
+            <translation><!-- CSCO --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- ELT 4 --></label>
+        <name>ELT_4__c</name>
+        <picklistValues>
+            <masterLabel>CBIO</masterLabel>
+            <translation><!-- CBIO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCO</masterLabel>
+            <translation><!-- CCO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CEO</masterLabel>
+            <translation><!-- CEO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CFO</masterLabel>
+            <translation><!-- CFO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CHRO</masterLabel>
+            <translation><!-- CHRO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CITO</masterLabel>
+            <translation><!-- CITO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CLO</masterLabel>
+            <translation><!-- CLO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>COP</masterLabel>
+            <translation><!-- COP --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPACO</masterLabel>
+            <translation><!-- CPACO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CSCO</masterLabel>
+            <translation><!-- CSCO --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- ELT 5 --></label>
+        <name>ELT_5__c</name>
+        <picklistValues>
+            <masterLabel>CBIO</masterLabel>
+            <translation><!-- CBIO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCO</masterLabel>
+            <translation><!-- CCO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CEO</masterLabel>
+            <translation><!-- CEO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CFO</masterLabel>
+            <translation><!-- CFO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CHRO</masterLabel>
+            <translation><!-- CHRO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CITO</masterLabel>
+            <translation><!-- CITO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CLO</masterLabel>
+            <translation><!-- CLO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPACO</masterLabel>
+            <translation><!-- CPACO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPO</masterLabel>
+            <translation><!-- CPO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CSCO</masterLabel>
+            <translation><!-- CSCO --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- ELT 6 --></label>
+        <name>ELT_6__c</name>
+        <picklistValues>
+            <masterLabel>CBIO</masterLabel>
+            <translation><!-- CBIO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCO</masterLabel>
+            <translation><!-- CCO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CEO</masterLabel>
+            <translation><!-- CEO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CFO</masterLabel>
+            <translation><!-- CFO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CHRO</masterLabel>
+            <translation><!-- CHRO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CITO</masterLabel>
+            <translation><!-- CITO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CLO</masterLabel>
+            <translation><!-- CLO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPACO</masterLabel>
+            <translation><!-- CPACO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPO</masterLabel>
+            <translation><!-- CPO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CSCO</masterLabel>
+            <translation><!-- CSCO --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- ELT 7 --></label>
+        <name>ELT_7__c</name>
+        <picklistValues>
+            <masterLabel>CBIO</masterLabel>
+            <translation><!-- CBIO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCO</masterLabel>
+            <translation><!-- CCO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CEO</masterLabel>
+            <translation><!-- CEO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CFO</masterLabel>
+            <translation><!-- CFO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CHRO</masterLabel>
+            <translation><!-- CHRO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CITO</masterLabel>
+            <translation><!-- CITO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CLO</masterLabel>
+            <translation><!-- CLO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPACO</masterLabel>
+            <translation><!-- CPACO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPO</masterLabel>
+            <translation><!-- CPO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CSCO</masterLabel>
+            <translation><!-- CSCO --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- ELT 8 --></label>
+        <name>ELT_8__c</name>
+        <picklistValues>
+            <masterLabel>CBIO</masterLabel>
+            <translation><!-- CBIO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CCO</masterLabel>
+            <translation><!-- CCO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CEO</masterLabel>
+            <translation><!-- CEO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CFO</masterLabel>
+            <translation><!-- CFO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CHRO</masterLabel>
+            <translation><!-- CHRO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CITO</masterLabel>
+            <translation><!-- CITO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CLO</masterLabel>
+            <translation><!-- CLO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPACO</masterLabel>
+            <translation><!-- CPACO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CPO</masterLabel>
+            <translation><!-- CPO --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>CSCO</masterLabel>
+            <translation><!-- CSCO --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>CokeOne1</label>
+        <name>Function_CokeOne_1__c</name>
+    </fields>
+    <fields>
+        <label>CokeOne2</label>
+        <name>Function_CokeOne_2__c</name>
+    </fields>
+    <fields>
+        <label>CokeOne3</label>
+        <name>Function_CokeOne_3__c</name>
+    </fields>
+    <fields>
+        <label>CokeOne4</label>
+        <name>Function_CokeOne_4__c</name>
+    </fields>
+    <fields>
+        <label>CokeOne5</label>
+        <name>Function_CokeOne_5__c</name>
+    </fields>
+    <fields>
+        <label>CokeOne6</label>
+        <name>Function_CokeOne_6__c</name>
+    </fields>
+    <fields>
+        <label>CokeOne7</label>
+        <name>Function_CokeOne_7__c</name>
+    </fields>
+    <fields>
+        <label>CokeOne8</label>
+        <name>Function_CokeOne_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function Commercial 10 --></label>
+        <name>Function_Commercial_10__c</name>
+    </fields>
+    <fields>
+        <label>コマーシャル１</label>
+        <name>Function_Commercial_1__c</name>
+    </fields>
+    <fields>
+        <label>コマーシャル２</label>
+        <name>Function_Commercial_2__c</name>
+    </fields>
+    <fields>
+        <label>コマーシャル３</label>
+        <name>Function_Commercial_3__c</name>
+    </fields>
+    <fields>
+        <label>コマーシャル４</label>
+        <name>Function_Commercial_4__c</name>
+    </fields>
+    <fields>
+        <label>コマーシャル5</label>
+        <name>Function_Commercial_5__c</name>
+    </fields>
+    <fields>
+        <label>コマーシャル6</label>
+        <name>Function_Commercial_6__c</name>
+    </fields>
+    <fields>
+        <label>コマーシャル7</label>
+        <name>Function_Commercial_7__c</name>
+    </fields>
+    <fields>
+        <label>コマーシャル8</label>
+        <name>Function_Commercial_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function Commercial 9 --></label>
+        <name>Function_Commercial_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function Finance 10 --></label>
+        <name>Function_Finance_10__c</name>
+    </fields>
+    <fields>
+        <label>ファイナンス１</label>
+        <name>Function_Finance_1__c</name>
+    </fields>
+    <fields>
+        <label>ファイナンス２</label>
+        <name>Function_Finance_2__c</name>
+    </fields>
+    <fields>
+        <label>ファイナンス３</label>
+        <name>Function_Finance_3__c</name>
+    </fields>
+    <fields>
+        <label>ファイナンス４</label>
+        <name>Function_Finance_4__c</name>
+    </fields>
+    <fields>
+        <label>ファイナンス5</label>
+        <name>Function_Finance_5__c</name>
+    </fields>
+    <fields>
+        <label>ファイナンス6</label>
+        <name>Function_Finance_6__c</name>
+    </fields>
+    <fields>
+        <label>ファイナンス7</label>
+        <name>Function_Finance_7__c</name>
+    </fields>
+    <fields>
+        <label>ファイナンス8</label>
+        <name>Function_Finance_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function Finance 9 --></label>
+        <name>Function_Finance_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function HR 10 --></label>
+        <name>Function_HR_10__c</name>
+    </fields>
+    <fields>
+        <label>人事１</label>
+        <name>Function_HR_1__c</name>
+    </fields>
+    <fields>
+        <label>人事２</label>
+        <name>Function_HR_2__c</name>
+    </fields>
+    <fields>
+        <label>人事３</label>
+        <name>Function_HR_3__c</name>
+    </fields>
+    <fields>
+        <label>人事４</label>
+        <name>Function_HR_4__c</name>
+    </fields>
+    <fields>
+        <label>人事5</label>
+        <name>Function_HR_5__c</name>
+    </fields>
+    <fields>
+        <label>人事6</label>
+        <name>Function_HR_6__c</name>
+    </fields>
+    <fields>
+        <label>人事7</label>
+        <name>Function_HR_7__c</name>
+    </fields>
+    <fields>
+        <label>人事8</label>
+        <name>Function_HR_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function HR 9 --></label>
+        <name>Function_HR_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function Other 10 --></label>
+        <name>Function_Other_10__c</name>
+    </fields>
+    <fields>
+        <label>その他１</label>
+        <name>Function_Other_1__c</name>
+    </fields>
+    <fields>
+        <label>その他２</label>
+        <name>Function_Other_2__c</name>
+    </fields>
+    <fields>
+        <label>その他３</label>
+        <name>Function_Other_3__c</name>
+    </fields>
+    <fields>
+        <label>その他４</label>
+        <name>Function_Other_4__c</name>
+    </fields>
+    <fields>
+        <label>その他5</label>
+        <name>Function_Other_5__c</name>
+    </fields>
+    <fields>
+        <label>その他6</label>
+        <name>Function_Other_6__c</name>
+    </fields>
+    <fields>
+        <label>その他7</label>
+        <name>Function_Other_7__c</name>
+    </fields>
+    <fields>
+        <label>その他8</label>
+        <name>Function_Other_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function Other 9 --></label>
+        <name>Function_Other_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function Procurement 10 --></label>
+        <name>Function_Procurement_10__c</name>
+    </fields>
+    <fields>
+        <label>調達１</label>
+        <name>Function_Procurement_1__c</name>
+    </fields>
+    <fields>
+        <label>調達２</label>
+        <name>Function_Procurement_2__c</name>
+    </fields>
+    <fields>
+        <label>調達３</label>
+        <name>Function_Procurement_3__c</name>
+    </fields>
+    <fields>
+        <label>調達４</label>
+        <name>Function_Procurement_4__c</name>
+    </fields>
+    <fields>
+        <label>調達5</label>
+        <name>Function_Procurement_5__c</name>
+    </fields>
+    <fields>
+        <label>調達6</label>
+        <name>Function_Procurement_6__c</name>
+    </fields>
+    <fields>
+        <label>調達7</label>
+        <name>Function_Procurement_7__c</name>
+    </fields>
+    <fields>
+        <label>調達8</label>
+        <name>Function_Procurement_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function Procurement 9 --></label>
+        <name>Function_Procurement_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function Supply Chain 10 --></label>
+        <name>Function_Supply_Chain_10__c</name>
+    </fields>
+    <fields>
+        <label>サプライチェーン１</label>
+        <name>Function_Supply_Chain_1__c</name>
+    </fields>
+    <fields>
+        <label>サプライチェーン２</label>
+        <name>Function_Supply_Chain_2__c</name>
+    </fields>
+    <fields>
+        <label>サプライチェーン３</label>
+        <name>Function_Supply_Chain_3__c</name>
+    </fields>
+    <fields>
+        <label>サプライチェーン４</label>
+        <name>Function_Supply_Chain_4__c</name>
+    </fields>
+    <fields>
+        <label>サプライチェーン5</label>
+        <name>Function_Supply_Chain_5__c</name>
+    </fields>
+    <fields>
+        <label>サプライチェーン6</label>
+        <name>Function_Supply_Chain_6__c</name>
+    </fields>
+    <fields>
+        <label>サプライチェーン7</label>
+        <name>Function_Supply_Chain_7__c</name>
+    </fields>
+    <fields>
+        <label>サプライチェーン8</label>
+        <name>Function_Supply_Chain_8__c</name>
+    </fields>
+    <fields>
+        <label><!-- Function Supply Chain 9 --></label>
+        <name>Function_Supply_Chain_9__c</name>
+    </fields>
+    <fields>
+        <label>決済後回覧10</label>
+        <name>Info_Copy_10__c</name>
+    </fields>
+    <fields>
+        <label>決済後回覧１</label>
+        <name>Info_Copy_1__c</name>
+    </fields>
+    <fields>
+        <label>決済後回覧２</label>
+        <name>Info_Copy_2__c</name>
+    </fields>
+    <fields>
+        <label>決済後回覧３</label>
+        <name>Info_Copy_3__c</name>
+    </fields>
+    <fields>
+        <label>決済後回覧４</label>
+        <name>Info_Copy_4__c</name>
+    </fields>
+    <fields>
+        <label>決済後回覧5</label>
+        <name>Info_Copy_5__c</name>
+    </fields>
+    <fields>
+        <label>決済後回覧6</label>
+        <name>Info_Copy_6__c</name>
+    </fields>
+    <fields>
+        <label>決済後回覧7</label>
+        <name>Info_Copy_7__c</name>
+    </fields>
+    <fields>
+        <label>決済後回覧8</label>
+        <name>Info_Copy_8__c</name>
+    </fields>
+    <fields>
+        <label>決済後回覧9</label>
+        <name>Info_Copy_9__c</name>
+    </fields>
+    <fields>
+        <label><!-- Left Bracket --></label>
+        <name>Left_Bracket__c</name>
+    </fields>
+    <fields>
+        <label><!-- Left Sign --></label>
+        <name>Left_Sign__c</name>
+        <picklistValues>
+            <masterLabel>&gt;</masterLabel>
+            <translation><!-- &gt; --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>&gt;=</masterLabel>
+            <translation><!-- &gt;= --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Memo --></label>
+        <name>Memo__c</name>
+    </fields>
+    <fields>
+        <help><!-- This field allows the RFA Creator to select up to 3 COA Categories that apply to the requested transaction. --></help>
+        <label>COAカテゴリー</label>
+        <name>PrimaryCOACategory__c</name>
+        <picklistValues>
+            <masterLabel>A. Approval of Pricing Policy</masterLabel>
+            <translation><!-- A. Approval of Pricing Policy --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>B. Approval of Customer Terms and Conditions</masterLabel>
+            <translation><!-- B. Approval of Customer Terms and Conditions --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>C. Price promotion for Marketing &amp; Commercial leadership</masterLabel>
+            <translation><!-- C. Price promotion for Marketing &amp; Commercial leadership --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>D. Credit Terms / Policies</masterLabel>
+            <translation><!-- D. Credit Terms / Policies --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>I. Purchase, Disposal, Revaluation or Write-off of Assets</masterLabel>
+            <translation><!-- I. Purchase, Disposal, Revaluation or Write-off of Assets --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>II. Leases and Rental Contracts</masterLabel>
+            <translation><!-- II. Leases and Rental Contracts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>III. Pricing / Operating Revenues / Marketing</masterLabel>
+            <translation><!-- III. Pricing / Operating Revenues / Marketing --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>IV. Operating Expenses and Purchases (not covered by General Threshold)</masterLabel>
+            <translation><!-- IV. Operating Expenses and Purchases (not covered by General Threshold) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>IX. Board of Directors Approvals</masterLabel>
+            <translation><!-- IX. Board of Directors Approvals --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>V. Treasury</masterLabel>
+            <translation><!-- V. Treasury --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VI. Personnel</masterLabel>
+            <translation><!-- VI. Personnel --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VII. Other Transactions / Activities / Contracts and Agreements</masterLabel>
+            <translation><!-- VII. Other Transactions / Activities / Contracts and Agreements --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>VIII. Corporate Structures and Mergers and Acquisitions</masterLabel>
+            <translation><!-- VIII. Corporate Structures and Mergers and Acquisitions --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>COA下位カテゴリー２</label>
+        <name>PrimaryCOASubCategory2__c</name>
+        <picklistValues>
+            <masterLabel>1. Accounts</masterLabel>
+            <translation><!-- 1. Accounts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Accounts Receivable Sub-Ledger Balances</masterLabel>
+            <translation><!-- 1. Accounts Receivable Sub-Ledger Balances --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Amount of Credit limit</masterLabel>
+            <translation><!-- 1. Amount of Credit limit --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Applies to items not related to customers</masterLabel>
+            <translation><!-- 1. Applies to items not related to customers --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Applies to items not related to customers - Contract review is necessary</masterLabel>
+            <translation><!-- 1. Applies to items not related to customers - Contract review is necessary --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Approval of Annual Capital Investment project Budget</masterLabel>
+            <translation><!-- 1. Approval of Annual Capital Investment project Budget --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Approval of the following Customer Agreement</masterLabel>
+            <translation><!-- 1. Approval of the following Customer Agreement --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Budget Control</masterLabel>
+            <translation><!-- 1. Budget Control --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Charitable Donations</masterLabel>
+            <translation><!-- 1. Charitable Donations --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Contract Packing Agreements</masterLabel>
+            <translation><!-- 1. Contract Packing Agreements --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Corporate Memberships and Associations (CCEJ and Subsidiaries)</masterLabel>
+            <translation><!-- 1. Corporate Memberships and Associations (CCEJ and Subsidiaries) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Corporate Memberships and Associations (CCEJ and Subsidiaries) - Applicable only to CC Association, economics and management groups, beverage industries and government organizations</masterLabel>
+            <translation><!-- 1. Corporate Memberships and Associations (CCEJ and Subsidiaries) - Applicable only to CC Association, economics and management groups, beverage industries and government organizations --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Corporate Memberships and Associations (CCEJ and Subsidiaries) - Other than membership above 1</masterLabel>
+            <translation><!-- 1. Corporate Memberships and Associations (CCEJ and Subsidiaries) - Other than membership above 1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Disbursement authorization</masterLabel>
+            <translation><!-- 1. Disbursement authorization --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Establishing or amending overall CCEJ credit policy (including credit limits)</masterLabel>
+            <translation><!-- 1. Establishing or amending overall CCEJ credit policy (including credit limits) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Establishment and changes of banking relationships</masterLabel>
+            <translation><!-- 1. Establishment and changes of banking relationships --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Establishment of and changes to Price, Terms and Conditions Concept (PTC)</masterLabel>
+            <translation><!-- 1. Establishment of and changes to Price, Terms and Conditions Concept (PTC) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. For business purpose</masterLabel>
+            <translation><!-- 1. For business purpose --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. General</masterLabel>
+            <translation><!-- 1. General --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. IT Investments</masterLabel>
+            <translation><!-- 1. IT Investments --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Legal name changes</masterLabel>
+            <translation><!-- 1. Legal name changes --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. One-time payment and compensation in kind</masterLabel>
+            <translation><!-- 1. One-time payment and compensation in kind --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. One-time payment and compensation in kind - ＞ 10% associate&apos;s annual base compensation</masterLabel>
+            <translation><!-- 1. One-time payment and compensation in kind - ＞ 10% associate&apos;s annual base compensation --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Petty cash expenses</masterLabel>
+            <translation><!-- 1. Petty cash expenses --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Prepayments of trade, corporate, property tax and other taxes</masterLabel>
+            <translation><!-- 1. Prepayments of trade, corporate, property tax and other taxes --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Procurement Contracts with Financial Commitment</masterLabel>
+            <translation><!-- 1. Procurement Contracts with Financial Commitment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Real Estate - Rental Contracts (CCEJ or Subsidiaries as Tenant)</masterLabel>
+            <translation><!-- 1. Real Estate - Rental Contracts (CCEJ or Subsidiaries as Tenant) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Recruting permanent employees</masterLabel>
+            <translation><!-- 1. Recruting permanent employees --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Settlement of Litigation, Employee Relations issues</masterLabel>
+            <translation><!-- 1. Settlement of Litigation, Employee Relations issues --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Travel authorization - Domestic</masterLabel>
+            <translation><!-- 1. Travel authorization - Domestic --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Travel authorization - Overseas</masterLabel>
+            <translation><!-- 1. Travel authorization - Overseas --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Write-offs of uncollectible trade accounts receivable and other receivables</masterLabel>
+            <translation><!-- 1. Write-offs of uncollectible trade accounts receivable and other receivables --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Accounts Payable Sub-Ledger Balances</masterLabel>
+            <translation><!-- 2. Accounts Payable Sub-Ledger Balances --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Advertisement expenses which PAC is mainly responsible other than the above 1</masterLabel>
+            <translation><!-- 2. Advertisement expenses which PAC is mainly responsible other than the above 1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Advertisement expenses which PAC is mainly responsible other than the above 1 - Contract review is necessary</masterLabel>
+            <translation><!-- 2. Advertisement expenses which PAC is mainly responsible other than the above 1 - Contract review is necessary --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Approval of Customer Agreement for CS KAM</masterLabel>
+            <translation><!-- 2. Approval of Customer Agreement for CS KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Audit Services</masterLabel>
+            <translation><!-- 2. Audit Services --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Capital Investment Project Budget Approved</masterLabel>
+            <translation><!-- 2. Capital Investment Project Budget Approved --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Capital Investment Project Budget Approved (Capital Projects, Medium Projects and Small Projects)</masterLabel>
+            <translation><!-- 2. Capital Investment Project Budget Approved (Capital Projects, Medium Projects and Small Projects) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Change of entity classification / legal form</masterLabel>
+            <translation><!-- 2. Change of entity classification / legal form --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Cost center and Profit center</masterLabel>
+            <translation><!-- 2. Cost center and Profit center --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Credit limit</masterLabel>
+            <translation><!-- 2. Credit limit --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. DME Commitment</masterLabel>
+            <translation><!-- 2. DME Commitment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Direct Debit authorizations</masterLabel>
+            <translation><!-- 2. Direct Debit authorizations --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Employee Memberships</masterLabel>
+            <translation><!-- 2. Employee Memberships --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Employee Memberships - ＞ ￥ 100,000 or ＞ 10% of associate&apos;s annual base compensation</masterLabel>
+            <translation><!-- 2. Employee Memberships - ＞ ￥ 100,000 or ＞ 10% of associate&apos;s annual base compensation --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Guarantees</masterLabel>
+            <translation><!-- 2. Guarantees --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Initial setting of credit limits</masterLabel>
+            <translation><!-- 2. Initial setting of credit limits --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Internet Website Presence (Website, social media and mobile applications, internet website presence)</masterLabel>
+            <translation><!-- 2. Internet Website Presence (Website, social media and mobile applications, internet website presence) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Inventory Adjustments and Disposals (incl. Flush-outs)</masterLabel>
+            <translation><!-- 2. Inventory Adjustments and Disposals (incl. Flush-outs) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Movable Assets (including vehicles)</masterLabel>
+            <translation><!-- 2. Movable Assets (including vehicles) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Payments based on annual tax assessments received from authorities</masterLabel>
+            <translation><!-- 2. Payments based on annual tax assessments received from authorities --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Personnel transfer, Secondment (Permanent employees only) - Management</masterLabel>
+            <translation><!-- 2. Personnel transfer, Secondment (Permanent employees only) - Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Personnel transfer, Secondment (Permanent employees only) - Management - Inside Controller&apos;s Group</masterLabel>
+            <translation><!-- 2. Personnel transfer, Secondment (Permanent employees only) - Management - Inside Controller&apos;s Group --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Personnel transfer, Secondment (Permanent employees only) - Management - Inside Sub function</masterLabel>
+            <translation><!-- 2. Personnel transfer, Secondment (Permanent employees only) - Management - Inside Sub function --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Personnel transfer, Secondment (Permanent employees only) - Non-Management</masterLabel>
+            <translation><!-- 2. Personnel transfer, Secondment (Permanent employees only) - Non-Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Political Contributions, Payments to Government Officials and all other political related transactions</masterLabel>
+            <translation><!-- 2. Political Contributions, Payments to Government Officials and all other political related transactions --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Procurement Contracts without Financial Commitment</masterLabel>
+            <translation><!-- 2. Procurement Contracts without Financial Commitment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Raw materials and packaging materials</masterLabel>
+            <translation><!-- 2. Raw materials and packaging materials --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Salary and Wage Increases (including Job Grade changes where noted) - Management</masterLabel>
+            <translation><!-- 2. Salary and Wage Increases (including Job Grade changes where noted) - Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Salary and Wage Increases (including Job Grade changes where noted) - Non-Management</masterLabel>
+            <translation><!-- 2. Salary and Wage Increases (including Job Grade changes where noted) - Non-Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Specific deviation or a new program to the approved Price, Terms and Conditions Concept</masterLabel>
+            <translation><!-- 2. Specific deviation or a new program to the approved Price, Terms and Conditions Concept --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Termination of Permanent Employees (Excl. voluntary resignation and Punitive dismissal)</masterLabel>
+            <translation><!-- 2. Termination of Permanent Employees (Excl. voluntary resignation and Punitive dismissal) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. To employees (per item / employee)</masterLabel>
+            <translation><!-- 2. To employees (per item / employee) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Toll-filling and other service agreements</masterLabel>
+            <translation><!-- 2. Toll-filling and other service agreements --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Travel Advance Payment</masterLabel>
+            <translation><!-- 2. Travel Advance Payment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Acceptance of gifts, meals or entertainment from third parties</masterLabel>
+            <translation><!-- 3. Acceptance of gifts, meals or entertainment from third parties --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Approval of Customer Agreement for Food KAM</masterLabel>
+            <translation><!-- 3. Approval of Customer Agreement for Food KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Changes of credit limits</masterLabel>
+            <translation><!-- 3. Changes of credit limits --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Changes of credit limits - Create less risk to the company (shortening credit terms)</masterLabel>
+            <translation><!-- 3. Changes of credit limits - Create less risk to the company (shortening credit terms) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Changes of credit limits - Create more risk to the company (lengthening credit terms)</masterLabel>
+            <translation><!-- 3. Changes of credit limits - Create more risk to the company (lengthening credit terms) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Changes of credit limits - Create more risk to the company (lengthening credit terms) - Initial credit limit ＞ ￥ 25,000,000 and change is ＞ 25%</masterLabel>
+            <translation><!-- 3. Changes of credit limits - Create more risk to the company (lengthening credit terms) - Initial credit limit ＞ ￥ 25,000,000 and change is ＞ 25% --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Company Credit Card</masterLabel>
+            <translation><!-- 3. Company Credit Card --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Credit period</masterLabel>
+            <translation><!-- 3. Credit period --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Customer Master File</masterLabel>
+            <translation><!-- 3. Customer Master File --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Employee Benefit, Pension and compensation Plans and Programs</masterLabel>
+            <translation><!-- 3. Employee Benefit, Pension and compensation Plans and Programs --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. General Ledger Balances</masterLabel>
+            <translation><!-- 3. General Ledger Balances --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Hiring of temporary contracted and part-time employees - Contract</masterLabel>
+            <translation><!-- 3. Hiring of temporary contracted and part-time employees - Contract --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Hiring of temporary contracted and part-time employees - Part-time</masterLabel>
+            <translation><!-- 3. Hiring of temporary contracted and part-time employees - Part-time --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Hiring of temporary contracted and part-time employees - Temporary</masterLabel>
+            <translation><!-- 3. Hiring of temporary contracted and part-time employees - Temporary --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Legal, Tax, M&amp;A, Accounting and Non-Audit Services</masterLabel>
+            <translation><!-- 3. Legal, Tax, M&amp;A, Accounting and Non-Audit Services --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. New price lists / rebate lists and changes to existing price lists / rebate lists for the full service vending machine business</masterLabel>
+            <translation><!-- 3. New price lists / rebate lists and changes to existing price lists / rebate lists for the full service vending machine business --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Payments of full service commission based on previously appproved contracts</masterLabel>
+            <translation><!-- 3. Payments of full service commission based on previously appproved contracts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Punitive dismissal</masterLabel>
+            <translation><!-- 3. Punitive dismissal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Purchase Orders (PO)</masterLabel>
+            <translation><!-- 3. Purchase Orders (PO) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Restructuring of company operations</masterLabel>
+            <translation><!-- 3. Restructuring of company operations --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Unbudgeted Capital Projects</masterLabel>
+            <translation><!-- 3. Unbudgeted Capital Projects --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Approval of Customer Agreement for SAKAYA KAM</masterLabel>
+            <translation><!-- 4. Approval of Customer Agreement for SAKAYA KAM --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Change of scope in the approved Capital Investment Projects</masterLabel>
+            <translation><!-- 4. Change of scope in the approved Capital Investment Projects --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Changes of gross price lists valid for certain channels, packages and brands</masterLabel>
+            <translation><!-- 4. Changes of gross price lists valid for certain channels, packages and brands --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Credit Period - Payment Terms ≧ 2 months</masterLabel>
+            <translation><!-- 4. Credit Period - Payment Terms ≧ 2 months --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Credit Period - Payment Terms ＞ 1 month and ＜ 2 months</masterLabel>
+            <translation><!-- 4. Credit Period - Payment Terms ＞ 1 month and ＜ 2 months --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Marketing and Public Affairs (includes marketing, media &amp; public affairs agencies, and marketing services)</masterLabel>
+            <translation><!-- 4. Marketing and Public Affairs (includes marketing, media &amp; public affairs agencies, and marketing services) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. New legal entity</masterLabel>
+            <translation><!-- 4. New legal entity --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Payment of rebates based on previously approved contracts</masterLabel>
+            <translation><!-- 4. Payment of rebates based on previously approved contracts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Price Master File</masterLabel>
+            <translation><!-- 4. Price Master File --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5. Approval of Customer Agreement for VM Corporate Sales &amp; Hunter</masterLabel>
+            <translation><!-- 5. Approval of Customer Agreement for VM Corporate Sales &amp; Hunter --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5. Determination of and changes to the standard cost of sales and intercompany transfer price for KO products</masterLabel>
+            <translation><!-- 5. Determination of and changes to the standard cost of sales and intercompany transfer price for KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5. Maintenance and repair expenses (Buildings, structures, machinery, fixtures)</masterLabel>
+            <translation><!-- 5. Maintenance and repair expenses (Buildings, structures, machinery, fixtures) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5. Rebate Master File</masterLabel>
+            <translation><!-- 5. Rebate Master File --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5. Setting up / closing of branches</masterLabel>
+            <translation><!-- 5. Setting up / closing of branches --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>6. Approval of Customer Agreement for VM Div. Corporate Sales</masterLabel>
+            <translation><!-- 6. Approval of Customer Agreement for VM Div. Corporate Sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>6. Determination of changes to standard cost of sales for Non-KO products</masterLabel>
+            <translation><!-- 6. Determination of changes to standard cost of sales for Non-KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>6. Standard Cost of Sales</masterLabel>
+            <translation><!-- 6. Standard Cost of Sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>7. Approval of Customer Agreement for Equipment Operating Rule</masterLabel>
+            <translation><!-- 7. Approval of Customer Agreement for Equipment Operating Rule --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>7. Vendor Master File</masterLabel>
+            <translation><!-- 7. Vendor Master File --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>8. Approval of Customer Agreement for FV</masterLabel>
+            <translation><!-- 8. Approval of Customer Agreement for FV --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>8. Bill of Materials (BOM)</masterLabel>
+            <translation><!-- 8. Bill of Materials (BOM) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>9. Material Master File</masterLabel>
+            <translation><!-- 9. Material Master File --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Decision/change and master registration of standard wholesale price of KO products</masterLabel>
+            <translation><!-- a. Decision/change and master registration of standard wholesale price of KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Decision/change of the whole</masterLabel>
+            <translation><!-- a. Decision/change of the whole --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Establishment of and changes to PTC - KO products</masterLabel>
+            <translation><!-- a. Establishment of and changes to PTC - KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Fixed Assets</masterLabel>
+            <translation><!-- a. Fixed Assets --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Specific deviation or a new program to the approved PTC Concept - KO products</masterLabel>
+            <translation><!-- a. Specific deviation or a new program to the approved PTC Concept - KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Additional decision of the new price range and partial change of the guideline table</masterLabel>
+            <translation><!-- b. Additional decision of the new price range and partial change of the guideline table --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Decision/change and master registration of standard wholesale price of non-KO products and secondary products</masterLabel>
+            <translation><!-- b. Decision/change and master registration of standard wholesale price of non-KO products and secondary products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Establishment of and changes to PTC - Non-KO products</masterLabel>
+            <translation><!-- b. Establishment of and changes to PTC - Non-KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Real Estate</masterLabel>
+            <translation><!-- b. Real Estate --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Specific deviation or a new program to the approved PTC Concept - Non-KO products</masterLabel>
+            <translation><!-- b. Specific deviation or a new program to the approved PTC Concept - Non-KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>c. Intangible fixed assets</masterLabel>
+            <translation><!-- c. Intangible fixed assets --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>COA下位カテゴリー３</label>
+        <name>PrimaryCOASubCategory3__c</name>
+        <picklistValues>
+            <masterLabel>1. Decision in the new price range</masterLabel>
+            <translation><!-- 1. Decision in the new price range --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Price Guideline</masterLabel>
+            <translation><!-- 1. Price Guideline --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Decision in the same price range as the existing price range</masterLabel>
+            <translation><!-- 2. Decision in the same price range as the existing price range --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. FS Sales Commission Guideline</masterLabel>
+            <translation><!-- 2. FS Sales Commission Guideline --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Create less risk to the company (shortening credit terms) &gt; 10,000,000 yen</masterLabel>
+            <translation><!-- Create less risk to the company (shortening credit terms) &gt; 10,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Create more risk to the company (lengthening credit terms) &gt; 10,000,000 yen</masterLabel>
+            <translation><!-- Create more risk to the company (lengthening credit terms) &gt; 10,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Create more risk to the company (lengthening credit terms) &gt; 10,000,000 yen (Initial credit limit &gt; 25,000,000 yen and change is &gt; 25%)</masterLabel>
+            <translation><!-- Create more risk to the company (lengthening credit terms) &gt; 10,000,000 yen (Initial credit limit &gt; 25,000,000 yen and change is &gt; 25%) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Payment Terms &gt; 1 month and &lt; 2 months</masterLabel>
+            <translation><!-- Payment Terms &gt; 1 month and &lt; 2 months --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Payment Terms ≧ 2 months</masterLabel>
+            <translation><!-- Payment Terms ≧ 2 months --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Annual approval of standard cost of sales (Intercompany transfer price within CCEJ group)</masterLabel>
+            <translation><!-- a. Annual approval of standard cost of sales (Intercompany transfer price within CCEJ group) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Approval of periodic gross price list changes for whole KO and Non-KO products range or parts thereof</masterLabel>
+            <translation><!-- a. Approval of periodic gross price list changes for whole KO and Non-KO products range or parts thereof --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Bank transfer</masterLabel>
+            <translation><!-- a. Bank transfer --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. DME annual Budget</masterLabel>
+            <translation><!-- a. DME annual Budget --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Entertainment expenses (excluding b &amp; c) (For customers purpose)</masterLabel>
+            <translation><!-- a. Entertainment expenses (excluding b &amp; c) (For customers purpose) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Establishment of and changes to PTC - KO products</masterLabel>
+            <translation><!-- a. Establishment of and changes to PTC - KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Field Sales Operations Customer (Excluding &quot;SAKAYA KAM&quot;)</masterLabel>
+            <translation><!-- a. Field Sales Operations Customer (Excluding &quot;SAKAYA KAM&quot;) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Funding by shift of funds from an approved current year Capital Project</masterLabel>
+            <translation><!-- a. Funding by shift of funds from an approved current year Capital Project --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Inventory Count Adjustment (per location)</masterLabel>
+            <translation><!-- a. Inventory Count Adjustment (per location) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. New Graduate recruitment</masterLabel>
+            <translation><!-- a. New Graduate recruitment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. New location, Extension of existing location or Contract renewal</masterLabel>
+            <translation><!-- a. New location, Extension of existing location or Contract renewal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Real Estate</masterLabel>
+            <translation><!-- a. Real Estate --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Specific deviation or a new program to the approved PTC Concept - KO products</masterLabel>
+            <translation><!-- a. Specific deviation or a new program to the approved PTC Concept - KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. System calculated rebates</masterLabel>
+            <translation><!-- a. System calculated rebates --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Termination of an employment agreement with temporary employees, contact employees, part-timers</masterLabel>
+            <translation><!-- a. Termination of an employment agreement with temporary employees, contact employees, part-timers --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Vehicles (including Capital Leases) - Budgeted : ≦ Total ￥ 50,000,000 and ≦ 3 Years</masterLabel>
+            <translation><!-- a. Vehicles (including Capital Leases) - Budgeted : ≦ Total ￥ 50,000,000 and ≦ 3 Years --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Vehicles (including Capital Leases) - Budgeted : ＞ Total ￥ 50,000,000 or　＞ 3 Years</masterLabel>
+            <translation><!-- a. Vehicles (including Capital Leases) - Budgeted : ＞ Total ￥ 50,000,000 or　＞ 3 Years --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>a. Vehicles (including Capital Leases) - Non-Budgeted</masterLabel>
+            <translation><!-- a. Vehicles (including Capital Leases) - Non-Budgeted --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Approval of transfer price for sales transactions with other bottlers</masterLabel>
+            <translation><!-- b. Approval of transfer price for sales transactions with other bottlers --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Budget shifts (between different channel or cost center)</masterLabel>
+            <translation><!-- b. Budget shifts (between different channel or cost center) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Cash and Checks</masterLabel>
+            <translation><!-- b. Cash and Checks --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Contract renewal</masterLabel>
+            <translation><!-- b. Contract renewal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Determination and Changes for specific articles during a period (within a year)</masterLabel>
+            <translation><!-- b. Determination and Changes for specific articles during a period (within a year) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Determination of gross list price / local conditions for single SKUs - KO for existing packaging / product segments</masterLabel>
+            <translation><!-- b. Determination of gross list price / local conditions for single SKUs - KO for existing packaging / product segments --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Dismissal following disciplinary disposition</masterLabel>
+            <translation><!-- b. Dismissal following disciplinary disposition --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Entertainment expenses (excluding a &amp; c) (For non-customers purpose)</masterLabel>
+            <translation><!-- b. Entertainment expenses (excluding a &amp; c) (For non-customers purpose) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Establishment of and changes to PTC - Non-KO products</masterLabel>
+            <translation><!-- b. Establishment of and changes to PTC - Non-KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Manual calculated rebates and invoices from CCCMC</masterLabel>
+            <translation><!-- b. Manual calculated rebates and invoices from CCCMC --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Mid-career recruitment - New Positions (Number Increase)</masterLabel>
+            <translation><!-- b. Mid-career recruitment - New Positions (Number Increase) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Mid-career recruitment - Replacement (vacant positions)</masterLabel>
+            <translation><!-- b. Mid-career recruitment - Replacement (vacant positions) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Other</masterLabel>
+            <translation><!-- b. Other --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Other - ≦ Total ￥ 50,000,000 and ≦ 3 Years</masterLabel>
+            <translation><!-- b. Other - ≦ Total ￥ 50,000,000 and ≦ 3 Years --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Other - ＞ Total ￥ 50,000,000 or　＞ 3 Years</masterLabel>
+            <translation><!-- b. Other - ＞ Total ￥ 50,000,000 or　＞ 3 Years --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Other intangible assets</masterLabel>
+            <translation><!-- b. Other intangible assets --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Specific deviation or a new program to the approved PTC Concept - Non-KO products</masterLabel>
+            <translation><!-- b. Specific deviation or a new program to the approved PTC Concept - Non-KO products --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. VM Customer (Excluding &quot;VM Corporate Sales &amp; Hunter&quot; and &quot;VM Div. Corporate Sales&quot;)</masterLabel>
+            <translation><!-- b. VM Customer (Excluding &quot;VM Corporate Sales &amp; Hunter&quot; and &quot;VM Div. Corporate Sales&quot;) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>b. Write-offs and disposal</masterLabel>
+            <translation><!-- b. Write-offs and disposal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>c. Budget addition</masterLabel>
+            <translation><!-- c. Budget addition --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>c. Determination and Changes for specific articles during a period (within a year)</masterLabel>
+            <translation><!-- c. Determination and Changes for specific articles during a period (within a year) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>c. Determination of gross list price / local conditions for single SKUs - KO for new packaging / product segments</masterLabel>
+            <translation><!-- c. Determination of gross list price / local conditions for single SKUs - KO for new packaging / product segments --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>c. Golf, Congratulatory / Condolence, Association type (Customers&apos; mutual associations) expenses (For customers purpose)</masterLabel>
+            <translation><!-- c. Golf, Congratulatory / Condolence, Association type (Customers&apos; mutual associations) expenses (For customers purpose) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>c. None</masterLabel>
+            <translation><!-- c. None --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>c. Write-downs (incl. flush out)</masterLabel>
+            <translation><!-- c. Write-downs (incl. flush out) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>d. Approval of material master request for Non-KO trading goods</masterLabel>
+            <translation><!-- d. Approval of material master request for Non-KO trading goods --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>e. Approval of material master request for Non-KO other items</masterLabel>
+            <translation><!-- e. Approval of material master request for Non-KO other items --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>f. Determination of gross list price for advertising material</masterLabel>
+            <translation><!-- f. Determination of gross list price for advertising material --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>g. Approval of KO-material master request for cross territory sales</masterLabel>
+            <translation><!-- g. Approval of KO-material master request for cross territory sales --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>≦ 10,000,000 yen</masterLabel>
+            <translation><!-- ≦ 10,000,000 yen --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>＞ 10,000,000 yen</masterLabel>
+            <translation><!-- ＞ 10,000,000 yen --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>COA下位カテゴリー１</label>
+        <name>PrimaryCOASubCategory__c</name>
+        <picklistValues>
+            <masterLabel>1. Establishment of and changes to Price, Terms and Conditions Concept (PTC)</masterLabel>
+            <translation><!-- 1. Establishment of and changes to Price, Terms and Conditions Concept (PTC) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>1. Initial setting of credit limits</masterLabel>
+            <translation><!-- 1. Initial setting of credit limits --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Changes of credit limits</masterLabel>
+            <translation><!-- 2. Changes of credit limits --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2. Specific deviation or a new program to the approved Price, Terms and Conditions Concept</masterLabel>
+            <translation><!-- 2. Specific deviation or a new program to the approved Price, Terms and Conditions Concept --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Credit period</masterLabel>
+            <translation><!-- 3. Credit period --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3. Decision/change of standard wholesale price</masterLabel>
+            <translation><!-- 3. Decision/change of standard wholesale price --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4. Decision/change of VM standard wholesale price</masterLabel>
+            <translation><!-- 4. Decision/change of VM standard wholesale price --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5. Decision/change of the price guideline table and the FS sales price/commission guideline table</masterLabel>
+            <translation><!-- 5. Decision/change of the price guideline table and the FS sales price/commission guideline table --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>A. Approval of Operating Expenses within Budget</masterLabel>
+            <translation><!-- A. Approval of Operating Expenses within Budget --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>A. Approval of Pricing Policy</masterLabel>
+            <translation><!-- A. Approval of Pricing Policy --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>A. Charitable Donations and Political Related Transactions</masterLabel>
+            <translation><!-- A. Charitable Donations and Political Related Transactions --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>A. External Borrowings</masterLabel>
+            <translation><!-- A. External Borrowings --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>A. Loans, Loan Guarantees and Guarantees for Employees</masterLabel>
+            <translation><!-- A. Loans, Loan Guarantees and Guarantees for Employees --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>A. Mergers, Acquisitions, Disinvestments (including Joint Ventures)</masterLabel>
+            <translation><!-- A. Mergers, Acquisitions, Disinvestments (including Joint Ventures) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>A. Mergers, Acquisitions, Disinvestments (including Joint Ventures) - Megers, Acquisitions and Disinvestments with value ＞ ￥500,000,000</masterLabel>
+            <translation><!-- A. Mergers, Acquisitions, Disinvestments (including Joint Ventures) - Megers, Acquisitions and Disinvestments with value ＞ ￥500,000,000 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>A. Operating Leases / Rental Contracts</masterLabel>
+            <translation><!-- A. Operating Leases / Rental Contracts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>A. Purchase of Fixed Assets (Capital Expenditures)</masterLabel>
+            <translation><!-- A. Purchase of Fixed Assets (Capital Expenditures) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>B. Approval of Customer Terms &amp; Conditions</masterLabel>
+            <translation><!-- B. Approval of Customer Terms &amp; Conditions --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>B. Approval of Operating Expenses in excess of Budget</masterLabel>
+            <translation><!-- B. Approval of Operating Expenses in excess of Budget --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>B. Capital Leases(excluding Vehicles)</masterLabel>
+            <translation><!-- B. Capital Leases(excluding Vehicles) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>B. Corporate Structures Issues</masterLabel>
+            <translation><!-- B. Corporate Structures Issues --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>B. Disposal of Fixed Assets (Sale and write-off)</masterLabel>
+            <translation><!-- B. Disposal of Fixed Assets (Sale and write-off) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>B. Intercompany Loans (within CCEJ Group)</masterLabel>
+            <translation><!-- B. Intercompany Loans (within CCEJ Group) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>B. Recruitment</masterLabel>
+            <translation><!-- B. Recruitment --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>B. Social Amenities, Gifts, Entertainment, Congratulatory or Condolence money, and Other Courtesies</masterLabel>
+            <translation><!-- B. Social Amenities, Gifts, Entertainment, Congratulatory or Condolence money, and Other Courtesies --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>C. Corporate Seal Management</masterLabel>
+            <translation><!-- C. Corporate Seal Management --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>C. Credit Terms / Policies</masterLabel>
+            <translation><!-- C. Credit Terms / Policies --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>C. Derivative and other Financial Instruments</masterLabel>
+            <translation><!-- C. Derivative and other Financial Instruments --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>C. Litigation, Termination and Dismissal of employees</masterLabel>
+            <translation><!-- C. Litigation, Termination and Dismissal of employees --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>C. Marketing Expenses</masterLabel>
+            <translation><!-- C. Marketing Expenses --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>C. Supply, Purchase and Outsourcing Agreements (including Contract Manufacturing Arrangements)</masterLabel>
+            <translation><!-- C. Supply, Purchase and Outsourcing Agreements (including Contract Manufacturing Arrangements) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>C. Transfer of Fixed Assets among consolidated CCEJ locations and operations (tangible and intangible assets)</masterLabel>
+            <translation><!-- C. Transfer of Fixed Assets among consolidated CCEJ locations and operations (tangible and intangible assets) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>D. Advertising Allowances, Outdoor Advertising, Sponsorship, Promotions and Events</masterLabel>
+            <translation><!-- D. Advertising Allowances, Outdoor Advertising, Sponsorship, Promotions and Events --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>D. Asset Impairments</masterLabel>
+            <translation><!-- D. Asset Impairments --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>D. Banking</masterLabel>
+            <translation><!-- D. Banking --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>D. CCEJ One-time Integration Expenses</masterLabel>
+            <translation><!-- D. CCEJ One-time Integration Expenses --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>D. Compensation and Benefit</masterLabel>
+            <translation><!-- D. Compensation and Benefit --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>E. Cash Disbursements</masterLabel>
+            <translation><!-- E. Cash Disbursements --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>E. Club Memberships and Other Memberships</masterLabel>
+            <translation><!-- E. Club Memberships and Other Memberships --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>E. Prepaid Amounts (to customers, suppliers or other business partners)</masterLabel>
+            <translation><!-- E. Prepaid Amounts (to customers, suppliers or other business partners) --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>E. Revaluation or Write-off of Other Assets</masterLabel>
+            <translation><!-- E. Revaluation or Write-off of Other Assets --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>F. Bottler and other Production and Distribution authorizations</masterLabel>
+            <translation><!-- F. Bottler and other Production and Distribution authorizations --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>F. Collective Labor Agreements</masterLabel>
+            <translation><!-- F. Collective Labor Agreements --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>G. Consulting Services</masterLabel>
+            <translation><!-- G. Consulting Services --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>G. Overtime</masterLabel>
+            <translation><!-- G. Overtime --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>H. Outside Professional Services</masterLabel>
+            <translation><!-- H. Outside Professional Services --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>H. Travel Expenses</masterLabel>
+            <translation><!-- H. Travel Expenses --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>I. Settlement of Litigation</masterLabel>
+            <translation><!-- I. Settlement of Litigation --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>J. Financial Confirmations</masterLabel>
+            <translation><!-- J. Financial Confirmations --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>K. Disclosure of non-public Business and Financial Information</masterLabel>
+            <translation><!-- K. Disclosure of non-public Business and Financial Information --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L. Manual Journal Voucher</masterLabel>
+            <translation><!-- L. Manual Journal Voucher --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>L. Tax assessments, notifications and relevant payments</masterLabel>
+            <translation><!-- L. Tax assessments, notifications and relevant payments --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>M. Approval for Creation or Change of Master Files</masterLabel>
+            <translation><!-- M. Approval for Creation or Change of Master Files --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>N. Inventory Returns from Customers</masterLabel>
+            <translation><!-- N. Inventory Returns from Customers --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>O. Free Samples / Goodwill</masterLabel>
+            <translation><!-- O. Free Samples / Goodwill --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>P. Information Technology Investments and Website Presence</masterLabel>
+            <translation><!-- P. Information Technology Investments and Website Presence --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Q. Exceptional Transactions</masterLabel>
+            <translation><!-- Q. Exceptional Transactions --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Z. Other</masterLabel>
+            <translation><!-- Z. Other --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>レコードタイプ</label>
+        <name>Record_Type_List__c</name>
+        <picklistValues>
+            <masterLabel>Capital Project</masterLabel>
+            <translation><!-- Capital Project --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Medium Project</masterLabel>
+            <translation><!-- Medium Project --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Small Project</masterLabel>
+            <translation><!-- Small Project --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Right Bracket --></label>
+        <name>Right_Bracket__c</name>
+    </fields>
+    <fields>
+        <label><!-- Right Sign --></label>
+        <name>Right_Sign__c</name>
+        <picklistValues>
+            <masterLabel>&lt;</masterLabel>
+            <translation><!-- &lt; --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>&lt;=</masterLabel>
+            <translation><!-- &lt;= --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>株主総会</label>
+        <name>Shareholder__c</name>
+    </fields>
+    <fields>
+        <label>区分</label>
+        <name>Threshold_Type__c</name>
+        <picklistValues>
+            <masterLabel>All</masterLabel>
+            <translation><!-- All --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Budgeted</masterLabel>
+            <translation><!-- Budgeted --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Unkown</masterLabel>
+            <translation><!-- Unkown --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Value</masterLabel>
+            <translation><!-- Value --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Value with Record Type</masterLabel>
+            <translation><!-- Value with Record Type --></translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>COA Appendix Ⅲ.  C. Layout</layout>
+        <sections>
+            <label><!-- Approver L1 --></label>
+            <section>Approver L1</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L10 --></label>
+            <section>Approver L10</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L11 --></label>
+            <section>Approver L11</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L12 --></label>
+            <section>Approver L12</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L13 --></label>
+            <section>Approver L13</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L2 --></label>
+            <section>Approver L2</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L3 --></label>
+            <section>Approver L3</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L4 --></label>
+            <section>Approver L4</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L5 --></label>
+            <section>Approver L5</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L6 --></label>
+            <section>Approver L6</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L7 --></label>
+            <section>Approver L7</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L8 --></label>
+            <section>Approver L8</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L9 --></label>
+            <section>Approver L9</section>
+        </sections>
+        <sections>
+            <label><!-- Approver Route Stats. --></label>
+            <section>Approver Route Stats.</section>
+        </sections>
+        <sections>
+            <label><!-- Contents --></label>
+            <section>Contents</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>COA Appendix Ⅲ. (B. 1. - B. 7.) + B. 8. Layout</layout>
+        <sections>
+            <label><!-- Approver L1 --></label>
+            <section>Approver L1</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L10 --></label>
+            <section>Approver L10</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L11 --></label>
+            <section>Approver L11</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L12 --></label>
+            <section>Approver L12</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L13 --></label>
+            <section>Approver L13</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L2 --></label>
+            <section>Approver L2</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L3 --></label>
+            <section>Approver L3</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L4 --></label>
+            <section>Approver L4</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L5 --></label>
+            <section>Approver L5</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L6 --></label>
+            <section>Approver L6</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L7 --></label>
+            <section>Approver L7</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L8 --></label>
+            <section>Approver L8</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L9 --></label>
+            <section>Approver L9</section>
+        </sections>
+        <sections>
+            <label><!-- Approver Route Stats. --></label>
+            <section>Approver Route Stats.</section>
+        </sections>
+        <sections>
+            <label><!-- Contents --></label>
+            <section>Contents</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>COA Appendix Ⅲ. B. 1. - B. 7. Layout</layout>
+        <sections>
+            <label><!-- Approver L1 --></label>
+            <section>Approver L1</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L10 --></label>
+            <section>Approver L10</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L11 --></label>
+            <section>Approver L11</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L12 --></label>
+            <section>Approver L12</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L13 --></label>
+            <section>Approver L13</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L2 --></label>
+            <section>Approver L2</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L3 --></label>
+            <section>Approver L3</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L4 --></label>
+            <section>Approver L4</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L5 --></label>
+            <section>Approver L5</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L6 --></label>
+            <section>Approver L6</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L7 --></label>
+            <section>Approver L7</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L8 --></label>
+            <section>Approver L8</section>
+        </sections>
+        <sections>
+            <label><!-- Approver L9 --></label>
+            <section>Approver L9</section>
+        </sections>
+        <sections>
+            <label><!-- Approver Route Stats. --></label>
+            <section>Approver Route Stats.</section>
+        </sections>
+        <sections>
+            <label><!-- Contents --></label>
+            <section>Contents</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>COA Matrix Layout</layout>
+        <sections>
+            <label><!-- Category --></label>
+            <section>Category</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- ELT --></label>
+            <section>ELT</section>
+        </sections>
+        <sections>
+            <label><!-- Function Area - CokeOne --></label>
+            <section>Function Area - CokeOne</section>
+        </sections>
+        <sections>
+            <label><!-- Function Area - Commercial --></label>
+            <section>Function Area - Commercial</section>
+        </sections>
+        <sections>
+            <label><!-- Function Area - Finance --></label>
+            <section>Function Area - Finance</section>
+        </sections>
+        <sections>
+            <label><!-- Function Area - HR --></label>
+            <section>Function Area - HR</section>
+        </sections>
+        <sections>
+            <label><!-- Function Area - Other --></label>
+            <section>Function Area - Other</section>
+        </sections>
+        <sections>
+            <label><!-- Function Area - Procurement --></label>
+            <section>Function Area - Procurement</section>
+        </sections>
+        <sections>
+            <label><!-- Function Area - Supply Chain --></label>
+            <section>Function Area - Supply Chain</section>
+        </sections>
+        <sections>
+            <label><!-- Info Copy --></label>
+            <section>Info Copy</section>
+        </sections>
+        <sections>
+            <label><!-- Other --></label>
+            <section>Other</section>
+        </sections>
+        <sections>
+            <label><!-- Threshold --></label>
+            <section>Threshold</section>
+        </sections>
+    </layouts>
+    <recordTypes>
+        <label><!-- COA Appendix Ⅲ. B. 1. - B. 7. --></label>
+        <name>COA_Appendix_3_B_1_To_B_7</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- COA Appendix Ⅲ. C. --></label>
+        <name>COA_Appendix_3_C</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- COA Appendix Ⅲ. (B. 1. - B. 7.) + B. 8. --></label>
+        <name>COA_Appendix_B_1_B_7_B_8</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- COA Matrix --></label>
+        <name>COA_Matrix</name>
+    </recordTypes>
+</CustomObjectTranslation>

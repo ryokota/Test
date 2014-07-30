@@ -1,0 +1,200 @@
+<apex:page >
+
+<script type="text/javascript">
+function initWorkflowComment(){
+    $("#comment").keyup(function(){
+        viewCommentLength("comment", "remainder", 512);
+    });
+    $("#comment").keyup();
+
+    $("#commentDialog").dialog({
+        autoOpen : false,
+        modal : true,
+        width:400,
+        //height:300,
+        resizable : false,
+        close : function() {
+            $("#remandTarget").val("applicant");
+            $("#conditional").removeAttr("checked");
+            $("#comment").val("").keyup();
+        }, open : function() {
+            $("#contextMenulist").hide();
+        }
+    });
+
+}
+
+function closeCommentDialog() {
+    $("#commentDialog").dialog("close");
+    return false;
+}
+
+function submitComment() {
+    var comment = $("#comment").val();
+    var wfid = new Array();
+    var conditional = $("#conditional").attr("checked");
+    var remandTarget = $("#remandTarget").val();
+    var actionType = $("#actionType").val();
+
+    $("input[name=wfid]").each(function() {
+        wfid.push($(this).val());
+    });
+
+    var errFlag = false;
+
+    if (comment.length > 512) {
+        alert(getMsg(['{!$Label.label_10023}', "512"], '{!$Label.msg_00059}'));
+        errFlag = true;
+    }
+
+    if (errFlag == true) {
+        return false;
+    }
+    
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            return false;
+        }
+        CsoScript_loadingStop();
+        closeCommentDialog();
+        if(actionType == "pullback"){
+            reloadPage();
+        }else{
+            returnToList();
+        }
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("submitComment:" + data);
+    };
+
+    CsoScript_loadingStart();
+    switch (actionType) {
+    case "reject":
+        callSecurePostAsync('/workflowmanagement/reject.json',          {wfid : JSON.stringify(wfid), comment : comment}, callback, callerror);
+        break;
+    case "remand":
+        callSecurePostAsync('/workflowmanagement/remand.json',          {wfid : JSON.stringify(wfid), comment : comment, target : remandTarget}, callback, callerror);
+        break;
+    case "approve":
+        callSecurePostAsync('/workflowmanagement/approve.json',         {wfid : JSON.stringify(wfid), comment : comment, conditional : conditional}, callback, callerror);
+        break;
+    case "cancel":
+        callSecurePostAsync('/workflowmanagement/cancelApproval.json',  {wfid : JSON.stringify(wfid), comment : comment}, callback, callerror);
+        break;
+    case "pullback":
+        callSecurePostAsync('/workflowmanagement/pullback.json',        {wfid : JSON.stringify(wfid), comment : comment}, callback, callerror);
+        break;
+    }
+
+    return false;
+}
+
+function reloadPage() {
+    if ($("#applyList").length > 0) {
+        $("#applyList").trigger("reloadGrid");
+    } else {
+        location.reload();
+    }
+}
+
+function returnToList() {
+    location.href = "{!$Page.WorkflowApplyList}";
+}
+
+function openApproveComment() {
+    $(".remand").hide();
+    $(".approve").show();
+    $("#actionType").val("approve");
+    $("#comment").attr("placeholder", getMsg(['{!$Label.label_10714}'], '{!$Label.msg_00315}'));
+    $("#commentDialog").dialog("option", {height : 260, title : getMsg(['{!$Label.label_10714}'], '{!$Label.label_10721}')}).dialog("open");
+    return false;
+}
+
+function openRemandComment() {
+    $(".remand").show();
+    $(".approve").hide();
+    $("#actionType").val("remand");
+    $("#comment").attr("placeholder", getMsg(['{!$Label.label_10722}'], '{!$Label.msg_00315}'));
+    $("#commentDialog").dialog("option", {height : 260, title : getMsg(['{!$Label.label_10722}'], '{!$Label.label_10721}')}).dialog("open");
+    return false;
+}
+
+function openRejectComment() {
+    $(".remand").hide();
+    $(".approve").hide();
+    $("#actionType").val("reject");
+    $("#comment").attr("placeholder", getMsg(['{!$Label.label_10713}'], '{!$Label.msg_00315}'));
+    $("#commentDialog").dialog("option", {height : 240, title : getMsg(['{!$Label.label_10713}'], '{!$Label.label_10721}')}).dialog("open");
+    return false;
+}
+
+function openCancelComment() {
+    $(".remand").hide();
+    $(".approve").hide();
+    $("#actionType").val("cancel");
+    $("#comment").attr("placeholder", getMsg(['{!$Label.label_10724}'], '{!$Label.msg_00315}'));
+    $("#commentDialog").dialog("option", {height : 240, title : getMsg(['{!$Label.label_10724}'], '{!$Label.label_10721}')}).dialog("open");
+    return false;
+}
+
+function openPullbackComment() {
+    $(".remand").hide();
+    $(".approve").hide();
+    $("#actionType").val("pullback");
+    $("#comment").attr("placeholder", getMsg(['{!$Label.label_10730}'], '{!$Label.msg_00315}'));
+    $("#commentDialog").dialog("option", {height : 240, title : getMsg(['{!$Label.label_10730}'], '{!$Label.label_10721}')}).dialog("open");
+    return false;
+}
+
+function setId(obj) {
+    var form = $("#commentForm");
+
+    $("#commentForm input[name='wfid']").remove();
+
+    if (typeof obj == "string") {
+        var h = $("<input>").attr({type : "hidden", name : "wfid", value : obj});
+        form.append(h);
+    } else if (typeof obj == "object") {
+        for (var i in obj) {
+            var id = obj[i];
+            var h = $("<input>").attr({type : "hidden", name : "wfid", value : id});
+            form.append(h);
+        }
+    }
+}
+
+</script>
+
+<div id="commentDialog" style="display: none;">
+    <form id="commentForm" action="#" method="post" onsubmit="return false;">
+        <input type="hidden" id="actionType" value="" />
+        <div class="remand">
+            <span style="font-weight: bold; margin:4px;">{!$Label.label_10723}</span>
+            <select id="remandTarget">
+                <option value="applicant" selected="selected">{!$Label.label_10691}</option>
+                <option value="previous">{!$Label.label_10725}</option>
+            </select>
+        </div>
+        <div class="approve">
+            <label><input type="checkbox" id="conditional" />{!$Label.label_10715}</label>
+        </div>
+        <div>
+            <div id="remainder" style="height: 1em; padding-bottom: 0.5em;text-align:right; white-space: nowrap;"></div>
+            <textarea id="comment" name="comment" style="width:350px; height: 120px;" placeholder=""></textarea>
+        </div>
+        <div style="text-align:center;">
+            <input type="button" class="btn" value="{!$Label.field_common_ok}"  onclick="return submitComment();" />
+            <input type="button" class="btn" value="{!$Label.field_common_cancel}" onclick="return closeCommentDialog();"/>
+        </div>
+    </form>
+</div>
+
+</apex:page>

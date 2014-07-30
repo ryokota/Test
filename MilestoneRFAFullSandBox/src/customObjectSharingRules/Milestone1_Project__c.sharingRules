@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectSharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <criteriaBasedRules>
+        <fullName>BI_Member</fullName>
+        <sharedTo>
+            <group>BI_Member</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>OwnerId</field>
+            <operation>notEqual</operation>
+            <value>null</value>
+        </criteriaItems>
+        <accessLevel>Read</accessLevel>
+        <name>BI  Member</name>
+    </criteriaBasedRules>
+</CustomObjectSharingRules>

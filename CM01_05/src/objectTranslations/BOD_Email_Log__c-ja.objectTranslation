@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Email履歴</value>
+    </caseValues>
+    <fields>
+        <label>補足(英)</label>
+        <name>Addition_EN__c</name>
+    </fields>
+    <fields>
+        <label>補足(日)</label>
+        <name>Addition_JP__c</name>
+    </fields>
+    <fields>
+        <label>取締役会</label>
+        <name>BOD_Meeting__c</name>
+        <relationshipLabel>メール送信履歴</relationshipLabel>
+    </fields>
+    <fields>
+        <label>CC先</label>
+        <name>CC_List__c</name>
+    </fields>
+    <fields>
+        <label>Emailフッターコメント(英)</label>
+        <name>Footer_Email_Comment_EN__c</name>
+    </fields>
+    <fields>
+        <label>Emailフッターコメント(日)</label>
+        <name>Footer_Email_Comment_JP__c</name>
+    </fields>
+    <fields>
+        <label>Emailヘッダーコメント(英)</label>
+        <name>Header_Email_Comment_EN__c</name>
+    </fields>
+    <fields>
+        <label>Emailヘッダーコメント(日)</label>
+        <name>Header_Email_Comment_JP__c</name>
+    </fields>
+    <fields>
+        <label>会議内容</label>
+        <name>Meeting_Description__c</name>
+    </fields>
+    <fields>
+        <label>取締役会名(英)</label>
+        <name>Name_EN__c</name>
+    </fields>
+    <fields>
+        <label>取締役会名(日)</label>
+        <name>Name_JP__c</name>
+    </fields>
+    <fields>
+        <label>送信日時</label>
+        <name>Send_By__c</name>
+    </fields>
+    <fields>
+        <label>送信者</label>
+        <name>Sender__c</name>
+        <relationshipLabel><!-- Email履歴 --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>開始日時</label>
+        <name>Start_Time__c</name>
+    </fields>
+    <fields>
+        <label>宛先</label>
+        <name>To_List__c</name>
+    </fields>
+    <fields>
+        <label>会議形態</label>
+        <name>Type__c</name>
+    </fields>
+    <fields>
+        <label>開催場所(日)</label>
+        <name>Venue_JP__c</name>
+    </fields>
+    <fields>
+        <label>開催場所(英)</label>
+        <name>Venue__c</name>
+    </fields>
+    <layouts>
+        <layout>BOD Email Log Layout</layout>
+        <sections>
+            <label><!-- Comment --></label>
+            <section>Comment</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- Email Information --></label>
+            <section>Email Information</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>Email履歴名</nameFieldLabel>
+</CustomObjectTranslation>

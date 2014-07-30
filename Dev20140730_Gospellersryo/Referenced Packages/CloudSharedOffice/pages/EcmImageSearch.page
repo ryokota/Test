@@ -1,0 +1,576 @@
+<apex:page id="page" controller="SOLXYZCSO001.EcmImageSearchController" action="{!init}" sidebar="false" showHeader="false">
+
+<!-- CSO認証共通モジュール -->
+<c:CsoBridgeComp id="csoBridgeComp"/>
+<c:CsoScriptComp id="csoScriptComp"/>
+
+<c:CSOSilverlightComp id="csoSilverlightComp" rendered="{!IF(BrowserName=='ie',true,false)}"/>
+
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/document.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+
+
+<apex:outputPanel rendered="{!IF(cso_userInfo.showErrPage == true, true, false)}">
+
+
+
+
+<script type="text/javascript">
+jQuery.event.add(window, "load", function(){
+
+    var browserType = getBrowserType();
+
+    $("#contentsSelectModal").dialog({autoOpen: false, bgiframe: true, width: 800, modal: true, resizable: false, closeText: "Close", close: function(){cancelOnClick();}});
+    $("#contentsSelectModal").dialog("open");
+
+
+    $('#contentsSelectModal_cancel').unbind().click(function(){
+        $("#contentsSelectModal").dialog("close");
+        //画面遷移
+        top.location.href = '/{!Sf_Id}';
+    });
+
+    if('{!cso_userInfo.locale}' == 'en' &&  browserType == 'IE9' ){
+        $('.ui-th-div-ie').css("line-height","26px");
+    }else{
+        $('.ui-th-div-ie').css("line-height","21px");
+    }
+
+});
+
+function cancelOnClick(){
+    top.window.history.back();
+}
+</script>
+<style type="text/css">
+#errorMessageFrame {
+    height:450px;
+    overflow: hidden;
+}
+#maintenancePageFrame {
+    //height:auto;
+}
+#contentsSelectModal {
+    //height:auto;
+}
+
+</style>
+    <div id="contentsSelectModal" style="display:none" title="{!$Label.solxyzcso001__label_10531}">
+        <apex:iframe src="{!$Page.SOLXYZCSO001__CSO_Error}?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" />
+        <p style = "text-align: center;">
+             <input type="button" class="btn" id="contentsSelectModal_cancel" value="{!$Label.field_common_ok}"/>
+        </p>
+    </div>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!IF(cso_userInfo.showErrPage == false, true, false)}">
+
+
+
+
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.jqGrid-2rowCell.css')}" />
+
+
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'ja', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-ja.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'en', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-en.js')}" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.locale == 'zh', true, false)}">
+    <apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/grid.locale-zh.js')}" />
+</apex:outputPanel>
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.jqGrid.min.js')}" />
+
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__WRCSO, 'js/jquery.treeview.cso-async.js')}" />
+
+
+
+<script type="text/javascript">
+var DATA_DELIM =',';
+var fileIdList ='';
+var space_portal_ref_space_idCS = '';
+var asrtCS = '';
+// 初期関連リスト
+var relatedDocList = [];
+var relatedSpaceidList = [];
+// 編集中関連リスト
+var updatingRelatedDocList = [];
+var processContinueFlag = false;
+var originalDocList = [];
+var b4d_nowId;
+var uploadFlg = false;
+var selectSpaceList = [];
+
+var thumid = '{!thumid}';
+
+jQuery.event.add(window, "load", function(){
+
+    var browserType = getBrowserType();
+
+    b4d_nowId = "";
+
+
+
+    // 関連付けコンテンツのリスト取得
+    var callback =  function(data){
+        var idList = "";
+        for(var i=0; i<data.rows.length; i++){
+            relatedDocList.push(data.rows[i].id);
+            relatedSpaceidList.push(data.rows[i].spaceid);
+            updatingRelatedDocList.push(data.rows[i].id);
+            idList = idList + ' ' + data.rows[i].id;
+
+            //ツリーの選択状態を更新
+            var o = data.rows[i].spaceid
+            selectSpaceList.push(o);
+            if (o === "") {continue;}
+            if(!$("#" + o).hasClass("selectedContentsSpace")){
+                $("#" + o).addClass("selectedContentsSpace");
+                $("#" + o).append("<img src='" + "{!URLFOR($Resource.cso, 'image/apply.png')}" + "' class= 'checkMarkImg' id='x_"+ o +"'>");
+            }
+        }
+    };
+
+    var callerror =  function(data){
+        alert(data);
+    };
+//    secureGetAsync('/contentsmanagement/ContentsRelationListGet.json', {"objid": "{!Sf_ID}"}, callback, callerror);
+
+    // asrtとspaceidの初期値を入力(マイスペース)
+    asrtCS = "MY";
+    space_portal_ref_space_idCS = "{!cso_userInfo.mySpaceId}";
+
+    $("#contentsList").jqGrid({
+        datatype: "jsonp",
+        url: _apiUrl + '/contentsmanagement/SpaceContentsListV2Get.json?caller=contentsAttach',
+        postData : {
+            spaceId : space_portal_ref_space_idCS,
+            asrt : asrtCS,
+            extension_filter:'jpg,png,bmp,gif'
+        },
+        jsonReader :{ repeatitems: false, id : "id"},
+        colNames:[ '',
+                   '{!$Label.label_10081}',
+                   '{!$Label.label_10140}',
+                   '{!$Label.label_10804}',    //作成
+                   '{!$Label.label_10805}',    //更新
+                   '{!$Label.label_10014}',    //作成日時
+                   '{!$Label.label_10018}'],   //更新日時
+        colModel:[ {name:'id', index:'id', hidden:true},
+                   {name:'noaname', index:'name', width:280},
+                   {name:'size', index:'size', align:"right", hidden:true},
+                   {name:'rinfo', index:'rdate', width:100, align:"center", hidden:true},
+                   {name:'uinfo', index:'udate', width:100, align:"center", hidden:true},
+                   {name:'rdate', index:'rdate', width:100, align:"center"},
+                   {name:'udate', index:'udate', width:100, align:"center"}
+                 ],
+        rowNum:{!cso_userInfo.documentRows},
+        height: 300,
+        rowList:[10,50,100],
+        sortname: 'name',
+        pager: '#contentsListPager',
+        viewrecords: true,
+        multiselect: false,
+        multiboxonly: true,
+        shrinkToFit : false,
+        onSelectRow : function(id, b_check) {
+            if(id.indexOf("DOC_") > -1){
+
+                //window.opener.$('#'+thumid).html($('#'+id).find('img'));
+
+                //window.opener.$('#'+thumid).next('input[id="docid"]').val(id);
+                //apiの戻り値が変更されたため、修正する
+                //top.window.opener.ecmImageSelectReturn(thumid,id,$('#'+id).find('img'));
+                top.window.opener.ecmImageSelectReturn(thumid,id,$('#'+id).find('div.jqGridIcon'));
+
+                top.window.close();
+
+            } else {
+
+            }
+
+
+        },
+
+        loadComplete : function(data) {
+            try{
+                selectContents(updatingRelatedDocList);
+                space_portal_ref_space_idCS = data.spaceId;
+                asrtCS = data.asrt;
+                changeCurrentTreeColor(data.spaceId);
+                if(data.addContents){
+                    $("#uploadButton").removeAttr("disabled");
+                    $("#uploadButton").removeAttr("style");
+                } else {
+                    $("#uploadButton").attr("disabled", "disabled");
+                    $("#uploadButton").css({color:"gray"});
+                }
+
+                if(data.addSpace){
+                    $("#createSpaceButton").removeAttr("disabled");
+                    $("#createSpaceButton").removeAttr("style");
+                }else{
+                    $("#createSpaceButton").attr("disabled", "disabled");
+                    $("#createSpaceButton").css({color:"gray"});
+                }
+            }catch(e){
+            }
+        }
+    });
+    $("#contentsList").setGridWidth(540);
+
+    loadSpaceTree();
+    contentslist_edit();
+
+    if('{!cso_userInfo.locale}' == 'en' &&  browserType == 'IE9' ){
+        $('.ui-th-div-ie').css("line-height","26px");
+    }else{
+        $('.ui-th-div-ie').css("line-height","21px");
+    }
+});
+
+//==========================//
+// 選択スペースの文字色変更 //
+//==========================//
+function changeCurrentTreeColor(id){
+    if(!id){
+        return;
+    }
+
+    $(".folder a, .folderShare a").each(function(){
+        if(id == $(this).attr("id")){
+            $(this).css({color:"red"});
+        }else{
+            $(this).css({color:"black"});
+        }
+    });
+}
+
+
+//==========================//
+//  コンテンツの選択        //
+//==========================//
+function contentslist_edit(){
+    $("#contentsList").jqGrid("setGridParam", { url: _apiUrl + '/contentsmanagement/SpaceContentsListV2Get.json?asrt=my&caller=contentsAttach'});
+    $("#contentsList").trigger("reloadGrid");
+
+
+}
+
+//==========================//
+//  スペースツリーの初期化  //
+//==========================//
+function loadSpaceTree(){
+    $("spaceTree").html("");
+//    var callback =  function(data){
+//        if(data["result"] == false){
+//            if((data["message"] != null) && (data["message"] != "")){
+//                alert(data["message"]);
+//            }
+//            return;
+//        }
+//
+//        var branches = $("#spaceTree").html(data["tree"]);
+//        $("#spaceTree").treeview({
+//            animated: "fast",
+//            collapsed: true,
+//            unique: false,
+//            persist: "cookie",
+//            cookieId: "treecookie",
+//            add: branches,
+//            control:"#control_tree"
+//        });
+//    }
+//    secureGetAsync('/contentsmanagement/SpaceTreeGet.json', {"asrt":"DELIVERY", "itemsType":1, "itemsIds":"", "returnType":"html" }, callback);
+
+    var callback =  function(data){
+        //var branches = $(data["tree"]).appendTo("#spaceTree");
+        var branches = $("#spaceTree").html(data["tree"]);
+        $("#spaceTree").treeview({
+                collapsed: true,
+                add: branches,
+                url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+                asrt:"DELIVERY"
+        });
+    };
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"DELIVERY", 'itemsType' : '1', "itemsIds": "", "returnType":"html"}, callback);
+
+
+}
+
+//============================//
+//  スペースツリーのリロード  //
+//============================//
+function reloadTree(){
+    $("spaceTree").html("");
+    var callback =  function(data){
+        if(data["result"] == false){
+            if((data["message"] != null) && (data["message"] != "")){
+                alert(data["message"]);
+            }
+            return;
+        }
+
+//        var branches = $("#spaceTree").html(data["tree"]);
+//        $("#spaceTree").treeview({
+//            animated: "fast",
+//            persist: "cookie",
+//            cookieId: "treecookie",
+//            add: branches,
+//            control:"#control_tree"
+//        });
+
+        //var branches = $(data["tree"]).appendTo("#spaceTree");
+        var branches = $("#spaceTree").html(data["tree"]);
+        $("#spaceTree").treeview({
+                collapsed: true,
+                add: branches,
+                url: "/contentsmanagement/SpaceTreeChildrenApi.json",
+                asrt:"DELIVERY"
+        });
+
+        uploadFlg = true;
+        selectContents('');
+    }
+//    secureGetAsync('/contentsmanagement/SpaceTreeGet.json', {"asrt":"DELIVERY", "itemsType":1, "itemsIds":"", "returnType":"html" }, callback);
+    secureGetAsync('/contentsmanagement/SpaceTreeRootApi.json', {"asrt":"DELIVERY", 'itemsType' : '1', "itemsIds": "", "returnType":"html"}, callback);
+
+}
+
+//============================//
+//  コンテンツ一覧のリロード  //
+//============================//
+function change_delivery_space(asrtCDS, id){
+    b4d_nowId = id;
+    $("#contentsList").jqGrid("setGridParam", { url: _apiUrl + '/contentsmanagement/SpaceContentsListV2Get.json?caller=contentsAttach&spaceId=' + id + '&asrt=' + asrtCDS});
+    $("#contentsList").trigger("reloadGrid");
+}
+
+function reload(spaceId, asrtRL){
+    $("#listViewArea").show();
+    $("#listView1").setGridParam({url : _apiUrl + '/contentsmanagement/spaceContentsListV2Get.json?caller=contentsAttach',
+                                  page : 1,
+                                  postData : { spaceId : spaceId,
+                                               asrt : asrtRL,
+                                               searchstr : $('#keywords').val()
+                                             }
+                                  }).trigger("reloadGrid");
+}
+
+
+
+//=============================//
+//  securePostAsyncの呼び出し  //
+//=============================//
+function callSecurePostAsync(url, param, callback, callerror){
+    if(getBrowserType() == 'Chrome'){
+        if(typeof(param) == 'string'){
+            param = JSON.parse(param);
+        }
+        xhr2Access(url, param, true, false, callback, callerror);
+        return;
+    }
+    if(top.window.opener == null){
+        securePostAsync(url, param, callback, callerror);
+    } else{
+        top.window.opener.securePostAsync(url, param, callback, callerror);
+    }
+}
+
+var win;
+var timerId;
+
+
+
+//================//
+//  リロード処理  //
+//================//
+function reloadNow(){
+    uploadFlg = true;
+    $("#contentsList").jqGrid("setGridParam", { url: _apiUrl + '/contentsmanagement/SpaceContentsListV2Get.json?caller=contentsAttach&asrt=' + asrtCS + '&spaceId=' + space_portal_ref_space_idCS});
+    $("#contentsList").trigger("reloadGrid");
+    changeCurrentTreeColor(space_portal_ref_space_idCS);
+}
+
+
+
+//======================//
+//  コンテンツ選択状態  //
+//======================//
+function selectContents(selectDocList){
+    var IsSelect = false;
+    for (var j in selectDocList) {
+        var initId = selectDocList[j];
+        var ids = $("#contentsList").getDataIDs();
+        for (var k in ids) {
+            var rowData = $("#contentsList").getRowData(ids[k]);
+            if (initId == rowData.id) {
+                $("#contentsList").setSelection(ids[k]);
+                IsSelect = true;
+                break;
+            }
+        }
+    }
+
+    //アップロードファイルを関連付けする
+    if(uploadFlg == true){
+        uploadFlg = false;
+        var ids = $("#contentsList").getDataIDs();
+        var IsOrg = false;
+        for (var j in ids) {
+            var rowData = $("#contentsList").getRowData(ids[j]);
+            var docid = rowData.id;
+            if(typeof docid === "undefined"){continue;}
+            for (var k in originalDocList) {
+                if (docid == originalDocList[k]) {
+                    IsOrg = true;
+                    break;
+                }
+            }
+            if(IsOrg == false){
+                if(docid.indexOf("DOC_") == 0){
+                    $("#contentsList").setSelection(ids[j]);
+                }
+            }
+            IsOrg = false;
+        }
+        for (var i in selectSpaceList) {
+            var spaceId = selectSpaceList[i];
+            if(!$("#" + spaceId).hasClass("selectedContentsSpace")){
+                $("#" + spaceId).addClass("selectedContentsSpace");
+                $("#" + spaceId).append("<img src='" + "{!URLFOR($Resource.cso, 'image/apply.png')}" + "' class= 'checkMarkImg' id='x_"+ spaceId +"'>");
+            }
+        }
+    }
+}
+
+
+//===================================================================//
+//  行選択解除用function                                             //
+//  行が選択/解除された際に、updatingRelatedDocListを更新する        //
+//  行が選択された場合isTrueはtrue、解除された場合b_checkはfalse    //
+//===================================================================//
+function checkfnc(checkId, isTrue){
+    if(isTrue){
+        // 選択された場合
+        var exists = false;
+        for (var l=0; l<updatingRelatedDocList.length; l++) {
+            if(updatingRelatedDocList[l] == checkId){
+                exists = true;
+                break;
+            }
+        }
+        if(!exists){
+            updatingRelatedDocList.push(checkId);
+            //ツリーの選択状態
+            if(b4d_nowId != ""){
+                if(!$("#" + b4d_nowId).hasClass("selectedContentsSpace")){
+                    $("#" + b4d_nowId).addClass("selectedContentsSpace");
+                    $("#" + b4d_nowId).append("<img src='" + "{!URLFOR($Resource.cso, 'image/apply.png')}" + "' class= 'checkMarkImg' id='x_"+ b4d_nowId +"'>");
+                    selectSpaceList.push(b4d_nowId);
+                }
+            }
+        }
+    } else {
+        // 選択解除された場合
+        for (var l=0; l<updatingRelatedDocList.length; l++) {
+            if(updatingRelatedDocList[l] == checkId){
+                // l番目の要素を削除
+                updatingRelatedDocList.splice(l, 1);
+                break;
+            }
+        }
+
+        //ツリーの選択解除
+        if(b4d_nowId != ""){
+            var ids = $("#contentsList").jqGrid("getGridParam","selarrrow");
+            if(ids.length == 0){
+                $("#" + b4d_nowId).removeClass("selectedContentsSpace");
+                $("#x_" + b4d_nowId).remove();
+                for(i = 0; i < selectSpaceList.length; i++){
+                    if(selectSpaceList[i] == b4d_nowId){
+                        selectSpaceList.splice(i,1);
+                    }
+                }
+            }
+        }
+    }
+}
+
+</script>
+
+<style type="text/css">
+.tree_div{
+    border : 1px solid #ccc;
+    font-size : 96%;
+    padding : 0 0 0 3px;
+    margin: 5px 5px 5px 3px;
+    height : 340px;
+    width : 200px;
+    max-width : 200px;
+    min-width : 200px;
+    overflow : auto;
+    overflow-x : auto;
+    overflow-y : auto;
+    -ms-overflow-x : auto;
+    -ms-overflow-y : auto;
+}
+
+.jqGridIcon{
+    margin: 3px;
+}
+
+.tree_control {
+    text-align: right;
+    width: 210px;
+}
+.selectedContentsSpace {
+    font-weight: bold !important;
+}
+.folder {
+    position: relative ;
+}
+
+.checkMarkImg {
+    position: absolute !important;
+    width:16px !important;
+    top: -2px !important;
+    left: 0px !important;
+}
+</style>
+
+
+    <!-- コンテンツ選択 -->
+    <div id="contentsSelectModal" style="" title="{!$Label.label_10531}">
+        <table>
+            <tr>
+                <td valign="top" style="width:200px;">
+                    <div id="spaceTreeArea" class="tree_div">
+                        <ul id="spaceTree"  class="filetree treeview" >
+                        </ul>
+                    </div>
+                </td>
+
+                <td valign="top" style="padding-left: 1em; border-left: solid; border-width: 1px;">
+                    <div>
+                        <table id="contentsList"></table>
+                        <div   id="contentsListPager"></div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</apex:outputPanel>
+
+</apex:page>

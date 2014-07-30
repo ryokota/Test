@@ -1,0 +1,39 @@
+<messaging:emailTemplate subject="差し戻し（Returned to Requester）: {!relatedTo.RFA__r.Name} -【{!relatedTo.RFA__r.RequestTitle__c}】" recipientType="User" relatedToType="RFAUserRole__c">
+<messaging:htmlEmailBody >
+        <html>
+            <body>
+                <div style = " font-size:14px;">
+                    <p>
+                       <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="To :"/> &nbsp;<apex:outputText value="{!relatedTo.RFA__r.CreatedBy.name}"/><br/>
+                    </p>
+                    <p>                        
+                        <apex:outputText style="font-style:regular; font-weight:bold; font-size:14px; " value="CC :" rendered="{!(relatedTo.RFA__r.POC_Name__c != null || relatedTo.RFA__r.LOC_Name__c != null)}"/> &nbsp;
+                        <apex:outputText value="{!relatedTo.RFA__r.POC_Name__c}" rendered="{!relatedTo.RFA__r.POC_Name__c!=null}"/>
+                        <apex:outputText value=",{!relatedTo.RFA__r.LOC_Name__c}" rendered="{!relatedTo.RFA__r.LOC_Name__c!=null}"/>
+                        <br/>                             
+                    </p>
+                    
+                    <p>
+                    この承認申請は差し戻されました。リンク先の文書内の差し戻し理由を確認してください。:<BR/>
+                    This RFA has been returned to you for the following reason(s)  :&nbsp;&nbsp; <br/><br/>
+                    <b><apex:outputText >{!relatedTo.RFA__r.ReturnReason__c}</apex:outputText> </b><BR/>
+                    </p><br/>           
+                    
+                    <c:RFAVFT_C01_EmailTemplateBodyRFAuserRole rfaObj="{!relatedTo}"/><br/>
+                    
+                    <p>
+                    下記リンクをクリックし、承認申請リクエストの文書をご確認ください:<BR/>
+                    Click this link to open the RFA Request Document:<BR/>
+                    <b><a href="{!$label.RFA_CL026}/{!relatedTo.RFA__c}">{!relatedTo.RFA__r.Name}</a></B></p>
+                    <BR/>
+                    <p>
+                    ご質問がございましたら、 <b><a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a></b> へご連絡ください。<BR/>
+                    If you have any inquiries kindly contact <b><a href="mailto:{!$User.Email}?subject=RE : {!subject}">{!$User.FirstName}&nbsp;{!$User.LastName}</a></b>.<br/>
+                    <br/>
+                    </p>
+
+                </div>    
+            </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

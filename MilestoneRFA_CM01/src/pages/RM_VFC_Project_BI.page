@@ -1,0 +1,236 @@
+<apex:page tabstyle="Milestone1_Project__c" standardController="Milestone1_Project__c" extensions="RM_VFC_Project_BICtrl" action="{!biCheck}">
+	<style>
+		.table-header {
+			text-align: right;
+		}
+		textarea {
+			width : 100%;
+		}
+		.name-field {
+			width : 364px;
+		}}
+		.action-Link {
+			color: #015ba7;
+			text-decoration: none;
+			font-weight: normal;
+			cursor : pointer;
+		}
+	</style>
+	<apex:includeScript value="{!URLFOR($Resource.jQueryGantt, 'jquery.min.js')}"   />
+	<apex:sectionHeader subtitle="{!$Label.RM_Project_SubTitle}" title="{!$Label.RM_Project_Title}" />
+	<apex:outputPanel id="message" >
+ 		<apex:pageMessages />
+ 	</apex:outputPanel>
+	<apex:form >
+		<apex:pageBlock id="pblock" title="{!$Label.RM_Project_Title}" mode="edit">
+			<apex:pageBlockButtons >
+				<apex:actionStatus onstart="btnDisabled();" onstop="btnActive();" id="btnStatus"/>
+				<apex:commandButton action="{!biSave}" value="{!$Label.RM_Save}" status="btnStatus" reRender="pblock, message"/>
+				<apex:commandButton action="{!biSaveAndNew}" value="{!$Label.RM_Save_New}" status="btnStatus" reRender="pblock, message"/>
+				<apex:commandButton action="{!cancel}" value="{!$Label.RM_Cancel}" status="btnStatus" reRender="pblock"/>
+			</apex:pageBlockButtons>
+				<apex:outputPanel id="allView" layout="block" style="text-align:right; height : 30px;">
+					<apex:outputLabel value="{!$ObjectType.Milestone1_Project__c.Fields.AllView__c.Label}" />
+					<apex:inputCheckbox value="{!pageRedered.isAllView}" onClick="allView(this.checked);" style="margin: 10px;"/>
+				</apex:outputPanel>
+			<apex:pageBlockSection title="{!$Label.RM_General_Information}" columns="2" collapsible="false">
+				<apex:inputField value="{!Milestone1_Project__c.Name}" styleClass="name-field" required="true" />
+				<apex:inputField value="{!Milestone1_Project__c.Project_Sponsor__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Project_No__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Project_Leader__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Status__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Kickoff__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Project_Classification__c}" required="true" rendered="{!pageRedered.isInitiateApproved}"/>
+				<apex:outputPanel rendered="{!NOT(pageRedered.isInitiateApproved)}"/> 
+				<apex:inputField value="{!Milestone1_Project__c.Deadline__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.BI_Project_Type__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.Function__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.Sub_Function__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.Project_Status__c}" rendered="{!OR(isNew, pageRedered.isAllView)}"/>
+				<apex:outputPanel rendered="{!OR(isNew, pageRedered.isAllView)}"/>
+				<apex:outputField value="{!Milestone1_Project__c.RM_Approval_Status__c}" rendered="{!isNew}"/>
+				<apex:outputPanel rendered="{!isNew}"/>
+				<apex:outputField value="{!Milestone1_Project__c.OwnerId}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Background_Current_Issue__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.Description__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Estimated_Benefit_Overview__c}" />
+				<apex:outputPanel />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$Label.RM_Support_Sub_Function}" columns="2" collapsible="false" rendered="{!pageRedered.viewSupportFunction}">
+				<apex:inputField value="{!Milestone1_Project__c.RM_Commercial_Check__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Commercial_Select__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_SCM_Check__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_SCM_Select__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Procurement_Check__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Procurement_Select__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_HR_Check__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_HR_Select__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Finance_Check__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Finance_Select__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_IS_Check__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_IS_Select__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Legal_Check__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Legal_Select__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_PAC_Check__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_PAC_Select__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_BI_Check__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_BI_Select__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$ObjectType.Milestone_Permission__c.Label}" columns="1" collapsible="false" rendered="{!pageRedered.viewProjectTeam}">
+				<apex:outputPanel styleClass="table-header" layout="block">
+					<apex:commandButton value="{!$Label.RM_Add}" action="{!addRowsByProjectTeam}" immediate="true" reRender="projectTeamTable, message"/>
+				</apex:outputPanel>
+				<apex:outputPanel id="projectTeamTable" layout="block">
+					<apex:pageBlockTable value="{!projectTeams.records}" var="p">
+						<apex:column headerValue="{!$ObjectType.Milestone_Permission__c.Fields.UserName__c.Label}" style="width: 150px;">
+							<apex:inputField value="{!p.record.UserName__c}" onchange="userChange(this.id, {!p.no});"/>
+						</apex:column>
+						<apex:column headerValue="{!$ObjectType.Milestone_Permission__c.Fields.RM_Function__c.Label}">
+							<apex:outputText value="{!p.function}" />
+						</apex:column>
+						<apex:column headerValue="{!$ObjectType.Milestone_Permission__c.Fields.RM_Sub_Function__c.Label}">
+							<apex:outputText value="{!p.subFunction}" />
+						</apex:column>
+						<apex:column headerValue="{!$ObjectType.Milestone_Permission__c.Fields.RM_Expected_Roles__c.Label}">
+							<apex:inputField value="{!p.record.RM_Expected_Roles__c}" />
+						</apex:column>
+						<apex:column headerValue="{!$ObjectType.Milestone_Permission__c.Fields.ProjectRole__c.Label}">
+							<apex:inputField value="{!p.record.ProjectRole__c}" />
+						</apex:column>
+					</apex:pageBlockTable>
+				</apex:outputPanel>
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$Label.RM_Solution_Proposal}" columns="2" collapsible="false" rendered="{!pageRedered.viewDetailsOfSolution}" >
+				<apex:inputField value="{!Milestone1_Project__c.RM_Details_of_Solution__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$Label.RM_Quantitative_Benefit_Spending_Rough_Estimate_in_MM_Yen}" columns="2" collapsible="false" rendered="{!pageRedered.viewCostBenefit}" >
+				<apex:inputField value="{!Milestone1_Project__c.RM_Quantitative_Benefit_Spending__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.RM_PaybackPeriodYears__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$ObjectType.Milestone1_Milestone__c.Label}" columns="1" collapsible="false" rendered="{!pageRedered.viewMilestone}">
+				<apex:outputPanel styleClass="table-header" layout="block">
+					<apex:commandButton value="{!$Label.RM_Save}" action="{!saveMilestone}" reRender="pblock, milestoneTable, message" />
+					<apex:commandButton value="{!$Label.RM_Add}" action="{!addRowsByMilestoneTeam}" immediate="true" reRender="milestoneTable, message"/>
+				</apex:outputPanel>
+				<apex:outputPanel id="milestoneTable" layout="block">
+					<apex:pageBlockTable styleClass="milestone-table" value="{!milestones.records}" var="m">
+						<apex:column styleClass="action" headerValue="">
+							<a class="action-Link" onclick="deleteMilestone('{!m.no}')" style="color: #015ba7;">削除</a>
+						</apex:column>
+						<apex:column styleClass="name" headerValue="{!$ObjectType.Milestone1_Milestone__c.Fields.Name.Label}">
+							<apex:inputField value="{!m.record.Name}" />
+						</apex:column>
+						<apex:column styleClass="function" headerValue="{!$ObjectType.Milestone1_Milestone__c.Fields.RM_Function__c.Label}">
+							<apex:inputField value="{!m.record.RM_Function__c}" />
+						</apex:column>
+						<apex:column styleClass="kickoff" headerValue="{!$ObjectType.Milestone1_Milestone__c.Fields.Kickoff__c.Label}">
+							<apex:inputField value="{!m.record.Kickoff__c}" />
+						</apex:column>
+						<apex:column styleClass="deadline" headerValue="{!$ObjectType.Milestone1_Milestone__c.Fields.Deadline__c.Label}">
+							<apex:inputField value="{!m.record.Deadline__c}" />
+						</apex:column>
+						<apex:column styleClass="parent" headerValue="{!$ObjectType.Milestone1_Milestone__c.Fields.Parent_Milestone__c.Label}">
+							<apex:inputField value="{!m.record.Parent_Milestone__c}" />
+						</apex:column>
+					</apex:pageBlockTable>
+				</apex:outputPanel>
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$Label.RM_Communication_Change_Management}" columns="2" collapsible="false" rendered="{!pageRedered.viewCommunication}">
+				<apex:inputField value="{!Milestone1_Project__c.RM_Communication_Change__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$Label.RM_Only_SCM}" columns="2" collapsible="false" rendered="{!pageRedered.viewSCM}">
+				<apex:inputField value="{!Milestone1_Project__c.Category_Big_Title_NO__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Category_Big_Title__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Conductor__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Priority__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$Label.RM_Only_Procurement}" columns="2" collapsible="false" rendered="{!pageRedered.viewProcurement}">
+				<apex:inputField value="{!Milestone1_Project__c.CCPP_Status__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Individual_or_with_ATK__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Opex_or_CAPEX__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.Reduction_or_Avoidance__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="Project Status" columns="2" collapsible="false" rendered="{!pageRedered.viewProjectStatus}">
+				<apex:inputField value="{!Milestone1_Project__c.RM_Key_Events_From_This_Week__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Key_Events_For_Next_Week__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Issues_For_Escalation_Recovery_plan__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="Delays" columns="2" collapsible="false" rendered="{!pageRedered.viewDelays}">
+				<apex:inputField value="{!Milestone1_Project__c.Missed_Deadline_explanation__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.Plan_to_address_delays__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="Project Discussion" columns="2" collapsible="false" rendered="{!pageRedered.viewProjectDiscussion}">
+				<apex:inputField value="{!Milestone1_Project__c.RM_Sponsor_discussion__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Leader_discussion__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Team_Member_discussion__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$Label.RM_Taking_Over_to_Routine_Function}" columns="2" collapsible="false" rendered="{!pageRedered.viewTakingOver}">
+				<apex:inputField value="{!Milestone1_Project__c.RM_Routine_Function__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_L3_Name__c}" />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Activity_to_pass_Open_issue__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$Label.RM_Actual_Finish_Date}" columns="2" collapsible="false" rendered="{!pageRedered.viewActualFinishDate}">
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$Label.RM_Project_PlanDate}" />
+					<apex:outputField value="{!Milestone1_Project__c.Deadline__c}" />
+				</apex:pageBlockSectionItem>
+				<apex:inputField value="{!Milestone1_Project__c.RM_Actual_Date__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$Label.RM_Financial_Validation}" columns="2" collapsible="false" rendered="{!pageRedered.viewFinancialValidation}">
+				<apex:inputField value="{!Milestone1_Project__c.RM_Financial_Validation__c}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection title="{!$Label.RM_Lessons_for_Future_Projects}" columns="2" collapsible="false" rendered="{!pageRedered.viewLesonForFutureProjects}">
+				<apex:inputField value="{!Milestone1_Project__c.RM_Keep__c}" />
+				<apex:outputPanel />
+				<apex:inputField value="{!Milestone1_Project__c.RM_Change__c}" />
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+		<apex:actionFunction name="allViewChange" action="{!allViewChange}" reRender="pblock, allView" immediate="true">
+			<apex:param name="isAllView" assignTo="{!pageRedered.isAllView}" value=""/>
+		</apex:actionFunction>
+		<apex:actionFunction name="setTeamFunction" action="{!setTeamFunction}" reRender="projectTeamTable, allView, message" immediate="true">
+			<apex:param name="projectTeamUserId" assignTo="{!projectTeamUserId}" value=""/>
+			<apex:param name="projectTeamNo" assignTo="{!projectTeamNo}" value=""/>
+		</apex:actionFunction>
+		<apex:actionFunction name="doDeleteMilestone" action="{!deleteMilestone}" reRender="milestoneTable, allView, message" immediate="true">
+			<apex:param name="milestoneNo" assignTo="{!milestoneNo}" value=""/>
+		</apex:actionFunction>
+	</apex:form>
+	<script type="text/javascript">
+		function allView(view) {
+		
+			allViewChange(view);
+		}
+		function userChange(id, no) {
+			
+			if (document.getElementById(id).value != "") {
+				setTeamFunction(document.getElementById(id + '_lkid').value, no);
+			} else {
+				setTeamFunction('000000000000000', no);
+			}
+		}
+		function deleteMilestone(no) {
+		
+			doDeleteMilestone(no);
+			
+		}
+		function btnDisabled() {
+			$(".btn").attr("disabled", true);
+		}
+		function btnActive() {
+			$(".btn").attr("disabled", false);
+		}
+	</script>
+</apex:page>

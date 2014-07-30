@@ -1,0 +1,33 @@
+<apex:page cache="false" controller="SOLXYZCSO001.SpaceUserController" tabStyle="ContentTab__tab">
+
+<apex:form >
+
+    <apex:pageBlock tabStyle="ContentTab__tab">
+        <apex:pageBlockSection title="{!$Label.solxyzcso001__label_10280}{!spacePath}"  collapsible="false"/>
+    </apex:pageBlock>
+
+    <apex:pageBlock tabStyle="ContentTab__tab">
+
+        <!-- エラー／警告メッセージ表示エリア -->
+        <apex:pageMessages />
+
+        <!-- コマンドボタン -->
+        <apex:pageBlockButtons location="bottom">
+
+            <table width="100%">
+                <tr>
+                    <td align="right">
+                        <!-- [キャンセル] -->
+                        <input class="btn" type="button" value="{!$Label.label_00058}" onclick="top.window.close();" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </td>
+                </tr>
+            </table>
+
+        </apex:pageBlockButtons>
+
+    </apex:pageBlock>
+
+</apex:form>
+
+</apex:page>

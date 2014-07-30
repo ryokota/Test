@@ -1,0 +1,429 @@
+<apex:page cache="false" sidebar="false" controller="SOLXYZCSO001.SpacePortalController">
+
+<div id ="editMain">
+    <div id="detailDiv">
+        <table>
+            <tr>
+                <td style="vertical-align:top;">
+                    <table>
+                        <!-- 有効化 -->
+                        <tr>
+                            <th>{!$Label.label_10483}</th>
+                            <td>
+                                <input type="checkbox" name="PS_enabled" id="PS_enabled" />
+                            </td>
+                            <td>
+                                <label id="PS_enabledmsg" for="PS_enabled" style="color:red; display: none;">
+                                    {!$Label.label_10643}
+                                </label>
+                            </td>
+                        </tr>
+                        <!-- タイミング -->
+                        <tr>
+                            <th>{!$Label.label_10579}</th>
+                            <td colspan="2">
+                                <label><input type="checkbox" name="PS_timing" id="PS_timingSpace"    />{!$Label.label_11013}</label>
+                                <label><input type="checkbox" name="PS_timing" id="PS_timingDelivery" />{!$Label.label_10164}</label>
+                            </td>
+                        </tr>
+                        <!-- セキュリティレベル -->
+                        <tr>
+                            <th>{!$Label.label_10624}</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_level" id="PS_level128" value="0"/>{!$Label.label_10625}</label>
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <label><input type="radio" name="PS_level" id="PS_level40"  value="1"/>{!$Label.label_10626}</label>
+                            </td>
+                        </tr>
+                        <!-- パスワード -->
+                        <tr>
+                            <th>{!$Label.label_10460}</th>
+                            <td colspan="2"><label><input type="radio" name="PS_password" id="PS_passwordNone" value="0"/>{!$Label.label_10627}</label></td>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_password" id="PS_passwordFixed" value="1"/>{!$Label.label_10628}</label>
+                                <br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input id="PS_passwordValue"      type="password" name="PS_passwordValue"      size="50" disabled="disabled"/>
+                                <input id="PS_passwordValue-text" type="text"     name="PS_passwordValue-text" size="50" disabled="disabled" style="display: none;"/>
+                                <label><input type="checkbox" id="showPW" data-for="PS_passwordValue" disabled="disabled"/>{!$Label.label_10536}</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_password" id="PS_passwordRandom" value="2"/>{!$Label.label_10629}</label>
+                                <br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="text" name="PS_passwordLen" id="PS_passwordLen" style="text-align:right;" maxlength="2" size="2" disabled="disabled"/>{!$Label.label_10630}
+                            </td>
+                        </tr>
+                        <!-- マスターパスワード -->
+                        <tr>
+                            <th>{!$Label.label_10631}</th>
+                            <td colspan="2"><label><input type="radio" name="PS_masterPassword" id="PS_masterPassword" value="0"/>{!$Label.label_10627}</label></td>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_masterPassword" id="PS_masterPasswordFixed" value="1"/>{!$Label.label_10813}</label>
+                                <br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input id="PS_masterPasswordValue"      type="password" name="PS_masterPasswordValue"      size="50" disabled="disabled"/>
+                                <input id="PS_masterPasswordValue-text" type="text"     name="PS_masterPasswordValue-text" size="50" disabled="disabled" style="display: none;"/>
+                                <label><input type="checkbox" id="showMasterPW" data-for="PS_masterPasswordValue" disabled="disabled"/>{!$Label.label_10536}</label>
+                            </td>
+                        </tr>
+                        <tr style="display:none">
+                            <th>&nbsp;</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_masterPassword" id="PS_masterPasswordRandom" value="2"/>{!$Label.label_10629}</label>
+                                <br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="text" name="PS_masterPasswordLen" id="PS_masterPasswordLen" style="text-align:right;" maxlength="2" size="2" disabled="disabled"/>{!$Label.label_10630}
+                            </td>
+                        </tr>
+                        <!-- 文書アセンブリ -->
+                        <tr style="display: none;">
+                            <th>{!$Label.label_10632}</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_assembly" value="true" />{!$Label.label_10633}</label>
+                                &nbsp;&nbsp;
+                                <label><input type="radio" name="PS_assembly" value="false"/>{!$Label.label_10634}</label>
+                            </td>
+                        </tr>
+                        <!-- フォームフィールドの入力 -->
+                        <tr>
+                            <th>{!$Label.label_10636}</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_fieldInput" value="true" />{!$Label.label_10633}</label>
+                                &nbsp;&nbsp;
+                                <label><input type="radio" name="PS_fieldInput" value="false"/>{!$Label.label_10634}</label>
+                            </td>
+                        </tr>
+                        <!-- 注釈 -->
+                        <tr>
+                            <th>{!$Label.label_10637}</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_explanatoryNote" value="true" />{!$Label.label_10633}</label>
+                                &nbsp;&nbsp;
+                                <label><input type="radio" name="PS_explanatoryNote" value="false"/>{!$Label.label_10634}</label>
+                            </td>
+                        </tr>
+                        <!-- 文書の変更 -->
+                        <tr>
+                            <th>{!$Label.label_10638}</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_contentsEdit" value="true" />{!$Label.label_10633}</label>
+                                &nbsp;&nbsp;
+                                <label><input type="radio" name="PS_contentsEdit" value="false"/>{!$Label.label_10634}</label>
+                            </td>
+                        </tr>
+                        <!-- 内容のコピー -->
+                        <tr>
+                            <th>{!$Label.label_10635}</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_contentsCopy" value="true" />{!$Label.label_10633}</label>
+                                &nbsp;&nbsp;
+                                <label><input type="radio" name="PS_contentsCopy" value="false"/>{!$Label.label_10634}</label>
+                            </td>
+                        </tr>
+                        <!-- アクセシビリティ -->
+                        <tr>
+                            <th>{!$Label.label_10639}</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_accessibility" value="true" />{!$Label.label_10633}</label>
+                                &nbsp;&nbsp;
+                                <label><input type="radio" name="PS_accessibility" value="false"/>{!$Label.label_10634}</label>
+                            </td>
+                        </tr>
+                        <!-- 印刷 -->
+                        <tr>
+                            <th>{!$Label.label_10640}</th>
+                            <td colspan="2">
+                                <label><input type="radio" name="PS_print" value="true" />{!$Label.label_10633}</label>
+                                &nbsp;&nbsp;
+                                <label><input type="radio" name="PS_print" value="false"/>{!$Label.label_10634}</label>
+                            </td>
+                        </tr>
+                        <!-- 低解像度での印刷 -->
+                        <tr>
+                            <th>&nbsp;</th>
+                            <td colspan="2">
+                                <label><input type="checkbox" name="PS_lowResolutionPrint" id="PS_lowResolutionPrint"/>{!$Label.label_10641}</label>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table class="historyTbl">
+                        <tr>
+                            <th>{!$Label.label_10015}</th>
+                            <td><span id="PS_registUserName"></span></td>
+                            <th>{!$Label.label_10005}</th>
+                            <td><span id="PS_registDate"></span></td>
+                        </tr>
+                        <tr>
+                            <th>{!$Label.label_10024}</th>
+                            <td><span id="PS_updateUserName"></span></td>
+                            <th>{!$Label.label_10006}</th>
+                            <td><span id="PS_updateDate"></span></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- [下位スペースにも適用する]確認メッセージ -->
+<div id="pdfSecurityApplyModal" title="{!$Label.label_10009}" style="display: none;">
+    <div style="padding-top:10px;">
+            {!$Label.label_13254}
+    </div>
+
+    <div style="text-align:right; padding-top:20px;">
+        <input type="button" class="btn" value="{!$Label.label_00061}" onclick="savePdfSecurity(false);" />
+        <input type="button" class="btn" value="{!$Label.label_00060}" onclick="savePdfSecurity(true);" />
+    </div>
+</div>
+
+<apex:include pageName="SOLXYZCSO001__SettingPdfSecurityEditScript"/>
+
+
+<script type="text/javascript">
+
+var PS_SpaceId = "";
+var PS_existChild = false;
+
+function PdfSecurityInit(){
+}
+
+function getInitPdfSecurity(spaceId){
+
+    PS_SpaceId = spaceId;
+
+    /*-- -------- --*/
+    /*--  初期化  --*/
+    /*-- -------- --*/
+    PS_check('PS_enabled',         false);              /*--  有効化                    --*/
+    PS_check('PS_timingSpace',     false);              /*--  タイミング（スペース）    --*/
+    PS_check('PS_timingDelivery',  false);              /*--  タイミング（配信）        --*/
+    $('input[name="PS_level"]'          ).val(['0']);   /*--  セキュリティレベル        --*/
+    $('input[name="PS_password"]'       ).val(['0']);   /*--  パスワード                --*/
+    $('input[name="PS_masterPassword"]' ).val(['0']);   /*--  マスターパスワード        --*/
+    $('input[name="PS_assembly"]'       ).val(['0']);   /*--  文書アセンブリ            --*/
+    $('input[name="PS_contentsCopy"]'   ).val(['0']);   /*--  内容のコピー              --*/
+    $('input[name="PS_fieldInput"]'     ).val(['0']);   /*--  フォームフィールドの入力  --*/
+    $('input[name="PS_explanatoryNote"]').val(['0']);   /*--  注釈                      --*/
+    $('input[name="PS_contentsEdit"]'   ).val(['0']);   /*--  文書の変更                --*/
+    $('input[name="PS_accessibility"]'  ).val(['0']);   /*--  アクセシビリティ          --*/
+    $('input[name="PS_print"]'          ).val(['0']);   /*--  印刷                      --*/
+    PS_check('PS_lowResolutionPrint', false);           /*--  低解像度での印刷          --*/
+
+    $('#PS_passwordValue'           ).val('');
+    $('#PS_passwordValue-text'      ).val('');
+    $('#PS_passwordLen'             ).val('');
+    $('#PS_masterPasswordValue'     ).val('');
+    $('#PS_masterPasswordValue-text').val('');
+    $('#PS_masterPasswordLen'       ).val('');
+
+    $('#PS_registUserName').text('');                   /*--  作成者    --*/
+    $('#PS_registDate'    ).text('');                   /*--  作成日    --*/
+    $('#PS_updateUserName').text('');                   /*--  更新者    --*/
+    $('#PS_updateDate'    ).text('');                   /*--  更新日    --*/
+
+    /*--  メッセージを非表示  --*/
+    $("#PS_enabledmsg").hide();
+
+    /*-- ---------------- --*/
+    /*--  設定情報を取得  --*/
+    /*-- ---------------- --*/
+    var callback =  function(data, status){
+        if(!data.result){
+            var errMsg = data.message;
+            if((errMsg != null) && (errMsg != "")){
+                alert(errMsg);
+            }
+            return;
+        }
+        if(data.existChild){
+            PS_existChild = true;
+        }else{
+            PS_existChild = false;
+        }
+        PS_initData(data);
+    };
+    var callerror =  function(data){
+        alert("SpacePdfSecurityDetailApi:" + data);
+    };
+    secureGetAsync('/contentsmanagement/SpacePdfSecurityDetailApi.json?id=' + spaceId, '', callback, callerror);
+}
+
+function PS_initData(data){
+    /*--  画面タイトル・パスセット  --*/
+    $('#c_headLeftSubTitle').html(data.detail.spaceName);
+    setPathList(data.detail.sfpath);
+
+    $(".btn").removeAttr("disabled");
+
+    /*--  メッセージの表示  --*/
+    if(eval(data.detail.pw) == true){
+        $("#PS_enabledmsg").show();
+    }
+
+    PS_displayInit (data.detail);
+    PS_displayInit2(data.detail);
+
+    /*-- [下位スペースにも適用する]確認ダイアログの初期化 --*/
+    $("#pdfSecurityApplyModal").dialog({
+        autoOpen: false,
+        bgiframe: true,
+        modal: true,
+        resizable: false,
+        closeText: "Close",
+        width : 300,
+        height: 120
+    });
+}
+
+function cancelPdfSecurity(){
+    changeHashToCurrentSpace();
+    $('#listView1').trigger('reloadGrid');
+    reloadTree();
+    displayList();
+}
+
+function editPdfSecurity() {
+    $(".btn").attr("disabled", "disabled");
+
+
+    /*-- -------------- --*/
+    /*-- エラーチェック --*/
+    /*-- -------------- --*/
+    PS_err = false;
+    PS_checkInputData();
+
+    $(".btn").removeAttr("disabled");
+
+    /*-- エラーがあった場合 --*/
+    if (PS_err == true){
+        $(".btn").removeAttr("disabled");
+        return false;
+    }
+
+    if(PS_existChild){
+        $("#pdfSecurityApplyModal").dialog("open");
+    }
+    else{
+        savePdfSecurity(false);
+    }
+}
+
+function savePdfSecurity(apply){
+    $(".btn").attr("disabled", "disabled");
+
+    $("#pdfSecurityApplyModal").dialog("close");
+
+    /*-- ---------------- --*/
+    /*-- パラメータの生成 --*/
+    /*-- ---------------- --*/
+    var pwOpt  = "";
+    var pwType = $("input:radio[name='PS_password']:checked").val();
+    if(pwType == PASSWORD_TYPE_FIXED){
+        pwOpt = $("#PS_passwordValue").val();
+    }
+    if(pwType == PASSWORD_TYPE_RANDOM){
+        pwOpt = $("#PS_passwordLen").val();
+    }
+
+    var masterPwOpt  = "";
+    var masterPwType = $("input:radio[name='PS_masterPassword']:checked").val();
+    if(masterPwType == PASSWORD_TYPE_FIXED){
+        masterPwOpt = $("#PS_masterPasswordValue").val();
+    }
+    if(masterPwType == PASSWORD_TYPE_RANDOM){
+        masterPwOpt = $("#PS_masterPasswordLen").val();
+    }
+
+    var valAssembly = true;
+    if($("input[name=PS_level]:checked").val() != LEVEL_40BIT){
+        valAssembly = $("input[name=PS_contentsEdit]:checked").val();   // assembly = contents_edit
+    }
+
+    var query = {
+            id                  : PS_SpaceId,
+            apply               : apply,
+            enabled             : $("#PS_enabled").attr("checked"),
+            timingSpace         : $('#PS_timingSpace').attr('checked'),
+            timingDelivery      : $('#PS_timingDelivery').attr('checked'),
+            priority            : $("input[name=PS_priority]:checked").val(),
+            level               : $("input[name=PS_level]:checked").val(),
+
+            pw_type             : pwType,
+            pw_opt              : pwOpt,
+            master_pw_type      : masterPwType,
+            master_pw_opt       : masterPwOpt,
+
+//          assembly            : $("input[name=PS_assembly]:checked").val(),
+            assembly            : valAssembly,
+            field_input         : $("input[name=PS_fieldInput]:checked").val(),
+            explanatory_note    : $("input[name=PS_explanatoryNote]:checked").val(),
+            contents_edit       : $("input[name=PS_contentsEdit]:checked").val(),
+            contents_copy       : $("input[name=PS_contentsCopy]:checked").val(),
+            accessibility       : $("input[name=PS_accessibility]:checked").val(),
+            print               : $("input[name=PS_print]:checked").val(),
+            low_resolution_print: $("#PS_lowResolutionPrint").attr("checked")
+    }
+
+    /*-- -------- --*/
+    /*-- 登録処理 --*/
+    /*-- -------- --*/
+    var callback = function(data){
+        if(!data.result){
+            CsoScript_loadingStop();
+            if((data.userMsg != null) && (data.userMsg != "")){
+                alert(data.userMsg);
+            }
+            if((data.message != null) && (data.message != "")){
+                alert(data.message);
+            }
+            $(".btn").removeAttr("disabled");
+            return false;
+        }
+        CsoScript_loadingStop();
+        $(".btn").removeAttr("disabled");
+        changeHashToCurrentSpace();
+        $('#listView1').trigger('reloadGrid');
+        reloadTree();
+        displayList();
+    };
+    var callerror =  function(data){
+        CsoScript_loadingStop();
+        alert("SpacePdfSecurityEditApi:" + data);
+        $(".btn").removeAttr("disabled");
+    };
+
+    CsoScript_loadingStart();
+    securePostAsync('/contentsmanagement/SpacePdfSecurityEditApi.json', query, callback, callerror);
+
+    return true;
+
+}
+
+ECM.pdfSecurity = ECM.pdfSecurity || { loaded: $.Deferred() };
+(function() {
+    $.extend(ECM.pdfSecurity, {
+        // intentionally empty
+    });
+    ECM.pdfSecurity.loaded.resolve();
+})();
+
+</script>
+
+
+</apex:page>

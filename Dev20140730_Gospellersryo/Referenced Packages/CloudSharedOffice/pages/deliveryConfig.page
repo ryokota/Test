@@ -1,0 +1,299 @@
+<apex:page showHeader="true" Controller="SOLXYZCSO001.ReportHistoryController" tabStyle="Opportunity" >
+
+    <head>
+    <link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.yui_skin)}" />
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_min)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_event)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_container)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.yui_animation)}"></script>
+    </head>
+
+    <script type="text/javascript">
+    $(function(){
+        $("input[name='downloadSecurity']").change(changePassword);
+        if({!downloadPwSelected}){
+            $("input[name='downloadSecurity']").val(['1']);
+            $("input[name='downloadSecurity']").change();
+        }
+        $("#publicPeriod").val({!JSENCODE(deliveryPublicPeriod)});
+    });
+
+    function changePassword(){
+        if($("input[name='downloadSecurity']:checked").val() == '1'){
+            $("#downloadPw").removeAttr("disabled");
+            $("#downloadPwConfirm").removeAttr("disabled");
+        }else{
+            $("#downloadPw").attr("disabled", "disabled");
+            $("#downloadPwConfirm").attr("disabled", "disabled");
+        }
+    }
+
+    function confirmCancel() {
+        var isCancel = confirm("{!$Label.msg_010014}");
+        if (isCancel){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function confirmPW(){
+
+        var delTo, dwNumber, pw1,pw2;
+
+        delTo= document.getElementById("deliveryTo");
+        //alert("delTo.value =" + delTo.value);
+        if(delTo.value == null || delTo.value == ""){
+            alert("{!$Label.msg_010015}");
+            return false;
+        }
+
+        dwNumber = document.getElementById("downloadLimit");
+        //alert("dwNumber.value =" + dwNumber.value);
+        if(dwNumber.value == null || dwNumber.value == ""){
+            alert("{!$Label.msg_010016}");
+            return false;
+        }
+
+        pw1 = document.getElementById("downloadPw");
+        pw2 = document.getElementById("downloadPwConfirm");
+        //alert("pw1=" + pw1 + "\r\n" + "pw1 value=" + pw1.value + "\r\n" + "pw2=" + pw2 + "\r\n" + "pw2 value=" + pw2.value);
+        //return false;
+        if(pw1.value != pw2.value){
+            alert("{!$Label.msg_010017}");
+            return false;
+        }
+
+        return true;
+    }
+
+</script>
+<style type="text/css">
+</style>
+
+<script>
+
+    YAHOO.namespace("force.com");
+
+    YAHOO.force.com.showMe = function() {
+        document.getElementById("myPanel").style.display = "block";
+        YAHOO.force.com.myDialog.show();
+    }
+
+    YAHOO.force.com.hideMe = function() {
+        YAHOO.force.com.myDialog.hide();
+    }
+
+    YAHOO.force.com.setInfo = function() {
+        var val = document.getElementById("{!$Component.popupForm.pageBK.pageSection.pageItem.contactMail}").value;
+        //alert(val);
+        $("#deliveryTo").val(val);
+    }
+
+    YAHOO.force.com.init = function() {
+        document.body.className = document.body.className + " yui-skin-sam";
+
+        YAHOO.force.com.myDialog = new YAHOO.widget.Panel(
+            "myPanel",  // The id of our dialog container
+            {
+                    width           :   500,    // You can play with this until it's right
+                    visible         :   false,  // Should be invisible when rendered
+                    draggable       :   true,   // Make the dialog draggable
+                    close           :   true,  // Don't include a close title button
+                    modal           :   true,   // Make it modal
+                    fixedCenter     :   true,   // Keep centered if window is scrolled
+                    zindex          :   40,     // Make sure it's on top of everything
+
+                    // This line adds the appear/vanish fade effect
+                    effect          :   {
+                                          effect:YAHOO.widget.ContainerEffect.FADE,
+                                          duration:0.35
+                                        }
+            }
+         );
+
+        YAHOO.force.com.myDialog.render(document.body);
+    }
+
+    YAHOO.util.Event.addListener(window, "load", YAHOO.force.com.init);
+</script>
+
+    <apex:sectionHeader title="Cloud Shared Office" subtitle="{!$Label.solxyzcso001__field_010185}" help="/apex/CSO_HELP"/>
+
+    <apex:form id="myForm">
+        <apex:pageBlock title="{!$Label.solxyzcso001__field_010186} {!history.SOLXYZCSO001__ReportNumber__c}">
+            <apex:pageMessages />
+                <apex:pageBlockSection columns="1">
+                    <table class="detailList" id="saveDeliveryOption" style="margin: 20px 0px 0px 50px; width: 80%">
+                        <tbody>
+                            <tr>
+                                <td class="labelCol  first "><label>{!$Label.field_010169}</label></td>
+                                <td class="data2Col  first "><input size="70" type="text" id="deliverySubject" value="{!deliverySubject}"/></td>
+                            </tr>
+                            <tr>
+                                <td class="labelCol "><label>{!$Label.field_010170}</label></td>
+                                <td class="data2Col "><input size="50" type="text" id="deliveryTo" value="{!deliveryTo}"/>
+                                <input type="button" class="btn" onclick="setParametor(); YAHOO.force.com.showMe();" value="{!$Label.solxyzcso001__field_010075}" />
+                                </td>
+                            </tr>
+                            <!--
+                            <tr>
+                                <td class="labelCol "><label>{!$Label.field_010194}</label></td>
+                                <td class="data2Col "><input size="50" type="text" id="deliveryCc" value="{!deliveryCc}"/></td>
+                            </tr>
+                            -->
+                            <tr>
+                                <td class="labelCol "><label>{!$Label.field_010171}</label></td>
+                                <td class="data2Col "><textarea style="width: 350px; height: 100px;" id="deliveryContents">{!deliveryContents}</textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="labelCol "><label>{!$Label.field_010172}</label></td>
+                                <td class="data2Col "><label> <select size="1" id="publicPeriod">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                </select> <span style="margin-left: 10px;">{!$Label.field_010173}</span></label></td>
+                            </tr>
+                            <tr>
+                                <td class="labelCol  last "><label>{!$Label.field_010174}</label></td>
+                                <td class="data2Col  last "><label> <input type="text" size="10" id="downloadLimit" value="{!deliveryDownloadLimit}"/> <span style="margin-left: 10px;">{!$Label.field_010175}</span></label></td>
+                            </tr>
+                            <tr>
+                                <td class="labelCol  last "><label>{!$Label.field_010176}</label></td>
+                                <td class="data2Col  last "><label>
+                                <input type="radio" name="downloadSecurity" id="dl_pass_off"  checked="checked" value="0"/> <label for="dl_pass_off">{!$Label.field_010177}</label><br />
+                                <input type="radio" name="downloadSecurity" id="dl_pass_on" value="1"/> <label for="dl_pass_on">{!$Label.field_010178}</label><br /></label>
+
+                                <table style="margin: 10px 0px 0px 30px;">
+                                    <tr>
+                                        <td style="text-align: right;">{!$Label.field_010176}</td>
+                                        <td><input type="password" disabled="disabled" id="downloadPw"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: right;">{!$Label.field_010179}</td>
+                                        <td><input type="password" disabled="disabled" id="downloadPwConfirm" /></td>
+                                    </tr>
+                                </table>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton disabled="{!NOT(isOutCallOK)}" action="{!createDelivery}" value="   {!$Label.solxyzcso001__field_common_ok}   "
+                    onclick="return setParametor()" />
+                <apex:commandButton id="commitBtn" action="{!cancel}" value="{!$Label.solxyzcso001__field_common_cancel}"
+                    onclick="return confirmCancel()" immediate="true" />
+
+            </apex:pageBlockButtons>
+
+         </apex:pageBlock>
+
+        <apex:inputHidden id="apexDeliverySubject" value="{!deliverySubject}"/>
+        <apex:inputHidden id="apexDeliveryTo" value="{!deliveryTo}"/>
+        <apex:inputHidden id="apexDeliveryCc" value="{!deliveryCc}"/>
+        <apex:inputHidden id="apexDeliveryContents" value="{!deliveryContents}"/>
+        <apex:inputHidden id="apexDeliveryPublicPeriod" value="{!deliveryPublicPeriod}"/>
+        <apex:inputHidden id="apexDeliveryDownloadLimit" value="{!deliveryDownloadLimit}"/>
+
+        <apex:inputHidden id="apexDownloadSecurity" value="{!downloadPwSelected}"/>
+        <apex:inputHidden id="apexDownloadPw" value="{!deliveryDownloadPw}"/>
+        <apex:inputHidden id="apexDownloadPwConfirm" value="{!deliveryDownloadPwConfirm}"/>
+<script>
+    function setParametor(){
+
+        document.getElementById("{!$Component.apexDeliverySubject}").value = $("#deliverySubject").val();
+        document.getElementById("{!$Component.apexDeliveryTo}").value = $("#deliveryTo").val();
+        //document.getElementById("{!$Component.apexDeliveryCc}").value = $("#deliveryCc").val();
+        document.getElementById("{!$Component.apexDeliveryContents}").value = $("#deliveryContents").val();
+        document.getElementById("{!$Component.apexDeliveryPublicPeriod}").value = $("select#publicPeriod option:selected").val();
+        document.getElementById("{!$Component.apexDeliveryDownloadLimit}").value = $("#downloadLimit").val();
+
+        document.getElementById("{!$Component.apexDownloadSecurity}").value = parseBool($("input[name='downloadSecurity']:checked").val());
+        document.getElementById("{!$Component.apexDownloadPw}").value = $("#downloadPw").val();
+        document.getElementById("{!$Component.apexDownloadPwConfirm}").value = $("#downloadPwConfirm").val();
+
+        return true;
+    }
+
+    /**
+     * valが'1'の場合はtrueを、それ以外はfalseを返却します。
+     */
+    function parseBool(val){
+        if(val == '1') return true;
+        else return false;
+    }
+
+</script>
+
+
+    </apex:form>
+
+
+        <!-- This is the content of the pop up -->
+        <div id="myPanel" style="display: none" >
+          <div class="hd">
+            <apex:outputText value="{!$Label.solxyzcso001__field_010181}" />
+          </div>
+          <div class="bd">
+              <apex:form id="popupForm">
+                <apex:pageBlock id="pageBK">
+                  <apex:pageBlockSection id="pageSection" title="{!$Label.solxyzcso001__msg_010013}">
+                    <apex:pageBlockSectionItem id="pageItem">
+                      <apex:outputLabel value="{!$Label.solxyzcso001__field_010075}"/>
+                      <apex:selectList id="contactMail" multiselect="false" required="true" size="1" value="{!deliveryToSel}">
+                        <apex:selectOptions value="{!contactMailList}" />
+                      </apex:selectList>
+                    </apex:pageBlockSectionItem>
+                  </apex:pageBlockSection>
+                </apex:pageBlock>
+                <div style="text-align: right;" >
+                  <apex:commandButton value="{!$Label.solxyzcso001__field_common_ok}" action="{!selectedContact}"
+                      oncomplete="YAHOO.force.com.setInfo();YAHOO.force.com.hideMe();"/>
+                  <apex:commandButton value="{!$Label.solxyzcso001__field_common_cancel}" immediate="true"
+                      oncomplete="YAHOO.force.com.hideMe();"/>
+                </div>
+              </apex:form>
+          </div>
+        </div>
+
+<br/><hr/>
+<apex:outputpanel style="width:100%; text-align:center;" layout="block"><apex:outputlabel >{!$Label.solxyzcso001__field_CSO_copyright}</apex:outputlabel></apex:outputpanel>
+
+</apex:page>

@@ -1,0 +1,365 @@
+<apex:page cache="false" sidebar="false" tabStyle="setting__tab" controller="SOLXYZCSO001.SpaceCapacityInfoController">
+<apex:outputPanel id="err" rendered="{!IF(cso_userInfo.proAuth_service_space == 'false', true, false)}">
+{!$Label.solxyzcso001__msg_00137}
+</apex:outputPanel>
+<apex:iframe src="/apex/CSO_Error?code={!cso_userInfo.code}&massage={!cso_userInfo.message}" scrolling="true" id="errorMessageFrame" rendered="{!IF(cso_userInfo.showErrPage == true,true,false)}"/>
+<apex:outputPanel rendered="{!IF(cso_userInfo.proAuth_service_space == 'true' && cso_userInfo.showErrPage == false, true, false)}">
+<!-- CSO連携モジュール -->
+<apex:include pageName="SOLXYZCSO001__CsoBridge"/>
+<!-- CSS -->
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/contextMenu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/document.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/_colorado.css')}" />
+<!-- JS -->
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.history.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/fg.menu.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/inputCheck.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.treeview.async.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/callActiveX.js')}" />
+<!-- CSO共通スクリプト -->
+<apex:include pageName="SOLXYZCSO001__CsoScript"/>
+
+
+<style type="text/css">
+.outertable {
+/*    margin-left : 30px;*/
+    /*border : solid 1px black;*/
+    border-spacing : 0px;
+    border-collapse : collapse;
+    width : 100%;
+}
+
+.innertable {
+    width :100%;
+}
+
+.separatorDiv{
+    width: 100%;
+}
+
+.separatorDiv div{
+//    color: white;
+//    padding: 3px 0px 3px 5px;
+    font-weight: bold;
+}
+
+.spaceName{
+    font-size : 14px;
+    font-weight : bold;
+    width : 80%;
+    padding-left : 30px;
+    height : 30px;
+}
+.spaceSize{
+    font-size : 14px;
+    text-align : right;
+    width : 20%;
+    height : 25px;
+}
+
+td.spaceNameTitle{
+    padding-left : 10px;
+    border : solid 1px #808080;
+    height : 25px;
+    font-size : 14px;
+    font-weight : bold;
+    background-color : #DCDCDC;
+}
+
+td.items {
+    border : solid 1px #808080;
+}
+
+span.large {
+    font-size : 20px;
+    font-weight: bold;
+}
+
+</style>
+
+
+
+
+
+<script type="text/javascript">
+
+    //==========//
+    //  onload  //
+    //==========//
+    jQuery.event.add(window, "load", function(){
+        //  スペース容量の取得
+        spaceCapacityInfo_getSpaceCapacityInfo();
+    });
+
+    //======================//
+    //  スペース容量の取得  //
+    //======================//
+    function spaceCapacityInfo_getSpaceCapacityInfo(){
+        var callback =  function(data, status){
+            if (data == null){
+                return;
+            }
+            //  現在日付
+            $("#spaceCapacityInfo_today").text(getMsg(new Array(data["nowdate"]), '{!$Label.label_10094}'));
+            //  利用開始日
+            $("#spaceCapacityInfo_serviceStart").text(data["serviceStart"]);
+            //  会社名
+            $("#spaceCapacityInfo_corpName").text( data["corpName"]);
+
+            //  カンパニースペース
+            $("#spaceCapacityInfo_companySpaceSize").text(data["companySpaceSize"]);
+            //  コラボスペース
+            $("#spaceCapacityInfo_collaborationSpaceSize").text(data["collaborationSpaceSize"]);
+            //  アーカイブ
+            $("#spaceCapacityInfo_archiveSpaceSize").text(data["archiveSpaceSize"]);
+            //  マイスペース
+            $("#spaceCapacityInfo_mySpaceSize").text(data["mySpaceSize"]);
+            //  アップロード量
+            $("#spaceCapacityInfo_inSize").text(data["inSize"]);
+            //   配信ダウンロード量
+            $("#spaceCapacityInfo_deliveryOutSize").text(data["deliveryOutSize"]);
+            //  スペースダウンロード量
+            $("#spaceCapacityInfo_spaceOutSize").text(data["spaceOutSize"]);
+            //  配信数
+            $("#spaceCapacityInfo_deliverycount").text(data["deliverycount"]);
+            //  コンテンツ数
+            $("#spaceCapacityInfo_contentscount").text(data["contentscount"]);
+        };
+
+        //  スペース容量の取得処理の呼び出し
+        secureGetAsync('/setup/SpaceCapacityGet.json', '', callback);
+    }
+
+    $(function() {
+        $(window).resize(spaceCapacityInfo_resizeOuterTableBox);
+        spaceCapacityInfo_resizeOuterTableBox();
+    });
+
+    function spaceCapacityInfo_resizeOuterTableBox(){
+//        $("#outerTableBox").height($("#RightPane").height()  - $(".innerHtmlHeader").height() -174);
+//        $("#outerTableBox").width($("#RightPane").width() - 60);
+    }
+
+</script>
+
+
+
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td rowspan="2" id="c_left" bgcolor="#f2f2f3">
+                <apex:include pageName="SOLXYZCSO001__SettingMenu"/>
+            </td>
+            <!-- right header container -->
+            <td id="c_headLeft" nowrap="nowrap">
+                <apex:image url="{!URLFOR($Resource.SOLXYZCSO001__cso, 'image/usage.png')}" alt="{!$Label.solxyzcso001__label_10101}" title="{!$Label.solxyzcso001__label_10101}"/>
+                <h1 id="c_headLeftTitle">{!$Label.label_10085}</h1><br/>
+                <h2 id="c_headLeftSubTitle">{!$Label.solxyzcso001__label_10101}</h2>
+            </td>
+            <!-- 操作ボックス -->
+            <td id="c_headRight">
+                <apex:include pageName="SOLXYZCSO001__OperationLinks"/>
+            </td>
+        </tr>
+        <tr>
+            <!-- right content container -->
+            <td id="c_right" colspan="2">
+
+
+
+
+
+
+
+
+                <apex:pageBlock >
+                    {!$Label.label_10128}
+                    <div style="padding: 10px;">
+                        <span id="spaceCapacityInfo_corpName" class="large"></span>
+                        <span id="spaceCapacityInfo_serviceStart" style="float:right; margin-top:5px; margin-right:20px;">
+                        </span>
+                        <span style="float:right; margin-top:5px; margin-right:5px;">
+                            {!$Label.label_10093}
+                        </span>
+                    </div>
+                </apex:pageBlock>
+
+                <apex:pageBlock >
+                    <apex:pageBlockSection columns="1">
+                        <apex:pageblockSectionItem >
+                            <div class="separatorDiv" style="float:left;">
+                                <div style="float:left; width:300px;">
+                                    {!$Label.solxyzcso001__label_10102}
+                                </div>
+                            </div>
+                        </apex:pageblockSectionItem>
+                        <apex:pageblockSectionItem />
+                    </apex:pageBlockSection>
+
+
+
+
+
+
+
+
+
+
+
+
+<div style="padding: 0px;">
+    <div style="text-align:left; padding:10px;">
+        <span class="large" id="spaceCapacityInfo_today">
+        </span>
+    </div>
+    <div style="margin-left:10px;">
+        {!$Label.label_10154}
+        <br />
+        {!$Label.label_10283}
+    </div>
+    <br />
+<div id ="outerTableBox" style="padding-left:20px;">
+    <table class="outertable">
+        <tr>
+            <td class="spaceNameTitle">
+                {!$Label.label_10155}
+            </td>
+        </tr>
+        <tr>
+            <td class="items">
+                <table class="innertable">
+                    <tr>
+                        <td class="spaceName">
+                            {!$Label.label_00053}
+                        </td>
+                        <td class="spaceSize" id="spaceCapacityInfo_companySpaceSize">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="spaceName">
+                            {!$Label.label_00052}
+                        </td>
+                        <td class="spaceSize" id="spaceCapacityInfo_collaborationSpaceSize">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="spaceName">
+                            {!$Label.label_00055}
+                        </td>
+                        <td class="spaceSize" id="spaceCapacityInfo_archiveSpaceSize">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="spaceName">
+                            {!$Label.label_00051}
+                        </td>
+                        <td class="spaceSize" id="spaceCapacityInfo_mySpaceSize">
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="spaceNameTitle">
+                {!$Label.label_10141}
+            </td>
+        </tr>
+        <tr>
+            <td class="items">
+                <table class="innertable">
+                    <tr>
+                        <td class="spaceName">
+                            {!$Label.label_10156}
+                        </td>
+                        <td class="spaceSize" id="spaceCapacityInfo_inSize">
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="spaceNameTitle">
+                {!$Label.label_10010}
+            </td>
+        </tr>
+        <tr>
+            <td class="items">
+                <table class="innertable">
+                    <tr>
+                        <td class="spaceName">
+                            {!$Label.label_10157}
+                        </td>
+                        <td class="spaceSize" id="spaceCapacityInfo_deliveryOutSize">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="spaceName">
+                            {!$Label.label_10158}
+                        </td>
+                        <td class="spaceSize" id="spaceCapacityInfo_spaceOutSize">
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="spaceNameTitle">
+                {!$Label.label_10159}
+            </td>
+        </tr>
+        <tr>
+            <td class="items">
+                <table class="innertable">
+                    <tr>
+                        <td class="spaceName">
+                            {!$Label.label_10096}
+                        </td>
+                        <td class="spaceSize" id="spaceCapacityInfo_deliverycount">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="spaceName">
+                            {!$Label.label_10030}
+                        </td>
+                        <td class="spaceSize" id="spaceCapacityInfo_contentscount">
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+</div>
+
+
+
+
+
+
+                </apex:pageBlock>
+
+
+            </td>
+        </tr>
+
+    </table>
+    <div id="copyright" >{!$Label.label_00001}</div>
+</div>
+<apex:include pageName="SOLXYZCSO001__CSOSirverlight" />
+</apex:outputPanel>
+<apex:outputPanel rendered="{!IF(cso_userInfo.uid == null && cso_userInfo.showErrPage == false, true, false)}">
+{!$Label.solxyzcso001__msg_00142}
+</apex:outputPanel>
+</apex:page>

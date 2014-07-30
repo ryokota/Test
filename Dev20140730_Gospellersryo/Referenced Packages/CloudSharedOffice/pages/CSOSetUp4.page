@@ -1,0 +1,32 @@
+<apex:page tabStyle="setting__tab" controller="SOLXYZCSO001.CSOSetUpController" sidebar="false">
+    <apex:form >
+    <apex:sectionHeader subtitle="{!$Label.solxyzcso001__label_10324}" title="{!$Label.solxyzcso001__label_00002}"/>
+    <apex:pageBlock title="{!$Label.solxyzcso001__label_10088}  {!$Organization.Name}">
+        <apex:pagemessages />
+        <apex:pageBlockButtons >
+            <!--apex:commandButton value="{!$Label.label_00067}" action="{!NextStep4}"/-->
+            <apex:commandButton value="{!$Label.solxyzcso001__label_00087}" onclick="location.href = '/home/home.jsp'; return false;"/>
+        </apex:pageBlockButtons>
+        <apex:pageblockSection columns="1" title="{!$Label.solxyzcso001__label_10328}"  collapsible="false" >
+            <apex:outputPanel >
+                <apex:outputText value="{!$Label.solxyzcso001__label_10339}{!succescount }{!$Label.solxyzcso001__label_10337}" /><br/>
+                <apex:outputText value="{!$Label.solxyzcso001__label_10340}{!importcount-succescount}{!$Label.solxyzcso001__label_10337}" /><br/>
+                <apex:outputText value="{!$Label.solxyzcso001__label_10341}{!importcount}{!$Label.solxyzcso001__label_10337}" /><br/>
+            </apex:outputPanel>
+
+        <apex:pageBlockTable value="{!importUsers}" var="h">
+
+            <apex:column headerValue="{!$Label.solxyzcso001__label_00082}" value="{!h.UserName}"/>
+            <apex:column headerValue="{!$Label.solxyzcso001__label_10021}" value="{!h.UserId }"/>
+            <apex:column headerValue="{!$Label.solxyzcso001__label_11100}" value="{!h.CsoRole }"/>
+            <apex:column headerValue="{!$Label.solxyzcso001__label_10028}" value="{!h.CsoProfile }"/>
+            <apex:column headerValue="{!$Label.solxyzcso001__label_00083}">
+                <apex:inputCheckbox value="{!h.IsActive}" disabled="true"/>
+            </apex:column>
+            <apex:column headerValue="{!$Label.solxyzcso001__label_00062}" value="{!h.Result}"/>
+            <apex:column headerValue="{!$Label.solxyzcso001__label_10342}" value="{!h.Reason}"/>
+        </apex:pageBlockTable>
+        </apex:pageblockSection>
+    </apex:pageBlock>
+    </apex:form>
+</apex:page>

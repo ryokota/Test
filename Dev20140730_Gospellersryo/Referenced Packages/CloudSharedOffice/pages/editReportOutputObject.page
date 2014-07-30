@@ -1,0 +1,187 @@
+<apex:page controller="SOLXYZCSO001.FE_AppConfigController" sidebar="false" action="{!init}">
+<apex:outputpanel rendered="{! !hasWR || !hasPermissionWRAdmin}">
+    <div style="padding-top:1em;">{!$Label.solxyzcso001__msg_wf_00230}</div>
+</apex:outputpanel>
+
+<apex:outputpanel rendered="{!hasWR && hasPermissionWRAdmin}">
+
+<apex:include pageName="SOLXYZCSO001__WRCSOBridge"/>
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/fg.menu.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery.treeview.colorado.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/jquery-ui-1.8.9.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/ui.jqgrid.css?20121221')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'css/common.child.css')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery-ui-1.8.16.custom.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.SOLXYZCSO001__cso, 'js/jquery.cookie.js')}" />
+<apex:include pageName="SOLXYZCSO001__WRCSOScript"/>
+
+<script type="text/javascript">
+var __sfdcSessionId = '{!GETSESSIONID()}';
+
+</script>
+<script src="../../soap/ajax/25.0/connection.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+  function confirmCancel() {
+      var isCancel = confirm("{!$Label.msg_010082_fe}");
+      if (isCancel)
+          return true;
+      return false;
+  }
+
+
+  function save() {
+  	CsoScript_loadingStart();
+  
+    var selName = $('select[id$="ol"]').val();
+
+    //alert("1STEP帳票出力ボタン(詳細ページ)作成開始");
+
+    // 1STEP帳票出力ボタン(詳細ページ)
+    var detailjs = {!$Label.OneStepMakeReportDetail};
+    detailjs  = detailjs.replace(/objName/g, selName);
+    var weblink= new sforce.SObject("WebLink");
+    weblink.Name ="CSOOneStepMakeReport";
+    weblink.Url = detailjs  ;
+    weblink.LinkType = "JavaScript";
+    weblink.OpenType = "onClickJavaScript";
+    weblink.DisplayType = "B";
+    weblink.MasterLabel = "{!$Label.label_wf_50000}";
+    weblink.PageOrSobjectType = selName;
+    result = sforce.connection.create([weblink]);
+    if (result[0].getBoolean("success")) {
+//        return false;
+    } else {
+        detailjs = detailjs.replace("\{\!" + selName + "\.Name\}", "");
+        weblink.Url = detailjs  ;
+        sforce.connection.create([weblink]);
+        //console.log("failed to update account " + result[0]);
+        //log("failed to update account " + result[0]);
+    }
+
+    //alert("1STEP帳票出力ボタン(リストビュー)作成開始");
+
+    // 1STEP帳票出力ボタン(リストビュー)
+    var listjs = {!$Label.OneStepMakeReportList};
+    listjs  = listjs.replace(/objName/g, selName);
+    weblink.Name ="CSOOneStepMakeReportList";
+    weblink.Url = listjs  ;
+    weblink.LinkType = "JavaScript";
+    weblink.OpenType = "onClickJavaScript";
+    weblink.DisplayType = "M";
+    weblink.RequireRowSelection = true;
+    result = sforce.connection.create([weblink]);
+    //alert(result[0]);
+    if (result[0].getBoolean("success")) {
+//        return false;
+    } else {
+//        console.log("failed to update account " + result[0]);
+//        log("failed to update account " + result[0]);
+    }
+
+    //alert("関連リスト帳票出力ボタン(子)作成開始");
+
+    // 関連リスト帳票出力ボタン(子)
+    listjs = {!$Label.RelatedListMakeReportChildren};
+    listjs  = listjs.replace(/objName/g, selName);
+    weblink.Name ="RelatedListMakeReportChildren";
+    weblink.Url = listjs  ;
+    weblink.LinkType = "JavaScript";
+    weblink.OpenType = "onClickJavaScript";
+    weblink.DisplayType = "M";
+    weblink.RequireRowSelection = true;
+    weblink.MasterLabel = "{!$Label.label_wf_50014}";
+    result = sforce.connection.create([weblink]);
+//    alert(result[0]);
+    if (result[0].getBoolean("success")) {
+//        return false;
+    } else {
+//        console.log("failed to update account " + result[0]);
+//        log("failed to update account " + result[0]);
+    }
+
+    //alert("関連リスト帳票出力ボタン(親)作成開始");
+
+    // 関連リスト帳票出力ボタン(子)
+    listjs = {!$Label.RelatedListMakeReportParent};
+    listjs  = listjs.replace(/objName/g, selName);
+    weblink.Name ="RelatedListMakeReportParent";
+    weblink.Url = listjs  ;
+    weblink.LinkType = "JavaScript";
+    weblink.OpenType = "onClickJavaScript";
+    weblink.DisplayType = "M";
+    weblink.RequireRowSelection = true;
+    weblink.MasterLabel = "{!$Label.label_wf_50015}"
+    result = sforce.connection.create([weblink]);
+//    alert(result[0]);
+    if (result[0].getBoolean("success")) {
+//        return false;
+    } else {
+//        console.log("failed to update account " + result[0]);
+//        log("failed to update account " + result[0]);
+    }
+
+    return true;
+  }
+
+
+</script>
+
+<!-- warapper -->
+<div id="c_wrapper">
+    <!-- content container -->
+    <table id="c_container" cellspacing="0" border="0">
+        <tr>
+            <!-- left menu container -->
+            <td id="c_left" bgcolor="#f2f2f3" style="min-height:39px;max-height:39px;">
+                <apex:include pageName="SOLXYZCSO001__WRSettingMenu"/>
+            </td>
+            <td valign="top">
+                <table width="100%">
+                    <tr>
+                        <td id="c_headLeft" height="39px" style="min-height:39px;max-height:39px;">
+                            <h1 id="c_headLeftTitle">{!$Label.label_wr_report_20010}</h1><br/>
+                            <h2 id="c_headLeftSubTitle">{!$Label.label_wr_report_20014}</h2>
+                        </td>
+                        <!-- 隰ｫ蝣ｺ�ｽ諛翫��ｽ郢昴��ｽ縺醍ｹｧ�ｹ -->
+                        <td id="c_headRight" height="39px" style="min-height:39px;max-height:39px;">
+                            <apex:include pageName="SOLXYZCSO001__WROptionsLink"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- right content container -->
+                        <td id="c_right" colspan="2">
+                            <apex:pageBlock >
+
+    <apex:form >
+      <apex:pageMessages id="message"/>
+      <apex:pageBlock mode="maindetail">
+          <apex:pageBlockButtons >
+              <apex:commandButton action="{!saveObject}" value="{!$Label.solxyzcso001__field_common_save}"
+                                  onclick="return save()"/>
+              <apex:commandButton action="{!cancel}" value="{!$Label.solxyzcso001__field_common_cancel}"
+                                  onclick="return confirmCancel()" immediate="true"/>
+          </apex:pageBlockButtons>
+          <apex:pageBlockSection title="" columns="1">
+            <apex:pageBlockSectionItem >
+
+              <apex:outputLabel value="{!$Label.solxyzcso001__label_wf_00050}" for="ol" />
+              <apex:selectList value="{!SelectItem}" size="1" id="ol" >
+                <apex:selectOptions value="{!optionList}"  />
+              </apex:selectList>
+            </apex:pageBlockSectionItem>
+          </apex:pageBlockSection>
+      </apex:pageBlock>
+  </apex:form>
+                            </apex:pageBlock>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div id="copyright" >{!$Label.field_CSO_copyright}</div>
+</apex:outputpanel>
+</apex:page>

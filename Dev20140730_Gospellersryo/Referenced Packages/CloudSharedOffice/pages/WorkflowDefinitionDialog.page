@@ -1,0 +1,214 @@
+<apex:page cache="false" >
+
+<script type="text/javascript">
+
+var WF_DD_item_id   = "definition";         //  選択した定義のIDを受け取るTagのID
+var WF_DD_item_name = "definitionName";     //  選択した定義の名称を受け取るTagのID
+
+function setReceiveItemIdOfDefinitionId(id){
+    WF_DD_item_id = id;
+}
+
+function setReceiveItemIdOfDefinitionName(id){
+    WF_DD_item_name = id;
+}
+
+function initDefinitionDialog() {
+    $("#WF_DD_definitionDialog").dialog({
+        title : '{!$Label.label_10726}',
+        modal : true,
+        autoOpen : false,
+        width : 680,
+        height : 450,
+        resizable : false,
+        close : function(e) {
+            $("#WF_DD_routeInfo").hide();
+        }
+    });
+
+    $("#WF_DD_definitionList").jqGrid({
+        url : _apiUrl + "/workflowmanagement/definitionList.json",
+        dataType : "jsonp",
+        jsonReader :{
+            repeatitems: false,
+            id       : "id"
+        },
+        colNames : [
+            '',
+            '{!$Label.label_10710}',
+            '{!$Label.label_10123}',
+            '{!$Label.label_10678}',
+            '{!$Label.label_10006}',
+            '{!$Label.label_10727}'
+        ],
+        colModel : [
+            {name : "id", index : "id", hidden : true},
+            {name : "name", index : "name", hidden : true},
+            {name : "info", index : "name", width : 354},
+            {name : "category", index : "category", width : 160},
+            {name : "updateDate", index : "updateDate", width : 100, align : "center", hidden : true},
+            {name : "route", index : "route", width : 100, align : "center", sortable : false}
+        ],
+        rowNum : 10,
+        autowidth : false,
+        width : 654,
+        height: 250,
+        rowList:[10, 50, 100],
+        sortname: 'name',
+        pager: '#WF_DD_definitionListPager',
+        viewrecords: true,
+        multiselect: false
+    });
+    createAndAssignColumnModelNameMap($("#WF_DD_definitionList"));
+
+    $("#WF_DD_category").change(function(e) {
+        $("#WF_DD_definitionList").setGridParam({page : 1, postData : {category:$(this).val()}}).trigger("reloadGrid");
+    });
+}
+
+function createAndAssignColumnModelNameMap(jqgridObj) {
+	var colModel = jqgridObj.getGridParam('colModel');
+	var colModelNameMap = [];
+	for (var i=0; i<colModel.length; ++i) {
+		colModelNameMap[colModel[i].name] = i;
+	}
+	jqgridObj.data('colModelNameMap', colModelNameMap);
+}
+
+function getColumnModelNameMap(jqgridObj) {
+	return jqgridObj.data('colModelNameMap');
+}
+
+function constructObjectFromRowData(cellArray, columnModelNameMap, format) {
+	var obj = {};
+	if (format === 'text') {
+		for (var name in columnModelNameMap) {
+			obj[name] = $(cellArray[columnModelNameMap[name]]).text();
+		}
+	} else {
+		for (var name in columnModelNameMap) {
+			obj[name] = $(cellArray[columnModelNameMap[name]]).html();
+		}
+	}
+	return obj;
+}
+
+function selectDefinition() {
+    var id = $("#WF_DD_definitionList").getGridParam("selrow");
+
+    if (!id) {
+        alert('{!$Label.msg_00306}');
+        return false;
+    }
+
+    var row = constructObjectFromRowData($("#WF_DD_definitionList").find("#" + id + " td"),
+                                         getColumnModelNameMap($("#WF_DD_definitionList")),
+                                         'text');
+
+
+    $("#" + WF_DD_item_id).val(row.id);
+    $("#" + WF_DD_item_name).val(row.name);
+
+
+    var callback =  function(data, status){
+        if (data.result != true) {
+            return;
+        }
+        _branched = data.branched;
+        if (isBranched() && $("#contentsList").getRowData().length > 1) {
+            $("#multipleContentsMsg, #definitionNotice").show();
+        } else {
+            $("#multipleContentsMsg, #definitionNotice").hide();
+        }
+    };
+    callSecureGetAsync('/workflowmanagement/branched.json', {id : id}, callback);
+
+    $("#WF_DD_definitionDialog").dialog("close");
+    return false;
+}
+
+var _branched = false;
+function isBranched () {
+	return _branched;
+}
+
+function closeDefinitionDialog() {
+    $("#WF_DD_definitionDialog").dialog("close");
+    return false;
+}
+
+function showRoute(s, id) {
+    win = window.open('{!$Page.WorkflowRouteInfo}?id=' + id, '', 'width=900, height=580, menubar=no, toolbar=no, scrollbars=yes');
+    return false;
+}
+
+function openDefinitionDialog() {
+    $("#WF_DD_definitionDialog").dialog("open");
+    return false;
+}
+
+function setCategoryOption(data){
+    var count = data.length;
+    var list = $("#WF_DD_category");
+    list.empty();
+    for(var i=0; i<count; i++){
+        var option = $(createOptionTagString(data[i].value, data[i].name));
+        list.append(option);
+    }
+
+//    $("#WF_DD_category").chosen({
+//        allow_single_deselect : true,
+//        disable_search : true,
+//    });
+}
+function createOptionTagString(value, label){
+    var str = "<option value='" + value + "'>" + label + "</option>";
+    return str;
+}
+
+function loadCategory(){
+    var callback =  function(data, status){
+        if(data["alert"]!=null){
+            alert(data["alert"]);
+            return;
+        }
+        $("#WF_DD_category").html(data.options);
+
+//        $("#WF_DD_category").chosen({
+//            allow_single_deselect : true,
+//            disable_search : true,
+//        });
+    };
+    var callerror =  function(data){
+        alert("workflowCategoryInfoForSelect:" + data);
+    };
+    callSecureGetAsync('/workflowmanagement/setting/workflowCategoryInfoForSelect.json', {manage : false}, callback, callerror);
+}
+
+</script>
+<div id="WF_DD_definitionDialog" style="display: none;">
+    <div style="margin:10px;">
+        <table style="margin:0px; padding:0px;">
+            <tr>
+                <td style="margin:0x; padding-right:5px;vertical-align: middle;">
+                    <span style="font-weight:bold;">{!$Label.label_10678}</span>
+                </td>
+                <td style="margin:0px; padding:0px;vertical-align: middle;">
+                    <select id="WF_DD_category" style="width:250px;">
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table id="WF_DD_definitionList"></table>
+    <div id="WF_DD_definitionListPager"></div>
+    <div class="buttons" style="text-align: center; margin-top: 10px;">
+        <input type="button" class="btn" onclick="return selectDefinition();" value="{!$Label.label_wf_00035}" />
+        <input type="button" class="btn" onclick="return closeDefinitionDialog();" value="{!$Label.field_common_cancel}" />
+    </div>
+</div>
+
+<div id="WF_DD_routeInfo" class="floatRoute">
+</div>
+
+</apex:page>
